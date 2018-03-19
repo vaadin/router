@@ -1,0 +1,35 @@
+<!doctype html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>vaadin-router tests</title>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../vaadin-router.html">
+</head>
+
+<body>
+  <test-fixture id="default">
+    <template>
+      <vaadin-router></vaadin-router>
+    </template>
+  </test-fixture>
+
+  <script>
+    describe('sample test', function() {
+      var element;
+
+      beforeEach(function() {
+        element = fixture('default');
+      });
+
+      it('should pass', function() {
+        expect(element.localName).to.be.equal('vaadin-router');
+      });
+
+      it('should not expose class name globally', function() {
+        expect(window.VaadinRouter).not.to.be.ok;
+      });
+
+    });
+  </script>
+</body>
