@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "namespaces": [
+    {
+      "name": "Vaadin",
+      "description": "",
+      "summary": "",
+      "sourceRange": {
+        "file": "src/vaadin-router.html",
+        "start": {
+          "line": 52,
+          "column": 6
+        },
+        "end": {
+          "line": 52,
+          "column": 42
+        }
+      },
+      "elements": [
+        {
+          "description": "`<vaadin-router>` is a Polymer 2 element.\n\n```\n<vaadin-router></vaadin-router>\n```",
+          "summary": "",
+          "path": "src/vaadin-router.html",
+          "properties": [],
+          "methods": [],
+          "staticMethods": [],
+          "demos": [
+            {
+              "url": "demo/",
+              "description": ""
+            }
+          ],
+          "metadata": {},
+          "sourceRange": {
+            "start": {
+              "line": 36,
+              "column": 6
+            },
+            "end": {
+              "line": 45,
+              "column": 7
+            }
+          },
+          "privacy": "public",
+          "superclass": "HTMLElement",
+          "name": "Vaadin.VaadinRouter",
+          "attributes": [],
+          "events": [],
+          "styling": {
+            "cssVariables": [],
+            "selectors": []
+          },
+          "slots": [
+            {
+              "description": "",
+              "name": "",
+              "range": {
+                "file": "src/vaadin-router.html",
+                "start": {
+                  "line": 20,
+                  "column": 4
+                },
+                "end": {
+                  "line": 20,
+                  "column": 17
+                }
+              }
+            }
+          ],
+          "tagname": "vaadin-router"
+        }
+      ]
+    }
+  ]
+}
