@@ -18,7 +18,13 @@
   },
   "homepage": "https://vaadin.com/components",
   "scripts": {
-    "test": "wct"
+    "test": "wct",
+    "docs": "npm run docs:analyze && npm run docs:clean && npm run docs:copy-sources && npm run docs:index && npm run docs:demo",
+    "docs:analyze": "polymer analyze vaadin-router.html > analysis.json",
+    "docs:clean": "rm -rf build docs",
+    "docs:copy-sources": "cp -r bower_components ./build && mkdir build/vaadin-router && cp -r src theme demo vaadin-router.html index.html analysis.json build/vaadin-router",
+    "docs:index": "cp polymer.json build && cd build && polymer build && mv build/es5-bundled ../docs",
+    "docs:demo": "cp demo/polymer.json build && cd build && polymer build && mv build/es5-bundled/vaadin-router/demo ../docs/vaadin-router"
   },
   "devDependencies": {
     "bower": "latest",

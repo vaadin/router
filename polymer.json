@@ -1,0 +1,22 @@
+{
+  "entrypoint": "vaadin-router/index.html",
+  "shell": "iron-component-page/iron-component-page.html",
+  "fragments": [
+    "vaadin-router/vaadin-router.html"
+  ],
+  "sources": [
+   "vaadin-router/src/**/*",
+   "vaadin-router/*.html"
+  ],
+  "extraDependencies": [
+    "webcomponentsjs/*.js",
+    "webcomponentsjs/*.map",
+    "vaadin-router/analysis.json"
+  ],
+  "builds": [
+    {
+      "preset": "es5-bundled",
+      "addServiceWorker": false
+    }
+  ]
+}
