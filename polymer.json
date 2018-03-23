@@ -5,7 +5,6 @@
     "vaadin-router/vaadin-router.html"
   ],
   "sources": [
-   "vaadin-router/src/**/*",
    "vaadin-router/*.html"
   ],
   "extraDependencies": [
