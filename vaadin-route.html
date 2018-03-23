@@ -18,6 +18,7 @@ This program is available under Apache License Version 2.0, available at https:/
         display: none !important;
       }
     </style>
+    <slot></slot>
   </template>
 
   <script>
@@ -54,15 +55,6 @@ This program is available under Apache License Version 2.0, available at https:/
           return [
             '_activeRouteChanged(router.pathname, url)',
           ];
-        }
-
-        // attache the template to the light DOM instead of shadow
-        _attachDom(dom) {
-          if (dom) {
-            this.appendChild(dom);
-            return this;
-          }
-          return null;
         }
 
         _activeRouteChanged() {
