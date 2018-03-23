@@ -1,0 +1,18 @@
+{
+  "entrypoint": "vaadin-router/demo/vaadin-router-demo-iframe.html",
+  "shell": "vaadin-router/demo/demo-shell.html",
+  "sources": [
+   "vaadin-router/demo/**/*"
+  ],
+  "extraDependencies": [
+    "webcomponentsjs/*.js",
+    "webcomponentsjs/*.map",
+    "vaadin-router/demo/demos.json"
+  ],
+  "builds": [
+    {
+      "preset": "es5-bundled",
+      "addServiceWorker": false
+    }
+  ]
+}
