@@ -172,7 +172,6 @@
       }
 
       _onIframePopstate(pathname) {
-        console.log(`got a popstate from the iframe instance ${this._instance}: ${pathname}`);
         this.url = pathname;
       }
 
@@ -200,6 +199,8 @@
           return false;
         }
 
+        this._postIframeMessage({type: 'set-template', html: template.innerHTML});
+
         // Hide the use of window.addDemoReadyListener
         let snippet = this.$.marked.unindent(template.innerHTML)
           .replace(/window\.addDemoReadyListener\('[^{]+/g, `window.addEventListener('WebComponentsReady', function() `);
@@ -209,14 +210,9 @@
         snippet = snippet.replace(/ class=""/g, '');
 
         // Boolean properties are displayed as checked="", so remove the ="" bit.
-        snippet = snippet.replace(/=""/g, '');
+        snippet = snippet.replace(/href=""/g, 'href="__preserve_empty_hrefs__"')
+          .replace(/=""/g, '').replace(/href="__preserve_empty_hrefs__"/g, 'href=""');
         this._markdown = '```html\n' + snippet + '\n' + '```';
-
-        window.ShadyCSS.prepareTemplate(template, 'vaadin-router-demo-snippet-' + this._instance);
-        let dom = this.getRootNode().host._stampTemplate(template);
-        let body = document.createElement('body');
-        body.appendChild(dom);
-        this._postIframeMessage({type: 'set-template', html: body.innerHTML});
       }
 
       _copyToClipboard() {

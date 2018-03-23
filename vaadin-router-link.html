@@ -1,0 +1,66 @@
+<!--
+@license
+Copyright (c) 2018 Vaadin Ltd.
+This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+-->
+
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="vaadin-router-link">
+  <template>
+    <style>
+      :host {
+        display: inline;
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+    </style>
+    
+    <a href$="[[href]]" on-click="_onClick">
+      <slot></slot>
+    </a>
+  </template>
+
+  <script>
+    (function() {
+      /**
+       * `<vaadin-router-link>` is a Polymer 2 element.
+       *
+       * ```
+       * <vaadin-router-link></vaadin-router-link>
+       * ```
+       *
+       * @memberof Vaadin
+       */
+      class VaadinRouterLink extends Polymer.Element {
+        static get is() {
+          return 'vaadin-router-link';
+        }
+
+        static get properties() {
+          return {
+            href: {
+              type: String
+            }
+          };
+        }
+
+        _onClick(event) {
+          event.preventDefault();
+          window.history.pushState(null, document.title, this.href);
+          window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
+        }
+      }
+
+      customElements.define(VaadinRouterLink.is, VaadinRouterLink);
+
+      /**
+       * @namespace Vaadin
+       */
+      window.Vaadin = window.Vaadin || {};
+      Vaadin.VaadinRouterLink = VaadinRouterLink;
+    })();
+  </script>
+</dom-module>

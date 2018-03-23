@@ -1,0 +1,127 @@
+<!--
+@license
+Copyright (c) 2018 Vaadin Ltd.
+This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+-->
+
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="vaadin-router-mixin.html">
+
+<dom-module id="vaadin-route">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+    </style>
+  </template>
+
+  <script>
+    (function() {
+
+      /**
+       * `<vaadin-route>` is a Polymer 2 element.
+       *
+       * ```
+       * <vaadin-route></vaadin-route>
+       * ```
+       *
+       * @memberof Vaadin
+       */
+      class VaadinRoute extends Vaadin.RouterMixin(Polymer.Element) {
+        static get is() {
+          return 'vaadin-route';
+        }
+
+        static get properties() {
+          return {
+            url: {
+              type: String
+            },
+            active: {
+              type: Boolean,
+              value: false,
+              observer: '_onActiveChanged'
+            }
+          };
+        }
+
+        static get observers() {
+          return [
+            '_activeRouteChanged(router.pathname, url)',
+          ];
+        }
+
+        // attache the template to the light DOM instead of shadow
+        _attachDom(dom) {
+          if (dom) {
+            this.appendChild(dom);
+            return this;
+          }
+          return null;
+        }
+
+        _activeRouteChanged() {
+          this.active = this.router.pathname === this.url;
+        }
+
+        _onActiveChanged(newValue, oldValue) {
+          if (this.active) {
+            let template = this.querySelector('template');
+            if (!template) {
+              let observer = new MutationObserver(() => {
+                if (this.querySelector('template')) {
+                  observer.disconnect();
+                  this._render(template);
+                } else {
+                  throw new Error(`<vaadin-route url="${this.url}"> could not find a child <template> to render`);
+                }
+              })
+              observer.observe(this, { childList: true });
+            } else {
+              this._render(template);
+            }
+          } else {
+            this._clear();
+          }
+        }
+
+        _render(template) {
+          this._clear();
+          /*
+          // Prepare the template
+          let TemplateClass = Polymer.Templatize.templatize(template);
+          
+          // Instance the template with an initial data model
+          let instance = new TemplateClass({});
+          */
+
+          // Insert the template instance's DOM into the light DOM of the vaadin-route element
+          const outlet = document.createElement('div');
+          outlet.setAttribute('class', 'outlet');
+          outlet.appendChild(document.importNode(template.content, true));
+          this.appendChild(outlet);
+        }
+
+        _clear() {
+          const outlets = this.querySelectorAll('.outlet');
+          for (let i = 0; i < outlets.length; i += 1) {
+            this.removeChild(outlets[i]);
+          }
+        }
+      }
+
+      customElements.define(VaadinRoute.is, VaadinRoute);
+
+      /**
+       * @namespace Vaadin
+       */
+      window.Vaadin = window.Vaadin || {};
+      Vaadin.VaadinRoute = VaadinRoute;
+    })();
+  </script>
+</dom-module>

@@ -1,0 +1,46 @@
+<!--
+@license
+Copyright (c) 2018 Vaadin Ltd.
+This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+-->
+
+<script>
+(() => {
+  window.Vaadin = window.Vaadin || {};
+
+  /**
+   * @polymerMixin
+   */
+  Vaadin.RouterMixin = superClass => class VaadinRouterMixin extends superClass {
+    static get properties() {
+      return {
+        router: {
+          type: Object,
+          value: () => ({
+            pathname: window.location.pathname
+          })
+        }
+      };
+    }
+
+    constructor() {
+      super();
+      this.__popstateListener = this.__onPopstate.bind(this);
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+      window.addEventListener('popstate', this.__popstateListener);
+    }
+
+    disconnectedCallback() {
+      window.removeEventListener('popstate', this.__popstateListener);
+      super.disconnectedCallback();
+    }
+
+    __onPopstate(event) {
+      this.set('router.pathname', window.location.pathname);
+    }
+  };
+})();
+</script>
