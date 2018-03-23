@@ -5,16 +5,23 @@ This program is available under Apache License Version 2.0, available at https:/
 -->
 
 <link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="vaadin-router-mixin.html">
 
 <dom-module id="vaadin-router-link">
   <template>
     <style>
       :host {
         display: inline;
+        text-decoration: underline;
       }
 
       :host([hidden]) {
         display: none !important;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: inherit;
       }
     </style>
     
@@ -34,7 +41,7 @@ This program is available under Apache License Version 2.0, available at https:/
        *
        * @memberof Vaadin
        */
-      class VaadinRouterLink extends Polymer.Element {
+      class VaadinRouterLink extends Vaadin.RouterMixin(Polymer.Element) {
         static get is() {
           return 'vaadin-router-link';
         }
@@ -43,8 +50,24 @@ This program is available under Apache License Version 2.0, available at https:/
           return {
             href: {
               type: String
+            },
+            active: {
+              type: Boolean,
+              value: false,
+              notify: true,
+              reflectToAttribute: true
             }
           };
+        }
+
+        static get observers() {
+          return [
+            '_activeRouteChanged(router.pathname, href)',
+          ];
+        }
+
+        _activeRouteChanged() {
+          this.active = this.router.pathname === this.href;
         }
 
         _onClick(event) {

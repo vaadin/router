@@ -45,21 +45,21 @@
     <vaadin-router-demo-snippet id="element-basic-demos-styled-link">
       <template preserve-content>
         <style>
-          vaadin-router-link[active] {
-            color: darkblue;
+          vaadin-router-link:not([active]) {
+            text-decoration: none;
           }
         </style>
         <nav>
-          <vaadin-router-link href="home">Home</vaadin-router-link>
-          <vaadin-router-link href="about">About</vaadin-router-link>
+          <vaadin-router-link href="/">Home</vaadin-router-link>
+          <vaadin-router-link href="/about">About</vaadin-router-link>
         </nav>
         <vaadin-router>
-          <vaadin-route url="home">
+          <vaadin-route url="/">
             <template>
               <h1>Home</h1>
             </template>
           </vaadin-route>
-          <vaadin-route url="about">
+          <vaadin-route url="/about">
             <template>
               <h1>About</h1>
             </template>
