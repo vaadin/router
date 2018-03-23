@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+  <title>vaadin-router demo</title>
+  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+  <link rel="import" href="demo-shell.html">
+  <script>
+    (() => {
+      window.addEventListener('message', (event) => {
+        if (event.origin === window.origin) {
+          switch (event.data.type) {
+            case 'set-template':
+              document.body.innerHTML = event.data.html;
+              window.history.pushState(null, '', '/');
+              window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
+              break;
+            case 'set-url':
+              window.history.pushState(null, '', event.data.url);
+              window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
+              break;
+            case 'go-back':
+              window.history.back();
+              break;
+            case 'go-forward':
+              window.history.forward();
+              break;
+            default:
+              console.log(`unknown message type: ${event.data.type}`);
+          }
+        }
+      });
+
+      window.addEventListener('popstate', (event) => {
+        window.parent.postMessage({
+          type: 'iframe-popstate',
+          instance: window.frameElement.instance,
+          pathname: window.location.pathname
+        }, window.origin);
+      });
+    })();
+  </script>
+</head>
+
+<body>
+  Waiting for a 'set-template' message...
+</body>
+</html>

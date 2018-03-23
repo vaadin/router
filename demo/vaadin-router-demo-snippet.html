@@ -1,0 +1,255 @@
+<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../polymer/lib/mixins/gesture-event-listeners.html">
+<link rel="import" href="../../marked-element/marked-element.html">
+<link rel="import" href="../../prism-element/prism-highlighter.html">
+<link rel="import" href="../../vaadin-demo-helpers/vaadin-demo-snippet.html">
+
+<dom-module id="vaadin-router-demo-snippet">
+  <template>
+    <style include="prism-theme-default">
+       :host {
+        display: block;
+
+        background-color: white;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 3em;
+        @apply --demo-snippet;
+      }
+
+      .toolbar {
+        display: flex;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 0.6em;
+      }
+
+      .back,
+      .forward,
+      .url {
+        flex: 0 0 auto;
+        font-size: 16px;
+      }
+
+      .url {
+        flex-grow: 1;
+      }
+
+      #demo {
+        display: block;
+        width: 100%;
+        border: 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin: 0;
+        @apply --demo-snippet-demo;
+      }
+
+      .code-container {
+        margin: 0;
+        background-color: rgba(0, 0, 0, 0.02);
+        font-size: 0.95em;
+        overflow: auto;
+        position: relative;
+        padding: 0;
+        @apply --demo-snippet-code;
+      }
+
+      .code-container .code {
+        padding: 0 2em 1.4em;
+        margin: 0;
+        overflow: auto;
+        max-height: 18.5em;
+        @apply --demo-snippet-code;
+      }
+
+      .code-container .code>pre {
+        margin: 0;
+        padding: 0;
+      }
+
+      .code-container button {
+        position: absolute;
+        top: 0.5em;
+        right: 0.5em;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 0.25em;
+        cursor: pointer;
+        background: rgba(0, 0, 0, 0.3);
+        color: #fff;
+      }
+
+      .code-container button:focus,
+      .code-container button:hover {
+        background: rgba(0, 0, 0, 0.6);
+      }
+    </style>
+
+    <prism-highlighter></prism-highlighter>
+
+    <div class="toolbar">
+      <button class="back">&lt;</button>
+      <button class="forward">&gt;</button>
+      <input class="url" value="[[url]]" on-change="_onUrlEdited">
+    </div>
+    
+    <iframe id="demo" src="vaadin-router-demo-iframe.html" instance="[[_instance]]"
+            on-load="_onIframeLoad" on-error="_onIframeError">
+    </iframe>
+
+    <div class="code-container">
+      <marked-element markdown="[[_markdown]]" id="marked">
+        <div class="code" slot="markdown-html"></div>
+      </marked-element>
+      <button id="copyButton" title="copy to clipboard" on-tap="_copyToClipboard">Copy</button>
+    </div>
+  </template>
+
+  <script>
+  (()=>{
+    'use strict';
+    let instanceIndex = 0;
+    class VaadinRouterDemoSnippet extends Polymer.GestureEventListeners(Polymer.Element) {
+      static get is() {
+        return 'vaadin-router-demo-snippet';
+      }
+
+      static get properties() {
+        return {
+          url: {
+            type: String,
+            value: '/'
+          },
+          _markdown: String,
+          _instance: String
+        };
+      }
+
+      constructor() {
+        super();
+        this._instance = `${instanceIndex++}`;
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this._windowMessageListenter = window.addEventListener('message', (event) => {
+          if (event.origin === window.origin &&
+              event.data.type === 'iframe-popstate' &&
+              event.data.instance === this._instance)
+          {
+            this._onIframePopstate(event.data.pathname);
+          }
+        });
+      }
+
+      disconnectedCallback() {
+        window.removeEventListener('message', this._windowMessageListenter);
+        super.disconnectedCallback();
+      }
+
+      ready() {
+        super.ready();
+        this._iframeLoaded = new Promise((resolve, reject) => {
+          this._resolveIframeLoaded = resolve;
+          this._rejectIframeLoaded = reject;
+        });
+        this._showDemo();
+      }
+
+      _onIframeLoad() {
+        this._resolveIframeLoaded(this.$.demo);
+      }
+
+      _onIframeError(error) {
+        this._rejectIframeLoaded(error);
+      }
+
+      _postIframeMessage(message) {
+        this._iframeLoaded.then((iframe) => {
+          iframe.contentWindow.postMessage(message, window.origin);
+        }).catch((error) => {
+          console.log(`demo iframe failed to load: ${error}`)
+        });
+      }
+
+      _onIframePopstate(pathname) {
+        console.log(`got a popstate from the iframe instance ${this._instance}: ${pathname}`);
+        this.url = pathname;
+      }
+
+      _onUrlEdited(event) {
+        let url = (event.target.value || '').trim();
+        if (url === '') {
+          url = '/';
+        }
+        event.target.value = url;
+        this._postIframeMessage({type: 'set-url', url: url});
+      }
+
+      _showDemo() {
+        let template = this.querySelector('template');
+        if (!template) {
+          let observer = new MutationObserver(() => {
+            if (this.querySelector('template')) {
+              observer.disconnect();
+              this._showDemo();
+            } else {
+              throw new Error('vaadin-router-demo-snippet requires a <template> child');
+            }
+          })
+          observer.observe(this, { childList: true });
+          return false;
+        }
+
+        // Hide the use of window.addDemoReadyListener
+        let snippet = this.$.marked.unindent(template.innerHTML)
+          .replace(/window\.addDemoReadyListener\('[^{]+/g, `window.addEventListener('WebComponentsReady', function() `);
+
+        // Remove style-scoped classes that are appended when ShadyDOM is enabled
+        Array.from(this.classList).forEach(e => snippet = snippet.replace(new RegExp('\\s*' + e, 'g'), ''));
+        snippet = snippet.replace(/ class=""/g, '');
+
+        // Boolean properties are displayed as checked="", so remove the ="" bit.
+        snippet = snippet.replace(/=""/g, '');
+        this._markdown = '```html\n' + snippet + '\n' + '```';
+
+        window.ShadyCSS.prepareTemplate(template, 'vaadin-router-demo-snippet-' + this._instance);
+        let dom = this.getRootNode().host._stampTemplate(template);
+        let body = document.createElement('body');
+        body.appendChild(dom);
+        this._postIframeMessage({type: 'set-template', html: body.innerHTML});
+      }
+
+      _copyToClipboard() {
+        // From https://github.com/google/material-design-lite/blob/master/docs/_assets/snippets.js
+        var snipRange = document.createRange();
+        let selectedSource = this.shadowRoot.querySelector('marked-element > .code');
+        snipRange.selectNodeContents(selectedSource);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(snipRange);
+        var result = false;
+        try {
+          result = document.execCommand('copy');
+          this.$.copyButton.textContent = 'done';
+        } catch (err) {
+          // Copy command is not available
+          console.error(err);
+          this.$.copyButton.textContent = 'error';
+        }
+
+        // Return to the copy button after a second.
+        setTimeout(this._resetCopyButtonState.bind(this), 1000);
+
+        selection.removeAllRanges();
+        return result;
+      }
+
+      _resetCopyButtonState() {
+        this.$.copyButton.textContent = 'copy';
+      }
+    }
+    customElements.define(VaadinRouterDemoSnippet.is, VaadinRouterDemoSnippet);
+  })();
+  </script>
+
+</dom-module>
