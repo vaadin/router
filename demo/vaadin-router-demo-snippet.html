@@ -87,8 +87,8 @@
     <prism-highlighter></prism-highlighter>
 
     <div class="toolbar">
-      <button class="back">&lt;</button>
-      <button class="forward">&gt;</button>
+      <button class="back" disabled=[[!hasBack]] on-click="_onBackClicked">&lt;</button>
+      <button class="forward" disabled=[[!hasForward]] on-click="_onForwardClicked">&gt;</button>
       <input class="url" value="[[url]]" on-change="_onUrlEdited">
     </div>
     
@@ -119,6 +119,8 @@
             type: String,
             value: '/'
           },
+          hasBack: Boolean,
+          hasForward: Boolean,
           _markdown: String,
           _instance: String
         };
@@ -136,7 +138,7 @@
               event.data.type === 'iframe-popstate' &&
               event.data.instance === this._instance)
           {
-            this._onIframePopstate(event.data.pathname);
+            this._onIframePopstate(event.data.detail);
           }
         });
       }
@@ -171,8 +173,18 @@
         });
       }
 
-      _onIframePopstate(pathname) {
-        this.url = pathname;
+      _onIframePopstate(detail) {
+        this.url = detail.pathname;
+        this.hasBack = detail.hasBack;
+        this.hasForward = detail.hasForward;
+      }
+
+      _onBackClicked() {
+        this._postIframeMessage({type: 'go-back'});
+      }
+
+      _onForwardClicked() {
+        this._postIframeMessage({type: 'go-forward'});
       }
 
       _onUrlEdited(event) {

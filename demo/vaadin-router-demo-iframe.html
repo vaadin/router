@@ -8,22 +8,40 @@
   <link rel="import" href="demo-shell.html">
   <script>
     (() => {
+      let history = [];
+      let historyIdx = 0;
+      let historyIdxUpdated = false;
+
       window.addEventListener('message', (event) => {
         if (event.origin === window.origin) {
           switch (event.data.type) {
             case 'set-template':
               document.body.innerHTML = event.data.html;
+              history = ['/'];
+              historyIdx = 0;
+              historyIdxUpdated = true;
               window.history.pushState(null, '', '/');
               window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
               break;
             case 'set-url':
+              historyIdx += 1;
+              historyIdxUpdated = true;
+              history.splice(historyIdx, history.length - historyIdx, event.data.url);
               window.history.pushState(null, '', event.data.url);
               window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
               break;
             case 'go-back':
+              if (historyIdx > 0) {
+               historyIdx -= 1;
+               historyIdxUpdated = true;
+              }
               window.history.back();
               break;
             case 'go-forward':
+              if (historyIdx < history.length - 1) {
+                historyIdx += 1;
+                historyIdxUpdated = true;
+              }
               window.history.forward();
               break;
             default:
@@ -33,10 +51,20 @@
       });
 
       window.addEventListener('popstate', (event) => {
+        if (historyIdxUpdated) {
+          historyIdxUpdated = false;
+        } else {
+          historyIdx += 1;
+          history.splice(historyIdx, history.length - historyIdx, window.location.pathname);
+        }
         window.parent.postMessage({
           type: 'iframe-popstate',
           instance: window.frameElement.instance,
-          pathname: window.location.pathname
+          detail: {
+            pathname: window.location.pathname,
+            hasBack: historyIdx > 0,
+            hasForward: historyIdx < history.length - 1
+          }
         }, window.origin);
       });
     })();
