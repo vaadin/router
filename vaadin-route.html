@@ -43,47 +43,46 @@ This program is available under Apache License Version 2.0, available at https:/
             url: {
               type: String
             },
-            active: {
-              type: Boolean,
-              value: false,
-              observer: '_onActiveChanged'
+            _routeTemplate: {
+              type: Object
             }
           };
         }
 
         static get observers() {
           return [
-            '_activeRouteChanged(router.pathname, url)',
+            '_renderCriteriaChanged(router.pathname, url, _routeTemplate)',
           ];
         }
 
-        _activeRouteChanged() {
-          this.active = this.router.pathname === this.url;
+        connectedCallback() {
+          super.connectedCallback();
+
+          this._routeTemplate = this.querySelector('template');
+          this._observer = new MutationObserver(() => {
+            this._routeTemplate = this.querySelector('template');
+          });
+          this._observer.observe(this, { childList: true });
         }
 
-        _onActiveChanged(newValue, oldValue) {
-          if (this.active) {
-            let template = this.querySelector('template');
-            if (!template) {
-              let observer = new MutationObserver(() => {
-                if (this.querySelector('template')) {
-                  observer.disconnect();
-                  this._render(template);
-                } else {
-                  throw new Error(`<vaadin-route url="${this.url}"> could not find a child <template> to render`);
-                }
-              })
-              observer.observe(this, { childList: true });
-            } else {
-              this._render(template);
-            }
+        disconnectedCallback() {
+          this._observer.disconnect();
+          super.disconnectedCallback();
+        }
+
+        _renderCriteriaChanged() {
+          const routeMatch = this.router.pathname === this.url;
+          const hasContent = this._routeTemplate instanceof HTMLTemplateElement;
+
+          if (routeMatch && hasContent) {
+            this._clear();
+            this._render();
           } else {
             this._clear();
           }
         }
 
-        _render(template) {
-          this._clear();
+        _render() {
           /*
           // Prepare the template
           let TemplateClass = Polymer.Templatize.templatize(template);
@@ -95,7 +94,7 @@ This program is available under Apache License Version 2.0, available at https:/
           // Insert the template instance's DOM into the light DOM of the vaadin-route element
           const outlet = document.createElement('div');
           outlet.setAttribute('class', 'outlet');
-          outlet.appendChild(document.importNode(template.content, true));
+          outlet.appendChild(document.importNode(this._routeTemplate.content, true));
           this.appendChild(outlet);
         }
 
