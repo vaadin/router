@@ -6,6 +6,34 @@
       }
     </style>
 
+    <h3>Advanced</h3>
+    <vaadin-demo-snippet id="element-basic-demos-basic">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/">Home</vaadin-router-link>
+          <vaadin-router-link href="/about">About</vaadin-router-link>
+          <vaadin-router-link href="/topics">Topics</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route url="/">
+            <template>
+              <h1>Home</h1>
+            </template>
+          </vaadin-route>
+          <vaadin-route url="/about">
+            <template>
+              <h1>About</h1>
+            </template>
+          </vaadin-route>
+          <vaadin-route url="/topics">
+            <template>
+              <h1>Topics</h1>
+            </template>
+          </vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
   </template>
   <script>
     class ElementAdvancedDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
