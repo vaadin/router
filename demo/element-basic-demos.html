@@ -11,7 +11,7 @@
     <p>Use <code>&lt;vaadin-router-link&gt;</code> to create HTML5 links that change the browser URL
       without page reload and <code>&lt;vaadin-route&gt;</code> to define what should be rendered for
       a given route. Wrap all routes into a <code>&lt;vaadin-router&gt;</code> element.</p>
-    <vaadin-router-demo-snippet id="element-basic-demos-basic">
+    <vaadin-demo-snippet id="element-basic-demos-basic" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
           <vaadin-router-link href="/">Home</vaadin-router-link>
@@ -36,13 +36,13 @@
           </vaadin-route>
         </vaadin-router>
       </template>
-    </vaadin-router-demo-snippet>
+    </vaadin-demo-snippet>
 
     <h3>Highlight the link to the current route</h3>
     <p>If the current route matches the target route of a <code>&lt;vaadin-router-link&gt;</code>,
       the link gets the <code>active</code> attribute. Use this attribute in a CSS selector to style
       the currently active link differently.</p>
-    <vaadin-router-demo-snippet id="element-basic-demos-styled-link">
+    <vaadin-demo-snippet id="element-basic-demos-styled-link" iframe-src="iframe.html">
       <template preserve-content>
         <style>
           vaadin-router-link:not([active]) {
@@ -66,10 +66,10 @@
           </vaadin-route>
         </vaadin-router>
       </template>
-    </vaadin-router-demo-snippet>
+    </vaadin-demo-snippet>
 
     <h3>Route parameters</h3>
-    <vaadin-router-demo-snippet id="element-basic-demos-parameters">
+    <vaadin-demo-snippet id="element-basic-demos-parameters" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
           <vaadin-router-link href="sam">Sam</vaadin-router-link>
@@ -84,7 +84,7 @@
           </vaadin-route>
         </vaadin-router>
       </template>
-    </vaadin-router-demo-snippet>
+    </vaadin-demo-snippet>
 
   </template>
   <script>
