@@ -72,6 +72,24 @@
       </template>
     </vaadin-demo-snippet>
 
+    <h3>Multi-segment parameters</h3>
+    <!-- TODO: describe the use case where this feature is useful -->
+    <vaadin-demo-snippet id="route-parameters-demos-multisegment" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/kb/policies/insurance/personal">Policies / Insurance / Personal</vaadin-router-link>
+          <vaadin-router-link href="/kb/policies">Policies</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route url="/kb/:kbPath*">
+            <template>
+              <p>You are viewing the '[[kbPath]]' section of the Knowlegde Base</p>
+            </template>
+          </vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
   </template>
   <script>
   (() => {
