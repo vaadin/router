@@ -23,7 +23,7 @@
           <vaadin-router-link href="/kim">Kim</vaadin-router-link>
         </nav>
         <vaadin-router>
-          <vaadin-route url="/:user">
+          <vaadin-route path="/:user">
             <template>
               <h1>[[user]]'s profile</h1>
               <!-- TODO: figure out why binding to the href property does not work -->
@@ -31,12 +31,12 @@
               <vaadin-router-link href$="/[[user]]/messages/12">[[user]]'s 12th message</vaadin-router-link>
             </template>
           </vaadin-route>
-          <vaadin-route url="/:user/messages">
+          <vaadin-route path="/:user/messages">
             <template>
               <h1>[[user]]'s messages</h1>
             </template>
           </vaadin-route>
-          <vaadin-route url="/:user/messages/:message">
+          <vaadin-route path="/:user/messages/:message">
             <template>
               <h1>Message details</h1>
               id: [[message]], author: [[user]]
@@ -58,7 +58,7 @@
           <vaadin-router-link href="/images/64/hotpink">64px hotpink</vaadin-router-link>
         </nav>
         <vaadin-router>
-          <vaadin-route url="/images/:size/:color?">
+          <vaadin-route path="/images/:size/:color?">
             <template>
               <style>
                 div.image {
@@ -81,7 +81,7 @@
           <vaadin-router-link href="/kb/policies">Policies</vaadin-router-link>
         </nav>
         <vaadin-router>
-          <vaadin-route url="/kb/:kbPath*">
+          <vaadin-route path="/kb/:kbPath*">
             <template>
               <p>You are viewing the '[[kbPath]]' section of the Knowlegde Base</p>
             </template>
