@@ -108,11 +108,7 @@ This program is available under Apache License Version 2.0, available at https:/
         _render(match) {
           // make the route parameters available as Polymer properties for the inline template
           this._parameters.forEach((param, i) => {
-            if (match[i + 1] !== undefined) {
-              this._templateInstance[param.name] = match[i + 1];
-            } else {
-              delete this._templateInstance[param.name];
-            }
+            this._templateInstance[param.name] = decodeURIComponent(match[i + 1]);
           });
 
           const outlet = document.createElement('div');

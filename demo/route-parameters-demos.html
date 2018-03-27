@@ -46,6 +46,32 @@
       </template>
     </vaadin-demo-snippet>
 
+    <h3>Optional parameters</h3>
+    <p>Some of the router parameters can be optional (i.e. the route will match even if the paramter
+      is not provided). Such parameters are marked with a <code>?</code> (e.g. in the following example
+      the parameter <code>:color</code> is optional: <code>/images/:size/:color?</code>).</p>
+    <p>The parameter values are available inside the inline route template as Polymer properties.</p>
+    <vaadin-demo-snippet id="route-parameters-demos-optional" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/images/64">64px default</vaadin-router-link>
+          <vaadin-router-link href="/images/64/hotpink">64px hotpink</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route url="/images/:size/:color?">
+            <template>
+              <style>
+                div.image {
+                  background: brown;
+                }
+              </style>
+              <div class="image" style$="width: [[size]]px; height: [[size]]px; background: [[color]];"></div>
+            </template>
+          </vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
   </template>
   <script>
   (() => {
