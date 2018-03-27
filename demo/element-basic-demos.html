@@ -45,8 +45,9 @@
     <vaadin-demo-snippet id="element-basic-demos-styled-link" iframe-src="iframe.html">
       <template preserve-content>
         <style>
-          vaadin-router-link:not([active]) {
-            text-decoration: none;
+          vaadin-router-link[active] {
+            font-weight: bold;
+            font-size: 120%;
           }
         </style>
         <nav>
@@ -79,7 +80,7 @@
         <vaadin-router>
           <vaadin-route url="/:name">
             <template>
-              Name: [[name]]
+              <p>Name: [[name]]</p>
             </template>
           </vaadin-route>
         </vaadin-router>
