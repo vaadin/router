@@ -72,12 +72,12 @@
     <vaadin-demo-snippet id="element-basic-demos-parameters" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
-          <vaadin-router-link href="sam">Sam</vaadin-router-link>
-          <vaadin-router-link href="jane">Jane</vaadin-router-link>
-          <vaadin-router-link href="kim">Kim</vaadin-router-link>
+          <vaadin-router-link href="/sam">Sam</vaadin-router-link>
+          <vaadin-router-link href="/jane">Jane</vaadin-router-link>
+          <vaadin-router-link href="/kim">Kim</vaadin-router-link>
         </nav>
         <vaadin-router>
-          <vaadin-route url=":name">
+          <vaadin-route url="/:name">
             <template>
               Name: [[name]]
             </template>
