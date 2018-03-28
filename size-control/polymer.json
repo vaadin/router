@@ -1,0 +1,18 @@
+{
+  "entrypoint": "size-control/index.html",
+  "shell": "size-control/app-shell.html",
+  "fragments": [
+    "size-control/vaadin-router-bundle.html"
+  ],
+  "sources": [
+   "size-control/index.html",
+   "size-control/vaadin-router-bundle.html",
+   "size-control/app-shell.html"
+  ],
+  "builds": [
+    {
+      "preset": "es5-bundled",
+      "addServiceWorker": false
+    }
+  ]
+}
