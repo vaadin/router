@@ -13,11 +13,11 @@
   }
   ,
   {
-    "name": "Advanced Usage",
-    "url": "element-advanced-demos",
-    "src": "element-advanced-demos.html",
+    "name": "Route Parameters",
+    "url": "route-parameters-demos",
+    "src": "route-parameters-demos.html",
     "meta": {
-      "title": "vaadin-router Advanced Examples",
+      "title": "Route Parameters Examples",
       "description": "",
       "image": ""
      }
