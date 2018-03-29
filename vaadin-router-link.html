@@ -4,86 +4,117 @@ Copyright (c) 2018 Vaadin Ltd.
 This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
 -->
 
-<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/lib/mixins/properties-mixin.html">
 <link rel="import" href="vaadin-router-mixin.html">
 
-<dom-module id="vaadin-router-link">
-  <template>
-    <style>
-      :host {
-        display: inline;
-        text-decoration: underline;
+<template>
+  <style>
+    :host {
+      text-decoration: underline;
+    }
+
+    :host([hidden]) {
+      display: none !important;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: inherit;
+    }
+  </style>
+  
+  <a id="anchor">
+    <slot></slot>
+  </a>
+</template>
+
+<script>
+  (function() {
+    const template = document.currentScript.ownerDocument.querySelector('template');
+
+    /**
+      * @memberof Vaadin
+      */
+    class VaadinRouterLink extends Vaadin.RouterMixin(Polymer.PropertiesMixin(HTMLElement)) {
+      static get is() {
+        return 'vaadin-router-link';
       }
 
-      :host([hidden]) {
-        display: none !important;
+      static get properties() {
+        return {
+          href: String,
+          active: Boolean
+        };
       }
 
-      a {
-        color: inherit;
-        text-decoration: inherit;
-      }
-    </style>
-    
-    <a href$="[[href]]" on-click="_onClick">
-      <slot></slot>
-    </a>
-  </template>
+      connectedCallback() {
+        super.connectedCallback();
+        this._onActiveCriteriaChanged();
 
-  <script>
-    (function() {
-      /**
-       * `<vaadin-router-link>` is a Polymer 2 element.
-       *
-       * ```
-       * <vaadin-router-link></vaadin-router-link>
-       * ```
-       *
-       * @memberof Vaadin
-       */
-      class VaadinRouterLink extends Vaadin.RouterMixin(Polymer.Element) {
-        static get is() {
-          return 'vaadin-router-link';
-        }
-
-        static get properties() {
-          return {
-            href: {
-              type: String
-            },
-            active: {
-              type: Boolean,
-              value: false,
-              notify: true,
-              reflectToAttribute: true
-            }
-          };
-        }
-
-        static get observers() {
-          return [
-            '_activeRouteChanged(router.pathname, href)',
-          ];
-        }
-
-        _activeRouteChanged() {
-          this.active = this.router.pathname === this.href;
-        }
-
-        _onClick(event) {
-          event.preventDefault();
-          window.history.pushState(null, document.title, this.href);
-          window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
-        }
+        this.attachShadow({mode: 'open'})
+          .appendChild(template.content.cloneNode(true));
+        this._anchor = this.shadowRoot.querySelector('#anchor');
+        this._anchor.setAttribute('href', this.href);
+        this._anchor.addEventListener('click', this._onClick.bind(this));
       }
 
-      customElements.define(VaadinRouterLink.is, VaadinRouterLink);
+      disconnectedCallback() {
+        super.disconnectedCallback();
+      }
 
       /**
-       * @namespace Vaadin
-       */
-      window.Vaadin = window.Vaadin || {};
-      Vaadin.VaadinRouterLink = VaadinRouterLink;
-    })();
-  </script>
-</dom-module>
+        * Callback called when any properties with accessors created via
+        * `_createPropertyAccessor` have been set.
+        *
+        * @param {!Object} currentProps Bag of all current accessor values
+        * @param {!Object} changedProps Bag of properties changed since the last
+        *   call to `_propertiesChanged`
+        * @param {!Object} oldProps Bag of previous values for each property
+        *   in `changedProps`
+        * @return {void}
+        * @protected
+        */
+      _propertiesChanged(currentProps, changedProps, oldProps) {
+        super._propertiesChanged(currentProps, changedProps, oldProps);
+
+        if ('href' in changedProps) {
+          this._onHrefChanged(currentProps.href, oldProps.href);
+          this._onActiveCriteriaChanged();
+        }
+
+        if ('active' in changedProps) {
+          this._propertyToAttribute('active');
+        }
+      }
+
+      _onPopstate(event) {
+        super._onPopstate();
+        this._onActiveCriteriaChanged();
+      }
+
+      _onHrefChanged(newValue, oldValue) {
+        if (this._anchor && newValue != oldValue) {
+          this._anchor.setAttribute('href', newValue);
+        }
+      }
+
+      _onActiveCriteriaChanged() {
+        this.active = this.router && this.router.pathname === this.href;
+      }
+
+      _onClick(event) {
+        event.preventDefault();
+        window.history.pushState(null, document.title, this.href);
+        window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
+      }
+    }
+
+    customElements.define(VaadinRouterLink.is, VaadinRouterLink);
+
+    /**
+      * @namespace Vaadin
+      */
+    window.Vaadin = window.Vaadin || {};
+    Vaadin.VaadinRouterLink = VaadinRouterLink;
+  })();
+</script>
