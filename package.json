@@ -35,6 +35,7 @@
     "eslint": "^4.13.0",
     "eslint-config-vaadin": "latest",
     "eslint-plugin-html": "^4.0.0",
+    "fs-extra": "^5.0.0",
     "gulp": "latest",
     "gulp-eslint": "^4.0.0",
     "gulp-html-extract": "^0.3.0",

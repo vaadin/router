@@ -1,16 +1,14 @@
 {
-  "entrypoint": "vaadin-router/index.html",
-  "shell": "iron-component-page/iron-component-page.html",
-  "fragments": [
-    "vaadin-router/vaadin-router.html"
-  ],
+  "entrypoint": "bower_components/vaadin-router/index.html",
+  "shell": "bower_components/iron-component-page/iron-component-page.html",
   "sources": [
-   "vaadin-router/*.html"
+   "bower_components/vaadin-router/index.html",
+   "bower_components/iron-component-page/iron-component-page.html"
   ],
   "extraDependencies": [
-    "webcomponentsjs/*.js",
-    "webcomponentsjs/*.map",
-    "vaadin-router/analysis.json"
+    "bower_components/webcomponentsjs/*.js",
+    "bower_components/webcomponentsjs/*.map",
+    "bower_components/vaadin-router/analysis.json"
   ],
   "builds": [
     {
