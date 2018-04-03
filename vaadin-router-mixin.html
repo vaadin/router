@@ -6,14 +6,36 @@ This program is available under Apache License Version 2.0, available at https:/
 
 <script>
 (() => {
+  /**
+   * @namespace Vaadin
+   */
   window.Vaadin = window.Vaadin || {};
 
   /**
-   * @polymerMixin
+   * Subscribes an element to the 'popstate' event on the current window, and
+   * injects the `router` property (a reference to the Vaadin Router).
+   * 
+   * The users of this mixin should override the `_onPopstate` method to
+   * handle the event. Remember to call `super._onPopstate` in the override:
+   * ```
+   * _onPopstate(event) {
+   *   super._onPopstate(event);
+   * 
+   *   // do your stuff here
+   * }
+   * ```
+   * 
+   * @polymer
+   * @mixinFunction
    */
-  Vaadin.RouterMixin = superClass => class VaadinRouterMixin extends superClass {
+  Vaadin.RouterMixin = superClass => class extends superClass {
     static get properties() {
       return {
+        /**
+         * Exposes the current path of the Vaadin Router
+         *
+         * @type {{pathname: string}}
+         */
         router: Object
       };
     }
@@ -36,6 +58,13 @@ This program is available under Apache License Version 2.0, available at https:/
       super.disconnectedCallback();
     }
 
+    /**
+     * Callback called when the 'popstate' event is triggered on the window.
+     *
+     * @param {!Object} event the popstate event
+     * @return {void}
+     * @protected
+     */
     _onPopstate(event) {
       if (this.set) {
         this.set('router.pathname', window.location.pathname)

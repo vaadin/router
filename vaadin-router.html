@@ -8,21 +8,36 @@ This program is available under Apache License Version 2.0, available at https:/
   (function() {
 
     /**
+     * `<vaadin-router>` is a Web Component that renders different content for different URLs. This
+     * enables client-side routing. Each content alternative is defined with a `<vaadin-route>` component:
+     *
+     * ```
+     * <vaadin-router>
+     *   <vaadin-route path="/users">
+     *     <x-user-list></x-user-list>
+     *   </vaadin-route>
+     *   <vaadin-route path="/users/:user">
+     *     <x-user-profile></x-user-profile>
+     *   </vaadin-route>
+     * </vaadin-router>
+     * ```
+     * 
+     * @customElement
      * @memberof Vaadin
      * @demo demo/
      */
-    class VaadinRouter extends HTMLElement {
+    class RouterElement extends HTMLElement {
       static get is() {
         return 'vaadin-router';
       }
     }
 
-    customElements.define(VaadinRouter.is, VaadinRouter);
+    customElements.define(RouterElement.is, RouterElement);
 
     /**
      * @namespace Vaadin
      */
     window.Vaadin = window.Vaadin || {};
-    Vaadin.VaadinRouter = VaadinRouter;
+    Vaadin.RouterElement = RouterElement;
   })();
 </script>

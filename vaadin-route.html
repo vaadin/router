@@ -15,22 +15,31 @@ This program is available under Apache License Version 2.0, available at https:/
   (function() {
 
     /**
-     * `<vaadin-route>` is a Polymer 2 element.
+     * `<vaadin-route>` is a Web Component that defines a single route for the
+     * `<vaadin-router>` component.
      *
      * ```
-     * <vaadin-route></vaadin-route>
+     * <vaadin-route path="/users/:user">
+     *   <x-user-view></x-user-view>
+     * </vaadin-route>
      * ```
      *
+     * @polymer
+     * @customElement
      * @memberof Vaadin
+     * @appliesMixin Vaadin.RouterMixin
+     * @appliesMixin Polymer.PropertiesMixin
      */
-    class VaadinRoute extends Vaadin.RouterMixin(Polymer.PropertiesMixin(HTMLElement)) {
+    class RouteElement extends Vaadin.RouterMixin(Polymer.PropertiesMixin(HTMLElement)) {
       static get is() {
         return 'vaadin-route';
       }
 
       static get properties() {
         return {
+          /** Defines the path served by this route */
           path: String,
+
           _parameters: Array,
           _regexp: Object,
           _routeTemplate: Object,
@@ -54,6 +63,8 @@ This program is available under Apache License Version 2.0, available at https:/
       }
 
       /**
+       * (override of `Polymer.PropertiesChanged._propertiesChanged)
+       * 
        * Callback called when any properties with accessors created via
        * `_createPropertyAccessor` have been set.
        *
@@ -131,12 +142,12 @@ This program is available under Apache License Version 2.0, available at https:/
       }
     }
 
-    customElements.define(VaadinRoute.is, VaadinRoute);
+    customElements.define(RouteElement.is, RouteElement);
 
     /**
      * @namespace Vaadin
      */
     window.Vaadin = window.Vaadin || {};
-    Vaadin.VaadinRoute = VaadinRoute;
+    Vaadin.RouteElement = RouteElement;
   })();
 </script>
