@@ -1,0 +1,95 @@
+<dom-module id="route-parameters-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>Basic route parameters</h3>
+    <p>A route path can include one or several named parameters like <code>/:user/messages</code> or
+      <code>/:user/messages/:message</code>. The parameter names should be prefixed with a colon
+      (<code>:</code>).</p>
+    <p>The parameter values are available inside the inline route template as polymer properties.</p>
+    <vaadin-demo-snippet id="route-parameters-demos-basic" iframe-src="iframe.html">
+      <template preserve-content="">
+        <style>
+          vaadin-router-link {
+            margin-right: 1em;
+          }
+        </style>
+        <nav>
+          <vaadin-router-link href="/jane">Jane</vaadin-router-link>
+          <vaadin-router-link href="/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route path="/:user">
+            <template>
+              <h1>[[user]]'s profile</h1>
+              <!-- TODO: figure out why binding to the href property does not work -->
+              <vaadin-router-link href$="/[[user]]/messages">All [[user]]'s messages</vaadin-router-link>
+              <vaadin-router-link href$="/[[user]]/messages/12">[[user]]'s 12th message</vaadin-router-link>
+            </template>
+          </vaadin-route>
+          <vaadin-route path="/:user/messages">
+            <template>
+              <h1>[[user]]'s messages</h1>
+            </template>
+          </vaadin-route>
+          <vaadin-route path="/:user/messages/:message">
+            <template>
+              <h1>Message details</h1>
+              id: [[message]], author: [[user]]
+            </template>
+          </vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Optional parameters</h3>
+    <p>Some of the router parameters can be optional (i.e. the route will match even if the paramter
+      is not provided). Such parameters are marked with a <code>?</code> (e.g. in the following example
+      the parameter <code>:color</code> is optional: <code>/images/:size/:color?</code>).</p>
+    <p>The parameter values are available inside the inline route template as Polymer properties.</p>
+    <vaadin-demo-snippet id="route-parameters-demos-optional" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <vaadin-router-link href="/images/64">64px default</vaadin-router-link>
+          <vaadin-router-link href="/images/64/hotpink">64px hotpink</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route path="/images/:size/:color?">
+            <template>
+              <style>
+                div.image {
+                  background: brown;
+                }
+              </style>
+              <div class="image" style$="width: [[size]]px; height: [[size]]px; background: [[color]];"></div>
+            </template>
+          </vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Multi-segment parameters</h3>
+    <!-- TODO: describe the use case where this feature is useful -->
+    <vaadin-demo-snippet id="route-parameters-demos-multisegment" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <vaadin-router-link href="/kb/policies/insurance/personal">Policies / Insurance / Personal</vaadin-router-link>
+          <vaadin-router-link href="/kb/policies">Policies</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route path="/kb/:kbPath*">
+            <template>
+              <p>You are viewing the '[[kbPath]]' section of the Knowlegde Base</p>
+            </template>
+          </vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
+  </template>
+  <script>(function(){var a=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'route-parameters-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(a.is,a)})();</script>
+</dom-module>
