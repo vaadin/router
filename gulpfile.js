@@ -133,18 +133,7 @@ for (const shell of sizeControlShells) {
     `size-control:${shell}:copy-sources`,
     `size-control:${shell}:polymer-config`,
   ], () => {
-    return new Promise((resolve, reject) => {
-      exec(
-        'polymer build',
-        {cwd: path.join(__dirname, 'build')},
-        (error, stdout, stderr) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve();
-          }
-        });
-    });
+    return polymerBuild();
   });
 
   gulp.task(`size-control:${shell}`, [`size-control:${shell}:polymer-build`], () => {
@@ -191,15 +180,60 @@ gulp.task('build:copy-sources:vaadin-router-lib', ['build:clean'], () => {
 
 
 // build the docs (including demos)
-gulp.task('docs', ['docs:index' /*, 'docs:demo', 'docs:demo-iframe'*/]);
+gulp.task('docs', ['docs:clean', 'build:copy-sources'], async () => {
 
-gulp.task('docs:index', ['docs:index:polymer', 'docs:clean'], () => {
-  return fs.copy(
+  // docs
+  await Promise.all([
+    fs.copy(
+      path.join(__dirname, 'index.html'),
+      path.join(__dirname, 'build', 'bower_components', 'vaadin-router', 'index.html')),
+    fs.copy(
+      path.join(__dirname, 'analysis.json'),
+      path.join(__dirname, 'build', 'bower_components', 'vaadin-router', 'analysis.json')),
+    fs.copy(
+      path.join(__dirname, 'polymer.json'),
+      path.join(__dirname, 'build', 'polymer.json'))
+  ]);
+
+  await polymerBuild();
+
+  await fs.copy(
     path.join(__dirname, 'build', 'build', 'es5-bundled', 'bower_components'),
     path.join(__dirname, 'docs'));
+
+  // demo
+  await Promise.all([
+    fs.copy(
+      path.join(__dirname, 'demo'),
+      path.join(__dirname, 'build', 'bower_components', 'vaadin-router', 'demo')),
+    fs.copy(
+      path.join(__dirname, 'demo', 'polymer.json'),
+      path.join(__dirname, 'build', 'polymer.json'))
+  ]);
+
+  await polymerBuild();
+
+  await fs.copy(
+    path.join(__dirname, 'build', 'build', 'es5-bundled', 'bower_components', 'vaadin-router', 'demo'),
+    path.join(__dirname, 'docs', 'vaadin-router', 'demo'));
+
+  // demo iframe
+  await fs.copy(
+      path.join(__dirname, 'demo', 'polymer.iframe.json'),
+      path.join(__dirname, 'build', 'polymer.json'));
+
+  await polymerBuild();
+
+  await fs.copy(
+    path.join(__dirname, 'build', 'build', 'es5-bundled', 'bower_components', 'vaadin-router', 'demo', 'iframe.html'),
+    path.join(__dirname, 'docs', 'vaadin-router', 'demo', 'iframe.html'));
 });
 
-gulp.task('docs:index:polymer', ['build:copy-sources', 'docs:index:copy-sources'], () => {
+gulp.task('docs:clean', () => {
+  return fs.remove(path.join(__dirname, 'docs'));
+});
+
+function polymerBuild() {
   return new Promise((resolve, reject) => {
     exec(
       'polymer build',
@@ -212,33 +246,4 @@ gulp.task('docs:index:polymer', ['build:copy-sources', 'docs:index:copy-sources'
         }
       });
   });
-});
-
-gulp.task('docs:index:copy-sources', ['build:clean'], () => {
-  return Promise.all([
-    fs.copy(
-      path.join(__dirname, 'index.html'),
-      path.join(__dirname, 'build', 'bower_components', 'vaadin-router', 'index.html')),
-    fs.copy(
-      path.join(__dirname, 'analysis.json'),
-      path.join(__dirname, 'build', 'bower_components', 'vaadin-router', 'analysis.json')),
-    fs.copy(
-      path.join(__dirname, 'polymer.json'),
-      path.join(__dirname, 'build', 'polymer.json'))
-  ]);
-});
-
-gulp.task('docs:demo:copy-sources', ['build:clean'], () => {
-  return Promise.all([
-    fs.copy(
-      path.join(__dirname, 'demo'),
-      path.join(__dirname, 'build', 'bower_components', 'vaadin-router', 'demo')),
-    fs.copy(
-      path.join(__dirname, 'demo', 'polymer.json'),
-      path.join(__dirname, 'build', 'polymer.json'))
-  ]);
-});
-
-gulp.task('docs:clean', () => {
-  return fs.remove(path.join(__dirname, 'docs'));
-});
+}

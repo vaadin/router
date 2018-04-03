@@ -1,13 +1,12 @@
 {
-  "entrypoint": "vaadin-router/demo/vaadin-router-demo-iframe.html",
-  "shell": "vaadin-router/demo/demo-shell.html",
+  "entrypoint": "bower_components/vaadin-router/demo/iframe.html",
+  "shell": "bower_components/vaadin-router/demo/demo-shell.html",
   "sources": [
-   "vaadin-router/demo/**/*"
+   "bower_components/vaadin-router/demo/*.html"
   ],
   "extraDependencies": [
-    "webcomponentsjs/*.js",
-    "webcomponentsjs/*.map",
-    "vaadin-router/demo/demos.json"
+    "bower_components/webcomponentsjs/*.js",
+    "bower_components/webcomponentsjs/*.map"
   ],
   "builds": [
     {
