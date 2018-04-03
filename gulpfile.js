@@ -62,6 +62,8 @@ gulp.task('lint:css', function() {
     }));
 });
 
+gulp.task('lib', ['path-to-regexp', 'universal-router']);
+
 gulp.task('path-to-regexp', () => {
   return rollup.rollup({
     input: 'path-to-regexp.js',
@@ -81,6 +83,11 @@ gulp.task('path-to-regexp', () => {
       name: 'PathToRegexp'
     });
   });
+});
+
+gulp.task('universal-router', () => {
+  return gulp.src('node_modules/universal-router/universal-router.js')
+    .pipe(gulp.dest('lib'));
 });
 
 // Size control: shows the size of the minified vaadin-router bundle in different scenarios:

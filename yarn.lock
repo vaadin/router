@@ -6417,7 +6417,7 @@ path-to-regexp@^1.0.1, path-to-regexp@^1.7.0:
   dependencies:
     isarray "0.0.1"
 
-path-to-regexp@^2.2.0:
+path-to-regexp@^2.1.0, path-to-regexp@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-2.2.0.tgz#80f0ff45c1e0e641da74df313644eaf115050972"
 
@@ -8709,6 +8709,12 @@ unist-util-visit@^1.1.0:
   resolved "https://registry.yarnpkg.com/unist-util-visit/-/unist-util-visit-1.3.0.tgz#41ca7c82981fd1ce6c762aac397fc24e35711444"
   dependencies:
     unist-util-is "^2.1.1"
+
+universal-router@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/universal-router/-/universal-router-6.0.0.tgz#8481aad57df9e06f5f29a8991527786c2bc5b69c"
+  dependencies:
+    path-to-regexp "^2.1.0"
 
 universalify@^0.1.0:
   version "0.1.1"
