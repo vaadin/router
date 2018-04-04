@@ -1,0 +1,81 @@
+<dom-module id="sub-routes-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>Child routes</h3>
+    <p>The routes configuration is a tree: every route can have zero or more children.</p>
+    <vaadin-demo-snippet id="sub-routes-demos-children-tree" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/users">All Users</vaadin-router-link>
+          <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route path="/users">
+            <vaadin-route path="/" component="x-user-list"></vaadin-route>
+            <vaadin-route path="/:user" component="x-user-profile"></vaadin-route>
+          </vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Child routes as a tree vs. a flat list</h3>
+    <p>The routes configuration tree gets flattened. The following routes config is effectively the same
+      as in the previous example.</p>
+    <vaadin-demo-snippet id="sub-routes-demos-children-flat" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/users">All Users</vaadin-router-link>
+          <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route path="/users" component="x-user-list"></vaadin-route>
+          <vaadin-route path="/users/:user" component="x-user-profile"></vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>A route component can control routing for a subpath</h3>
+    <p>The routes configuration for a subpath can be set by a route component separately
+      from its parent router's config.</p>
+    <vaadin-demo-snippet id="sub-routes-demos-basic" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/">Home</vaadin-router-link>
+          <vaadin-router-link href="/users">Users</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
+          <vaadin-route path="/users/*">
+            <template>
+              <nav>
+                <vaadin-router-link href="/users">Users Home</vaadin-router-link>
+                <vaadin-router-link href="/users/sam">Sam</vaadin-router-link>
+              </nav>
+              <vaadin-router root="/users">
+                <vaadin-route path="/" component="x-user-list"></vaadin-route>
+                <vaadin-route path="/:user" component="x-user-profile"></vaadin-route>
+                <vaadin-route path="/:user/edit" component="x-user-editor"></vaadin-route>
+              </vaadin-router>
+            </template>
+          </vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
+  </template>
+  <script>
+  (() => {
+    class SubRoutesDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'sub-routes-demos';
+      }
+    }
+    customElements.define(SubRoutesDemos.is, SubRoutesDemos);
+  })();
+  </script>
+</dom-module>

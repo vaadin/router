@@ -1,0 +1,31 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+
+<dom-module id="x-user-profile">
+	<template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h1>User Profile</h1>
+    <p>Name: [[user]]</p>
+  </template>
+  <script>
+    (()=>{
+      class XUserProfile extends Polymer.Element {
+        static get is() {
+          return 'x-user-profile';
+        }
+
+        static get properties() {
+          return {
+            user: String
+          };
+        }
+      }
+
+      customElements.define(XUserProfile.is, XUserProfile);
+    })();
+  </script>
+</dom-module>

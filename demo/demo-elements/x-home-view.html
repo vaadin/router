@@ -1,0 +1,28 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+
+<dom-module id="x-home-view">
+	<template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <h1>Home</h1>
+  </template>
+  <script>
+    (()=>{
+      class XHomeView extends Polymer.Element {
+        static get is() {
+          return 'x-home-view';
+        }
+
+        static get properties() {
+          return {};
+        }
+      }
+
+      customElements.define(XHomeView.is, XHomeView);
+    })();
+  </script>
+</dom-module>
