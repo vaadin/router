@@ -62,32 +62,29 @@ gulp.task('lint:css', function() {
     }));
 });
 
-gulp.task('lib', ['path-to-regexp', 'universal-router']);
+gulp.task('lib', ['universal-router']);
 
-gulp.task('path-to-regexp', () => {
+gulp.task('universal-router', () => {
+  // return gulp.src('node_modules/universal-router/universal-router.js')
+  //   .pipe(gulp.dest('lib'));
   return rollup.rollup({
-    input: 'path-to-regexp.js',
+    input: 'universal-router.js',
     plugins: [
       resolve(),
       commonjs(),
       license({
         banner: {
-          file: path.join(__dirname, './node_modules/path-to-regexp/LICENSE')
+          file: path.join(__dirname, './node_modules/universal-router/LICENSE.txt')
         }
       })
     ]
   }).then(bundle => {
     return bundle.write({
-      file: 'lib/path-to-regexp.js',
+      file: 'lib/universal-router.js',
       format: 'iife',
-      name: 'PathToRegexp'
+      name: 'UniversalRouter'
     });
   });
-});
-
-gulp.task('universal-router', () => {
-  return gulp.src('node_modules/universal-router/universal-router.js')
-    .pipe(gulp.dest('lib'));
 });
 
 // Size control: shows the size of the minified vaadin-router bundle in different scenarios:

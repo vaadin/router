@@ -46,7 +46,9 @@ This program is available under Apache License Version 2.0, available at https:/
     }
 
     connectedCallback() {
-      super.connectedCallback();
+      if (super.connectedCallback) {
+        super.connectedCallback();
+      }
       
       this.router = {};
       this._onPopstate();
@@ -55,7 +57,10 @@ This program is available under Apache License Version 2.0, available at https:/
 
     disconnectedCallback() {
       window.removeEventListener('popstate', this.__popstateListener);
-      super.disconnectedCallback();
+      
+      if (super.disconnectedCallback) {
+        super.disconnectedCallback();
+      }
     }
 
     /**

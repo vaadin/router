@@ -16,9 +16,10 @@
         </nav>
         <vaadin-router>
           <vaadin-route path="/users">
-            <vaadin-route path="/" component="x-user-list"></vaadin-route>
             <vaadin-route path="/:user" component="x-user-profile"></vaadin-route>
+            <vaadin-route path="" component="x-user-list"></vaadin-route>
           </vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
         </vaadin-router>
       </template>
     </vaadin-demo-snippet>
@@ -33,8 +34,9 @@
           <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
         </nav>
         <vaadin-router>
-          <vaadin-route path="/users" component="x-user-list"></vaadin-route>
           <vaadin-route path="/users/:user" component="x-user-profile"></vaadin-route>
+          <vaadin-route path="/users" component="x-user-list"></vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
         </vaadin-router>
       </template>
     </vaadin-demo-snippet>
@@ -49,20 +51,20 @@
           <vaadin-router-link href="/users">Users</vaadin-router-link>
         </nav>
         <vaadin-router>
-          <vaadin-route path="/" component="x-home-view"></vaadin-route>
-          <vaadin-route path="/users/*">
+          <vaadin-route path="/users">
             <template>
               <nav>
                 <vaadin-router-link href="/users">Users Home</vaadin-router-link>
                 <vaadin-router-link href="/users/sam">Sam</vaadin-router-link>
               </nav>
               <vaadin-router root="/users">
-                <vaadin-route path="/" component="x-user-list"></vaadin-route>
-                <vaadin-route path="/:user" component="x-user-profile"></vaadin-route>
                 <vaadin-route path="/:user/edit" component="x-user-editor"></vaadin-route>
+                <vaadin-route path="/:user" component="x-user-profile"></vaadin-route>
+                <vaadin-route path="" component="x-user-list"></vaadin-route>
               </vaadin-router>
             </template>
           </vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
         </vaadin-router>
       </template>
     </vaadin-demo-snippet>
