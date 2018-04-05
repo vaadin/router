@@ -1,0 +1,84 @@
+<dom-module id="polymer-integration-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+
+    <h3>Route parameters in inline templates</h3>
+    <p>When <code>&lt;vaadin-router&gt;</code> is used in a Polymer app, the inline template of a
+      <code>&lt;vaadin-route&gt;</code> can use Polymer-style data binding to access the route parameters.</p>
+    <vaadin-demo-snippet id="polymer-integration-demos-parameters" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/sam">Sam</vaadin-router-link>
+          <vaadin-router-link href="/jane">Jane</vaadin-router-link>
+          <vaadin-router-link href="/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route path="/:name">
+            <template>
+              <p>Name: [[name]]</p>
+            </template>
+          </vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Lazy imports (option A)</h3>
+    <p>If a lazily-loaded route component is importerd with <code>&lt;link rel="<a
+      href="https://github.com/Polymer/lazy-imports" target="_blank">lazy-import</a>"&gt;</code>, this
+      link element can be wrapped into a <code>&lt;vaadin-route&gt;</code> to specify the route component.
+      In this case the <code>component</code> attribute would be implied by the import URL.</p>
+    <vaadin-demo-snippet id="polymer-integration-demos-lazy-import" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/sam">Sam</vaadin-router-link>
+          <vaadin-router-link href="/jane">Jane</vaadin-router-link>
+          <vaadin-router-link href="/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route path="/:name">
+            <link rel="lazy-import" href="demo-elements/x-user-profile.html">
+          </vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Lazy imports (option B)</h3>
+    <p>If a lazily-loaded route component is importerd with <code>&lt;link rel="<a
+      href="https://github.com/Polymer/lazy-imports" target="_blank">lazy-import</a>"&gt;</code>,
+      set an additional <code>lazy-import="group"</code> attribute on the <code>&lt;vaadin-route&gt;</code>
+      element for that route to trigger the lazy import when the route gets rendered.</p>
+    <p>If the group consists of a single lazy import, the <code>component</code> name can be omitted
+      (it will be derived from the import URL).</p>
+    <vaadin-demo-snippet id="polymer-integration-demos-lazy-import" iframe-src="iframe.html">
+      <template preserve-content>
+        <link rel="lazy-import" group="user-profile" href="demo-elements/x-user-profile.html">
+
+        <nav>
+          <vaadin-router-link href="/sam">Sam</vaadin-router-link>
+          <vaadin-router-link href="/jane">Jane</vaadin-router-link>
+          <vaadin-router-link href="/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router>
+          <vaadin-route path="/:name" lazy-import="user-profile"></vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
+        </vaadin-router>
+      </template>
+    </vaadin-demo-snippet>
+
+  </template>
+  <script>
+    class PolymerIntegrationDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'polymer-integration-demos';
+      }
+    }
+    customElements.define(PolymerIntegrationDemos.is, PolymerIntegrationDemos);
+  </script>
+</dom-module>

@@ -6,32 +6,75 @@
       }
     </style>
 
+    <h3>Known WTFs (to be resolved)</h3>
+    <ul>
+      <li>
+        <p>
+          This snippet does not work as expected:
+          <code>
+            <pre>&lt;vaadin-router&gt;
+  &lt;vaadin-route path="/" component="x-home-view"&gt;&lt;/vaadin-route&gt;
+  &lt;vaadin-route path="/users" component="x-user-list"&gt;&lt;/vaadin-route&gt;
+&lt;/vaadin-router&gt;</pre>
+          </code>
+          One would expect that the x-home-view component gets rendered for the '/' path,
+          and the x-user-list component - for the '/users' path.
+        </p>
+        <p>
+          But the actual is that the home view is rendered for both paths. The reason is
+          that since the '/' route does not have children, the match is prefix based -
+          any path starting with a '/' would match the first route. And since the matching
+          logic picks the first match and does not look further, the home view is always
+          rendered.
+        </p>
+        <p>
+          Workaround: reverse the order of routes - list the more specific `/users` before
+          the more generic `/`.
+        </p>
+      </li>
+      <li>
+        <p>
+          This snippet does not work as expected:
+          <code>
+            <pre>&lt;vaadin-router&gt;
+  &lt;vaadin-route path="/users"&gt;
+    &lt;vaadin-route path="/" component="x-user-list"&gt;&lt;/vaadin-route&gt;
+    &lt;vaadin-route path="/:user" component="x-user-profile"&gt;&lt;/vaadin-route&gt;
+  &lt;/vaadin-route&gt;
+&lt;/vaadin-router&gt;</pre>
+          </code>
+          One would expect that the x-user-list component gets rendered for the '/users' path,
+          and the x-user-profile component - for the '/users/sam' path.
+        </p>
+        <p>
+          But the actual is that the '/users' path results in a 404 (no match). The reason is
+          that after matching the parent route (with the path='/usres') what remains of the
+          pathname is an empty string. And that does not match the '/' path specified for the
+          x-user-list child route.
+        </p>
+        <p>
+          Workaround: set the child route's path to an empty string instead of `/`.
+        </p>
+      </li>
+    </ul>
 
     <h3>Basic</h3>
     <p>Use <code>&lt;vaadin-router-link&gt;</code> to create HTML5 links that change the browser URL
       without page reload and <code>&lt;vaadin-route&gt;</code> to define what should be rendered for
       a given route. Wrap all routes into a <code>&lt;vaadin-router&gt;</code> element.</p>
+    <p>The content of a route can be defined as an inline template or with the <code>component</code>
+      property of a <code>&lt;vaadin-route&gt;</code> element.</p>
     <vaadin-demo-snippet id="element-basic-demos-basic" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
           <vaadin-router-link href="/">Home</vaadin-router-link>
-          <vaadin-router-link href="/about">About</vaadin-router-link>
-          <vaadin-router-link href="/topics">Topics</vaadin-router-link>
+          <vaadin-router-link href="/users">Users</vaadin-router-link>
         </nav>
         <vaadin-router>
+          <vaadin-route path="/users" component="x-user-list"></vaadin-route>
           <vaadin-route path="/">
             <template>
               <h1>Home</h1>
-            </template>
-          </vaadin-route>
-          <vaadin-route path="/about">
-            <template>
-              <h1>About</h1>
-            </template>
-          </vaadin-route>
-          <vaadin-route path="/topics">
-            <template>
-              <h1>Topics</h1>
             </template>
           </vaadin-route>
         </vaadin-router>
@@ -52,37 +95,28 @@
         </style>
         <nav>
           <vaadin-router-link href="/">Home</vaadin-router-link>
-          <vaadin-router-link href="/about">About</vaadin-router-link>
+          <vaadin-router-link href="/users">Users</vaadin-router-link>
         </nav>
         <vaadin-router>
-          <vaadin-route path="/">
-            <template>
-              <h1>Home</h1>
-            </template>
-          </vaadin-route>
-          <vaadin-route path="/about">
-            <template>
-              <h1>About</h1>
-            </template>
-          </vaadin-route>
+          <vaadin-route path="/users" component="x-user-list"></vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
         </vaadin-router>
       </template>
     </vaadin-demo-snippet>
 
     <h3>Route parameters</h3>
+    <p>A route path definition can include one or more parameters. They are bound to the route
+      component properties when it gets rendered.</p>
     <vaadin-demo-snippet id="element-basic-demos-parameters" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
-          <vaadin-router-link href="/sam">Sam</vaadin-router-link>
-          <vaadin-router-link href="/jane">Jane</vaadin-router-link>
-          <vaadin-router-link href="/kim">Kim</vaadin-router-link>
+          <vaadin-router-link href="/">Home</vaadin-router-link>
+          <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
+          <vaadin-router-link href="/users/jane">Jane</vaadin-router-link>
         </nav>
         <vaadin-router>
-          <vaadin-route path="/:name">
-            <template>
-              <p>Name: [[name]]</p>
-            </template>
-          </vaadin-route>
+          <vaadin-route path="/users/:user" component="x-user-profile"></vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
         </vaadin-router>
       </template>
     </vaadin-demo-snippet>

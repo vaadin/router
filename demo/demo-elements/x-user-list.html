@@ -1,0 +1,33 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+
+<dom-module id="x-user-list">
+	<template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h1>Users</h1>
+    <ul>
+      <li>Kim</li>
+      <li>Jane</li>
+      <li>Sam</li>
+    </ul>
+  </template>
+  <script>
+    (()=>{
+      class XUserList extends Polymer.Element {
+        static get is() {
+          return 'x-user-list';
+        }
+
+        static get properties() {
+          return {};
+        }
+      }
+
+      customElements.define(XUserList.is, XUserList);
+    })();
+  </script>
+</dom-module>

@@ -13,11 +13,44 @@
   }
   ,
   {
+    "name": "Polymer Integration",
+    "url": "polymer-integration-demos",
+    "src": "polymer-integration-demos.html",
+    "meta": {
+      "title": "Polymer Integration Examples",
+      "description": "",
+      "image": ""
+     }
+  }
+  ,
+  {
     "name": "Route Parameters",
     "url": "route-parameters-demos",
     "src": "route-parameters-demos.html",
     "meta": {
       "title": "Route Parameters Examples",
+      "description": "",
+      "image": ""
+     }
+  }
+  ,
+  {
+    "name": "Nested Routes",
+    "url": "nested-routes-demos",
+    "src": "nested-routes-demos.html",
+    "meta": {
+      "title": "Nested Routes Examples",
+      "description": "",
+      "image": ""
+     }
+  }
+  ,
+  {
+    "name": "JS API",
+    "url": "js-api-demos",
+    "src": "js-api-demos.html",
+    "meta": {
+      "title": "JS API Examples",
       "description": "",
       "image": ""
      }

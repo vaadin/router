@@ -1,0 +1,67 @@
+<!--
+@license
+Copyright (c) 2018 Vaadin Ltd.
+This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+-->
+
+<script>
+(() => {
+  /**
+   * @namespace Vaadin
+   */
+  window.Vaadin = window.Vaadin || {};
+
+  /**
+   * Subscribes an element to the 'popstate' event on the current window.
+   * 
+   * The users of this mixin should override the `onHistoryStateChanged` method
+   * to receive the event:
+   * ```
+   * onHistoryStateChanged(state, pathname) {
+   *   // do your stuff here
+   * }
+   * ```
+   * 
+   * @polymer
+   * @mixinFunction
+   */
+  Vaadin.HistoryStateChangeMixin = superClass => class extends superClass {
+    constructor() {
+      super();
+      this.__popstateListener = this.__onPopstate.bind(this);
+    }
+
+    connectedCallback() {
+      if (super.connectedCallback) {
+        super.connectedCallback();
+      }
+      
+      window.addEventListener('popstate', this.__popstateListener);
+      this.onHistoryStateChanged(null, window.location.pathname);
+    }
+
+    disconnectedCallback() {
+      window.removeEventListener('popstate', this.__popstateListener);
+      
+      if (super.disconnectedCallback) {
+        super.disconnectedCallback();
+      }
+    }
+
+    __onPopstate(event) {
+      this.onHistoryStateChanged(event.state, window.location.pathname);
+    }
+
+    /**
+     * Callback called when the 'popstate' event is triggered on the window.
+     *
+     * @param {Object} state the state object associated with the active history entry
+     * @param {!string} pathname the current path
+     * @return {void}
+     */
+    onHistoryStateChanged(state, pathname) {
+      // noop: implement in a subclass
+    }
+  };
+})();
+</script>

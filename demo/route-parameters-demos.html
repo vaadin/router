@@ -13,11 +13,6 @@
     <p>The parameter values are available inside the inline route template as polymer properties.</p>
     <vaadin-demo-snippet id="route-parameters-demos-basic" iframe-src="iframe.html">
       <template preserve-content>
-        <style>
-          vaadin-router-link {
-            margin-right: 1em;
-          }
-        </style>
         <nav>
           <vaadin-router-link href="/jane">Jane</vaadin-router-link>
           <vaadin-router-link href="/kim">Kim</vaadin-router-link>
@@ -42,6 +37,7 @@
               id: [[message]], author: [[user]]
             </template>
           </vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
         </vaadin-router>
       </template>
     </vaadin-demo-snippet>
@@ -68,6 +64,7 @@
               <div class="image" style$="width: [[size]]px; height: [[size]]px; background: [[color]];"></div>
             </template>
           </vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
         </vaadin-router>
       </template>
     </vaadin-demo-snippet>
@@ -86,6 +83,7 @@
               <p>You are viewing the '[[kbPath]]' section of the Knowlegde Base</p>
             </template>
           </vaadin-route>
+          <vaadin-route path="/" component="x-home-view"></vaadin-route>
         </vaadin-router>
       </template>
     </vaadin-demo-snippet>

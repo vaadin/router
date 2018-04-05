@@ -18,7 +18,7 @@
   },
   "homepage": "https://vaadin.com/components",
   "scripts": {
-    "postinstall": "bower install && gulp path-to-regexp",
+    "postinstall": "bower install && gulp lib",
     "test": "wct",
     "size-control": "gulp size-control",
     "docs": "npm run docs:analyze && gulp docs",
@@ -46,6 +46,7 @@
     "run-sequence": "^2.2.1",
     "stylelint": "^9.0.0",
     "stylelint-config-vaadin": "latest",
+    "universal-router": "^6.0.0",
     "web-component-tester": "^6.1.5",
     "yargs": "^8.0.0"
   }
