@@ -5,7 +5,7 @@ This program is available under Apache License Version 2.0, available at https:/
 -->
 
 <link rel="import" href="../polymer/lib/mixins/properties-mixin.html">
-<link rel="import" href="vaadin-router-mixin.html">
+<link rel="import" href="vaadin-history-state-change-mixin.html">
 
 <template id="vaadin-router-link-sd-template">
   <style>
@@ -47,7 +47,7 @@ This program is available under Apache License Version 2.0, available at https:/
      * @appliesMixin Vaadin.RouterMixin
      * @appliesMixin Polymer.PropertiesMixin
      */
-    class RouterLinkElement extends Vaadin.RouterMixin(Polymer.PropertiesMixin(HTMLElement)) {
+    class RouterLinkElement extends Vaadin.HistoryStateChangeMixin(Polymer.PropertiesMixin(HTMLElement)) {
       static get is() {
         return 'vaadin-router-link';
       }
@@ -108,8 +108,16 @@ This program is available under Apache License Version 2.0, available at https:/
         }
       }
 
-      _onPopstate(event) {
-        super._onPopstate();
+      /**
+       * (override of `Vaadin.HistoryStateChangeMixin.onHistoryStateChanged`)
+       * 
+       * Callback called when the 'popstate' event is triggered on the window.
+       *
+       * @param {Object} state the state object associated with the active history entry
+       * @param {!string} pathname the current path
+       * @return {void}
+       */
+      onHistoryStateChanged(state, pathname) {
         this._onActiveCriteriaChanged();
       }
 
@@ -120,7 +128,7 @@ This program is available under Apache License Version 2.0, available at https:/
       }
 
       _onActiveCriteriaChanged() {
-        this.active = this.router && this.router.pathname === this.href;
+        this.active = this.href === window.location.pathname;
       }
 
       _onClick(event) {
