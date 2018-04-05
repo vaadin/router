@@ -1,0 +1,103 @@
+<dom-module id="js-api-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>Set routes config from JS</h3>
+    <p>The routes configuration can be set from JS instead of declaring a set of
+      <code>&lt;vaadin-route&gt;</code> elements in HTML.</p>
+    <vaadin-demo-snippet id="js-api-demos-basic" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <vaadin-router-link href="/jane">Jane</vaadin-router-link>
+          <vaadin-router-link href="/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router id="router"></vaadin-router>
+        <script>
+          document.addEventListener('WebComponentsReady', function () {
+            document.getElementById('router').addRoutes([
+              { path: '/:user', component: 'x-user-profile' },
+              { path: '/', component: 'x-main-view' },
+            ]);
+          });
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Child routes</h3>
+    <p>The routes configuration is a tree: every route can have zero or more children.</p>
+    <vaadin-demo-snippet id="js-api-demos-children-tree" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <vaadin-router-link href="/users">All Users</vaadin-router-link>
+          <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router id="router"></vaadin-router>
+        <script>
+          document.addEventListener('WebComponentsReady', function () {
+            document.getElementById('router').addRoutes([
+              {
+                path: '/users',
+                // NOTE: 'children' override the parent's 'component' property
+                // component: 'zz-user-list',
+                children: [
+                  { path: '/:user', component: 'x-user-profile' },
+                  { path: '', component: 'x-user-list' },
+                ]
+              }
+            ]);
+          });
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Child routes as a tree vs. a flat list</h3>
+    <p>The routes configuration tree gets flattened. The following routes config is effectively the same
+      as in the previous example.</p>
+    <vaadin-demo-snippet id="js-api-demos-children-flat" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <vaadin-router-link href="/users">All Users</vaadin-router-link>
+          <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router id="router"></vaadin-router>
+        <script>
+          document.addEventListener('WebComponentsReady', function () {
+            document.getElementById('router').addRoutes([
+              { path: '/users/:user', component: 'x-user-profile' },
+              { path: '/users', component: 'x-user-list' },
+            ]);
+          });
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>JS vs. HTML API</h3>
+    <p>The routes configuration set from JS is merged with the routes config declared in HTML.
+      The HTML routes are processed before the routes set from JS.</p>
+    <vaadin-demo-snippet id="js-api-demos-basic" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <vaadin-router-link href="/users">All Users</vaadin-router-link>
+          <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
+        </nav>
+        <vaadin-router id="router">
+          <vaadin-route path="/" component="x-main-view"></vaadin-route>
+        </vaadin-router>
+        <script>
+          document.addEventListener('WebComponentsReady', function () {
+            document.getElementById('router').addRoutes([
+              { path: '/users/:user', component: 'u-user-profile' },
+              { path: '/users', component: 'u-user-list' },
+            ]);
+          });
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+  </template>
+  <script>(function(){var a=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'js-api-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(a.is,a)})();</script>
+</dom-module>
