@@ -1,4 +1,4 @@
-<dom-module id="sub-routes-demos">
+<dom-module id="nested-routes-demos">
   <template>
     <style include="vaadin-component-demo-shared-styles">
       :host {
@@ -8,7 +8,7 @@
 
     <h3>Child routes</h3>
     <p>The routes configuration is a tree: every route can have zero or more children.</p>
-    <vaadin-demo-snippet id="sub-routes-demos-children-tree" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="nested-routes-demos-children-tree" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
           <vaadin-router-link href="/users">All Users</vaadin-router-link>
@@ -25,9 +25,11 @@
     </vaadin-demo-snippet>
 
     <h3>Child routes as a tree vs. a flat list</h3>
-    <p>The routes configuration tree gets flattened. The following routes config is effectively the same
-      as in the previous example.</p>
-    <vaadin-demo-snippet id="sub-routes-demos-children-flat" iframe-src="iframe.html">
+    <p>The routes configuration can be expressed as a flat list or as a tree. The difference is
+      in small details. A route without children would match any path starting with a given
+      pattern whereas a route with children would only match exactly. But if a route with children
+      does not match, it would try to match its children in turn.</p>
+    <vaadin-demo-snippet id="nested-routes-demos-children-flat" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
           <vaadin-router-link href="/users">All Users</vaadin-router-link>
@@ -44,7 +46,7 @@
     <h3>A route component can control routing for a subpath</h3>
     <p>The routes configuration for a subpath can be set by a route component separately
       from its parent router's config.</p>
-    <vaadin-demo-snippet id="sub-routes-demos-basic" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="nested-routes-demos-basic" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
           <vaadin-router-link href="/">Home</vaadin-router-link>
@@ -72,12 +74,12 @@
   </template>
   <script>
   (() => {
-    class SubRoutesDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+    class NestedRoutesDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
       static get is() {
-        return 'sub-routes-demos';
+        return 'nested-routes-demos';
       }
     }
-    customElements.define(SubRoutesDemos.is, SubRoutesDemos);
+    customElements.define(NestedRoutesDemos.is, NestedRoutesDemos);
   })();
   </script>
 </dom-module>

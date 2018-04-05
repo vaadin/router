@@ -35,11 +35,11 @@
   }
   ,
   {
-    "name": "Sub-routes",
-    "url": "sub-routes-demos",
-    "src": "sub-routes-demos.html",
+    "name": "Nested Routes",
+    "url": "nested-routes-demos",
+    "src": "nested-routes-demos.html",
     "meta": {
-      "title": "Sub-routes Examples",
+      "title": "Nested Routes Examples",
       "description": "",
       "image": ""
      }
