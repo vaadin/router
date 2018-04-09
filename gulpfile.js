@@ -62,28 +62,20 @@ gulp.task('lint:css', function() {
     }));
 });
 
-gulp.task('lib', ['universal-router']);
+gulp.task('lib', ['vaadin-router-core']);
 
-gulp.task('universal-router', () => {
-  // return gulp.src('node_modules/universal-router/universal-router.js')
-  //   .pipe(gulp.dest('lib'));
-  return rollup.rollup({
-    input: 'universal-router.js',
-    plugins: [
-      resolve(),
-      commonjs(),
-      license({
-        banner: {
-          file: path.join(__dirname, './node_modules/universal-router/LICENSE.txt')
+gulp.task('vaadin-router-core', () => {
+  return new Promise((resolve, reject) => {
+    exec(
+      'yarn install && yarn build',
+      {cwd: path.join(__dirname, 'core')},
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
         }
-      })
-    ]
-  }).then(bundle => {
-    return bundle.write({
-      file: 'lib/universal-router.js',
-      format: 'iife',
-      name: 'UniversalRouter'
-    });
+      });
   });
 });
 
@@ -164,7 +156,7 @@ gulp.task('build:clean', (done) => {
 gulp.task('build:copy-sources', [
   'build:copy-sources:bower',
   'build:copy-sources:vaadin-router',
-  'build:copy-sources:vaadin-router-lib'
+  'build:copy-sources:vaadin-router-core'
 ]);
 
 gulp.task('build:copy-sources:bower', ['build:clean'], () => {
@@ -177,9 +169,9 @@ gulp.task('build:copy-sources:vaadin-router', ['build:clean'], () => {
     .pipe(gulp.dest('build/bower_components/vaadin-router'));
 });
 
-gulp.task('build:copy-sources:vaadin-router-lib', ['build:clean'], () => {
-  return gulp.src(['lib/**/*'])
-    .pipe(gulp.dest('build/bower_components/vaadin-router/lib'));
+gulp.task('build:copy-sources:vaadin-router-core', ['build:clean'], () => {
+  return gulp.src(['core/dist/umd/vaadin-router-core.js'])
+    .pipe(gulp.dest('build/bower_components/vaadin-router/core/dist/umd'));
 });
 
 

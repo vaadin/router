@@ -1,0 +1,26 @@
+{
+  "name": "vaadin-router-core",
+  "version": "1.0.0-alpha1",
+  "main": "dist/vaadin-router-core.js",
+  "module": "dist/es/vaadin-router-core.js",
+  "browser": "dist/umd/vaadin-router-core.js",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.19.1",
+    "eslint-plugin-mocha": "^5.0.0",
+    "mocha": "^5.0.5",
+    "rollup": "^0.57.1",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.3.0"
+  },
+  "dependencies": {
+    "path-to-regexp": "2.2.0",
+    "universal-router": "6.0.0"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
+    "test": "mocha"
+  }
+}

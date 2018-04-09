@@ -9,8 +9,6 @@ This program is available under Apache License Version 2.0, available at https:/
 
 <script>
   (function() {
-    const RouterElement = Vaadin.RouterElement;
-
     /**
      * `<vaadin-route>` is a Web Component that defines a single route for the
      * `<vaadin-router>` component.
@@ -30,7 +28,6 @@ This program is available under Apache License Version 2.0, available at https:/
      * @polymer
      * @customElement
      * @memberof Vaadin
-     * @appliesMixin Vaadin.RouterMixin
      * @appliesMixin Polymer.PropertiesMixin
      */
     class RouteElement extends Polymer.PropertiesMixin(HTMLElement) {
@@ -61,13 +58,9 @@ This program is available under Apache License Version 2.0, available at https:/
           throw new Error(message);
         }
 
-        this.__route = {
-          path: this.path,
-          children: null,
-          action: this.action.bind(this),
-        };
+        this.__route = new Vaadin.Router.Route(this.path, {action: this.__render.bind(this)});
         this.__router = isChildOfRouter ? this.parentElement : this.parentElement.__router;
-        this.parentElement.addRoute(this.__route);
+        this.parentElement.addRoutes(this.__route);
 
         this.__inlineTemplate = this.querySelector('template');
         this.__observer = new MutationObserver(() => {
@@ -78,36 +71,24 @@ This program is available under Apache License Version 2.0, available at https:/
 
       disconnectedCallback() {
         this.__observer.disconnect();
-        this.parentElement.removeRoute(this.__route);
+        this.parentElement.removeRoutes(this.__route);
         super.disconnectedCallback();
       }
 
-      addRoute(childRoute) {
-        RouterElement.ensureRoute(childRoute);
-
-        this.__route.children = this.__route.children || [];
-        this.__route.children.push(childRoute);
-        this.__router.resolve();
+      addRoutes(childRoutes) {
+        this.__route.addRoutes(childRoutes);
+        this.__router.render();
       }
 
-      removeRoute(childRoute) {
-        RouterElement.ensureRoute(childRoute);
-
-        if (!this.__route.children) {
-          return;
-        }
-
-        const index = this.__route.children.indexOf(childRoute);
-        if (index > -1) {
-          this.__route.children.splice(index, 1);
-        }
-        this.__router.resolve();
+      removeRoutes(childRoutes) {
+        this.__route.removeRoutes(childRoutes);
+        this.__router.render();
       }
 
-      action(context) {
+      __render(context) {
         let element;
         if (this.component) {
-          element = RouterElement.renderComponent(this.component, context);
+          element = Vaadin.Router.renderComponent(this.component, context);
         } else if (this.__inlineTemplate) {
           element = this.__renderTemplate(context);
         }
@@ -146,7 +127,7 @@ This program is available under Apache License Version 2.0, available at https:/
 
         if ('path' in changedProps && this.__router) {
           this.__route.path = changedProps.path;
-          this.__router.resove();
+          this.__router.render();
         }
       }
     }
