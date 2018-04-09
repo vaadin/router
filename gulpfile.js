@@ -62,28 +62,20 @@ gulp.task('lint:css', function() {
     }));
 });
 
-gulp.task('lib', ['universal-router']);
+gulp.task('lib', ['vaadin-router-core']);
 
-gulp.task('universal-router', () => {
-  // return gulp.src('node_modules/universal-router/universal-router.js')
-  //   .pipe(gulp.dest('lib'));
-  return rollup.rollup({
-    input: 'universal-router.js',
-    plugins: [
-      resolve(),
-      commonjs(),
-      license({
-        banner: {
-          file: path.join(__dirname, './node_modules/universal-router/LICENSE.txt')
+gulp.task('vaadin-router-core', () => {
+  return new Promise((resolve, reject) => {
+    exec(
+      'yarn install && yarn build',
+      {cwd: path.join(__dirname, 'core')},
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
         }
-      })
-    ]
-  }).then(bundle => {
-    return bundle.write({
-      file: 'lib/universal-router.js',
-      format: 'iife',
-      name: 'UniversalRouter'
-    });
+      });
   });
 });
 
