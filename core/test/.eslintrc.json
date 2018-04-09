@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    "mocha"
+  ],
+  "globals": {
+    "describe": false,
+    "it": false
+  }
+}
