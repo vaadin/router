@@ -156,7 +156,7 @@ gulp.task('build:clean', (done) => {
 gulp.task('build:copy-sources', [
   'build:copy-sources:bower',
   'build:copy-sources:vaadin-router',
-  'build:copy-sources:vaadin-router-lib'
+  'build:copy-sources:vaadin-router-core'
 ]);
 
 gulp.task('build:copy-sources:bower', ['build:clean'], () => {
@@ -169,9 +169,9 @@ gulp.task('build:copy-sources:vaadin-router', ['build:clean'], () => {
     .pipe(gulp.dest('build/bower_components/vaadin-router'));
 });
 
-gulp.task('build:copy-sources:vaadin-router-lib', ['build:clean'], () => {
-  return gulp.src(['lib/**/*'])
-    .pipe(gulp.dest('build/bower_components/vaadin-router/lib'));
+gulp.task('build:copy-sources:vaadin-router-core', ['build:clean'], () => {
+  return gulp.src(['core/dist/umd/vaadin-router-core.js'])
+    .pipe(gulp.dest('build/bower_components/vaadin-router/core/dist/umd'));
 });
 
 
