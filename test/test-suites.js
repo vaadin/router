@@ -1,3 +1,3 @@
 window.VaadinRouterSuites = [
-  'sample-test.html'
+  'vaadin-router.spec.html'
 ];
