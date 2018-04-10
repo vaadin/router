@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>vaadin-router-core tests</title>
+
+  <!--
+    At the time of creating this component WCT still had issues using browser.js
+    from its NPM package (browser.js from WCT's Bower package worked fine).
+    This is the only reason to use Bower for the vaadin-router-core package.
+  -->
+  <script src="../bower_components/web-component-tester/browser.js"></script>
+  <script src="../dist/umd/vaadin-router-core.js"></script>
+  <script src="test-suites.js"></script>
+</head>
+
+<body>
+  <script>
+    (function() {
+      "use strict";
+      WCT._config.environmentScripts.push('webcomponentsjs/webcomponents-lite.js');
+
+      WCT.loadSuites(
+        window.VaadinRouterCoreSuites
+          .reduce(function(suites, suite) {
+            return suites.concat(
+              suite.match(/\.html$/)
+                ? [suite, `${suite}?wc-shadydom=true`]
+                : suite
+            );
+          }, [])
+      );
+    })();
+  </script>
+</body>
+
+</html>
