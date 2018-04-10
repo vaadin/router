@@ -1,0 +1,39 @@
+<!doctype html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>vaadin-router-core tests</title>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../dist/umd/vaadin-router-core.js"></script>
+</head>
+
+<body>
+  <script>
+    describe('Vaadin.Router DOM', function() {
+      this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
+
+      describe('router outlet (basic functionality)', () => {
+
+        let router;
+        let routes;
+        beforeEach(() => {
+          router = new Vaadin.Router();
+          routes = [
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-users-view'}
+          ];
+        });
+
+        it('should promise-render DOM for a known route', async () => {
+          router.setRoutes(routes);
+          const actual = router.render('/');
+          expect(actual).to.be.instanceOf(Promise);
+
+          const dom = await actual;
+          expect(dom).to.be.instanceOf(HTMLElement);
+          expect(dom.tagName).to.match(/x-home-view/i);
+        });
+      });
+    });
+  </script>
+</body>
