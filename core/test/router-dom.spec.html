@@ -9,7 +9,9 @@
 
 <body>
   <script>
-    describe('Vaadin.Router (DOM)', () => {
+    describe('Vaadin.Router DOM', function() {
+      this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
+
       describe('router outlet (basic functionality)', () => {
 
         let router;
