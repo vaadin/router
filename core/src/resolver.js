@@ -1,4 +1,4 @@
-import UniversalRouter from 'universal-router';
+import UniversalRouter from './resolver/UniversalRouter';
 
 import {toArray, ensureRoutes} from './utils.js';
 
