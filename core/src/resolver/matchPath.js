@@ -21,7 +21,7 @@ function decodeParam(val) {
 }
 
 function matchPath(route, pathname, parentKeys, parentParams) {
-  const end = !route.children
+  const end = !!route.exact
   const cacheKey = `${route.path || ''}|${end}`
   let regexp = cache.get(cacheKey)
 
