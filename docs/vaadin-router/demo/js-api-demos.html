@@ -20,7 +20,7 @@
           document.addEventListener('WebComponentsReady', function () {
             document.getElementById('router').addRoutes([
               { path: '/:user', component: 'x-user-profile' },
-              { path: '/', component: 'x-main-view' },
+              { path: '/', component: 'x-home-view' },
             ]);
           });
         </script>
@@ -47,7 +47,8 @@
                   { path: '/:user', component: 'x-user-profile' },
                   { path: '', component: 'x-user-list' },
                 ]
-              }
+              },
+              { path: '/', component: 'x-home-view' }
             ]);
           });
         </script>
@@ -69,6 +70,7 @@
             document.getElementById('router').addRoutes([
               { path: '/users/:user', component: 'x-user-profile' },
               { path: '/users', component: 'x-user-list' },
+              { path: '/', component: 'x-home-view' }
             ]);
           });
         </script>
@@ -91,7 +93,7 @@
           document.addEventListener('WebComponentsReady', function () {
             document.getElementById('router').addRoutes([
               { path: '/users/:user', component: 'u-user-profile' },
-              { path: '/users', component: 'u-user-list' },
+              { path: '/users', component: 'u-user-list' }
             ]);
           });
         </script>
