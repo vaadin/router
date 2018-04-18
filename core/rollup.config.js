@@ -16,7 +16,8 @@ export default [
     output: {
       name: 'Vaadin.Router',
       file: pkg.browser,
-      format: 'umd'
+      format: 'umd',
+      sourcemap: true
     },
     plugins: plugins
   },
@@ -32,7 +33,7 @@ export default [
   {
     input: 'index.js',
     output: [
-      {file: pkg.module, format: 'es'}
+      {file: pkg.module, format: 'es', sourcemap: true}
     ],
     plugins: plugins
   },
@@ -42,7 +43,7 @@ export default [
     input: 'index.js',
     external: ['universal-router'],
     output: [
-      {file: pkg.main, format: 'cjs'},
+      {file: pkg.main, format: 'cjs', sourcemap: true},
     ],
     plugins: [
       resolve(), // so Rollup can find NPM modules

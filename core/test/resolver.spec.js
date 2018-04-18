@@ -35,9 +35,13 @@ describe('Vaadin.Resolver', () => {
       expect(() => resolver.setRoutes([[]])).to.throw();
     });
 
+    it('should accept a single route object', () => {
+      expect(() => resolver.setRoutes({path: '/'})).to.not.throw();
+    });
+
     it('should throw if a route object does not have a `path` string property', () => {
-      expect(() => resolver.setRoutes([{notAPath: ''}])).to.throw();
-      expect(() => resolver.setRoutes([{path: null}])).to.throw();
+      expect(() => resolver.setRoutes({notAPath: ''})).to.throw();
+      expect(() => resolver.setRoutes({path: null})).to.throw();
     });
 
     it('should accept a route object with undocumented extra properties', () => {
@@ -71,14 +75,14 @@ describe('Vaadin.Resolver', () => {
     });
 
     it('should use prefix matching by default', async () => {
-      resolver.setRoutes([{path: '/users', action: () => 'x-home-view'}]);
+      resolver.setRoutes([{path: '/users', action: () => 'x-users-view'}]);
       const actual = await resolver.resolve('/users/and/some/more/segments');
       expect(actual).to.equal('x-users-view');
     });
 
     it('should use exact matching if a path has the `exact` property', async () => {
       resolver.setRoutes([
-        {path: '/users', exact: true, action: () => 'x-home-view'},
+        {path: '/users', exact: true, action: () => 'x-users-view'},
         {path: '/', action: () => 'x-not-found-view'},
       ]);
       const actual = await resolver.resolve('/users/and/some/more/segments');
@@ -87,7 +91,7 @@ describe('Vaadin.Resolver', () => {
 
     it('should use prefix matching if a path has the `exact` property but it is `false`', async () => {
       resolver.setRoutes([
-        {path: '/users', exact: false, action: () => 'x-home-view'},
+        {path: '/users', exact: false, action: () => 'x-users-view'},
         {path: '/', action: () => 'x-not-found-view'},
       ]);
       const actual = await resolver.resolve('/users/and/some/more/segments');
