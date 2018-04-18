@@ -26,7 +26,7 @@
 
         it('should promise-render DOM for a known route', async () => {
           router.setRoutes(routes);
-          const actual = router.render('/');
+          const actual = router.resolve('/');
           expect(actual).to.be.instanceOf(Promise);
 
           const dom = await actual;
