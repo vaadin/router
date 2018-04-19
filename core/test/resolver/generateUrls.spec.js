@@ -7,6 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
+/* eslint-disable */
 (({UniversalRouter, generateUrls}) => {
 
 describe('generateUrls(router, options)(routeName, params)', () => {
