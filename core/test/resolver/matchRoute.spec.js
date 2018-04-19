@@ -7,8 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import { expect } from 'chai'
-import matchRoute from '../src/matchRoute'
+(({matchRoute}) => {
 
 function toArray(gen) {
   const arr = []
@@ -145,3 +144,4 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
     expect(result[1]).to.have.nested.property('route.path', '')
   })
 })
+})(ResolverTest);

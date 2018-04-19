@@ -13,6 +13,7 @@
   -->
   <script src="../bower_components/web-component-tester/browser.js"></script>
   <script src="../dist/umd/vaadin-router-core.js"></script>
+  <script src="resolver.bundle.js"></script>
   <script src="test-suites.js"></script>
 </head>
 
@@ -20,6 +21,8 @@
   <span id="browser-sync-binding"></span>
   <script>
     (function() {
+      window.Vaadin.Resolver = window.Vaadin.Router.Resolver;
+
       "use strict";
       WCT._config.environmentScripts.push('webcomponentsjs/webcomponents-lite.js');
 

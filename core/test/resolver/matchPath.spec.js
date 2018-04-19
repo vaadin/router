@@ -7,8 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import { expect } from 'chai'
-import matchPath from '../src/matchPath'
+(({matchPath}) => {
 
 describe('matchPath(route, pathname)', () => {
   it('should return null if path not fond (1)', () => {
@@ -219,3 +218,4 @@ describe('matchPath(route, pathname)', () => {
       .and.be.deep.equal({ c: 'x' })
   })
 })
+})(ResolverTest);

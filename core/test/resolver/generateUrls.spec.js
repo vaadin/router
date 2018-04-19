@@ -7,10 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import sinon from 'sinon'
-import { expect } from 'chai'
-import UniversalRouter from '../src/UniversalRouter'
-import generateUrls from '../src/generateUrls'
+(({UniversalRouter, generateUrls}) => {
 
 describe('generateUrls(router, options)(routeName, params)', () => {
   it('should throw an error in case of invalid router', async () => {
@@ -227,3 +224,4 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     expect(stringifyQueryParams.args[0][0]).to.be.deep.equal({ x: 'i', y: 'j', z: 'k' })
   })
 })
+})(ResolverTest);

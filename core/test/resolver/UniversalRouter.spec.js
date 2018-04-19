@@ -7,9 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import sinon from 'sinon'
-import { expect } from 'chai'
-import UniversalRouter from '../src/UniversalRouter'
+(({UniversalRouter}) => {
 
 describe('new UniversalRouter(routes, options)', () => {
   it('should throw an error in case of invalid routes', async () => {
@@ -633,3 +631,4 @@ describe('router.resolve({ pathname, ...context })', () => {
     expect(middleware.calledOnce).to.be.true
   })
 })
+})(ResolverTest);
