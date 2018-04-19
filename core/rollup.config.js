@@ -2,25 +2,26 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import pkg from './package.json';
 
-const plugins = [
-  resolve(), // so Rollup can find NPM modules
-  commonjs({ // so Rollup can convert `path-to-regexp` to an ES module
-    include: 'node_modules/**'
-  })
-];
+const commonConfig = {
+  input: 'index.js',
+  output: {
+    sourcemap: true
+  },
+  plugins: [
+    resolve(), // so Rollup can find NPM modules
+    commonjs(), // so Rollup can resolve 'path-to-regexp' in ES builds
+  ]
+};
 
 export default [
   // browser-friendly UMD build with all dependencies bundled-in
-  {
-    input: 'index.js',
+  Object.assign({}, commonConfig, {
     output: {
-      name: 'Vaadin.Router',
-      file: pkg.browser,
       format: 'umd',
-      sourcemap: true
-    },
-    plugins: plugins
-  },
+      file: pkg.browser,
+      name: 'Vaadin.Router',
+    }
+  }),
 
   // ES module build with all dependencies bundled-in
   // This is a tradeoff between ease of use (always) and size-efficiency (in some
@@ -30,23 +31,19 @@ export default [
   // can be imported as is. The size inefficiency could be an issue if some other
   // part of the app also has a dependency on path-to-regexp. In that case, it would
   // need to include its own copy of the dep (no deduplication).
-  {
-    input: 'index.js',
-    output: [
-      {file: pkg.module, format: 'es', sourcemap: true}
-    ],
-    plugins: plugins
-  },
+  Object.assign({}, commonConfig, {
+    output: {
+      format: 'es',
+      file: pkg.module,
+    }
+  }),
 
   // CommonJS (for Node) build
-  {
-    input: 'index.js',
-    external: ['universal-router'],
-    output: [
-      {file: pkg.main, format: 'cjs', sourcemap: true},
-    ],
-    plugins: [
-      resolve(), // so Rollup can find NPM modules
-    ]
-  }
+  Object.assign({}, commonConfig, {
+    external: ['path-to-regexp'],
+    output: {
+      format: 'cjs',
+      file: pkg.main,
+    }
+  })
 ];

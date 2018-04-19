@@ -1,28 +1,14 @@
-import UniversalRouter from 'universal-router';
-
-import {toArray, ensureRoutes} from './utils.js';
+import {Resolver} from './resolver';
 
 function resolveRoute(context, params) {
   const route = context.route;
-  // TODO: export this from UniversalRouter
+  // TODO(vlukashov): export this from UniversalRouter
   if (typeof route.action === 'function') {
     return route.action(context, params);
   } else if (typeof route.component === 'string') {
     return Router.renderComponent(route.component, context);
   }
 }
-
-const DEFAULT_OPTIONS = {
-  baseUrl: '',
-  resolveRoute: resolveRoute
-};
-
-/**
- * @typedef RouterOptions
- * @type {object}
- * @property {string} baseUrl - a base URL for the router
- * @property {boolean} popstate - whether or not listen to popstate events
- */
 
 /**
  * @typedef Route
@@ -42,33 +28,30 @@ const DEFAULT_OPTIONS = {
  * ### Basic example
  * ```
  * const routes = [
- *   { path: '/', component: 'x-home-view' },
+ *   { path: '/', exact: true, component: 'x-home-view' },
  *   { path: '/users', component: 'x-user-list' }
  * ];
  * 
- * const router = new Vaadin.Router(routes, document.getElementById('outlet'));
- * router.start();
+ * const router = new Vaadin.Router(document.getElementById('outlet'));
+ * router.setRoutes(routes);
  * ```
  * 
  * ### Lazy-loading example
  * A bit more involved example with lazy-loading:
  * ```
  * const routes = [
- *   { path: '/', component: 'x-home-view' },
+ *   { path: '/', exact: true, component: 'x-home-view' },
  *   { path: '/users',
- *     importUrl: 'bundles/user-bundle.html',
+ *     bundle: 'bundles/user-bundle.html',
  *     children: [
- *       { path: '/', component: 'x-user-list' },
+ *       { path: '/', exact: true, component: 'x-user-list' },
  *       { path: '/:user', component: 'x-user-profile' }
  *     ]
  *   }
  * ];
  * 
- * const router = new Vaadin.Router(routes);
- * window.addEventListener('popstate', async (event) => {
- *   const dom = await router.resolve(window.location.pathname);
- *   myCustomDomAppender(dom);
- * });
+ * const router = new Vaadin.Router(document.getElementById('outlet'));
+ * router.setRoutes(routes);
  * ```
  * 
  * ### Middleware example
@@ -77,12 +60,12 @@ const DEFAULT_OPTIONS = {
  * ```
  * const routes = [
  *   { path: '/',
- *     action: async (context, next) => {
+ *     action: async (context) => {
  *       // record the navigation completed event for analytics
  *       analytics.recordNavigationStart(context.path);
  * 
  *       // let the navigation happen and wait for the result
- *       const result = await next();
+ *       const result = await context.next();
  * 
  *       // record the navigation completed event for analytics
  *       analytics.recordNavigationEnd(context.path, result.status);
@@ -91,16 +74,16 @@ const DEFAULT_OPTIONS = {
  *       return result;
  *     }
  *   },
- *   { path: '/', component: 'x-home-view' },
+ *   { path: '/', exact: true, component: 'x-home-view' },
  *   { path: '/users',
- *     importUrl: 'bundles/user-bundle.html',
+ *     bundle: 'bundles/user-bundle.html',
  *     children: [
- *       { path: '/', component: 'x-user-list' },
+ *       { path: '/', exact: true, component: 'x-user-list' },
  *       { path: '/:user', component: 'x-user-profile' }
  *     ]
  *   },
  *   { path: '/server',
- *     action: async (context, next) => {
+ *     action: async (context) => {
  *       // fetch the server-side rendered content
  *       const result = await fetch(context.path, {...});
  * 
@@ -113,11 +96,8 @@ const DEFAULT_OPTIONS = {
  *   }
  * ];
  * 
- * const router = new Vaadin.Router(routes);
- * window.addEventListener('popstate', async (event) => {
- *   const dom = await router.resolve(window.location.pathname);
- *   myCustomDomAppender(dom);
- * });
+ * const router = new Vaadin.Router(document.getElementById('outlet'));
+ * router.setRoutes(routes);
  * ```
  * 
  * @memberof Vaadin
@@ -127,27 +107,19 @@ const DEFAULT_OPTIONS = {
 export class Router {
   
   /**
-   * Creates a new Router instance with a given routes configuration.
+   * Creates a new Router instance with a given outlet.
    * Equivalent to
    * ```
    * const router = new Vaadin.Router();
-   * router.setRoutes(routes);
    * router.setOutlet(outlet);
-   * router.setOptions(options);
    * ```
    *
-   * @param {Array<Route>} routes
    * @param {?Node} outlet
    * @param {?RouterOptions} options
    */
-  constructor(routes, outlet, options) {
-    routes = routes || [];
-    ensureRoutes(routes);
-
-    this.__routes = routes;
-    this.__outlet = outlet;
-    this.__options = Object.assign(DEFAULT_OPTIONS, options);
-    this.__router = new UniversalRouter(this.__routes, this.__options);
+  constructor(outlet) {
+    this.__resolver = new Resolver([], {resolveRoute});
+    this.setOutlet(outlet);
   }
 
   /**
@@ -156,7 +128,7 @@ export class Router {
    * @return {!RouterOptions}
    */
   getOptions() {
-    return Object.assign({}, this.__options);
+    throw new Error('TODO(vlukashov): Router.getOptions() is not implemented');
   }
 
   /**
@@ -169,11 +141,7 @@ export class Router {
    * @return {!RouterOptions}
    */
   setOptions(options) {
-    if ('baseUrl' in options) {
-      this.__options.baseUrl = options.baseUrl;
-      this.__router.baseUrl = options.baseUrl;
-    }
-    return this.getOptions();
+    throw new Error('TODO(vlukashov): Router.setOptions() is not implemented');
   }
 
   /**
@@ -184,7 +152,7 @@ export class Router {
    * @return {!Array<!Route>}
    */
   getRoutes() {
-    return [...this.__routes];
+    throw new Error('TODO(vlukashov): Router.getRoutes() is not implemented');
   }
 
   /**
@@ -196,9 +164,7 @@ export class Router {
    * @return {!Array<!Route>}
    */
   setRoutes(routes) {
-    ensureRoutes(routes);
-    this.__routes = [...toArray(routes)];
-    this.__router.root.children = this.__routes;
+    return this.__resolver.setRoutes(routes);
   }
 
   /**
@@ -210,8 +176,7 @@ export class Router {
    * @return {!Array<!Route>}
    */
   addRoutes(routes) {
-    ensureRoutes(routes);
-    this.__routes.push(...toArray(routes));
+    throw new Error('TODO(vlukashov): Router.addRoutes() is not implemented');
   }
 
   /**
@@ -224,12 +189,7 @@ export class Router {
    * @return {!Array<!Route>}
    */
   removeRoutes(routes) {
-    toArray(routes).forEach(route => {
-      const index = this.__routes.indexOf(route);
-      if (index > -1) {
-        this.__routes.splice(index, 1);
-      }
-    });
+    throw new Error('TODO(vlukashov): Router.removeRoutes() is not implemented');
   }
 
   /**
@@ -261,7 +221,7 @@ export class Router {
    * @return {Promise<HTMLElement>}
    */
   resolve(path, context) {
-    return this.__router.resolve(Object.assign({pathname: path}, context));
+    return this.__resolver.resolve(path, context);
   }
 
   /**
@@ -279,7 +239,7 @@ export class Router {
   render(path, context) {
     // TODO(vlukashov): handle the 'no outlet' case
     return this.resolve(path, context)
-      .then(dom => {
+      .then(element => {
         // TODO(vlukashov): handle the 'no outlet' case
         if (this.__outlet) {
           const children = this.__outlet.children;
@@ -290,26 +250,10 @@ export class Router {
             }
           }
 
-          this.__outlet.appendChild(dom);
+          this.__outlet.appendChild(element);
           return this.__outlet;
         }
       });
-  }
-
-  /**
-   * Registers the router for the 'popstate' events on the window object
-   * and automatically calls the `render()` method every time when the history
-   * state changes.
-   */
-  start() {
-    // TODO(vlukashov): implement Router.start()
-  }
-
-  /**
-   * Removes the 'popstate' event registration added in the `start()` method.
-   */
-  stop() {
-    // TODO(vlukashov): implement Router.stop()
   }
 
   /**

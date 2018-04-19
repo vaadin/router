@@ -4,13 +4,14 @@ describe('Vaadin.Resolver', () => {
     expect(router).to.be.ok;
   });
 
-  it('should have a setter for the routes config', () => {
-    const router = new Vaadin.Resolver();
-    router.setRoutes([
-      {path: '/', exact: true, component: 'x-home-view'},
-      {path: '/users', component: 'x-users-view'}
+  it('should have a setter for the routes config', async () => {
+    const resolver = new Vaadin.Resolver();
+    resolver.setRoutes([
+      {path: '/', exact: true, action: () => 'home'},
+      {path: '/users', action: () => 'users'}
     ]);
-    expect(router).to.be.ok;
+    const actual = await resolver.resolve('/');
+    expect(actual).to.equal('home');
   });
 
   describe('setRoutes()', () => {
@@ -19,7 +20,7 @@ describe('Vaadin.Resolver', () => {
       resolver = new Vaadin.Resolver();
     });
     
-    it('should accept an empty routes config (null, undefined, [])', () => {
+    it('should accept an empty routes config (null / undefined / [])', () => {
       expect(() => resolver.setRoutes()).to.not.throw();
       expect(() => resolver.setRoutes(null)).to.not.throw();
       expect(() => resolver.setRoutes([])).to.not.throw();
@@ -96,6 +97,36 @@ describe('Vaadin.Resolver', () => {
       ]);
       const actual = await resolver.resolve('/users/and/some/more/segments');
       expect(actual).to.equal('x-users-view');
+    });
+  });
+
+  it('should have a 1-arg constructor (routes config)', async () => {
+    const resolver = new Vaadin.Resolver([
+      {path: '/', exact: true, action: () => 'home'},
+      {path: '/users', action: () => 'users'}
+    ]);
+    const actual = await resolver.resolve('/');
+    expect(actual).to.equal('home');
+  });
+
+  it('should have a 2-args constructor (routes config, resolver options)', () => {
+    const resolver = new Vaadin.Resolver([
+      {path: '/', exact: true, action: () => 'home'},
+      {path: '/users', action: () => 'users'}
+    ], {
+      any: 'option',
+      would: 'do'
+    });
+    expect(resolver).to.be.ok;
+  });
+
+  describe('options', () => {
+    it('should have a `resolveRoute` option', async () => {
+      const resolveRoute = sinon.stub().returns('content');
+      const resolver = new Vaadin.Resolver({path: '/'}, {resolveRoute});
+      const actual = await resolver.resolve('/');
+      expect(actual).to.equal('content');
+      expect(resolveRoute).to.have.been.calledOnce;
     });
   });
 });

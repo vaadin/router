@@ -8,30 +8,123 @@
 </head>
 
 <body>
+  <test-fixture id="outlet">
+    <template>
+      <div></div>
+    </template>
+  </test-fixture>
+
   <script>
     describe('Vaadin.Router DOM', function() {
       this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
-      describe('router outlet (basic functionality)', () => {
+      var outlet;
+      beforeEach(() => {
+        // reset the URL
+        window.history.pushState(null, null, '/');
 
-        let router;
-        let routes;
-        beforeEach(() => {
-          router = new Vaadin.Router();
-          routes = [
-            {path: '/', component: 'x-home-view'},
-            {path: '/users', component: 'x-users-view'}
-          ];
+        // stamp the test fixture DOM into the page
+        outlet = fixture('outlet');
+      });
+
+      describe('JS API (basic functionality)', () => {
+        it('should have a no-arg constructor', () => {
+          const router = new Vaadin.Router();
+          expect(router).to.be.ok;
         });
 
-        it('should promise-render DOM for a known route', async () => {
-          router.setRoutes(routes);
-          const actual = router.resolve('/');
-          expect(actual).to.be.instanceOf(Promise);
+        it('should have a 1-arg constructor (outlet DOM Node)', () => {
+          const router = new Vaadin.Router(outlet);
+          expect(router).to.be.ok;
+        });
 
-          const dom = await actual;
-          expect(dom).to.be.instanceOf(HTMLElement);
-          expect(dom.tagName).to.match(/x-home-view/i);
+        it('should have a 2-args constructor (outlet DOM Node, options)', () => {
+          const router = new Vaadin.Router(outlet, {baseUrl: '/users'});
+          expect(router).to.be.ok;
+        });
+
+        it('should have a setter for the routes config', () => {
+          const router = new Vaadin.Router();
+          router.setRoutes([
+            {path: '/', exact: true, component: 'x-home-view'},
+            {path: '/users', component: 'x-users-view'}
+          ]);
+          expect(router).to.be.ok;
+        });
+
+        describe('render()', () => {
+          let router;
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
+          });
+          
+          it('should return a promise that resolves to the router outlet DOM element', async () => {
+            router.setRoutes([{path: '/', component: 'x-home-view'}]);
+            const result = router.render('/');
+            expect(result).to.be.a('promise');
+            const actual = await result;
+            expect(actual).to.equal(outlet);
+          });
+
+          it('should return a promise that resolves when the rendered content is appended to the DOM', async () => {
+            router.setRoutes([{path: '/', component: 'x-home-view'}]);
+            const promise = router.render('/');
+            expect(outlet.children).to.have.lengthOf(0);
+            await promise;
+            expect(outlet.children).to.have.lengthOf(1);
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
+          it('should return a promise that gets rejected on no-match', (done) => {
+            router.setRoutes();
+            const result = router.render('/');
+            result.then(() => {
+              fail('the render() promise should get rejected');
+            })
+            .catch(() => done());
+          });
+
+          it('should create and append a route `component` into the router outlet', async () => {
+            router.setRoutes([{path: '/', component: 'x-home-view'}]);
+            await router.render('/');
+            expect(outlet.children).to.have.lengthOf(1);
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
+          it('should replace any pre-existing content of the router outlet', async () => {
+            router.setRoutes([
+              {path: '/', exact: true, component: 'x-home-view'},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+            await router.render('/');
+            await router.render('/users');
+            expect(outlet.children).to.have.lengthOf(1);
+            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          });
+
+          it('should use prefix matching by default', async () => {
+            router.setRoutes([{path: '/users', component: 'x-users-view'}]);
+            await router.render('/users/and/some/more/segments');
+            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          });
+
+          it('should use exact matching if a path has the `exact` property', async () => {
+            router.setRoutes([
+              {path: '/users', exact: true, component: 'x-users-view'},
+              {path: '/', component: 'x-not-found-view'},
+            ]);
+            await router.render('/users/and/some/more/segments');
+            expect(outlet.children[0].tagName).to.match(/x-not-found-view/i);
+          });
+
+          it('should use prefix matching if a path has the `exact` property but it is `false`', async () => {
+            router.setRoutes([
+              {path: '/users', exact: false, component: 'x-users-view'},
+              {path: '/', component: 'x-not-found-view'},
+            ]);
+            await router.render('/users/and/some/more/segments');
+            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          });
         });
       });
     });

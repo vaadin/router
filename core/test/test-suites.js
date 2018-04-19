@@ -1,5 +1,5 @@
 window.VaadinRouterCoreSuites = [
-  // 'router.spec.js',
-  // 'router-dom.spec.html',
+  'router.spec.js',
+  'router-dom.spec.html',
   'resolver.spec.js',
 ];

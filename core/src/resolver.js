@@ -1,13 +1,5 @@
 import UniversalRouter from './resolver/UniversalRouter';
-
-import {toArray, ensureRoutes} from './utils.js';
-
-/**
- * @typedef RouterOptions
- * @type {object}
- * @property {string} baseUrl - a base URL for the router
- * @property {boolean} popstate - whether or not listen to popstate events
- */
+import {toArray, ensureRoutes} from './utils';
 
 /**
  * @typedef Route
@@ -23,10 +15,10 @@ import {toArray, ensureRoutes} from './utils.js';
  * @memberof Vaadin
  */
 export class Resolver {
-  constructor(routes) {
+  constructor(routes, options) {
     ensureRoutes(routes);
     this.__routes = [...toArray(routes)];
-    this.__router = new UniversalRouter(this.__routes);
+    this.__router = new UniversalRouter(this.__routes, options);
   }
 
   /**
