@@ -98,11 +98,15 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     expect(url('a')).to.be.equal('/')
     expect(url('b', { x: 123 })).to.be.equal('/b/123')
     expect(url('c', { x: 'i', y: 'j' })).to.be.equal('/b/i/c/j')
-    expect(router.routesByName).to.have.all.keys('a', 'b', 'c')
+    // the .keys assertion does not work with ES6 Maps until chai 4.x
+    let routesByName = Array.from(router.routesByName.keys());
+    expect(routesByName).to.have.all.members(['a', 'b', 'c'])
 
     router.root.children.push({ path: '/new', name: 'new' })
     expect(url('new')).to.be.equal('/new')
-    expect(router.routesByName).to.have.all.keys('a', 'b', 'c', 'new')
+    // the .keys assertion does not work with ES6 Maps until chai 4.x
+    routesByName = Array.from(router.routesByName.keys());
+    expect(routesByName).to.have.all.members(['a', 'b', 'c', 'new'])
   })
 
   it('should respect baseUrl', async () => {
