@@ -577,11 +577,14 @@ describe('router.resolve({ pathname, ...context })', () => {
 
   it('should match routes with trailing slashes', async () => {
     const router = new UniversalRouter([
-      { path: '/', action: () => 'a' },
+      { path: '/', exact: true, action: () => 'a' },
       { path: '/page/', action: () => 'b' },
       {
         path: '/child',
-        children: [{ path: '/', action: () => 'c' }, { path: '/page/', action: () => 'd' }],
+        children: [
+          { path: '/', exact: true, action: () => 'c' },
+          { path: '/page/', action: () => 'd' }
+        ],
       },
     ])
     expect(await router.resolve('/')).to.be.equal('a')
