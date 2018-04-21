@@ -11,6 +11,11 @@ import pathToRegexp from 'path-to-regexp'
 
 const { hasOwnProperty } = Object.prototype
 const cache = new Map()
+// see https://github.com/pillarjs/path-to-regexp/issues/148
+cache.set('|false', {
+  keys: [],
+  pattern: /(?:)/
+})
 
 function decodeParam(val) {
   try {
@@ -21,15 +26,16 @@ function decodeParam(val) {
 }
 
 function matchPath(route, pathname, parentKeys, parentParams) {
+  const routepath = (route.path || '')
   const end = !!route.exact
-  const cacheKey = `${route.path || ''}|${end}`
+  const cacheKey = `${routepath}|${end}`
   let regexp = cache.get(cacheKey)
 
   if (!regexp) {
     const keys = []
     regexp = {
       keys,
-      pattern: pathToRegexp(route.path || '', keys, { end }),
+      pattern: pathToRegexp(routepath, keys, { end, strict: routepath === '' }),
     }
     cache.set(cacheKey, regexp)
   }
@@ -56,8 +62,8 @@ function matchPath(route, pathname, parentKeys, parentParams) {
   }
 
   return {
-    path: !end && path.charAt(path.length - 1) === '/' ? path.substr(1) : path,
-    keys: parentKeys.concat(regexp.keys),
+    path: path,
+    keys: (parentKeys || []).concat(regexp.keys),
     params,
   }
 }
