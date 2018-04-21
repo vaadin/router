@@ -164,7 +164,7 @@ describe('matchPath(route, pathname)', () => {
 
       it('should match if the route does not have a trailing slash and the path does', () => {
         const result = matchPath({ path: '/a' }, '/a/')
-        expect(result).to.have.property('path', '/a')
+        expect(result).to.have.property('path', '/a/')
       })
 
       it('should match if both the route and the path do have trailing slashes', () => {
@@ -186,7 +186,7 @@ describe('matchPath(route, pathname)', () => {
 
       it('should match if the route does not have a trailing slash and the path does', () => {
         const result = matchPath({ path: 'a/b/c' }, 'a/b/c/')
-        expect(result).to.have.property('path', 'a/b/c')
+        expect(result).to.have.property('path', 'a/b/c/')
       })
 
       it('should match if both the route and the path do have trailing slashes', () => {
