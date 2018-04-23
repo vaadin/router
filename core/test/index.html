@@ -12,18 +12,26 @@
     This is the only reason to use Bower for the vaadin-router-core package.
   -->
   <script src="../bower_components/web-component-tester/browser.js"></script>
-  <script src="../dist/umd/vaadin-router-core.js"></script>
-  <script src="resolver.bundle.js"></script>
   <script src="test-suites.js"></script>
+  
+  <script src="../dist/iife/resolver/path-to-regexp.js"></script>
+  <script src="../dist/iife/resolver/matchPath.js"></script>
+  <script src="../dist/iife/resolver/matchRoute.js"></script>
+  <script src="../dist/iife/resolver/resolveRoute.js"></script>
+  <script src="../dist/iife/resolver/UniversalRouter.js"></script>
+  <script src="../dist/iife/resolver/generateUrls.js"></script>
+
+  <script src="../dist/umd/vaadin-router-core.js"></script>
 </head>
 
 <body>
   <span id="browser-sync-binding"></span>
   <script>
     (function() {
+      "use strict";
+      
       window.Vaadin.Resolver = window.Vaadin.Router.Resolver;
 
-      "use strict";
       WCT._config.environmentScripts.push('webcomponentsjs/webcomponents-lite.js');
 
       WCT.loadSuites(

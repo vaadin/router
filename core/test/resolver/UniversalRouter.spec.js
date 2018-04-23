@@ -635,4 +635,4 @@ describe('router.resolve({ pathname, ...context })', () => {
     expect(middleware.calledOnce).to.be.true
   })
 })
-})(ResolverTest);
+})(VaadinTestNamespace);

@@ -395,4 +395,4 @@ describe('matchPath(route, pathname)', () => {
     })
   })
 })
-})(ResolverTest);
+})(VaadinTestNamespace);

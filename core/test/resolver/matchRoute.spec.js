@@ -146,4 +146,4 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
     expect(result[1]).to.have.deep.property('route.path', '')
   })
 })
-})(ResolverTest);
+})(VaadinTestNamespace);

@@ -229,4 +229,4 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     expect(stringifyQueryParams.args[0][0]).to.be.deep.equal({ x: 'i', y: 'j', z: 'k' })
   })
 })
-})(ResolverTest);
+})(VaadinTestNamespace);
