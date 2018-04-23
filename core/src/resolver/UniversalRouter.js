@@ -7,9 +7,9 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import pathToRegexp from 'path-to-regexp'
-import matchRoute from './matchRoute'
-import resolveRoute from './resolveRoute'
+import pathToRegexp from './path-to-regexp.js'
+import matchRoute from './matchRoute.js'
+import resolveRoute from './resolveRoute.js'
 
 function isChildRoute(parentRoute, childRoute) {
   let route = childRoute

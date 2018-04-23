@@ -1,5 +1,5 @@
-import UniversalRouter from './resolver/UniversalRouter';
-import {toArray, ensureRoutes} from './utils';
+import UniversalRouter from './resolver/UniversalRouter.js';
+import {toArray, ensureRoutes} from './utils.js';
 
 /**
  * @typedef Route

@@ -7,7 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import UniversalRouter from './UniversalRouter'
+import UniversalRouter from './UniversalRouter.js'
 
 const { pathToRegexp } = UniversalRouter
 const cache = new Map()

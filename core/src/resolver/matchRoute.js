@@ -7,7 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import matchPath from './matchPath'
+import matchPath from './matchPath.js'
 
 function matchRoute(route, baseUrl, pathname, parentKeys, parentParams) {
   let match

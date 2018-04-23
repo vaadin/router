@@ -7,7 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import pathToRegexp from 'path-to-regexp'
+import pathToRegexp from './path-to-regexp.js'
 
 const { hasOwnProperty } = Object.prototype
 const cache = new Map()

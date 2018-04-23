@@ -1,4 +1,4 @@
-import {Resolver} from './resolver';
+import {Resolver} from './resolver.js';
 
 function resolveRoute(context, params) {
   const route = context.route;
