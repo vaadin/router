@@ -9,7 +9,7 @@
 
 import matchPath from './matchPath.js'
 
-function matchRoute(route, baseUrl, pathname, parentKeys, parentParams) {
+function matchRoute(route, pathname, parentKeys, parentParams) {
   let match
   let childMatches
   let childIndex = 0
@@ -32,8 +32,6 @@ function matchRoute(route, baseUrl, pathname, parentKeys, parentParams) {
             done: false,
             value: {
               route,
-              baseUrl,
-              path: match.path,
               keys: match.keys,
               params: match.params,
             },
@@ -58,7 +56,6 @@ function matchRoute(route, baseUrl, pathname, parentKeys, parentParams) {
 
             childMatches = matchRoute(
               childRoute,
-              baseUrl + matchedPath,
               pathname.substr(matchedPath.length),
               match.keys,
               match.params,

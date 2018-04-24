@@ -20,12 +20,12 @@ function toArray(gen) {
   return arr
 }
 
-describe('matchRoute(route, baseUrl, pathname)', () => {
+describe('matchRoute(route, pathname)', () => {
   it('should return a valid iterator', () => {
     const route = {
       path: '/a',
     }
-    const result = matchRoute(route, '', '/a')
+    const result = matchRoute(route, '/a')
     expect(result).to.be.an('object')
       .and.not.be.null
     expect(result).to.have.property('next')
@@ -45,17 +45,11 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
     const route = {
       path: '/a',
     }
-    const match = matchRoute(route, '', '/a').next().value
+    const match = matchRoute(route, '/a').next().value
     expect(match)
       .to.have.property('route')
       .that.is.an('object')
       .and.is.not.null
-    expect(match)
-      .to.have.property('baseUrl')
-      .that.is.a('string')
-    expect(match)
-      .to.have.property('path')
-      .that.is.a('string')
     expect(match)
       .to.have.property('keys')
       .that.is.an('array')
@@ -70,7 +64,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
       const route = {
         path: '/a',
       }
-      const result = toArray(matchRoute(route, '', '/b'))
+      const result = toArray(matchRoute(route, '/b'))
       expect(result).to.have.lengthOf(0)
     })
 
@@ -82,7 +76,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/b' },
         ]
       }
-      const result = toArray(matchRoute(route, '', '/a/c'))
+      const result = toArray(matchRoute(route, '/a/c'))
       expect(result).to.have.lengthOf(0)
     })
 
@@ -93,7 +87,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/b' },
         ]
       }
-      const result = toArray(matchRoute(route, '', '/b'))
+      const result = toArray(matchRoute(route, '/b'))
       expect(result).to.have.lengthOf(0)
     })
 
@@ -104,7 +98,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: 'b' },
         ]
       }
-      const result = toArray(matchRoute(route, '', 'ab'))
+      const result = toArray(matchRoute(route, 'ab'))
       expect(result).to.have.lengthOf(0)
     })
   })
@@ -114,10 +108,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
       const route = {
         path: '/a',
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
     })
 
@@ -125,10 +117,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
       const route = {
         path: '/a/b',
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a/b')
       expect(result[0]).to.have.deep.property('route.path', '/a/b')
     })
 
@@ -139,10 +129,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/b' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/c'))
+      const result = toArray(matchRoute(route, '/a/c'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
     })
 
@@ -155,10 +143,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/d' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/x'))
+      const result = toArray(matchRoute(route, '/a/x'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
     })
 
@@ -166,10 +152,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
       const route = {
         path: '',
       }
-      const result = toArray(matchRoute(route, '', '/a'))
+      const result = toArray(matchRoute(route, '/a'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '')
       expect(result[0]).to.have.deep.property('route.path', '')
     })
 
@@ -182,10 +166,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/d' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a'))
+      const result = toArray(matchRoute(route, '/a'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '')
       expect(result[0]).to.have.deep.property('route.path', '')
     })
 
@@ -193,10 +175,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
       const route = {
         path: '/',
       }
-      const result = toArray(matchRoute(route, '', '/a'))
+      const result = toArray(matchRoute(route, '/a'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/')
       expect(result[0]).to.have.deep.property('route.path', '/')
     })
 
@@ -209,10 +189,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/d' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a'))
+      const result = toArray(matchRoute(route, '/a'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/')
       expect(result[0]).to.have.deep.property('route.path', '/')
     })
 
@@ -220,10 +198,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
       const route = {
         path: '/a/',
       }
-      const result = toArray(matchRoute(route, '', '/a/'))
+      const result = toArray(matchRoute(route, '/a/'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a/')
       expect(result[0]).to.have.deep.property('route.path', '/a/')
     })
 
@@ -236,10 +212,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/d' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/'))
+      const result = toArray(matchRoute(route, '/a/'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a/')
     })
 
@@ -252,11 +226,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/d' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/x'))
+      const result = toArray(matchRoute(route, '/a/x'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
       // TODO(vlukashov): why /a/ would match the path '/a' (no trainling "/") and '/' would match the path '/'?
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a/')
     })
 
@@ -264,10 +236,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
       const route = {
         path: 'a',
       }
-      const result = toArray(matchRoute(route, '', 'a'))
+      const result = toArray(matchRoute(route, 'a'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', 'a')
       expect(result[0]).to.have.deep.property('route.path', 'a')
     })
   })
@@ -280,14 +250,10 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/b' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
   
-      // expect(result[1]).to.have.property('baseUrl', '/a')
-      // expect(result[1]).to.have.property('path', '/b')
       expect(result[1]).to.have.deep.property('route.path', '/b')
     })
   
@@ -300,14 +266,10 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/d' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/d'))
+      const result = toArray(matchRoute(route, '/a/d'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
   
-      // expect(result[1]).to.have.property('baseUrl', '/a')
-      // expect(result[1]).to.have.property('path', '/d')
       expect(result[1]).to.have.deep.property('route.path', '/d')
     })
   
@@ -319,10 +281,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/b' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '/a')
-      // expect(result[0]).to.have.property('path', '/b')
       expect(result[0]).to.have.deep.property('route.path', '/b')
     })
 
@@ -333,13 +293,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: 'b' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
-      // expect(result[1]).to.have.property('baseUrl', '/a')
-      // expect(result[1]).to.have.property('path', '/b')
       expect(result[1]).to.have.deep.property('route.path', 'b')
     })
 
@@ -350,13 +306,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/b' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a/')
       expect(result[0]).to.have.deep.property('route.path', '/a/')
-      // expect(result[1]).to.have.property('baseUrl', '/a/')
-      // expect(result[1]).to.have.property('path', 'b')
       expect(result[1]).to.have.deep.property('route.path', '/b')
     })
 
@@ -367,13 +319,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: 'b' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a/')
       expect(result[0]).to.have.deep.property('route.path', '/a/')
-      // expect(result[1]).to.have.property('baseUrl', '/a/')
-      // expect(result[1]).to.have.property('path', 'b')
       expect(result[1]).to.have.deep.property('route.path', 'b')
     })
 
@@ -389,16 +337,10 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b/c/d'))
+      const result = toArray(matchRoute(route, '/a/b/c/d'))
       expect(result).to.have.lengthOf(3)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a/')
       expect(result[0]).to.have.deep.property('route.path', '/a')
-      // expect(result[1]).to.have.property('baseUrl', '/a/')
-      // expect(result[1]).to.have.property('path', 'b/')
       expect(result[1]).to.have.deep.property('route.path', 'b')
-      // expect(result[2]).to.have.property('baseUrl', '/a/b/')
-      // expect(result[2]).to.have.property('path', 'c/')
       expect(result[2]).to.have.deep.property('route.path', 'c')
     })
 
@@ -409,13 +351,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: 'b' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b/'))
+      const result = toArray(matchRoute(route, '/a/b/'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a/')
       expect(result[0]).to.have.deep.property('route.path', '/a')
-      // expect(result[1]).to.have.property('baseUrl', '/a/')
-      // expect(result[1]).to.have.property('path', 'b/')
       expect(result[1]).to.have.deep.property('route.path', 'b')
     })
 
@@ -426,13 +364,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/a' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a'))
+      const result = toArray(matchRoute(route, '/a'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/')
       expect(result[0]).to.have.deep.property('route.path', '/')
-      // expect(result[1]).to.have.property('baseUrl', '/')
-      // expect(result[1]).to.have.property('path', '/a')
       expect(result[1]).to.have.deep.property('route.path', '/a')
     })
 
@@ -443,13 +377,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
-      // expect(result[1]).to.have.property('baseUrl', '/a')
-      // expect(result[1]).to.have.property('path', '/')
       expect(result[1]).to.have.deep.property('route.path', '/')
     })
 
@@ -461,13 +391,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/', name: 'child' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a'))
+      const result = toArray(matchRoute(route, '/a'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/')
       expect(result[0]).to.have.deep.property('route.name', 'parent')
-      // expect(result[1]).to.have.property('baseUrl', '/')
-      // expect(result[1]).to.have.property('path', '/')
       expect(result[1]).to.have.deep.property('route.name', 'child')
     })
 
@@ -478,13 +404,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/a' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a'))
+      const result = toArray(matchRoute(route, '/a'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '')
       expect(result[0]).to.have.deep.property('route.path', '')
-      // expect(result[1]).to.have.property('baseUrl', '')
-      // expect(result[1]).to.have.property('path', '/a')
       expect(result[1]).to.have.deep.property('route.path', '/a')
     })
 
@@ -495,7 +417,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/a' },
         ],
       }
-      const result = toArray(matchRoute(route, '', 'a'))
+      const result = toArray(matchRoute(route, 'a'))
       expect(result).to.have.lengthOf(1)
     })
 
@@ -513,7 +435,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           },
         ],
       }
-      const result = toArray(matchRoute(route, '', 'a'))
+      const result = toArray(matchRoute(route, 'a'))
       expect(result).to.have.lengthOf(2)
       expect(result[0]).to.have.deep.property('route.name', 'level-1')
       expect(result[1]).to.have.deep.property('route.name', 'level-2')
@@ -533,7 +455,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           },
         ],
       }
-      const result = toArray(matchRoute(route, '', 'a'))
+      const result = toArray(matchRoute(route, 'a'))
       expect(result).to.have.lengthOf(3)
       expect(result[0]).to.have.deep.property('route.name', 'level-1')
       expect(result[1]).to.have.deep.property('route.name', 'level-2')
@@ -547,13 +469,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
-      // expect(result[1]).to.have.property('baseUrl', '/a/')
-      // expect(result[1]).to.have.property('path', '')
       expect(result[1]).to.have.deep.property('route.path', '')
     })
 
@@ -565,10 +483,8 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a'))
+      const result = toArray(matchRoute(route, '/a'))
       expect(result).to.have.lengthOf(1)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
     })
 
@@ -580,13 +496,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/'))
+      const result = toArray(matchRoute(route, '/a/'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a/')
       expect(result[0]).to.have.deep.property('route.path', '/a/')
-      // expect(result[1]).to.have.property('baseUrl', '/a/')
-      // expect(result[1]).to.have.property('path', '')
       expect(result[1]).to.have.deep.property('route.path', '')
     })
 
@@ -598,13 +510,9 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '', name: 'child' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a'))
+      const result = toArray(matchRoute(route, '/a'))
       expect(result).to.have.lengthOf(2)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '')
       expect(result[0]).to.have.deep.property('route.name', 'parent')
-      // expect(result[1]).to.have.property('baseUrl', '')
-      // expect(result[1]).to.have.property('path', '')
       expect(result[1]).to.have.deep.property('route.name', 'child')
     })
   })
@@ -618,18 +526,10 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/:id' }
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result).to.have.lengthOf(3)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
-
-      // expect(result[1]).to.have.property('baseUrl', '/a')
-      // expect(result[1]).to.have.property('path', '/b')
       expect(result[1]).to.have.deep.property('route.path', '/b')
-
-      // expect(result[2]).to.have.property('baseUrl', '/a')
-      // expect(result[2]).to.have.property('path', '/b')
       expect(result[2]).to.have.deep.property('route.path', '/:id')
     })
 
@@ -646,22 +546,11 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b/c'))
+      const result = toArray(matchRoute(route, '/a/b/c'))
       expect(result).to.have.lengthOf(4)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
-  
-      // expect(result[1]).to.have.property('baseUrl', '/a')
-      // expect(result[1]).to.have.property('path', '/b/c')
       expect(result[1]).to.have.deep.property('route.path', '/b/c')
-  
-      // expect(result[2]).to.have.property('baseUrl', '/a')
-      // expect(result[2]).to.have.property('path', '/b')
       expect(result[2]).to.have.deep.property('route.path', '/b')
-  
-      // expect(result[3]).to.have.property('baseUrl', '/a/b')
-      // expect(result[3]).to.have.property('path', '/c')
       expect(result[3]).to.have.deep.property('route.path', '/c')
     })
 
@@ -678,57 +567,12 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
           { path: '/b/c' },
         ],
       }
-      const result = toArray(matchRoute(route, '', '/a/b/c'))
+      const result = toArray(matchRoute(route, '/a/b/c'))
       expect(result).to.have.lengthOf(4)
-      // expect(result[0]).to.have.property('baseUrl', '')
-      // expect(result[0]).to.have.property('path', '/a')
       expect(result[0]).to.have.deep.property('route.path', '/a')
-  
-      // expect(result[1]).to.have.property('baseUrl', '/a')
-      // expect(result[1]).to.have.property('path', '/b')
       expect(result[1]).to.have.deep.property('route.path', '/b')
-  
-      // expect(result[2]).to.have.property('baseUrl', '/a/b')
-      // expect(result[2]).to.have.property('path', '/c')
       expect(result[2]).to.have.deep.property('route.path', '/c')
-  
-      // expect(result[3]).to.have.property('baseUrl', '/a')
-      // expect(result[3]).to.have.property('path', '/b/c')
       expect(result[3]).to.have.deep.property('route.path', '/b/c')
-    })
-  })
-
-  describe('base URL', () => {
-    const urls = ['', '/', '//', '.', '..', 'a', 'a/b', 'a/', '/a', '/a/b', '/a/'];
-    it('should be returned literally in the root match', () => {
-      const route = {
-        path: '/a',
-      }
-
-      urls.forEach(baseUrl => {
-        const match = toArray(matchRoute(route, baseUrl, '/a'))[0]
-        expect(match).to.have.property('baseUrl', baseUrl)
-      })
-    })
-
-    it('should have the parent path appended to it in child matches', () => {
-      const route = {
-        path: '/x',
-        children: [
-          {
-            path: '/y',
-            children: [
-              { path: '/z' },
-            ],
-          },
-        ],
-      }
-
-      urls.forEach(baseUrl => {
-        const result = toArray(matchRoute(route, baseUrl, '/x/y/z'))
-        expect(result[1]).to.have.property('baseUrl', `${baseUrl}/x`)
-        expect(result[2]).to.have.property('baseUrl', `${baseUrl}/x/y`)
-      })
     })
   })
 
@@ -738,7 +582,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
         path: '/a/:b',
       }
 
-      const result = toArray(matchRoute(route, '', '/a/1'))
+      const result = toArray(matchRoute(route, '/a/1'))
       expect(result[0]).to.have.property('keys')
         .that.is.an('array')
         .and.is.lengthOf(1)
@@ -754,7 +598,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
         ],
       }
 
-      const result = toArray(matchRoute(route, '', '/a/1/2'))
+      const result = toArray(matchRoute(route, '/a/1/2'))
       expect(result[1]).to.have.property('keys')
         .that.is.an('array')
         .and.is.lengthOf(2)
@@ -770,7 +614,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
         ],
       }
 
-      const result = toArray(matchRoute(route, '', '/a/b'))
+      const result = toArray(matchRoute(route, '/a/b'))
       expect(result[0]).to.have.property('keys')
         .that.is.an('array')
         .and.is.lengthOf(0)
@@ -791,7 +635,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
         ],
       }
 
-      const result = toArray(matchRoute(route, '', '/a/1/2'))
+      const result = toArray(matchRoute(route, '/a/1/2'))
       expect(result[0]).to.have.property('keys')
         .that.is.an('array')
         .and.is.lengthOf(1)
@@ -808,7 +652,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
         ],
       }
 
-      const result = toArray(matchRoute(route, '', '/a/1/2'))
+      const result = toArray(matchRoute(route, '/a/1/2'))
       expect(result[2]).to.have.property('keys')
         .that.is.an('array')
         .and.is.lengthOf(1)
@@ -824,7 +668,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
         ],
       }
 
-      const result = toArray(matchRoute(route, '', '/a/1/2'))
+      const result = toArray(matchRoute(route, '/a/1/2'))
       expect(result[1]).to.have.property('params')
         .that.is.deep.equal({ b: '2' })
     })
@@ -837,7 +681,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
         ],
       }
 
-      const result = toArray(matchRoute(route, '', '/a/1'))
+      const result = toArray(matchRoute(route, '/a/1'))
       expect(result[1]).to.have.property('params')
         .that.is.deep.equal({ b: '1' })
     })
@@ -850,7 +694,7 @@ describe('matchRoute(route, baseUrl, pathname)', () => {
         ],
       }
 
-      const result = toArray(matchRoute(route, '', '/a/1'))
+      const result = toArray(matchRoute(route, '/a/1'))
       expect(result[0]).to.have.property('params')
         .that.is.deep.equal({ b: '1' })
     })
