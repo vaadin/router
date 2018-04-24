@@ -7,9 +7,9 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import UniversalRouter from './UniversalRouter.js'
+import Resolver from './resolver.js'
 
-const { pathToRegexp } = UniversalRouter
+const { pathToRegexp } = Resolver
 const cache = new Map()
 
 function cacheRoutes(routesByName, route, routes) {
@@ -31,8 +31,8 @@ function cacheRoutes(routesByName, route, routes) {
 }
 
 function generateUrls(router, options = {}) {
-  if (!(router instanceof UniversalRouter)) {
-    throw new TypeError('An instance of UniversalRouter is expected')
+  if (!(router instanceof Resolver)) {
+    throw new TypeError('An instance of Resolver is expected')
   }
 
   router.routesByName = router.routesByName || new Map()

@@ -19,7 +19,7 @@ const sourceFiles = new Map([
   ['matchPath.js', 'matchPath'],
   ['matchRoute.js', 'matchRoute'],
   ['resolveRoute.js', 'resolveRoute'],
-  ['UniversalRouter.js', 'UniversalRouter'],
+  ['resolver.js', 'Resolver'],
   ['generateUrls.js', 'generateUrls'],
 ]);
 const coverageBundles = Array.from(sourceFiles.entries()).map(([file, name]) => {

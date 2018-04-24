@@ -1,5 +1,5 @@
 /**
- * Universal Router (https://www.kriasoft.com/universal-router/)
+ * Universal resolver (https://www.kriasoft.com/universal-resolver/)
  *
  * Copyright (c) 2015-present Kriasoft.
  *
@@ -8,19 +8,19 @@
  */
 
 /* eslint-disable */
-(({UniversalRouter}) => {
+(({Resolver}) => {
 
-describe('new UniversalRouter(routes, options)', () => {
+describe('new Resolver(routes, options)', () => {
   it('should throw an error in case of invalid routes', async () => {
-    expect(() => new UniversalRouter()).to.throw(TypeError, /Invalid routes/)
-    expect(() => new UniversalRouter(12)).to.throw(TypeError, /Invalid routes/)
-    expect(() => new UniversalRouter(null)).to.throw(TypeError, /Invalid routes/)
+    expect(() => new Resolver()).to.throw(TypeError, /Invalid routes/)
+    expect(() => new Resolver(12)).to.throw(TypeError, /Invalid routes/)
+    expect(() => new Resolver(null)).to.throw(TypeError, /Invalid routes/)
   })
 
   it('should support custom resolve option for declarative routes', async () => {
     const resolveRoute = sinon.spy((context) => context.route.component || undefined)
     const action = sinon.spy()
-    const router = new UniversalRouter(
+    const resolver = new Resolver(
       {
         path: '/a',
         action,
@@ -32,7 +32,7 @@ describe('new UniversalRouter(routes, options)', () => {
       },
       { resolveRoute },
     )
-    const result = await router.resolve('/a/c')
+    const result = await resolver.resolve('/a/c')
     expect(resolveRoute.calledThrice).to.be.true
     expect(action.called).to.be.false
     expect(result).to.be.equal('c')
@@ -40,8 +40,8 @@ describe('new UniversalRouter(routes, options)', () => {
 
   it('should support custom error handler option', async () => {
     const errorHandler = sinon.spy(() => 'result')
-    const router = new UniversalRouter([], { errorHandler })
-    const result = await router.resolve('/')
+    const resolver = new Resolver([], { errorHandler })
+    const result = await resolver.resolve('/')
     expect(result).to.be.equal('result')
     expect(errorHandler.calledOnce).to.be.true
     const error = errorHandler.args[0][0]
@@ -50,7 +50,7 @@ describe('new UniversalRouter(routes, options)', () => {
     expect(error.code).to.be.equal(404)
     expect(error.context.pathname).to.be.equal('/')
     expect(error.context.path).to.be.equal(undefined)
-    expect(error.context.router).to.be.equal(router)
+    expect(error.context.resolver).to.be.equal(resolver)
   })
 
   it('should handle route errors', async () => {
@@ -61,8 +61,8 @@ describe('new UniversalRouter(routes, options)', () => {
         throw new Error('custom')
       },
     }
-    const router = new UniversalRouter(route, { errorHandler })
-    const result = await router.resolve('/')
+    const resolver = new Resolver(route, { errorHandler })
+    const result = await resolver.resolve('/')
     expect(result).to.be.equal('result')
     expect(errorHandler.calledOnce).to.be.true
     const error = errorHandler.args[0][0]
@@ -71,17 +71,17 @@ describe('new UniversalRouter(routes, options)', () => {
     expect(error.code).to.be.equal(500)
     expect(error.context.pathname).to.be.equal('/')
     expect(error.context.path).to.be.equal('/')
-    expect(error.context.router).to.be.equal(router)
+    expect(error.context.resolver).to.be.equal(resolver)
     expect(error.context.route).to.be.equal(route)
   })
 })
 
-describe('router.resolve({ pathname, ...context })', () => {
+describe('resolver.resolve({ pathname, ...context })', () => {
   it('should throw an error if no route found', async () => {
-    const router = new UniversalRouter([])
+    const resolver = new Resolver([])
     let err
     try {
-      await router.resolve('/')
+      await resolver.resolve('/')
     } catch (e) {
       err = e
     }
@@ -90,13 +90,13 @@ describe('router.resolve({ pathname, ...context })', () => {
     expect(err.code).to.be.equal(404)
     expect(err.context.pathname).to.be.equal('/')
     expect(err.context.path).to.be.equal(undefined)
-    expect(err.context.router).to.be.equal(router)
+    expect(err.context.resolver).to.be.equal(resolver)
   })
 
   it("should execute the matching route's action method and return its result", async () => {
     const action = sinon.spy(() => 'b')
-    const router = new UniversalRouter({ path: '/a', action })
-    const result = await router.resolve('/a')
+    const resolver = new Resolver({ path: '/a', action })
+    const result = await resolver.resolve('/a')
     expect(action.calledOnce).to.be.true
     expect(action.args[0][0]).to.have.property('path', '/a')
     expect(result).to.be.equal('b')
@@ -107,13 +107,13 @@ describe('router.resolve({ pathname, ...context })', () => {
     const action2 = sinon.spy(() => null)
     const action3 = sinon.spy(() => 'c')
     const action4 = sinon.spy(() => 'd')
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       { path: '/a', action: action1 },
       { path: '/a', action: action2 },
       { path: '/a', action: action3 },
       { path: '/a', action: action4 },
     ])
-    const result = await router.resolve('/a')
+    const result = await resolver.resolve('/a')
     expect(result).to.be.equal('c')
     expect(action1.calledOnce).to.be.true
     expect(action2.calledOnce).to.be.true
@@ -123,8 +123,8 @@ describe('router.resolve({ pathname, ...context })', () => {
 
   it('should be able to pass context variables to action methods', async () => {
     const action = sinon.spy(() => true)
-    const router = new UniversalRouter([{ path: '/a', action }])
-    const result = await router.resolve({ pathname: '/a', test: 'b' })
+    const resolver = new Resolver([{ path: '/a', action }])
+    const result = await resolver.resolve({ pathname: '/a', test: 'b' })
     expect(action.calledOnce).to.be.true
     expect(action.args[0][0]).to.have.property('path', '/a')
     expect(action.args[0][0]).to.have.property('test', 'b')
@@ -133,10 +133,10 @@ describe('router.resolve({ pathname, ...context })', () => {
 
   it("should not call action methods of routes that don't match the URL path", async () => {
     const action = sinon.spy()
-    const router = new UniversalRouter([{ path: '/a', action }])
+    const resolver = new Resolver([{ path: '/a', action }])
     let err
     try {
-      await router.resolve('/b')
+      await resolver.resolve('/b')
     } catch (e) {
       err = e
     }
@@ -147,15 +147,15 @@ describe('router.resolve({ pathname, ...context })', () => {
   })
 
   it('should support asynchronous route actions', async () => {
-    const router = new UniversalRouter([{ path: '/a', action: async () => 'b' }])
-    const result = await router.resolve('/a')
+    const resolver = new Resolver([{ path: '/a', action: async () => 'b' }])
+    const result = await resolver.resolve('/a')
     expect(result).to.be.equal('b')
   })
 
   it('URL parameters are captured and added to context.params', async () => {
     const action = sinon.spy(() => true)
-    const router = new UniversalRouter([{ path: '/:one/:two', action }])
-    const result = await router.resolve({ pathname: '/a/b' })
+    const resolver = new Resolver([{ path: '/:one/:two', action }])
+    const result = await resolver.resolve({ pathname: '/a/b' })
     expect(action.calledOnce).to.be.true
     expect(action.args[0][0])
       .to.have.property('params')
@@ -166,7 +166,7 @@ describe('router.resolve({ pathname, ...context })', () => {
   it('should provide all URL parameters to each route', async () => {
     const action1 = sinon.spy()
     const action2 = sinon.spy(() => true)
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '/:one',
         action: action1,
@@ -178,7 +178,7 @@ describe('router.resolve({ pathname, ...context })', () => {
         ],
       },
     ])
-    const result = await router.resolve({ pathname: '/a/b' })
+    const result = await resolver.resolve({ pathname: '/a/b' })
     expect(action1.calledOnce).to.be.true
     expect(action1.args[0][0])
       .to.have.property('params')
@@ -193,7 +193,7 @@ describe('router.resolve({ pathname, ...context })', () => {
   it('should override URL parameters with same name in child route', async () => {
     const action1 = sinon.spy()
     const action2 = sinon.spy(() => true)
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '/:one',
         action: action1,
@@ -209,7 +209,7 @@ describe('router.resolve({ pathname, ...context })', () => {
         ],
       },
     ])
-    const result = await router.resolve({ pathname: '/a/b' })
+    const result = await resolver.resolve({ pathname: '/a/b' })
     expect(action1.calledTwice).to.be.true
     expect(action1.args[0][0])
       .to.have.property('params')
@@ -228,7 +228,7 @@ describe('router.resolve({ pathname, ...context })', () => {
     const action1 = sinon.spy(() => undefined)
     const action2 = sinon.spy(() => undefined)
     const action3 = sinon.spy(() => true)
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '/:one',
         action: action1,
@@ -254,7 +254,7 @@ describe('router.resolve({ pathname, ...context })', () => {
         ],
       },
     ])
-    const result = await router.resolve({ pathname: '/a/b' })
+    const result = await resolver.resolve({ pathname: '/a/b' })
     expect(action1.calledTwice).to.be.true
     expect(action1.args[0][0])
       .to.have.property('params')
@@ -278,7 +278,7 @@ describe('router.resolve({ pathname, ...context })', () => {
 
   it('should support next() across multiple routes', async () => {
     const log = []
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '/test',
         children: [
@@ -359,14 +359,14 @@ describe('router.resolve({ pathname, ...context })', () => {
       },
     ])
 
-    const result = await router.resolve('/test')
+    const result = await resolver.resolve('/test')
     expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     expect(result).to.be.equal('done')
   })
 
   it('should support next(true) across multiple routes', async () => {
     const log = []
-    const router = new UniversalRouter({
+    const resolver = new Resolver({
       action({ next }) {
         log.push(1)
         return next().then((result) => {
@@ -421,15 +421,15 @@ describe('router.resolve({ pathname, ...context })', () => {
       ],
     })
 
-    const result = await router.resolve('/a/b/c')
+    const result = await resolver.resolve('/a/b/c')
     expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9])
     expect(result).to.be.equal('done')
   })
 
   it('should support parametrized routes 1', async () => {
     const action = sinon.spy(() => true)
-    const router = new UniversalRouter([{ path: '/path/:a/other/:b', action }])
-    const result = await router.resolve('/path/1/other/2')
+    const resolver = new Resolver([{ path: '/path/:a/other/:b', action }])
+    const result = await resolver.resolve('/path/1/other/2')
     expect(action.calledOnce).to.be.true
     expect(action.args[0][0]).to.have.deep.property('params.a', '1')
     expect(action.args[0][0]).to.have.deep.property('params.b', '2')
@@ -441,7 +441,7 @@ describe('router.resolve({ pathname, ...context })', () => {
   it('should support nested routes (1)', async () => {
     const action1 = sinon.spy()
     const action2 = sinon.spy(() => true)
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '',
         action: action1,
@@ -454,7 +454,7 @@ describe('router.resolve({ pathname, ...context })', () => {
       },
     ])
 
-    const result = await router.resolve('/a')
+    const result = await resolver.resolve('/a')
     expect(action1.calledOnce).to.be.true
     expect(action1.args[0][0]).to.have.property('path', '')
     expect(action2.calledOnce).to.be.true
@@ -465,7 +465,7 @@ describe('router.resolve({ pathname, ...context })', () => {
   it('should support nested routes (2)', async () => {
     const action1 = sinon.spy()
     const action2 = sinon.spy(() => true)
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '/a',
         action: action1,
@@ -478,7 +478,7 @@ describe('router.resolve({ pathname, ...context })', () => {
       },
     ])
 
-    const result = await router.resolve('/a/b')
+    const result = await resolver.resolve('/a/b')
     expect(action1.calledOnce).to.be.true
     expect(action1.args[0][0]).to.have.property('path', '/a')
     expect(action2.calledOnce).to.be.true
@@ -490,7 +490,7 @@ describe('router.resolve({ pathname, ...context })', () => {
     const action1 = sinon.spy(() => undefined)
     const action2 = sinon.spy(() => null)
     const action3 = sinon.spy(() => true)
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '/a',
         action: action1,
@@ -507,7 +507,7 @@ describe('router.resolve({ pathname, ...context })', () => {
       },
     ])
 
-    const result = await router.resolve('/a/b')
+    const result = await resolver.resolve('/a/b')
     expect(action1.calledOnce).to.be.true
     expect(action1.args[0][0]).to.have.property('baseUrl', '')
     expect(action1.args[0][0]).to.have.property('path', '/a')
@@ -522,7 +522,7 @@ describe('router.resolve({ pathname, ...context })', () => {
 
   it('should re-throw an error', async () => {
     const error = new Error('test error')
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '/a',
         action() {
@@ -532,7 +532,7 @@ describe('router.resolve({ pathname, ...context })', () => {
     ])
     let err
     try {
-      await router.resolve('/a')
+      await resolver.resolve('/a')
     } catch (e) {
       err = e
     }
@@ -550,19 +550,19 @@ describe('router.resolve({ pathname, ...context })', () => {
         },
       ],
     }
-    const router = new UniversalRouter(routes, { baseUrl: '/base' })
-    const result = await router.resolve('/base/a/b/c')
+    const resolver = new Resolver(routes, { baseUrl: '/base' })
+    const result = await resolver.resolve('/base/a/b/c')
     expect(action.calledOnce).to.be.true
     expect(action.args[0][0]).to.have.property('pathname', '/base/a/b/c')
     expect(action.args[0][0]).to.have.property('path', '/c')
     expect(action.args[0][0]).to.have.property('baseUrl', '/base/a/b')
     expect(action.args[0][0]).to.have.property('route', routes.children[0].children[0])
-    expect(action.args[0][0]).to.have.property('router', router)
+    expect(action.args[0][0]).to.have.property('resolver', resolver)
     expect(result).to.be.equal(17)
 
     let err
     try {
-      await router.resolve('/a/b/c')
+      await resolver.resolve('/a/b/c')
     } catch (e) {
       err = e
     }
@@ -572,11 +572,11 @@ describe('router.resolve({ pathname, ...context })', () => {
     expect(err.code).to.be.equal(404)
     expect(err.context.pathname).to.be.equal('/a/b/c')
     expect(err.context.path).to.be.equal(undefined)
-    expect(err.context.router).to.be.equal(router)
+    expect(err.context.resolver).to.be.equal(resolver)
   })
 
   it('should match routes with trailing slashes', async () => {
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       { path: '/', exact: true, action: () => 'a' },
       { path: '/page/', action: () => 'b' },
       {
@@ -587,16 +587,16 @@ describe('router.resolve({ pathname, ...context })', () => {
         ],
       },
     ])
-    expect(await router.resolve('/')).to.be.equal('a')
-    expect(await router.resolve('/page/')).to.be.equal('b')
-    expect(await router.resolve('/child/')).to.be.equal('c')
-    expect(await router.resolve('/child/page/')).to.be.equal('d')
+    expect(await resolver.resolve('/')).to.be.equal('a')
+    expect(await resolver.resolve('/page/')).to.be.equal('b')
+    expect(await resolver.resolve('/child/')).to.be.equal('c')
+    expect(await resolver.resolve('/child/page/')).to.be.equal('d')
   })
 
   it('should skip nested routes when middleware route returns null', async () => {
     const middleware = sinon.spy(() => null)
     const action = sinon.spy(() => 'skipped')
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '/match',
         action: middleware,
@@ -608,7 +608,7 @@ describe('router.resolve({ pathname, ...context })', () => {
       },
     ])
 
-    const result = await router.resolve('/match')
+    const result = await resolver.resolve('/match')
     expect(result).to.be.equal(404)
     expect(action.called).to.be.false
     expect(middleware.calledOnce).to.be.true
@@ -617,7 +617,7 @@ describe('router.resolve({ pathname, ...context })', () => {
   it('should match nested routes when middleware route returns undefined', async () => {
     const middleware = sinon.spy(() => undefined)
     const action = sinon.spy(() => null)
-    const router = new UniversalRouter([
+    const resolver = new Resolver([
       {
         path: '/match',
         action: middleware,
@@ -629,7 +629,7 @@ describe('router.resolve({ pathname, ...context })', () => {
       },
     ])
 
-    const result = await router.resolve('/match')
+    const result = await resolver.resolve('/match')
     expect(result).to.be.equal(404)
     expect(action.calledOnce).to.be.true
     expect(middleware.calledOnce).to.be.true

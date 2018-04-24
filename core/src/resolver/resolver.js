@@ -22,7 +22,7 @@ function isChildRoute(parentRoute, childRoute) {
   return false
 }
 
-class UniversalRouter {
+class Resolver {
   constructor(routes, options = {}) {
     if (Object(routes) !== routes) {
       throw new TypeError('Invalid routes')
@@ -31,7 +31,7 @@ class UniversalRouter {
     this.baseUrl = options.baseUrl || ''
     this.errorHandler = options.errorHandler
     this.resolveRoute = options.resolveRoute || resolveRoute
-    this.context = Object.assign({ router: this }, options.context)
+    this.context = Object.assign({ resolver: this }, options.context)
     this.root = Array.isArray(routes) ? { path: '', children: routes, parent: null } : routes
     this.root.parent = null
   }
@@ -44,10 +44,7 @@ class UniversalRouter {
     )
     const match = matchRoute(
       this.root,
-      this.baseUrl,
       context.pathname.substr(this.baseUrl.length),
-      [],
-      null,
     )
     const resolve = this.resolveRoute
     let matches = null
@@ -98,6 +95,6 @@ class UniversalRouter {
   }
 }
 
-UniversalRouter.pathToRegexp = pathToRegexp
+Resolver.pathToRegexp = pathToRegexp
 
-export default UniversalRouter
+export default Resolver
