@@ -25,7 +25,7 @@ function decodeParam(val) {
   }
 }
 
-function matchPath(routepath, pathname, exact, parentKeys, parentParams) {
+function matchPath(routepath, path, exact, parentKeys, parentParams) {
   exact = !!exact
   const cacheKey = `${routepath}|${exact}`
   let regexp = cache.get(cacheKey)
@@ -42,12 +42,11 @@ function matchPath(routepath, pathname, exact, parentKeys, parentParams) {
     cache.set(cacheKey, regexp)
   }
 
-  const m = regexp.pattern.exec(pathname)
+  const m = regexp.pattern.exec(path)
   if (!m) {
     return null
   }
 
-  const path = m[0]
   const params = Object.assign({}, parentParams)
 
   for (let i = 1; i < m.length; i++) {
@@ -64,7 +63,7 @@ function matchPath(routepath, pathname, exact, parentKeys, parentParams) {
   }
 
   return {
-    path: path,
+    path: m[0],
     keys: (parentKeys || []).concat(regexp.keys),
     params,
   }

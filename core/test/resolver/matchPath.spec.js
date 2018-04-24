@@ -10,7 +10,7 @@
 /* eslint-disable */
 (({matchPath}) => {
 
-  describe('matchPath(route, pathname)', () => {
+  describe('matchPath(routepath, path, exact)', () => {
     describe('negative matches (should return null)', () => {
       describe('the empty route ("")', () => {
         it('should not match anything but the empty path if _exact_', () => {
