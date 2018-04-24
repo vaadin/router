@@ -59,6 +59,18 @@ describe('matchRoute(route, pathname)', () => {
       .and.is.not.null
   })
 
+  it('should treat null route path as ""', () => {
+    const result = toArray(matchRoute({ path: null }, ''))
+    expect(result).to.have.lengthOf(1)
+    expect(result[0]).to.have.deep.property('route.path', null)
+  })
+
+  it('should treat undefined route path as ""', () => {
+    const result = toArray(matchRoute({ path: undefined }, ''))
+    expect(result).to.have.lengthOf(1)
+    expect(result[0]).to.have.deep.property('route.path', undefined)
+  })
+
   describe('no matches', () => {
     it('should not match a route without children if it itself does not match', () => {
       const route = {

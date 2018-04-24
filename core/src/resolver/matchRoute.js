@@ -13,7 +13,7 @@ function matchRoute(route, pathname, parentKeys, parentParams) {
   let match
   let childMatches
   let childIndex = 0
-  let routepath = route.path
+  let routepath = route.path || ''
   if (route.parent && routepath.charAt(0) === '/') {
     routepath = routepath.substr(1, routepath.length - 1)
   } 
