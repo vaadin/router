@@ -35,6 +35,9 @@ function matchRoute(route, baseUrl, pathname, parentKeys, parentParams) {
             },
           }
         }
+        else if (!!route.exact) {
+          match = matchPath(route.path, pathname, false, parentKeys, parentParams)
+        }
       }
 
       if (match && route.children) {
