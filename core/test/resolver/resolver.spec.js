@@ -49,7 +49,6 @@ describe('new Resolver(routes, options)', () => {
     expect(error.message).to.be.equal('Page not found')
     expect(error.code).to.be.equal(404)
     expect(error.context.pathname).to.be.equal('/')
-    expect(error.context.path).to.be.equal(undefined)
     expect(error.context.resolver).to.be.equal(resolver)
   })
 
@@ -70,7 +69,6 @@ describe('new Resolver(routes, options)', () => {
     expect(error.message).to.be.equal('custom')
     expect(error.code).to.be.equal(500)
     expect(error.context.pathname).to.be.equal('/')
-    expect(error.context.path).to.be.equal('/')
     expect(error.context.resolver).to.be.equal(resolver)
     expect(error.context.route).to.be.equal(route)
   })
@@ -98,7 +96,7 @@ describe('resolver.resolve({ pathname, ...context })', () => {
     const resolver = new Resolver({ path: '/a', action })
     const result = await resolver.resolve('/a')
     expect(action.calledOnce).to.be.true
-    expect(action.args[0][0]).to.have.property('path', '/a')
+    expect(action.args[0][0]).to.have.deep.property('route.path', '/a')
     expect(result).to.be.equal('b')
   })
 
@@ -126,7 +124,7 @@ describe('resolver.resolve({ pathname, ...context })', () => {
     const resolver = new Resolver([{ path: '/a', action }])
     const result = await resolver.resolve({ pathname: '/a', test: 'b' })
     expect(action.calledOnce).to.be.true
-    expect(action.args[0][0]).to.have.property('path', '/a')
+    expect(action.args[0][0]).to.have.deep.property('route.path', '/a')
     expect(action.args[0][0]).to.have.property('test', 'b')
     expect(result).to.be.true
   })
@@ -456,9 +454,9 @@ describe('resolver.resolve({ pathname, ...context })', () => {
 
     const result = await resolver.resolve('/a')
     expect(action1.calledOnce).to.be.true
-    expect(action1.args[0][0]).to.have.property('path', '')
+    expect(action1.args[0][0]).to.have.deep.property('route.path', '')
     expect(action2.calledOnce).to.be.true
-    expect(action2.args[0][0]).to.have.property('path', '/a')
+    expect(action2.args[0][0]).to.have.deep.property('route.path', '/a')
     expect(result).to.be.true
   })
 
@@ -480,9 +478,9 @@ describe('resolver.resolve({ pathname, ...context })', () => {
 
     const result = await resolver.resolve('/a/b')
     expect(action1.calledOnce).to.be.true
-    expect(action1.args[0][0]).to.have.property('path', '/a')
+    expect(action1.args[0][0]).to.have.deep.property('route.path', '/a')
     expect(action2.calledOnce).to.be.true
-    expect(action2.args[0][0]).to.have.property('path', '/b')
+    expect(action2.args[0][0]).to.have.deep.property('route.path', '/b')
     expect(result).to.be.true
   })
 
@@ -509,14 +507,11 @@ describe('resolver.resolve({ pathname, ...context })', () => {
 
     const result = await resolver.resolve('/a/b')
     expect(action1.calledOnce).to.be.true
-    expect(action1.args[0][0]).to.have.property('baseUrl', '')
-    expect(action1.args[0][0]).to.have.property('path', '/a')
+    expect(action1.args[0][0]).to.have.deep.property('route.path', '/a')
     expect(action2.calledOnce).to.be.true
-    expect(action2.args[0][0]).to.have.property('baseUrl', '/a')
-    expect(action2.args[0][0]).to.have.property('path', '/b')
+    expect(action2.args[0][0]).to.have.deep.property('route.path', '/b')
     expect(action3.calledOnce).to.be.true
-    expect(action3.args[0][0]).to.have.property('baseUrl', '')
-    expect(action3.args[0][0]).to.have.property('path', '/a/b')
+    expect(action3.args[0][0]).to.have.deep.property('route.path', '/a/b')
     expect(result).to.be.true
   })
 
@@ -554,8 +549,7 @@ describe('resolver.resolve({ pathname, ...context })', () => {
     const result = await resolver.resolve('/base/a/b/c')
     expect(action.calledOnce).to.be.true
     expect(action.args[0][0]).to.have.property('pathname', '/base/a/b/c')
-    expect(action.args[0][0]).to.have.property('path', '/c')
-    expect(action.args[0][0]).to.have.property('baseUrl', '/base/a/b')
+    expect(action.args[0][0]).to.have.deep.property('route.path', '/c')
     expect(action.args[0][0]).to.have.property('route', routes.children[0].children[0])
     expect(action.args[0][0]).to.have.property('resolver', resolver)
     expect(result).to.be.equal(17)
