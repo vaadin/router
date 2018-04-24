@@ -21,7 +21,7 @@ function matchRoute(route, baseUrl, pathname, parentKeys, parentParams) {
       }
 
       if (!match) {
-        match = matchPath(route, pathname, parentKeys, parentParams)
+        match = matchPath(route.path, pathname, route.exact, parentKeys, parentParams)
 
         if (match) {
           return {
