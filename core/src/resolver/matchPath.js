@@ -25,17 +25,19 @@ function decodeParam(val) {
   }
 }
 
-function matchPath(route, pathname, parentKeys, parentParams) {
-  const routepath = (route.path || '')
-  const end = !!route.exact
-  const cacheKey = `${routepath}|${end}`
+function matchPath(routepath, pathname, exact, parentKeys, parentParams) {
+  exact = !!exact
+  const cacheKey = `${routepath}|${exact}`
   let regexp = cache.get(cacheKey)
 
   if (!regexp) {
     const keys = []
     regexp = {
       keys,
-      pattern: pathToRegexp(routepath, keys, { end, strict: routepath === '' }),
+      pattern: pathToRegexp(routepath, keys, {
+        end: exact,
+        strict: routepath === ''
+      }),
     }
     cache.set(cacheKey, regexp)
   }
