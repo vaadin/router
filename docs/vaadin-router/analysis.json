@@ -2406,7 +2406,51 @@
       ],
       "classes": [
         {
-          "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\n### Basic example\n```\nconst routes = [\n  { path: '/', component: 'x-home-view' },\n  { path: '/users', component: 'x-user-list' }\n];\n\nconst router = new Vaadin.Router(routes, document.getElementById('outlet'));\nrouter.start();\n```\n\n### Lazy-loading example\nA bit more involved example with lazy-loading:\n```\nconst routes = [\n  { path: '/', component: 'x-home-view' },\n  { path: '/users',\n    importUrl: 'bundles/user-bundle.html',\n    children: [\n      { path: '/', component: 'x-user-list' },\n      { path: '/:user', component: 'x-user-profile' }\n    ]\n  }\n];\n\nconst router = new Vaadin.Router(routes);\nwindow.addEventListener('popstate', async (event) => {\n  const dom = await router.resolve(window.location.pathname);\n  myCustomDomAppender(dom);\n});\n```\n\n### Middleware example\nA more complex example with custom route handers and server-side rendered\ncontent:\n```\nconst routes = [\n  { path: '/',\n    action: async (context, next) => {\n      // record the navigation completed event for analytics\n      analytics.recordNavigationStart(context.path);\n\n      // let the navigation happen and wait for the result\n      const result = await next();\n\n      // record the navigation completed event for analytics\n      analytics.recordNavigationEnd(context.path, result.status);\n      \n      // pass the result up the handlers chain\n      return result;\n    }\n  },\n  { path: '/', component: 'x-home-view' },\n  { path: '/users',\n    importUrl: 'bundles/user-bundle.html',\n    children: [\n      { path: '/', component: 'x-user-list' },\n      { path: '/:user', component: 'x-user-profile' }\n    ]\n  },\n  { path: '/server',\n    action: async (context, next) => {\n      // fetch the server-side rendered content\n      const result = await fetch(context.path, {...});\n\n      // modify the content if necessary\n      result.body = result.body.replace(/bad/ig, 'good');\n      \n      // create DOM objects out of the server-side result (string)\n      return renderToDom(result);\n    }\n  }\n];\n\nconst router = new Vaadin.Router(routes);\nwindow.addEventListener('popstate', async (event) => {\n  const dom = await router.resolve(window.location.pathname);\n  myCustomDomAppender(dom);\n});\n```",
+          "description": "",
+          "summary": "",
+          "path": "core/dist/umd/vaadin-router-core.js",
+          "properties": [],
+          "methods": [
+            {
+              "name": "resolve",
+              "description": "",
+              "privacy": "public",
+              "sourceRange": {
+                "start": {
+                  "line": 583,
+                  "column": 4
+                },
+                "end": {
+                  "line": 639,
+                  "column": 5
+                }
+              },
+              "metadata": {},
+              "params": [
+                {
+                  "name": "pathnameOrContext"
+                }
+              ]
+            }
+          ],
+          "staticMethods": [],
+          "demos": [],
+          "metadata": {},
+          "sourceRange": {
+            "start": {
+              "line": 569,
+              "column": 2
+            },
+            "end": {
+              "line": 640,
+              "column": 3
+            }
+          },
+          "privacy": "public",
+          "name": "Vaadin.Resolver"
+        },
+        {
+          "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\n### Basic example\n```\nconst routes = [\n  { path: '/', exact: true, component: 'x-home-view' },\n  { path: '/users', component: 'x-user-list' }\n];\n\nconst router = new Vaadin.Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```\n\n### Lazy-loading example\nA bit more involved example with lazy-loading:\n```\nconst routes = [\n  { path: '/', exact: true, component: 'x-home-view' },\n  { path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      { path: '/', exact: true, component: 'x-user-list' },\n      { path: '/:user', component: 'x-user-profile' }\n    ]\n  }\n];\n\nconst router = new Vaadin.Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```\n\n### Middleware example\nA more complex example with custom route handers and server-side rendered\ncontent:\n```\nconst routes = [\n  { path: '/',\n    action: async (context) => {\n      // record the navigation completed event for analytics\n      analytics.recordNavigationStart(context.path);\n\n      // let the navigation happen and wait for the result\n      const result = await context.next();\n\n      // record the navigation completed event for analytics\n      analytics.recordNavigationEnd(context.path, result.status);\n      \n      // pass the result up the handlers chain\n      return result;\n    }\n  },\n  { path: '/', exact: true, component: 'x-home-view' },\n  { path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      { path: '/', exact: true, component: 'x-user-list' },\n      { path: '/:user', component: 'x-user-profile' }\n    ]\n  },\n  { path: '/server',\n    action: async (context) => {\n      // fetch the server-side rendered content\n      const result = await fetch(context.path, {...});\n\n      // modify the content if necessary\n      result.body = result.body.replace(/bad/ig, 'good');\n      \n      // create DOM objects out of the server-side result (string)\n      return renderToDom(result);\n    }\n  }\n];\n\nconst router = new Vaadin.Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```",
           "summary": "JavaScript class that renders different DOM content depending on\n   a given path. It can re-render when triggered or on the 'popstate' event.",
           "path": "core/dist/umd/vaadin-router-core.js",
           "properties": [],
@@ -2441,7 +2485,7 @@
                   "column": 4
                 },
                 "end": {
-                  "line": 808,
+                  "line": 804,
                   "column": 5
                 }
               },
@@ -2462,11 +2506,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 817,
+                  "line": 813,
                   "column": 4
                 },
                 "end": {
-                  "line": 819,
+                  "line": 815,
                   "column": 5
                 }
               },
@@ -2482,11 +2526,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 829,
+                  "line": 825,
                   "column": 4
                 },
                 "end": {
-                  "line": 833,
+                  "line": 828,
                   "column": 5
                 }
               },
@@ -2508,11 +2552,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 843,
+                  "line": 838,
                   "column": 4
                 },
                 "end": {
-                  "line": 846,
+                  "line": 840,
                   "column": 5
                 }
               },
@@ -2534,11 +2578,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 857,
+                  "line": 851,
                   "column": 4
                 },
                 "end": {
-                  "line": 864,
+                  "line": 853,
                   "column": 5
                 }
               },
@@ -2560,11 +2604,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 871,
+                  "line": 860,
                   "column": 4
                 },
                 "end": {
-                  "line": 873,
+                  "line": 862,
                   "column": 5
                 }
               },
@@ -2580,11 +2624,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 880,
+                  "line": 869,
                   "column": 4
                 },
                 "end": {
-                  "line": 882,
+                  "line": 871,
                   "column": 5
                 }
               },
@@ -2602,11 +2646,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 894,
+                  "line": 883,
                   "column": 4
                 },
                 "end": {
-                  "line": 896,
+                  "line": 885,
                   "column": 5
                 }
               },
@@ -2633,11 +2677,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 910,
+                  "line": 899,
                   "column": 4
                 },
                 "end": {
-                  "line": 928,
+                  "line": 917,
                   "column": 5
                 }
               },
@@ -2657,40 +2701,6 @@
               "return": {
                 "type": "Promise.<Node>"
               }
-            },
-            {
-              "name": "start",
-              "description": "Registers the router for the 'popstate' events on the window object\nand automatically calls the `render()` method every time when the history\nstate changes.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 935,
-                  "column": 4
-                },
-                "end": {
-                  "line": 937,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "stop",
-              "description": "Removes the 'popstate' event registration added in the `start()` method.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 942,
-                  "column": 4
-                },
-                "end": {
-                  "line": 944,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": []
             }
           ],
           "staticMethods": [
@@ -2700,11 +2710,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 953,
+                  "line": 926,
                   "column": 4
                 },
                 "end": {
-                  "line": 959,
+                  "line": 932,
                   "column": 5
                 }
               },
@@ -2730,11 +2740,11 @@
           "metadata": {},
           "sourceRange": {
             "start": {
-              "line": 758,
+              "line": 766,
               "column": 2
             },
             "end": {
-              "line": 960,
+              "line": 933,
               "column": 3
             }
           },
@@ -2753,11 +2763,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 973,
+                  "line": 946,
                   "column": 4
                 },
                 "end": {
-                  "line": 975,
+                  "line": 948,
                   "column": 5
                 }
               },
@@ -2770,11 +2780,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 977,
+                  "line": 950,
                   "column": 4
                 },
                 "end": {
-                  "line": 980,
+                  "line": 953,
                   "column": 5
                 }
               },
@@ -2791,11 +2801,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 982,
+                  "line": 955,
                   "column": 4
                 },
                 "end": {
-                  "line": 986,
+                  "line": 959,
                   "column": 5
                 }
               },
@@ -2812,11 +2822,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 988,
+                  "line": 961,
                   "column": 4
                 },
                 "end": {
-                  "line": 995,
+                  "line": 968,
                   "column": 5
                 }
               },
@@ -2833,11 +2843,11 @@
           "metadata": {},
           "sourceRange": {
             "start": {
-              "line": 965,
+              "line": 938,
               "column": 2
             },
             "end": {
-              "line": 996,
+              "line": 969,
               "column": 3
             }
           },
