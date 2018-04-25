@@ -12,9 +12,9 @@ module.exports = {
         reporters: ['text-summary', 'lcov'],
         include: [
           '**/dist/iife/resolver/matchPath.js',
-          // '**/dist/iife/resolver/matchRoute.js',
-          // '**/dist/iife/resolver/resolveRoute.js',
-          // '**/dist/iife/resolver/UniversalRouter.js',
+          '**/dist/iife/resolver/matchRoute.js',
+          '**/dist/iife/resolver/resolveRoute.js',
+          '**/dist/iife/resolver/resolver.js',
           // '**/dist/iife/resolver/generateUrls.js',
         ],
         exclude: [

@@ -22,6 +22,9 @@ function isChildRoute(parentRoute, childRoute) {
   return false
 }
 
+/**
+ * @memberof Vaadin
+ */
 class Resolver {
   constructor(routes, options = {}) {
     if (Object(routes) !== routes) {

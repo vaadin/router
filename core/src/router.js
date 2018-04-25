@@ -1,4 +1,5 @@
-import {Resolver} from './resolver.js';
+import Resolver from './resolver/resolver.js';
+import {toArray, ensureRoutes} from './utils.js';
 
 function resolveRoute(context, params) {
   const route = context.route;
@@ -152,7 +153,7 @@ export class Router {
    * @return {!Array<!Route>}
    */
   getRoutes() {
-    throw new Error('TODO(vlukashov): Router.getRoutes() is not implemented');
+    return this.__resolver.root.children;
   }
 
   /**
@@ -164,7 +165,8 @@ export class Router {
    * @return {!Array<!Route>}
    */
   setRoutes(routes) {
-    return this.__resolver.setRoutes(routes);
+    ensureRoutes(routes);
+    this.__resolver.root.children = [...toArray(routes)];
   }
 
   /**
@@ -176,7 +178,7 @@ export class Router {
    * @return {!Array<!Route>}
    */
   addRoutes(routes) {
-    throw new Error('TODO(vlukashov): Router.addRoutes() is not implemented');
+    this.__resolver.root.children.push(...toArray(routes));
   }
 
   /**
@@ -221,7 +223,7 @@ export class Router {
    * @return {Promise<HTMLElement>}
    */
   resolve(path, context) {
-    return this.__resolver.resolve(path, context);
+    return this.__resolver.resolve(Object.assign({pathname: path}, context));
   }
 
   /**
