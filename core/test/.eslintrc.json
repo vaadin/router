@@ -7,6 +7,10 @@
     "it": false,
     "expect": false,
     "gemini": false,
-    "sinon": false
+    "sinon": false,
+    "VaadinTestNamespace": false
+  },
+  "parserOptions": {
+    "ecmaVersion": 2017
   }
 }
