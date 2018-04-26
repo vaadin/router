@@ -17,10 +17,10 @@
         </nav>
         <vaadin-router id="router"></vaadin-router>
         <script>
-          document.addEventListener('WebComponentsReady', function () {
+          document.addEventListener('WebComponentsReady', function() {
             document.getElementById('router').addRoutes([
-              { path: '/:user', component: 'x-user-profile' },
-              { path: '/', component: 'x-home-view' },
+              {path: '/:user', component: 'x-user-profile'},
+              {path: '/', component: 'x-home-view'},
             ]);
           });
         </script>
@@ -37,18 +37,18 @@
         </nav>
         <vaadin-router id="router"></vaadin-router>
         <script>
-          document.addEventListener('WebComponentsReady', function () {
+          document.addEventListener('WebComponentsReady', function() {
             document.getElementById('router').addRoutes([
               {
                 path: '/users',
                 // NOTE: 'children' override the parent's 'component' property
                 // component: 'zz-user-list',
                 children: [
-                  { path: '/:user', component: 'x-user-profile' },
-                  { path: '', component: 'x-user-list' },
+                  {path: '/:user', component: 'x-user-profile'},
+                  {path: '', component: 'x-user-list'},
                 ]
               },
-              { path: '/', component: 'x-home-view' }
+              {path: '/', component: 'x-home-view'}
             ]);
           });
         </script>
@@ -66,11 +66,11 @@
         </nav>
         <vaadin-router id="router"></vaadin-router>
         <script>
-          document.addEventListener('WebComponentsReady', function () {
+          document.addEventListener('WebComponentsReady', function() {
             document.getElementById('router').addRoutes([
-              { path: '/users/:user', component: 'x-user-profile' },
-              { path: '/users', component: 'x-user-list' },
-              { path: '/', component: 'x-home-view' }
+              {path: '/users/:user', component: 'x-user-profile'},
+              {path: '/users', component: 'x-user-list'},
+              {path: '/', component: 'x-home-view'}
             ]);
           });
         </script>
@@ -90,10 +90,10 @@
           <vaadin-route path="/" component="x-main-view"></vaadin-route>
         </vaadin-router>
         <script>
-          document.addEventListener('WebComponentsReady', function () {
+          document.addEventListener('WebComponentsReady', function() {
             document.getElementById('router').addRoutes([
-              { path: '/users/:user', component: 'u-user-profile' },
-              { path: '/users', component: 'u-user-list' }
+              {path: '/users/:user', component: 'u-user-profile'},
+              {path: '/users', component: 'u-user-list'}
             ]);
           });
         </script>

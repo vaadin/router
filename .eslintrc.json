@@ -11,5 +11,11 @@
   "globals": {
     "Polymer": false,
     "Vaadin": false
-  }
+  },
+  "overrides": [{
+    "files": ["gulpfile.js"],
+    "parserOptions": {
+      "ecmaVersion": 2017
+    }
+  }]
 }

@@ -66,7 +66,7 @@ This program is available under Apache License Version 2.0, available at https:/
         this.__observer = new MutationObserver(() => {
           this.__inlineTemplate = this.querySelector('template');
         });
-        this.__observer.observe(this, { childList: true });
+        this.__observer.observe(this, {childList: true});
       }
 
       disconnectedCallback() {

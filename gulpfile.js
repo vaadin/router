@@ -4,14 +4,10 @@ var gulp = require('gulp');
 var eslint = require('gulp-eslint');
 var htmlExtract = require('gulp-html-extract');
 var stylelint = require('gulp-stylelint');
-const rollup = require('rollup');
-const commonjs = require('rollup-plugin-commonjs');
-const resolve = require('rollup-plugin-node-resolve');
-const license = require('rollup-plugin-license');
 const path = require('path');
 const del = require('del');
 const rename = require('gulp-rename');
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 const size = require('gulp-size');
 const runSequence = require('run-sequence');
 const fs = require('fs-extra');
@@ -167,7 +163,7 @@ gulp.task('build:copy-sources:vaadin-router-core', ['build:clean'], () => {
 
 
 // build the docs (including demos)
-gulp.task('docs', ['docs:clean', 'build:copy-sources'], async () => {
+gulp.task('docs', ['docs:clean', 'build:copy-sources'], async() => {
 
   // docs
   await Promise.all([
@@ -206,8 +202,8 @@ gulp.task('docs', ['docs:clean', 'build:copy-sources'], async () => {
 
   // demo iframe
   await fs.copy(
-      path.join(__dirname, 'demo', 'polymer.iframe.json'),
-      path.join(__dirname, 'build', 'polymer.json'));
+    path.join(__dirname, 'demo', 'polymer.iframe.json'),
+    path.join(__dirname, 'build', 'polymer.json'));
 
   await polymerBuild();
 
