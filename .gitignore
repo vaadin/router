@@ -4,6 +4,7 @@ package-lock.json
 build
 lib
 coverage
+size-control/build
 
 .idea
 .vscode

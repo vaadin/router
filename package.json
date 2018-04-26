@@ -18,18 +18,27 @@
   },
   "homepage": "https://vaadin.com/components",
   "scripts": {
-    "postinstall": "bower install && gulp lib",
+    "postinstall": "bower install && cd core && yarn install && yarn build",
+    "lint": "gulp lint && polymer lint --rules polymer-2 --input *.html",
     "start": "polymer serve",
+    "start:browser-sync": "browser-sync 'http://localhost:8081' --files './*.html' test core/dist",
+    "start:watch": "npm-run-all --parallel start start:browser-sync",
     "test": "wct",
-    "test:browser-sync": "browser-sync 'http://localhost:8081' --files './*.html' test core/dist",
-    "test:watch": "npm-run-all --parallel start test:browser-sync",
-    "size-control": "gulp size-control",
+    "test:coverage": "wct --profile=coverage",
+    "size-control": "gulp size-control && bundlesize",
     "docs": "npm run docs:analyze && gulp docs",
     "docs:analyze": "polymer analyze *.html > analysis.json"
   },
+  "bundlesize": [
+    {
+      "path": "size-control/build/no-polymer/vaadin-router-bundle.html",
+      "maxSize": "10 kB"
+    }
+  ],
   "devDependencies": {
     "bower": "latest",
     "browser-sync": "^2.23.6",
+    "bundlesize": "^0.17.0",
     "del": "^3.0.0",
     "eslint": "^4.13.0",
     "eslint-config-vaadin": "latest",

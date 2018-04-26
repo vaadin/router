@@ -23,18 +23,28 @@ module.exports = {
     } else if (argv.env === 'saucelabs-cron') {
       context.options.plugins.sauce.browsers = cronPlatforms;
     }
-  },
 
-  plugins: {
-    istanbub: {
-      dir: './coverage',
-      reporters: ['text-summary', 'lcov'],
-      include: [
-        '**/*.html'
-      ],
-      exclude: [
-        '**/test/**'
-      ]
+    if (argv.profile === 'coverage') {
+      context.options.plugins.local.browsers = ['chrome'];
+
+      context.options.plugins.istanbub = {
+        dir: './coverage',
+        reporters: ['text-summary', 'lcov'],
+        include: [
+          '**/*.html',
+        ],
+        exclude: [
+          '**/dist/**/*.js'
+        ],
+        thresholds: {
+          global: {
+            statements: 80,
+            branches: 80,
+            functions: 80,
+            lines: 80,
+          }
+        }
+      };
     }
-  }
+  },
 };

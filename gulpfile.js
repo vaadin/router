@@ -62,23 +62,6 @@ gulp.task('lint:css', function() {
     }));
 });
 
-gulp.task('lib', ['vaadin-router-core']);
-
-gulp.task('vaadin-router-core', () => {
-  return new Promise((resolve, reject) => {
-    exec(
-      'yarn install && yarn build',
-      {cwd: path.join(__dirname, 'core')},
-      (error, stdout, stderr) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
-      });
-  });
-});
-
 // Size control: shows the size of the minified vaadin-router bundle in different scenarios:
 //  - for an app that already uses all parts of Polymer 2
 //  - for an app that already the most common parts of Polymer 2
@@ -99,8 +82,8 @@ gulp.task('vaadin-router-core', () => {
 const sizeControlShells = ['full-polymer', 'some-polymer', 'no-polymer'];
 const sizeControlTasks = [];
 
-gulp.task('size-control', (done) => {
-  runSequence(...sizeControlTasks);
+gulp.task('size-control', ['size-control:clean'], () => {
+  return runSequence(...sizeControlTasks, 'size-control:show-size');
 });
 
 for (const shell of sizeControlShells) {
@@ -138,15 +121,23 @@ for (const shell of sizeControlShells) {
         'build/build/es5-bundled/size-control/app-shell.html',
         'build/build/es5-bundled/size-control/vaadin-router-bundle.html',
       ])
-      .pipe(size({
-        title: shell,
-        showFiles: true,
-        showTotal: false
-      }));
+      .pipe(gulp.dest(`size-control/build/${shell}`));
   });
 
   sizeControlTasks.push(`size-control:${shell}`);
 }
+
+gulp.task(`size-control:clean`, (done) => {
+  return del('size-control/build', done);
+});
+
+gulp.task(`size-control:show-size`, () => {
+  return gulp.src('size-control/build/**/*.html')
+    .pipe(size({
+      showFiles: true,
+      showTotal: false,
+    }));
+});
 
 // common build tasks
 gulp.task('build:clean', (done) => {
