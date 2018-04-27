@@ -46,6 +46,9 @@ This program is available under Apache License Version 2.0, available at https:/
       constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        // The template needs at least one slot or else shady doesn't distribute
+        // see https://github.com/vaadin/vaadin-grid/blob/75fd98ba80567cc34e3e2d6fab8c60292dc96c70/src/vaadin-grid.html#L52
+        this.shadowRoot.appendChild(document.createElement('slot'));
         this.__router = new Vaadin.Router();
       }
 
@@ -96,8 +99,9 @@ This program is available under Apache License Version 2.0, available at https:/
       }
 
       removeRoutes(routes) {
-        this.__router.removeRoutes(routes);
-        this.render();
+        // TODO(vlukashov): implement Router.removeRoutes()
+        // this.__router.removeRoutes(routes);
+        // this.render();
       }
 
       render() {
