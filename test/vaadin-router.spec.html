@@ -55,15 +55,14 @@
       });
 
       it('should not crash when does not have child routes', function(done) {
-        let step2, step3;
         const element = fixture('empty');
         
-        step2 = () => {
+        const step2 = () => {
           window.history.pushState(null, null, '/');
           window.requestAnimationFrame(step3);
         };
 
-        step3 = () => {
+        const step3 = () => {
           expect(element).to.be.ok;
           // TODO(vlukashov): change when https://github.com/vaadin/vaadin-router/issues/52 is implemented
           expect(element.__router.__resolver.root.children).to.be.an('array')
@@ -81,15 +80,14 @@
         route.setAttribute('component', 'x-admin-view');
 
         const router = fixture('default');
-        debugger;
         router.insertBefore(route, router.firstChild);
         
-        step2 = () => {
+        const step2 = () => {
           window.history.pushState(null, null, '/admin');
           window.requestAnimationFrame(step3);
         };
 
-        step3 = () => {
+        const step3 = () => {
           const actual = element.shadowRoot.querySelector('x-admin-view');
           expect(element).to.be.ok;
           expect(actual.localName).to.be.equal('x-admin-view');
