@@ -1,32 +1,58 @@
 {
   "name": "vaadin-router-core",
   "version": "1.0.0-alpha1",
+  "description": "vaadin-router core",
   "main": "dist/vaadin-router-core.js",
   "module": "dist/es/vaadin-router-core.js",
   "browser": "dist/umd/vaadin-router-core.js",
-  "license": "MIT",
+  "repository": "vaadin/vaadin-router",
+  "keywords": [
+    "Vaadin",
+    "vaadin-router",
+    "router",
+    "client-side",
+    "web-components"
+  ],
+  "author": "Vaadin Ltd",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/vaadin/vaadin-router/issues"
+  },
+  "homepage": "https://vaadin.com/components",
+  "scripts": {
+    "install": "bower install",
+    "lint": "eslint *.js src test",
+    "build": "rollup -c && uglifyjs dist/umd/vaadin-router-core.js --source-map --output dist/umd/vaadin-router-core.min.js",
+    "build:watch": "rollup -c -w",
+    "start": "polymer serve --port 8000",
+    "start:browser-sync": "browser-sync 'http://localhost:8000' --files test dist",
+    "start:watch": "npm-run-all --parallel build:watch start start:browser-sync",
+    "test": "wct",
+    "test:coverage": "wct --profile=coverage",
+    "size-control": "bundlesize"
+  },
+  "bundlesize": [
+    {
+      "path": "dist/umd/vaadin-router-core.min.js",
+      "maxSize": "5 kB"
+    }
+  ],
+  "dependencies": {
+    "path-to-regexp": "2.2.0"
+  },
   "devDependencies": {
     "bower": "^1.8.4",
     "browser-sync": "^2.23.6",
+    "bundlesize": "^0.17.0",
+    "eslint": "^4.19.1",
+    "eslint-config-vaadin": "latest",
     "npm-run-all": "^4.1.2",
     "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
+    "uglify-es": "^3.3.9",
     "wct-istanbub": "^0.1.1",
     "web-component-tester": "^6.5.0",
     "yargs": "^11.0.0"
-  },
-  "dependencies": {
-    "path-to-regexp": "2.2.0",
-    "universal-router": "6.0.0"
-  },
-  "scripts": {
-    "install": "bower install",
-    "build": "rollup -c",
-    "build:watch": "rollup -c -w",
-    "start": "polymer serve",
-    "test": "npm run build && wct",
-    "test:browser-sync": "browser-sync 'http://localhost:8000' --files test dist",
-    "test:watch": "npm-run-all --parallel start build:watch test:browser-sync"
   }
 }

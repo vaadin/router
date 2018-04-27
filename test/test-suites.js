@@ -1,3 +1,5 @@
 window.VaadinRouterSuites = [
-  'vaadin-router.spec.html'
+  'vaadin-route.spec.html',
+  'vaadin-router.spec.html',
+  'polymer-integration.spec.html'
 ];

@@ -628,4 +628,4 @@
       expect(middleware.calledOnce).to.be.true;
     });
   });
-})(VaadinTestNamespace);
+})(window.VaadinTestNamespace || Vaadin.Router);

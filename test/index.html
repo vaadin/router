@@ -13,6 +13,10 @@
   <script>
     WCT._config.environmentScripts.push('webcomponentsjs/webcomponents-lite.js');
 
+    // if this is true (default) console.error() from a vaadin-route's connected callback
+    // causes the '<vaadin-route> parent element check' spec to fail
+    WCT._config.trackConsoleError = false;
+
     WCT.loadSuites(
       window.VaadinRouterSuites
         .reduce(function(suites, suite) {

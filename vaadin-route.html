@@ -55,7 +55,7 @@ This program is available under Apache License Version 2.0, available at https:/
             + '<vaadin-router> element or of another <vaadin-route>, but this '
             + 'one is not:';
           console.error(message, this);
-          throw new Error(message);
+          return;
         }
 
         this.__route = new Vaadin.Router.Route(this.path, {action: this.__render.bind(this)});
@@ -66,12 +66,16 @@ This program is available under Apache License Version 2.0, available at https:/
         this.__observer = new MutationObserver(() => {
           this.__inlineTemplate = this.querySelector('template');
         });
-        this.__observer.observe(this, { childList: true });
+        this.__observer.observe(this, {childList: true});
       }
 
       disconnectedCallback() {
-        this.__observer.disconnect();
-        this.parentElement.removeRoutes(this.__route);
+        // this.__observer is null if the connectedCallback returns early due to
+        // a wrong parent element
+        if (this.__observer) {
+          this.__observer.disconnect();
+          this.parentElement.removeRoutes(this.__route);
+        }
         super.disconnectedCallback();
       }
 

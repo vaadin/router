@@ -23,18 +23,29 @@ module.exports = {
     } else if (argv.env === 'saucelabs-cron') {
       context.options.plugins.sauce.browsers = cronPlatforms;
     }
-  },
 
-  plugins: {
-    istanbub: {
-      dir: './coverage',
-      reporters: ['text-summary', 'lcov'],
-      include: [
-        '**/*.html'
-      ],
-      exclude: [
-        '**/test/**'
-      ]
+    if (argv.profile === 'coverage') {
+      context.options.plugins.local.browsers = ['chrome'];
+
+      context.options.plugins.istanbub = {
+        dir: './coverage',
+        reporters: ['text-summary', 'lcov'],
+        include: [
+          '**/*.html',
+        ],
+        exclude: [
+          '**/dist/**/*.js'
+        ],
+        // TODO(vlukashov): set to 80% when start working on <vaadin-router>
+        thresholds: {
+          global: {
+            statements: 50,
+            branches: 50,
+            functions: 50,
+            lines: 50,
+          }
+        }
+      };
     }
-  }
+  },
 };

@@ -5,9 +5,6 @@ import pkg from './package.json';
 
 const commonConfig = {
   input: 'index.js',
-  output: {
-    sourcemap: true
-  },
   plugins: [
     resolve(), // so Rollup can find the 'path-to-regexp' NPM module
     commonjs(), // so Rollup can import 'path-to-regexp' as an ES6 module even though it exports in CommonJS
@@ -48,6 +45,7 @@ export default [
       format: 'umd',
       file: pkg.browser,
       name: 'Vaadin.Router',
+      sourcemap: true,
     }
   }),
 
@@ -63,6 +61,7 @@ export default [
     output: {
       format: 'es',
       file: pkg.module,
+      sourcemap: true,
     }
   }),
 
@@ -72,6 +71,7 @@ export default [
     output: {
       format: 'cjs',
       file: pkg.main,
+      sourcemap: true,
     }
   }),
 

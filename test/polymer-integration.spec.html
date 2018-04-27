@@ -1,0 +1,47 @@
+<!doctype html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>polymer integration tests</title>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../../polymer/polymer-element.html">
+  <!-- TODO(vlukashov): why templatize.html needs to be explicitly included? -->
+  <link rel="import" href="../../polymer/lib/utils/templatize.html">
+  <link rel="import" href="../vaadin-router.html">
+  <link rel="import" href="../vaadin-route.html">
+</head>
+
+<body>
+  <test-fixture id="inline">
+    <template>
+      <vaadin-router>
+        <vaadin-route path="/:name">
+          <template>
+            <p id="content">Hello, [[name]]!</p>
+          </template>
+        </vaadin-route>
+      </vaadin-router>
+    </template>
+  </test-fixture>
+
+  <script>
+    describe('inline tempaltes in Polymer apps', function() {
+      this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
+
+      it.only('should bind route params to the tempalte props', function(done) {
+        // reset the URL
+        window.history.pushState(null, null, '/sam');
+
+        // stamp the test fixture DOM into the page
+        const element = fixture('inline');
+
+        // wait until <vaadin-route> renders the current route
+        window.requestAnimationFrame(() => {
+          const actual = element.shadowRoot.querySelector('#content');
+          expect(actual.innerText).to.equal('Hello, sam!');
+          done();
+        });
+      });
+    });
+  </script>
+</body>
