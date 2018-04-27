@@ -1,6 +1,6 @@
 ![Bower version](https://img.shields.io/bower/v/vaadin-router.svg)
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/vaadin/vaadin-router)
-[![Build Status](https://travis-ci.com/vaadin/vaadin-router.svg?branch=master)](https://travis-ci.com/vaadin/vaadin-router)
+[![Build Status](https://travis-ci.com/vaadin/vaadin-router.svg?token=F6EMJyQERrpZ7R5hsV9S&branch=master)](https://travis-ci.com/vaadin/vaadin-router)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vaadin/web-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # &lt;vaadin-router&gt;
