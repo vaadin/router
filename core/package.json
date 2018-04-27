@@ -1,25 +1,24 @@
 {
   "name": "vaadin-router-core",
   "version": "1.0.0-alpha1",
+  "description": "vaadin-router core",
   "main": "dist/vaadin-router-core.js",
   "module": "dist/es/vaadin-router-core.js",
   "browser": "dist/umd/vaadin-router-core.js",
-  "license": "MIT",
-  "devDependencies": {
-    "bower": "^1.8.4",
-    "browser-sync": "^2.23.6",
-    "npm-run-all": "^4.1.2",
-    "rollup": "^0.57.1",
-    "rollup-plugin-commonjs": "^9.1.0",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "wct-istanbub": "^0.1.1",
-    "web-component-tester": "^6.5.0",
-    "yargs": "^11.0.0"
+  "repository": "vaadin/vaadin-router",
+  "keywords": [
+    "Vaadin",
+    "vaadin-router",
+    "router",
+    "client-side",
+    "web-components"
+  ],
+  "author": "Vaadin Ltd",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/vaadin/vaadin-router/issues"
   },
-  "dependencies": {
-    "path-to-regexp": "2.2.0",
-    "universal-router": "6.0.0"
-  },
+  "homepage": "https://vaadin.com/components",
   "scripts": {
     "install": "bower install",
     "lint": "# the 'lint' script for the core package is not implemented yet",
@@ -31,5 +30,19 @@
     "test": "wct",
     "test:coverage": "wct --profile=coverage",
     "size-control": "# the 'size-control' script for the core package is not implemented yet"
+  },
+  "dependencies": {
+    "path-to-regexp": "2.2.0"
+  },
+  "devDependencies": {
+    "bower": "^1.8.4",
+    "browser-sync": "^2.23.6",
+    "npm-run-all": "^4.1.2",
+    "rollup": "^0.57.1",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "wct-istanbub": "^0.1.1",
+    "web-component-tester": "^6.5.0",
+    "yargs": "^11.0.0"
   }
 }
