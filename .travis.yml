@@ -12,6 +12,11 @@ addons:
   firefox: latest
   chrome: stable
 
+# limit the Travis 'build on push' feature to the master branch only
+branches:
+  only:
+   - master
+
 script:
   - cd core
   - yarn lint
