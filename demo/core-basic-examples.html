@@ -1,0 +1,63 @@
+<dom-module id="core-basic-examples">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>The <code>Router</code> class</h3>
+    <p>The <code>Router</code> class can be imported from the <code>@vaadin/router</code>
+      module in the browsers that support ES modules:
+    </p>
+    <pre><code>&lt;script type="module"&gt;
+  import {Router} from '@vaadin/router';
+&lt;/script&gt;</code></pre>
+    <p>For the browsers that do not support ES modules, the  <code>Router</code>
+      class is exposed as a member of the <code>Vaadin</code> namespace after
+      the vaadin-router UMD bundle is loaded:
+    </p>
+    <pre><code>&lt;script src="bower_components/vaadin-router/vaadin-router.min.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  var Router = Vaadin.Router;
+&lt;/script&gt;</code></pre>
+
+    <h3>Basic</h3>
+    <p>Vaadin.Router needs a DOM Node to render into, and a routes config. Once
+      created, it automatically listens to `popstate` events on the window and
+      updates the rendered content every time the location changes.</p>
+    <vaadin-demo-snippet id="core-basic-examples-basic" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/">Home</vaadin-router-link>
+          <vaadin-router-link href="/users">Users</vaadin-router-link>
+        </nav>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+              { path: '/', component: 'x-home-view' },
+              { path: '/users',
+                children: [
+                  { path: '/', component: 'x-user-list' },
+                  { path: '/:user', component: 'x-user-profile' }
+                ]
+              },
+              { path: '/:any*', component: 'x-not-found-view' }
+            ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+  </template>
+  <script>
+    class CoreBasicExamples extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'core-basic-examples';
+      }
+    }
+    customElements.define(CoreBasicExamples.is, CoreBasicExamples);
+  </script>
+</dom-module>

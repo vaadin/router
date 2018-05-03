@@ -13,6 +13,12 @@
 </head>
 
 <body>
-  <vaadin-component-demo config-src="demos.json"></vaadin-component-demo>
+  <vaadin-component-demo id="demo"></vaadin-component-demo>
+  <script>
+    document.getElementById('demo').configSrc =
+      window.location.search.substring(1).split('&').indexOf('core') > -1
+        ? 'demos.core.json'
+        : 'demos.json';
+  </script>
 </body>
 </html>

@@ -102,6 +102,7 @@ function resolveRoute(context, params) {
  * ```
  * 
  * @memberof Vaadin
+ * @demo demo/?core
  * @summary JavaScript class that renders different DOM content depending on
  *    a given path. It can re-render when triggered or on the 'popstate' event.
  */
