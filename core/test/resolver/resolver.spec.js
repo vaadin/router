@@ -570,12 +570,12 @@
 
     it('should match routes with trailing slashes', async() => {
       const resolver = new Resolver([
-        {path: '/', exact: true, action: () => 'a'},
+        {path: '/', action: () => 'a'},
         {path: '/page/', action: () => 'b'},
         {
           path: '/child',
           children: [
-            {path: '/', exact: true, action: () => 'c'},
+            {path: '/', action: () => 'c'},
             {path: '/page/', action: () => 'd'}
           ],
         },

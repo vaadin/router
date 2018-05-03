@@ -46,7 +46,7 @@
         it('should have a setter for the routes config', () => {
           const router = new Vaadin.Router();
           router.setRoutes([
-            {path: '/', exact: true, component: 'x-home-view'},
+            {path: '/', component: 'x-home-view'},
             {path: '/users', component: 'x-users-view'}
           ]);
           expect(router).to.be.ok;
@@ -93,7 +93,7 @@
 
           it('should replace any pre-existing content of the router outlet', async () => {
             router.setRoutes([
-              {path: '/', exact: true, component: 'x-home-view'},
+              {path: '/', component: 'x-home-view'},
               {path: '/users', component: 'x-users-view'},
             ]);
             await router.render('/');
@@ -102,28 +102,34 @@
             expect(outlet.children[0].tagName).to.match(/x-users-view/i);
           });
 
-          it('should use prefix matching by default', async () => {
+          it('should use exact matching by default', async () => {
             router.setRoutes([{path: '/users', component: 'x-users-view'}]);
+            let error;
+            try {
+              await router.render('/users/and/some/more/segments');
+            } catch (e) {
+              error = e;
+            }
+            expect(error).to.be.instanceOf(Error);
+            expect(outlet.children).to.have.lengthOf(0);
+          });
+
+          it('should use prefix matching if a route has a truthy `children` property', async () => {
+            router.setRoutes([{path: '/users', children: true, component: 'x-users-view'}]);
             await router.render('/users/and/some/more/segments');
             expect(outlet.children[0].tagName).to.match(/x-users-view/i);
           });
 
-          it('should use exact matching if a path has the `exact` property', async () => {
-            router.setRoutes([
-              {path: '/users', exact: true, component: 'x-users-view'},
-              {path: '/', component: 'x-not-found-view'},
-            ]);
-            await router.render('/users/and/some/more/segments');
-            expect(outlet.children[0].tagName).to.match(/x-not-found-view/i);
-          });
-
-          it('should use prefix matching if a path has the `exact` property but it is `false`', async () => {
-            router.setRoutes([
-              {path: '/users', exact: false, component: 'x-users-view'},
-              {path: '/', component: 'x-not-found-view'},
-            ]);
-            await router.render('/users/and/some/more/segments');
-            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          it('hould use prefix matching if a route has a falsey `children` property', async () => {
+            router.setRoutes([{path: '/users', children: null, component: 'x-users-view'}]);
+            let error;
+            try {
+              await router.render('/users/and/some/more/segments');
+            } catch (e) {
+              error = e;
+            }
+            expect(error).to.be.instanceOf(Error);
+            expect(outlet.children).to.have.lengthOf(0);
           });
         });
       });

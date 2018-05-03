@@ -29,7 +29,7 @@ function resolveRoute(context, params) {
  * ### Basic example
  * ```
  * const routes = [
- *   { path: '/', exact: true, component: 'x-home-view' },
+ *   { path: '/', component: 'x-home-view' },
  *   { path: '/users', component: 'x-user-list' }
  * ];
  * 
@@ -41,11 +41,11 @@ function resolveRoute(context, params) {
  * A bit more involved example with lazy-loading:
  * ```
  * const routes = [
- *   { path: '/', exact: true, component: 'x-home-view' },
+ *   { path: '/', component: 'x-home-view' },
  *   { path: '/users',
  *     bundle: 'bundles/user-bundle.html',
  *     children: [
- *       { path: '/', exact: true, component: 'x-user-list' },
+ *       { path: '/', component: 'x-user-list' },
  *       { path: '/:user', component: 'x-user-profile' }
  *     ]
  *   }
@@ -75,11 +75,11 @@ function resolveRoute(context, params) {
  *       return result;
  *     }
  *   },
- *   { path: '/', exact: true, component: 'x-home-view' },
+ *   { path: '/', component: 'x-home-view' },
  *   { path: '/users',
  *     bundle: 'bundles/user-bundle.html',
  *     children: [
- *       { path: '/', exact: true, component: 'x-user-list' },
+ *       { path: '/', component: 'x-user-list' },
  *       { path: '/:user', component: 'x-user-profile' }
  *     ]
  *   },
