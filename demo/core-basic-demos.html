@@ -71,6 +71,107 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Route Rarameters</h3>
+    <p>Route parameters are defined using <a href="https://github.com/pillarjs/path-to-regexp#parameters"
+      target="_blank">express-like syntax</a>. All features are supported:
+      <ul>
+        <li>named paramters: <code>/user/:id</code></li>
+        <li>optional parameters: <code>/:size/:color?</code></li>
+        <li>zero-or-more segments: <code>/kb/:path*</code></li>
+        <li>one-or-more segments: <code>/kb/:path+</code></li>
+        <li>custom parameter patterns: <code>/image-:size(\d+)px</code></li>
+        <li>unnamed parameters: <code>/user(s)/:id</code></li>
+      </ul>
+    </p>
+    <p>Named parameters are bound to route component properties. Unnamed
+      parameters are accessible by index through the <code>route.params</code>
+      array. (the <code>route</code> property is set on the route component by
+      the router.</p>
+    <vaadin-demo-snippet id="core-basic-examples-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/user/:id', component: 'x-profile-view'},
+            {path: '/image/:size/:color?', component: 'x-image-view'},
+            {path: '/image-:size(\\d+)px', component: 'x-image-view'},
+            {path: '/kb/:path*', component: 'x-knowledge-base'},
+            {path: '/user(s)/:id', component: 'x-profile-view'},
+          ]);
+        </script>
+
+        <dom-module id="x-profile-view">
+          <template preserve-content>
+            User ID: [[id]]<br/>
+            <code>/user</code> or <code>/users</code>: [[route.params.0]]
+          </template>
+          <script>
+            class XProfileView extends Polymer.Element {
+              static get is() {
+                return 'x-profile-view';
+              }
+
+              static get properties() {
+                return {
+                  id: String,
+                  route: Object
+                };
+              }
+            }
+            window.customElements.define(XProfileView.is, XProfileView);
+          </script>
+        </dom-module>
+
+        <dom-module id="x-image-view">
+          <template preserve-content>
+            <div style$="height: [[size]]px; width: [[size]]px; background: [[color]];"></div>
+          </template>
+          <script>
+            class XImageView extends Polymer.Element {
+              static get is() {
+                return 'x-image-view';
+              }
+
+              static get properties() {
+                return {
+                  size: String,
+                  color: {
+                    type: String,
+                    value: 'hotpink'
+                  }
+                };
+              }
+            }
+            window.customElements.define(XImageView.is, XImageView);
+          </script>
+        </dom-module>
+
+        <dom-module id="x-knowledge-base">
+          <template preserve-content>
+            Knowledge base path: '[[path]]'
+          </template>
+          <script>
+            class XKnowledgeBase extends Polymer.Element {
+              static get is() {
+                return 'x-knowledge-base';
+              }
+              
+              static get properties() {
+                return {
+                  path: Array
+                };
+              }
+            }
+            window.customElements.define(XKnowledgeBase.is, XKnowledgeBase);
+          </script>
+        </dom-module>
+      </template>
+    </vaadin-demo-snippet>
   </template>
   <script>
     class CoreBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
