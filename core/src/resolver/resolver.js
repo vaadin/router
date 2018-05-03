@@ -10,6 +10,7 @@
 import pathToRegexp from './path-to-regexp.js';
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
+import {toArray, ensureRoutes} from '../utils.js';
 
 function isChildRoute(parentRoute, childRoute) {
   let route = childRoute;
@@ -39,6 +40,65 @@ class Resolver {
     this.root.parent = null;
   }
 
+  /**
+   * Returns the current list of routes (as a shallow copy). Adding / removing
+   * routes to / from the returned array does not affect the routing config,
+   * but modifying the route objects does.
+   * 
+   * @return {!Array<!Route>}
+   */
+  getRoutes() {
+    return this.root.children;
+  }
+
+  /**
+   * Sets the routing config (replacing the existing one) and returns the
+   * effective routing config after the opertaion.
+   * 
+   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   *    (the array is shallow copied)
+   * @return {!Array<!Route>}
+   */
+  setRoutes(routes) {
+    ensureRoutes(routes);
+    this.root.children = [...toArray(routes)];
+  }
+
+  /**
+   * Appends one or several routes to the routing config and returns the
+   * effective routing config after the operation.
+   * 
+   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   *    (the array is shallow copied)
+   * @return {!Array<!Route>}
+   */
+  addRoutes(routes) {
+    this.root.children.push(...toArray(routes));
+  }
+
+  /**
+   * Removes one or several routes from the routing config and returns the
+   * effective routing config after the operation. The routes to remove are
+   * searched in the routing config by reference equality, i.e. pass in the
+   * exact route references that need to be removed.
+   * 
+   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   * @return {!Array<!Route>}
+   */
+  removeRoutes(routes) {
+    throw new Error('TODO(vlukashov): Resolver.removeRoutes() is not implemented');
+  }
+
+  /**
+   * Resolves the given path, i.e. calls all matching route handlers and returns
+   * the result (as a promise).
+   * 
+   * If no route matches the given path the returned promise is rejected.
+   *
+   * @param {!string} path the path to resolve
+   * @param {?object} context an optional context to pass to route handlers
+   * @return {Promise<HTMLElement>}
+   */
   resolve(pathnameOrContext) {
     const context = Object.assign(
       {},

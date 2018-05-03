@@ -1,5 +1,4 @@
 import Resolver from './resolver/resolver.js';
-import {toArray, ensureRoutes} from './utils.js';
 
 function resolveRoute(context, params) {
   const route = context.route;
@@ -106,7 +105,7 @@ function resolveRoute(context, params) {
  * @summary JavaScript class that renders different DOM content depending on
  *    a given path. It can re-render when triggered or on the 'popstate' event.
  */
-export class Router {
+export class Router extends Resolver {
   
   /**
    * Creates a new Router instance with a given outlet.
@@ -114,117 +113,26 @@ export class Router {
    * ```
    * const router = new Vaadin.Router();
    * router.setOutlet(outlet);
+   * router.setOptions(options);
    * ```
    *
    * @param {?Node} outlet
    * @param {?RouterOptions} options
    */
-  constructor(outlet) {
-    this.__resolver = new Resolver([], {resolveRoute});
+  constructor(outlet, options) {
+    super([], Object.assign({resolveRoute}, options));
     this.setOutlet(outlet);
   }
 
-  /**
-   * Returns the current set of router options.
-   * 
-   * @return {!RouterOptions}
-   */
-  getOptions() {
-    throw new Error('TODO(vlukashov): Router.getOptions() is not implemented');
-  }
-
-  /**
-   * Updates one or several router options. Only the options properties that are
-   * present in the parameter object are updated.
-   * 
-   * Returns the effective options set the update.
-   * 
-   * @param {?RouterOptions} options
-   * @return {!RouterOptions}
-   */
-  setOptions(options) {
-    throw new Error('TODO(vlukashov): Router.setOptions() is not implemented');
-  }
-
-  /**
-   * Returns the current list of routes (as a shallow copy). Adding / removing
-   * routes to / from the returned array does not affect the routing config,
-   * but modifying the route objects does.
-   * 
-   * @return {!Array<!Route>}
-   */
-  getRoutes() {
-    return this.__resolver.root.children;
-  }
-
-  /**
-   * Sets the routing config (replacing the existing one) and returns the
-   * effective routing config after the opertaion.
-   * 
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
-   *    (the array is shallow copied)
-   * @return {!Array<!Route>}
-   */
-  setRoutes(routes) {
-    ensureRoutes(routes);
-    this.__resolver.root.children = [...toArray(routes)];
-  }
-
-  /**
-   * Appends one or several routes to the routing config and returns the
-   * effective routing config after the operation.
-   * 
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
-   *    (the array is shallow copied)
-   * @return {!Array<!Route>}
-   */
-  addRoutes(routes) {
-    this.__resolver.root.children.push(...toArray(routes));
-  }
-
-  /**
-   * Removes one or several routes from the routing config and returns the
-   * effective routing config after the operation. The routes to remove are
-   * searched in the routing config by reference equality, i.e. pass in the
-   * exact route references that need to be removed.
-   * 
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
-   * @return {!Array<!Route>}
-   */
-  removeRoutes(routes) {
-    throw new Error('TODO(vlukashov): Router.removeRoutes() is not implemented');
-  }
-
-  /**
-   * Returns the current router outlet.
-   * 
-   * @return {Node}
-   */
-  getOutlet() {
-    return this.__outlet;
-  }
-
-  /**
-   * Sets the router outlet.
-   * 
-   * @param {Node} outlet
-   */
   setOutlet(outlet) {
+    if (outlet && !(outlet instanceof Node)) {
+      throw new TypeError(`expected router outlet to be a valid DOM Node (but got ${outlet})`);
+    }
     this.__outlet = outlet;
   }
 
-  /**
-   * Resolves the given path, i.e. calls all matching route handlers and returns
-   * the result (as a promise).
-   * 
-   * If no route matches the given path the returned promise is rejected.
-   *
-   * @param {!string} path the path to resolve
-   * @param {?object} context an optional context to pass to route handlers
-   * @return {Promise<HTMLElement>}
-   */
-  resolve(path, context) {
-    return this.__resolver.resolve(Object.assign({pathname: path}, context));
+  getOutlet() {
+    return this.__outlet;
   }
 
   /**

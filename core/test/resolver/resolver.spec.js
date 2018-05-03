@@ -73,6 +73,25 @@
     });
   });
 
+  describe('routes getter / setter', () => {
+    it('should have a getter for the routes config', () => {
+      const router = new Vaadin.Router();
+      const actual = router.getRoutes();
+      expect(actual).to.be.an('array').that.is.empty;
+    });
+
+    it('should have a setter for the routes config', () => {
+      const router = new Vaadin.Router();
+      router.setRoutes([
+        {path: '/', component: 'x-home-view'}
+      ]);
+      const actual = router.getRoutes();
+      expect(actual).to.be.an('array').that.has.lengthOf(1);
+      expect(actual[0]).to.have.property('path', '/');
+      expect(actual[0]).to.have.property('component', 'x-home-view');
+    });
+  });
+
   describe('resolver.resolve({ pathname, ...context })', () => {
     it('should throw an error if no route found', async() => {
       const resolver = new Resolver([]);
