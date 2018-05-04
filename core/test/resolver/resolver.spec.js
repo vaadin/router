@@ -647,4 +647,76 @@
       expect(middleware.calledOnce).to.be.true;
     });
   });
+
+  describe('resolver.ready', () => {
+    it('should be a promise', () => {
+      const router = new Vaadin.Router();
+      expect(router).to.have.property('ready')
+        .that.is.a('promise');
+    });
+
+    it('(resolve pass in progress / ok) should get fulfilled with the current resolve pass result', async() => {
+      const fulfilled = sinon.spy();
+      const rejected = sinon.spy();
+      const router = new Vaadin.Router();
+      router.setRoutes([{path: '/', action: () => 'a'}]);
+      router.resolve('/');
+      await router.ready.then(fulfilled).catch(rejected);
+      expect(fulfilled).to.have.been.calledOnce;
+      expect(fulfilled.args[0][0]).to.equal('a');
+      expect(rejected).to.not.have.been.called;
+    });
+
+    it('(resolve pass in progress / error) should get rejected with the current resolve pass error', async() => {
+      const fulfilled = sinon.spy();
+      const rejected = sinon.spy();
+      const router = new Vaadin.Router();
+      router.setRoutes([{path: '/', action: () => 'a'}]);
+      router.resolve('non-existent-path');
+      await router.ready.then(fulfilled).catch(rejected);
+      expect(fulfilled).to.not.have.been.called;
+      expect(rejected).to.have.been.calledOnce;
+      expect(rejected.args[0][0]).to.be.an('error');
+      expect(rejected.args[0][0]).to.have.property('code', 404);
+      expect(rejected.args[0][0]).to.have.property('message')
+        .that.matches(/non-existent-path/);
+    });
+    
+    it('(resolve pass completed / ok) should get fulfilled with the last resolve pass result', async() => {
+      const fulfilled = sinon.spy();
+      const rejected = sinon.spy();
+      const router = new Vaadin.Router();
+      router.setRoutes([{path: '/', action: () => 'a'}]);
+      await router.resolve('/');
+      await router.ready.then(fulfilled).catch(rejected);
+      expect(fulfilled).to.have.been.calledOnce;
+      expect(fulfilled.args[0][0]).to.equal('a');
+      expect(rejected).to.not.have.been.called;
+    });
+
+    it('(resolve pass completed / error) should get rejected with the last resolve pass error', async() => {
+      const fulfilled = sinon.spy();
+      const rejected = sinon.spy();
+      const router = new Vaadin.Router();
+      router.setRoutes([{path: '/', action: () => 'a'}]);
+      await router.resolve('non-existent-path').catch(() => {});
+      await router.ready.then(fulfilled).catch(rejected);
+      expect(fulfilled).to.not.have.been.called;
+      expect(rejected).to.have.been.calledOnce;
+      expect(rejected.args[0][0]).to.be.an('error');
+      expect(rejected.args[0][0]).to.have.property('code', 404);
+      expect(rejected.args[0][0]).to.have.property('message')
+        .that.matches(/non-existent-path/);
+    });
+
+    it('(no resolve passes yet) should get fulfilled with an \'undefined\' result', async() => {
+      const fulfilled = sinon.spy();
+      const rejected = sinon.spy();
+      const router = new Vaadin.Router();
+      await router.ready.then(fulfilled).catch(rejected);
+      expect(fulfilled).to.have.been.calledOnce;
+      expect(fulfilled.args[0][0]).to.equal(undefined);
+      expect(rejected).to.not.have.been.called;
+    });
+  });
 })(window.VaadinTestNamespace || Vaadin.Router);
