@@ -122,6 +122,9 @@ export class Router extends Resolver {
   constructor(outlet, options) {
     super([], Object.assign({resolveRoute}, options));
     this.setOutlet(outlet);
+    this.__renderCount = 0;
+    this.__popstateHandler = this.__onNavigationEvent.bind(this);
+    this.subscribe();
   }
 
   setOutlet(outlet) {
@@ -133,6 +136,11 @@ export class Router extends Resolver {
 
   getOutlet() {
     return this.__outlet;
+  }
+
+  setRoutes(routes) {
+    super.setRoutes(routes);
+    this.__onNavigationEvent();
   }
 
   /**
@@ -149,22 +157,46 @@ export class Router extends Resolver {
    */
   render(path, context) {
     // TODO(vlukashov): handle the 'no outlet' case
+    const renderId = ++this.__renderCount;
     return this.resolve(path, context)
       .then(element => {
         // TODO(vlukashov): handle the 'no outlet' case
-        if (this.__outlet) {
-          const children = this.__outlet.children;
-          if (children && children.length) {
-            const parent = children[0].parentNode;
-            for (let i = 0; i < children.length; i += 1) {
-              parent.removeChild(children[i]);
-            }
-          }
-
+        if (this.__outlet && this.__renderCount === renderId) {
+          this.__clearOutlet();
           this.__outlet.appendChild(element);
           return this.__outlet;
         }
+      })
+      .catch(error => {
+        if (this.__outlet && this.__renderCount === renderId) {
+          this.__clearOutlet();
+          throw error;
+        }
       });
+  }
+
+  __clearOutlet() {
+    const children = this.__outlet.children;
+    if (children && children.length) {
+      const parent = children[0].parentNode;
+      for (let i = 0; i < children.length; i += 1) {
+        parent.removeChild(children[i]);
+      }
+    }
+  }
+
+  subscribe() {
+    window.addEventListener('popstate', this.__popstateHandler);
+  }
+
+  unsubscribe() {
+    window.removeEventListener('popstate', this.__popstateHandler);
+  }
+
+  __onNavigationEvent() {
+    if (this.root.children.length > 0) {
+      this.render(window.location.pathname);
+    }
   }
 
   /**
