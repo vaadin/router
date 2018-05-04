@@ -127,7 +127,7 @@ class Resolver {
       }
 
       if (matches.done) {
-        const error = new Error('Page not found');
+        const error = new Error(`Page not found (${context.pathname})`);
         error.context = context;
         error.code = 404;
         return Promise.reject(error);
