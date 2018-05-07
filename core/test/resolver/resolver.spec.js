@@ -75,13 +75,13 @@
 
   describe('routes getter / setter', () => {
     it('should have a getter for the routes config', () => {
-      const router = new Vaadin.Router();
+      const router = new Resolver([]);
       const actual = router.getRoutes();
       expect(actual).to.be.an('array').that.is.empty;
     });
 
     it('should have a setter for the routes config', () => {
-      const router = new Vaadin.Router();
+      const router = new Resolver([]);
       router.setRoutes([
         {path: '/', component: 'x-home-view'}
       ]);
@@ -650,18 +650,17 @@
 
   describe('resolver.ready', () => {
     it('should be a promise', () => {
-      const router = new Vaadin.Router();
-      expect(router).to.have.property('ready')
+      const resolver = new Resolver([]);
+      expect(resolver).to.have.property('ready')
         .that.is.a('promise');
     });
 
     it('(resolve pass in progress / ok) should get fulfilled with the current resolve pass result', async() => {
       const fulfilled = sinon.spy();
       const rejected = sinon.spy();
-      const router = new Vaadin.Router();
-      router.setRoutes([{path: '/', action: () => 'a'}]);
-      router.resolve('/');
-      await router.ready.then(fulfilled).catch(rejected);
+      const resolver = new Resolver([{path: '/', action: () => 'a'}]);
+      resolver.resolve('/');
+      await resolver.ready.then(fulfilled).catch(rejected);
       expect(fulfilled).to.have.been.calledOnce;
       expect(fulfilled.args[0][0]).to.equal('a');
       expect(rejected).to.not.have.been.called;
@@ -670,10 +669,9 @@
     it('(resolve pass in progress / error) should get rejected with the current resolve pass error', async() => {
       const fulfilled = sinon.spy();
       const rejected = sinon.spy();
-      const router = new Vaadin.Router();
-      router.setRoutes([{path: '/', action: () => 'a'}]);
-      router.resolve('non-existent-path');
-      await router.ready.then(fulfilled).catch(rejected);
+      const resolver = new Resolver([{path: '/', action: () => 'a'}]);
+      resolver.resolve('non-existent-path');
+      await resolver.ready.then(fulfilled).catch(rejected);
       expect(fulfilled).to.not.have.been.called;
       expect(rejected).to.have.been.calledOnce;
       expect(rejected.args[0][0]).to.be.an('error');
@@ -685,10 +683,9 @@
     it('(resolve pass completed / ok) should get fulfilled with the last resolve pass result', async() => {
       const fulfilled = sinon.spy();
       const rejected = sinon.spy();
-      const router = new Vaadin.Router();
-      router.setRoutes([{path: '/', action: () => 'a'}]);
-      await router.resolve('/');
-      await router.ready.then(fulfilled).catch(rejected);
+      const resolver = new Resolver([{path: '/', action: () => 'a'}]);
+      await resolver.resolve('/');
+      await resolver.ready.then(fulfilled).catch(rejected);
       expect(fulfilled).to.have.been.calledOnce;
       expect(fulfilled.args[0][0]).to.equal('a');
       expect(rejected).to.not.have.been.called;
@@ -697,10 +694,9 @@
     it('(resolve pass completed / error) should get rejected with the last resolve pass error', async() => {
       const fulfilled = sinon.spy();
       const rejected = sinon.spy();
-      const router = new Vaadin.Router();
-      router.setRoutes([{path: '/', action: () => 'a'}]);
-      await router.resolve('non-existent-path').catch(() => {});
-      await router.ready.then(fulfilled).catch(rejected);
+      const resolver = new Resolver([{path: '/', action: () => 'a'}]);
+      await resolver.resolve('non-existent-path').catch(() => {});
+      await resolver.ready.then(fulfilled).catch(rejected);
       expect(fulfilled).to.not.have.been.called;
       expect(rejected).to.have.been.calledOnce;
       expect(rejected.args[0][0]).to.be.an('error');
@@ -712,11 +708,11 @@
     it('(no resolve passes yet) should get fulfilled with an \'undefined\' result', async() => {
       const fulfilled = sinon.spy();
       const rejected = sinon.spy();
-      const router = new Vaadin.Router();
-      await router.ready.then(fulfilled).catch(rejected);
+      const resolver = new Resolver([]);
+      await resolver.ready.then(fulfilled).catch(rejected);
       expect(fulfilled).to.have.been.calledOnce;
       expect(fulfilled.args[0][0]).to.equal(undefined);
       expect(rejected).to.not.have.been.called;
     });
   });
-})(window.VaadinTestNamespace || Vaadin.Router);
+})(window.VaadinTestNamespace || window.Vaadin.Router);
