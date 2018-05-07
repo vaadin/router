@@ -23,15 +23,35 @@
 &lt;/script&gt;</code></pre>
 
     <h3>Basic</h3>
-    <p>Vaadin.Router needs a DOM Node to render into, and a routes config. Once
-      created, it automatically listens to `popstate` events on the window and
-      updates the rendered content every time the location changes.</p>
-    <vaadin-demo-snippet id="core-basic-examples-basic" iframe-src="iframe.html">
+    <p>Vaadin.Router needs an outlet (a DOM Node to render into), and a routes
+      config. Once created, it automatically listens to `popstate` events on the
+      window and updates the rendered compoenent every time either the location
+      or the routes config changes.</p>
+    <p>The routes config maps paths to Web Components. Vaadin.Router goes
+      through the routes until if find the first match, creates an instance
+      of the route component, and renders it into the router outlet.</p>
+    <p>The route component can be any Web Component regardless of how it is
+      built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc</p>
+    <vaadin-demo-snippet id="core-basic-examples-1" iframe-src="iframe.html">
       <template preserve-content>
-        <nav>
-          <vaadin-router-link href="/">Home</vaadin-router-link>
-          <vaadin-router-link href="/users">Users</vaadin-router-link>
-        </nav>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            { path: '/', component: 'x-home-view' },
+            { path: '/users', component: 'x-user-list' },
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Child Routes</h3>
+    <p>Each route can have child routes:</p>
+    <vaadin-demo-snippet id="core-basic-examples-2" iframe-src="iframe.html">
+      <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -46,7 +66,6 @@
                   { path: '/:user', component: 'x-user-profile' }
                 ]
               },
-              { path: '/:any*', component: 'x-not-found-view' }
             ]);
         </script>
       </template>
