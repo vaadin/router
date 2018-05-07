@@ -40,11 +40,12 @@
             expect(actual).to.equal(outlet);
           });
 
-          it('should throw if the first argument is truthy but is not valid a DOM Node', () => {
+          it('should throw if the router outlet is truthy but is not valid a DOM Node', () => {
             [
               true,
               42,
               '<slot></slot>',
+              {},
               [document.body],
               () => document.body
             ].forEach(arg => {
@@ -72,6 +73,43 @@
 
           afterEach(() => {
             router.unsubscribe();
+          });
+
+          it('should throw if the router outlet is not a valid DOM Node (on start)', () => {
+            [
+              undefined,
+              null,
+              0,
+              false,
+              '',
+              NaN
+            ].forEach(invalidOutlet => {
+              router.setOutlet(invalidOutlet);
+              expect(() => router.render('/'), `${invalidOutlet}`).to.throw(TypeError);
+            });
+          });
+
+          it('should throw if the router outlet is a not valid DOM Node (on finish)', async () => {
+            await Promise.all([
+              undefined,
+              null,
+              0,
+              false,
+              '',
+              NaN
+            ].map(async (invalidOutlet) => {
+              const router = new Vaadin.Router(outlet);
+              router.setRoutes([{path: '/', component: 'x-home-view'}]);
+              const fulfilled = sinon.spy();
+              const rejected = sinon.spy();
+              const ready = router.render('/').then(fulfilled).catch(rejected);
+              router.setOutlet(invalidOutlet);
+              await ready;
+              expect(fulfilled).to.not.have.been.called;
+              expect(rejected).to.have.been.called.once;
+              expect(rejected.args[0][0]).to.be.instanceof(TypeError);
+              router.unsubscribe();
+            }));
           });
           
           it('should return a promise that resolves to the router outlet DOM element', async () => {

@@ -27,18 +27,20 @@ function resolveRoute(context, params) {
  * 
  * ### Basic example
  * ```
- * const routes = [
+ * import {Router} from '@vaadin/router';
+ * 
+ * const router = new Router(document.body);
+ * router.setRoutes([
  *   { path: '/', component: 'x-home-view' },
  *   { path: '/users', component: 'x-user-list' }
- * ];
- * 
- * const router = new Vaadin.Router(document.getElementById('outlet'));
- * router.setRoutes(routes);
+ * ]);
  * ```
  * 
  * ### Lazy-loading example
  * A bit more involved example with lazy-loading:
  * ```
+ * import {Router} from '@vaadin/router';
+ * 
  * const routes = [
  *   { path: '/', component: 'x-home-view' },
  *   { path: '/users',
@@ -50,7 +52,7 @@ function resolveRoute(context, params) {
  *   }
  * ];
  * 
- * const router = new Vaadin.Router(document.getElementById('outlet'));
+ * const router = new Router(document.body);
  * router.setRoutes(routes);
  * ```
  * 
@@ -58,6 +60,8 @@ function resolveRoute(context, params) {
  * A more complex example with custom route handers and server-side rendered
  * content:
  * ```
+ * import {Router} from '@vaadin/router';
+ * 
  * const routes = [
  *   { path: '/',
  *     action: async (context) => {
@@ -96,7 +100,7 @@ function resolveRoute(context, params) {
  *   }
  * ];
  * 
- * const router = new Vaadin.Router(document.getElementById('outlet'));
+ * const router = new Router(document.body);
  * router.setRoutes(routes);
  * ```
  * 
@@ -108,12 +112,13 @@ function resolveRoute(context, params) {
 export class Router extends Resolver {
   
   /**
-   * Creates a new Router instance with a given outlet.
-   * Equivalent to
+   * Creates a new Router instance with a given outlet, and
+   * automatically subscribes it to 'popstate' events on the `window`.
+   * Using a constructor argument or a setter for outlet is equivalent:
+   *
    * ```
    * const router = new Vaadin.Router();
    * router.setOutlet(outlet);
-   * router.setOptions(options);
    * ```
    *
    * @param {?Node} outlet
@@ -121,61 +126,92 @@ export class Router extends Resolver {
    */
   constructor(outlet, options) {
     super([], Object.assign({resolveRoute}, options));
-    this.setOutlet(outlet);
-    this.__renderCount = 0;
+    this.__lastStartedRenderId = 0;
     this.__popstateHandler = this.__onNavigationEvent.bind(this);
+    this.setOutlet(outlet);
     this.subscribe();
   }
 
+  /**
+   * Sets the router outlet (the DOM node where the content for the current
+   * route is inserted). Any content pre-existing in the router outlet is
+   * removed at the end of each render pass.
+   *
+   * @param {?Node} outlet the DOM node where the content for the current route
+   *     is inserted.
+   */
   setOutlet(outlet) {
-    if (outlet && !(outlet instanceof Node)) {
-      throw new TypeError(`expected router outlet to be a valid DOM Node (but got ${outlet})`);
+    if (outlet) {
+      this.__ensureOutlet(outlet);
     }
     this.__outlet = outlet;
   }
 
+  /**
+   * Gets the current router outlet. The initial value is `undefined`.
+   * 
+   * @return {?Node} the current router outlet (or `undefined`)
+   */
   getOutlet() {
     return this.__outlet;
   }
 
+  /**
+   * Sets the routing config (replacing the existing one) and triggers a
+   * navigation event so that the router outlet is refreshed according to the
+   * current `window.location` and the new routing config.
+   *
+   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   */
   setRoutes(routes) {
     super.setRoutes(routes);
     this.__onNavigationEvent();
   }
 
   /**
-   * Resolves the given path and renders the route DOM into the router outlet if
-   * it is set. If no router outlet is set at the time of calling this method,
-   * it throws an Error.
+   * Asynchronously resolves the given pathname and renders the route component
+   * into the router outlet. If no router outlet is set at the time of calling
+   * this method, or at the time when the route resolution is completed, a
+   * `TypeError` is thrown.
    * 
-   * Returns a promise that is fullfilled after the route DOM is inserted into
-   * the router outlet, or rejected if no route matches the given path.
+   * Returns a promise that is fullfilled after the route component is created
+   * and inserted into the router outlet, or rejected if no route matches the
+   * given path.
    * 
-   * @param {!string} path the path to render
-   * @param {?object} context an optional context to pass to route handlers
-   * @return {Promise<Node>}
+   * If another render pass is started before the previous one is completed, the
+   * result of the previous render pass is ignored.
+   * 
+   * @param {!string|!{pathname: !string}} pathnameOrContext the pathname to
+   *    render or a context object with a `pathname` property and other
+   *    properties to pass to the resolver.
+   * @return {!Promise<!Node>}
    */
-  render(path, context) {
-    // TODO(vlukashov): handle the 'no outlet' case
-    const renderId = ++this.__renderCount;
-    return this.resolve(path, context)
+  render(pathnameOrContext) {
+    this.__ensureOutlet();
+    const renderId = ++this.__lastStartedRenderId;
+    return this.resolve(pathnameOrContext)
       .then(element => {
-        // TODO(vlukashov): handle the 'no outlet' case
-        if (this.__outlet && this.__renderCount === renderId) {
-          this.__clearOutlet();
-          this.__outlet.appendChild(element);
+        if (renderId === this.__lastStartedRenderId) {
+          this.__setOutletContent(element);
           return this.__outlet;
         }
       })
       .catch(error => {
-        if (this.__outlet && this.__renderCount === renderId) {
-          this.__clearOutlet();
+        if (renderId === this.__lastStartedRenderId) {
+          this.__setOutletContent();
           throw error;
         }
       });
   }
 
-  __clearOutlet() {
+  __ensureOutlet(outlet = this.__outlet) {
+    if (!(outlet instanceof Node)) {
+      throw new TypeError(`expected router outlet to be a valid DOM Node (but got ${outlet})`);
+    }
+  }
+
+  __setOutletContent(element) {
+    this.__ensureOutlet();
     const children = this.__outlet.children;
     if (children && children.length) {
       const parent = children[0].parentNode;
@@ -183,12 +219,25 @@ export class Router extends Resolver {
         parent.removeChild(children[i]);
       }
     }
+    if (element) {
+      this.__outlet.appendChild(element);
+    }
   }
 
+  /**
+   * Subscribes this instance to `popstate` events on the `window`.
+   * 
+   * NOTE: beware of resource leaks. For as long as a router instance is
+   * subscribed to events, it won't be garbage collected.
+   */
   subscribe() {
     window.addEventListener('popstate', this.__popstateHandler);
   }
 
+  /**
+   * Removes the subscription to `popstate` events created in the `subscribe()`
+   * method.
+   */
   unsubscribe() {
     window.removeEventListener('popstate', this.__popstateHandler);
   }
