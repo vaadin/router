@@ -1,4 +1,9 @@
 import Resolver from './resolver/resolver.js';
+import {
+  navigationEventsEmitter,
+  setNavigationTriggers,
+} from './triggers/navigationEventsEmitter.js';
+import {POPSTATE} from './triggers/popstate.js';
 
 function resolveRoute(context, params) {
   const route = context.route;
@@ -115,13 +120,14 @@ function resolveRoute(context, params) {
  * @extends Vaadin.Resolver
  * @demo demo/?core
  * @summary JavaScript class that renders different DOM content depending on
- *    a given path. It can re-render when triggered or on the 'popstate' event.
+ *    a given path. It can re-render when triggered or automatically on
+ *    'popstate' and / or 'click' events.
  */
 export class Router extends Resolver {
   
   /**
    * Creates a new Router instance with a given outlet, and
-   * automatically subscribes it to 'popstate' events on the `window`.
+   * automatically subscribes it to navigation events on the `window`.
    * Using a constructor argument or a setter for outlet is equivalent:
    *
    * ```
@@ -147,7 +153,7 @@ export class Router extends Resolver {
     this.ready = Promise.resolve(outlet);
 
     this.__lastStartedRenderId = 0;
-    this.__popstateHandler = this.__onNavigationEvent.bind(this);
+    this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
     this.subscribe();
   }
@@ -246,26 +252,27 @@ export class Router extends Resolver {
   }
 
   /**
-   * Subscribes this instance to `popstate` events on the `window`.
+   * Subscribes this instance to navigation events on the `window`.
    * 
    * NOTE: beware of resource leaks. For as long as a router instance is
-   * subscribed to events, it won't be garbage collected.
+   * subscribed to navigation events, it won't be garbage collected.
    */
   subscribe() {
-    window.addEventListener('popstate', this.__popstateHandler);
+    navigationEventsEmitter.addListener(this.__navigationEventHandler);
   }
 
   /**
-   * Removes the subscription to `popstate` events created in the `subscribe()`
+   * Removes the subscription to navigation events created in the `subscribe()`
    * method.
    */
   unsubscribe() {
-    window.removeEventListener('popstate', this.__popstateHandler);
+    navigationEventsEmitter.removeListener(this.__navigationEventHandler);
   }
 
-  __onNavigationEvent() {
+  __onNavigationEvent(event) {
+    const pathname = event ? event.detail.pathname : window.location.pathname;
     if (this.root.children.length > 0) {
-      this.render(window.location.pathname);
+      this.render(pathname);
     }
   }
 
@@ -284,5 +291,32 @@ export class Router extends Resolver {
     }
     return element;
   }
+
+  /**
+   * Configures what triggers Vaadin.Router navigation events:
+   *  - `POPSTATE`: popstate events on the current `window`
+   *  - `CLICK`: click events on `<a>` links leading to the current page
+   * 
+   * The default is `POPSTATE`. Below is an example of how to switch to `CLICK`:
+   * 
+   * ```
+   * import {Router} from '@vaadin/router'; 
+   * import {CLICK} from '@vaadin/router/triggers/click.js';
+   * 
+   * Router.setTriggers(CLICK);
+   * // the triggers can also be combined:
+   * // Router.setTriggers(CLICK, POPSTATE);
+   * ```
+   * 
+   * The `POPSTATE` and `CLICK` navigation triggers need to be imported separately
+   * to enable efficient tree shaking: if the app does not use `<a>` clicks as
+   * navigation triggers, the code to handle them is not included into the bundle.
+   * 
+   * @param {...EventTarget} triggers
+   */
+  static setTriggers(...triggers) {
+    setNavigationTriggers(...triggers);
+  }
 }
 
+Router.setTriggers(POPSTATE);
