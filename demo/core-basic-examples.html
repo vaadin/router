@@ -42,8 +42,8 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            { path: '/', component: 'x-home-view' },
-            { path: '/users', component: 'x-user-list' },
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-user-list'},
           ]);
         </script>
       </template>
@@ -60,17 +60,18 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-              { path: '/', component: 'x-home-view' },
-              { path: '/users',
-                children: [
-                  { path: '/', component: 'x-user-list' },
-                  { path: '/:user', component: 'x-user-profile' }
-                ]
-              },
-            ]);
+            {path: '/', component: 'x-home-view'},
+            {path: '/users',
+              children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', component: 'x-user-profile'}
+              ]
+            },
+          ]);
         </script>
       </template>
     </vaadin-demo-snippet>
+  </template>
   <script>
     class CoreBasicExamples extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
       static get is() {
