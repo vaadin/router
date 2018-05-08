@@ -48,16 +48,14 @@ class Resolver {
    * @return {!Array<!Route>}
    */
   getRoutes() {
-    return this.root.children;
+    return [...this.root.children];
   }
 
   /**
-   * Sets the routing config (replacing the existing one) and returns the
-   * effective routing config after the opertaion.
+   * Sets the routing config (replacing the existing one).
    * 
    * @param {!Array<!Route>|!Route} routes a single route or an array of those
    *    (the array is shallow copied)
-   * @return {!Array<!Route>}
    */
   setRoutes(routes) {
     ensureRoutes(routes);
@@ -71,33 +69,29 @@ class Resolver {
    * @param {!Array<!Route>|!Route} routes a single route or an array of those
    *    (the array is shallow copied)
    * @return {!Array<!Route>}
+   * @protected
    */
   addRoutes(routes) {
+    ensureRoutes(routes);
     this.root.children.push(...toArray(routes));
   }
 
   /**
-   * Removes one or several routes from the routing config and returns the
-   * effective routing config after the operation. The routes to remove are
-   * searched in the routing config by reference equality, i.e. pass in the
-   * exact route references that need to be removed.
+   * Asynchronously resolves the given pathname, i.e. finds all routes matching
+   * the pathname and tries resolving them one after another in the order they
+   * are listed in the routes config until the first non-null result.
    * 
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
-   * @return {!Array<!Route>}
-   */
-  removeRoutes(routes) {
-    throw new Error('TODO(vlukashov): Resolver.removeRoutes() is not implemented');
-  }
-
-  /**
-   * Resolves the given path, i.e. calls all matching route handlers and returns
-   * the result (as a promise).
+   * Returns a promise that is fulfilled with the return value of the first
+   * route handler that returns something other than `null` or `undefined`.
    * 
-   * If no route matches the given path the returned promise is rejected.
-   *
-   * @param {!string} path the path to resolve
-   * @param {?object} context an optional context to pass to route handlers
-   * @return {Promise<HTMLElement>}
+   * If no route handlers return a non-null result, or if no route matches the
+   * given pathname the returned promise is rejected with a 'page not found'
+   * `Error`.
+   * 
+   * @param {!string|!{pathname: !string}} pathnameOrContext the pathname to
+   *    resolve or a context object with a `pathname` property and other
+   *    properties to pass to the route resolver functions.
+   * @return {!Promise<any>}
    */
   resolve(pathnameOrContext) {
     const context = Object.assign(

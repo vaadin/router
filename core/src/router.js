@@ -112,6 +112,7 @@ function resolveRoute(context, params) {
  * ```
  * 
  * @memberof Vaadin
+ * @extends Vaadin.Resolver
  * @demo demo/?core
  * @summary JavaScript class that renders different DOM content depending on
  *    a given path. It can re-render when triggered or on the 'popstate' event.
@@ -136,7 +137,7 @@ export class Router extends Resolver {
 
     /**
      * A promise that is settled after the current render cycle completes. If
-     * there is no render cycle in progress the promise is immediately resolved
+     * there is no render cycle in progress the promise is immediately settled
      * with the last render cycle result.
      *
      * @public
@@ -167,7 +168,7 @@ export class Router extends Resolver {
   }
 
   /**
-   * Gets the current router outlet. The initial value is `undefined`.
+   * Returns the current router outlet. The initial value is `undefined`.
    * 
    * @return {?Node} the current router outlet (or `undefined`)
    */
@@ -188,14 +189,14 @@ export class Router extends Resolver {
   }
 
   /**
-   * Asynchronously resolves the given pathname and renders the route component
-   * into the router outlet. If no router outlet is set at the time of calling
-   * this method, or at the time when the route resolution is completed, a
-   * `TypeError` is thrown.
+   * Asynchronously resolves the given pathname and renders the resolved route
+   * component into the router outlet. If no router outlet is set at the time of
+   * calling this method, or at the time when the route resolution is completed,
+   * a `TypeError` is thrown.
    * 
-   * Returns a promise that is fullfilled after the route component is created
-   * and inserted into the router outlet, or rejected if no route matches the
-   * given path.
+   * Returns a promise that is fullfilled with the router outlet DOM Node after
+   * the route component is created and inserted into the router outlet, or
+   * rejected if no route matches the given path.
    * 
    * If another render pass is started before the previous one is completed, the
    * result of the previous render pass is ignored.
@@ -274,6 +275,7 @@ export class Router extends Resolver {
    * @param {!string} component tag name of a web component to render
    * @param {?context} context an optional context object
    * @return {!HTMLElement}
+   * @protected
    */
   static renderComponent(component, context) {
     const element = document.createElement(component);
