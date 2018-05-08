@@ -133,6 +133,18 @@ export class Router extends Resolver {
    */
   constructor(outlet, options) {
     super([], Object.assign({resolveRoute}, options));
+
+    /**
+     * A promise that is settled after the current render cycle completes. If
+     * there is no render cycle in progress the promise is immediately resolved
+     * with the last render cycle result.
+     *
+     * @public
+     * @type {!Promise<?Node>}
+     */
+    this.ready;
+    this.ready = Promise.resolve(outlet);
+
     this.__lastStartedRenderId = 0;
     this.__popstateHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
@@ -196,7 +208,7 @@ export class Router extends Resolver {
   render(pathnameOrContext) {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
-    return this.resolve(pathnameOrContext)
+    this.ready = this.resolve(pathnameOrContext)
       .then(element => {
         if (renderId === this.__lastStartedRenderId) {
           this.__setOutletContent(element);
@@ -209,6 +221,7 @@ export class Router extends Resolver {
           throw error;
         }
       });
+    return this.ready;
   }
 
   __ensureOutlet(outlet = this.__outlet) {

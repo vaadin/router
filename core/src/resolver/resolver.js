@@ -38,7 +38,6 @@ class Resolver {
     this.context = Object.assign({resolver: this}, options.context);
     this.root = Array.isArray(routes) ? {path: '', children: routes, parent: null} : routes;
     this.root.parent = null;
-    this.ready = Promise.resolve();
   }
 
   /**
@@ -146,7 +145,7 @@ class Resolver {
 
     context.next = next;
 
-    this.ready = Promise.resolve()
+    return Promise.resolve()
       .then(() => next(true, this.root))
       .catch((error) => {
         error.context = error.context || currentContext;
@@ -156,7 +155,6 @@ class Resolver {
         }
         throw error;
       });
-    return this.ready; 
   }
 }
 
