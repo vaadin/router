@@ -29,10 +29,10 @@ function resolveRoute(context, params) {
  * ```
  * import {Router} from '@vaadin/router';
  * 
- * const router = new Router(document.body);
+ * const router = new Router(document.getElementById('outlet'));
  * router.setRoutes([
- *   { path: '/', component: 'x-home-view' },
- *   { path: '/users', component: 'x-user-list' }
+ *   {path: '/', component: 'x-home-view'},
+ *   {path: '/users', component: 'x-user-list'}
  * ]);
  * ```
  * 
@@ -42,17 +42,18 @@ function resolveRoute(context, params) {
  * import {Router} from '@vaadin/router';
  * 
  * const routes = [
- *   { path: '/', component: 'x-home-view' },
- *   { path: '/users',
+ *   {path: '/', component: 'x-home-view'},
+ *   {
+ *     path: '/users',
  *     bundle: 'bundles/user-bundle.html',
  *     children: [
- *       { path: '/', component: 'x-user-list' },
- *       { path: '/:user', component: 'x-user-profile' }
+ *       {path: '/', component: 'x-user-list'},
+ *       {path: '/:user', component: 'x-user-profile'}
  *     ]
  *   }
  * ];
  * 
- * const router = new Router(document.body);
+ * const router = new Router(document.getElementById('outlet'));
  * router.setRoutes(routes);
  * ```
  * 
@@ -63,7 +64,8 @@ function resolveRoute(context, params) {
  * import {Router} from '@vaadin/router';
  * 
  * const routes = [
- *   { path: '/',
+ *   {
+ *     path: '/',
  *     action: async (context) => {
  *       // record the navigation completed event for analytics
  *       analytics.recordNavigationStart(context.path);
@@ -78,15 +80,20 @@ function resolveRoute(context, params) {
  *       return result;
  *     }
  *   },
- *   { path: '/', component: 'x-home-view' },
- *   { path: '/users',
+ *   {
+ *     path: '/',
+ *     component: 'x-home-view'
+ *   },
+ *   {
+ *     path: '/users',
  *     bundle: 'bundles/user-bundle.html',
  *     children: [
- *       { path: '/', component: 'x-user-list' },
- *       { path: '/:user', component: 'x-user-profile' }
+ *       {path: '/', component: 'x-user-list'},
+ *       {path: '/:user', component: 'x-user-profile'}
  *     ]
  *   },
- *   { path: '/server',
+ *   {
+ *     path: '/server',
  *     action: async (context) => {
  *       // fetch the server-side rendered content
  *       const result = await fetch(context.path, {...});
@@ -100,7 +107,7 @@ function resolveRoute(context, params) {
  *   }
  * ];
  * 
- * const router = new Router(document.body);
+ * const router = new Router(document.getElementById('outlet'));
  * router.setRoutes(routes);
  * ```
  * 
