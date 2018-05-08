@@ -46,11 +46,11 @@
   }
   ,
   {
-    "name": "JS API",
-    "url": "js-api-demos",
-    "src": "js-api-demos.html",
+    "name": "DOM JS API",
+    "url": "dom-js-api-demos",
+    "src": "dom-js-api-demos.html",
     "meta": {
-      "title": "JS API Examples",
+      "title": "DOM JS API Examples",
       "description": "",
       "image": ""
      }

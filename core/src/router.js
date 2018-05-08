@@ -1,5 +1,4 @@
 import Resolver from './resolver/resolver.js';
-import {toArray, ensureRoutes} from './utils.js';
 
 function resolveRoute(context, params) {
   const route = context.route;
@@ -28,30 +27,33 @@ function resolveRoute(context, params) {
  * 
  * ### Basic example
  * ```
- * const routes = [
- *   { path: '/', component: 'x-home-view' },
- *   { path: '/users', component: 'x-user-list' }
- * ];
+ * import {Router} from '@vaadin/router';
  * 
- * const router = new Vaadin.Router(document.getElementById('outlet'));
- * router.setRoutes(routes);
+ * const router = new Router(document.getElementById('outlet'));
+ * router.setRoutes([
+ *   {path: '/', component: 'x-home-view'},
+ *   {path: '/users', component: 'x-user-list'}
+ * ]);
  * ```
  * 
  * ### Lazy-loading example
  * A bit more involved example with lazy-loading:
  * ```
+ * import {Router} from '@vaadin/router';
+ * 
  * const routes = [
- *   { path: '/', component: 'x-home-view' },
- *   { path: '/users',
+ *   {path: '/', component: 'x-home-view'},
+ *   {
+ *     path: '/users',
  *     bundle: 'bundles/user-bundle.html',
  *     children: [
- *       { path: '/', component: 'x-user-list' },
- *       { path: '/:user', component: 'x-user-profile' }
+ *       {path: '/', component: 'x-user-list'},
+ *       {path: '/:user', component: 'x-user-profile'}
  *     ]
  *   }
  * ];
  * 
- * const router = new Vaadin.Router(document.getElementById('outlet'));
+ * const router = new Router(document.getElementById('outlet'));
  * router.setRoutes(routes);
  * ```
  * 
@@ -59,8 +61,11 @@ function resolveRoute(context, params) {
  * A more complex example with custom route handers and server-side rendered
  * content:
  * ```
+ * import {Router} from '@vaadin/router';
+ * 
  * const routes = [
- *   { path: '/',
+ *   {
+ *     path: '/',
  *     action: async (context) => {
  *       // record the navigation completed event for analytics
  *       analytics.recordNavigationStart(context.path);
@@ -75,15 +80,20 @@ function resolveRoute(context, params) {
  *       return result;
  *     }
  *   },
- *   { path: '/', component: 'x-home-view' },
- *   { path: '/users',
+ *   {
+ *     path: '/',
+ *     component: 'x-home-view'
+ *   },
+ *   {
+ *     path: '/users',
  *     bundle: 'bundles/user-bundle.html',
  *     children: [
- *       { path: '/', component: 'x-user-list' },
- *       { path: '/:user', component: 'x-user-profile' }
+ *       {path: '/', component: 'x-user-list'},
+ *       {path: '/:user', component: 'x-user-profile'}
  *     ]
  *   },
- *   { path: '/server',
+ *   {
+ *     path: '/server',
  *     action: async (context) => {
  *       // fetch the server-side rendered content
  *       const result = await fetch(context.path, {...});
@@ -97,19 +107,23 @@ function resolveRoute(context, params) {
  *   }
  * ];
  * 
- * const router = new Vaadin.Router(document.getElementById('outlet'));
+ * const router = new Router(document.getElementById('outlet'));
  * router.setRoutes(routes);
  * ```
  * 
  * @memberof Vaadin
+ * @extends Vaadin.Resolver
+ * @demo demo/?core
  * @summary JavaScript class that renders different DOM content depending on
  *    a given path. It can re-render when triggered or on the 'popstate' event.
  */
-export class Router {
+export class Router extends Resolver {
   
   /**
-   * Creates a new Router instance with a given outlet.
-   * Equivalent to
+   * Creates a new Router instance with a given outlet, and
+   * automatically subscribes it to 'popstate' events on the `window`.
+   * Using a constructor argument or a setter for outlet is equivalent:
+   *
    * ```
    * const router = new Vaadin.Router();
    * router.setOutlet(outlet);
@@ -118,144 +132,141 @@ export class Router {
    * @param {?Node} outlet
    * @param {?RouterOptions} options
    */
-  constructor(outlet) {
-    this.__resolver = new Resolver([], {resolveRoute});
+  constructor(outlet, options) {
+    super([], Object.assign({resolveRoute}, options));
+
+    /**
+     * A promise that is settled after the current render cycle completes. If
+     * there is no render cycle in progress the promise is immediately settled
+     * with the last render cycle result.
+     *
+     * @public
+     * @type {!Promise<?Node>}
+     */
+    this.ready;
+    this.ready = Promise.resolve(outlet);
+
+    this.__lastStartedRenderId = 0;
+    this.__popstateHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
+    this.subscribe();
   }
 
   /**
-   * Returns the current set of router options.
-   * 
-   * @return {!RouterOptions}
+   * Sets the router outlet (the DOM node where the content for the current
+   * route is inserted). Any content pre-existing in the router outlet is
+   * removed at the end of each render pass.
+   *
+   * @param {?Node} outlet the DOM node where the content for the current route
+   *     is inserted.
    */
-  getOptions() {
-    throw new Error('TODO(vlukashov): Router.getOptions() is not implemented');
+  setOutlet(outlet) {
+    if (outlet) {
+      this.__ensureOutlet(outlet);
+    }
+    this.__outlet = outlet;
   }
 
   /**
-   * Updates one or several router options. Only the options properties that are
-   * present in the parameter object are updated.
+   * Returns the current router outlet. The initial value is `undefined`.
    * 
-   * Returns the effective options set the update.
-   * 
-   * @param {?RouterOptions} options
-   * @return {!RouterOptions}
-   */
-  setOptions(options) {
-    throw new Error('TODO(vlukashov): Router.setOptions() is not implemented');
-  }
-
-  /**
-   * Returns the current list of routes (as a shallow copy). Adding / removing
-   * routes to / from the returned array does not affect the routing config,
-   * but modifying the route objects does.
-   * 
-   * @return {!Array<!Route>}
-   */
-  getRoutes() {
-    return this.__resolver.root.children;
-  }
-
-  /**
-   * Sets the routing config (replacing the existing one) and returns the
-   * effective routing config after the opertaion.
-   * 
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
-   *    (the array is shallow copied)
-   * @return {!Array<!Route>}
-   */
-  setRoutes(routes) {
-    ensureRoutes(routes);
-    this.__resolver.root.children = [...toArray(routes)];
-  }
-
-  /**
-   * Appends one or several routes to the routing config and returns the
-   * effective routing config after the operation.
-   * 
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
-   *    (the array is shallow copied)
-   * @return {!Array<!Route>}
-   */
-  addRoutes(routes) {
-    this.__resolver.root.children.push(...toArray(routes));
-  }
-
-  /**
-   * Removes one or several routes from the routing config and returns the
-   * effective routing config after the operation. The routes to remove are
-   * searched in the routing config by reference equality, i.e. pass in the
-   * exact route references that need to be removed.
-   * 
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
-   * @return {!Array<!Route>}
-   */
-  removeRoutes(routes) {
-    throw new Error('TODO(vlukashov): Router.removeRoutes() is not implemented');
-  }
-
-  /**
-   * Returns the current router outlet.
-   * 
-   * @return {Node}
+   * @return {?Node} the current router outlet (or `undefined`)
    */
   getOutlet() {
     return this.__outlet;
   }
 
   /**
-   * Sets the router outlet.
-   * 
-   * @param {Node} outlet
-   */
-  setOutlet(outlet) {
-    this.__outlet = outlet;
-  }
-
-  /**
-   * Resolves the given path, i.e. calls all matching route handlers and returns
-   * the result (as a promise).
-   * 
-   * If no route matches the given path the returned promise is rejected.
+   * Sets the routing config (replacing the existing one) and triggers a
+   * navigation event so that the router outlet is refreshed according to the
+   * current `window.location` and the new routing config.
    *
-   * @param {!string} path the path to resolve
-   * @param {?object} context an optional context to pass to route handlers
-   * @return {Promise<HTMLElement>}
+   * @param {!Array<!Route>|!Route} routes a single route or an array of those
    */
-  resolve(path, context) {
-    return this.__resolver.resolve(Object.assign({pathname: path}, context));
+  setRoutes(routes) {
+    super.setRoutes(routes);
+    this.__onNavigationEvent();
   }
 
   /**
-   * Resolves the given path and renders the route DOM into the router outlet if
-   * it is set. If no router outlet is set at the time of calling this method,
-   * it throws an Error.
+   * Asynchronously resolves the given pathname and renders the resolved route
+   * component into the router outlet. If no router outlet is set at the time of
+   * calling this method, or at the time when the route resolution is completed,
+   * a `TypeError` is thrown.
    * 
-   * Returns a promise that is fullfilled after the route DOM is inserted into
-   * the router outlet, or rejected if no route matches the given path.
+   * Returns a promise that is fullfilled with the router outlet DOM Node after
+   * the route component is created and inserted into the router outlet, or
+   * rejected if no route matches the given path.
    * 
-   * @param {!string} path the path to render
-   * @param {?object} context an optional context to pass to route handlers
-   * @return {Promise<Node>}
+   * If another render pass is started before the previous one is completed, the
+   * result of the previous render pass is ignored.
+   * 
+   * @param {!string|!{pathname: !string}} pathnameOrContext the pathname to
+   *    render or a context object with a `pathname` property and other
+   *    properties to pass to the resolver.
+   * @return {!Promise<!Node>}
    */
-  render(path, context) {
-    // TODO(vlukashov): handle the 'no outlet' case
-    return this.resolve(path, context)
+  render(pathnameOrContext) {
+    this.__ensureOutlet();
+    const renderId = ++this.__lastStartedRenderId;
+    this.ready = this.resolve(pathnameOrContext)
       .then(element => {
-        // TODO(vlukashov): handle the 'no outlet' case
-        if (this.__outlet) {
-          const children = this.__outlet.children;
-          if (children && children.length) {
-            const parent = children[0].parentNode;
-            for (let i = 0; i < children.length; i += 1) {
-              parent.removeChild(children[i]);
-            }
-          }
-
-          this.__outlet.appendChild(element);
+        if (renderId === this.__lastStartedRenderId) {
+          this.__setOutletContent(element);
           return this.__outlet;
         }
+      })
+      .catch(error => {
+        if (renderId === this.__lastStartedRenderId) {
+          this.__setOutletContent();
+          throw error;
+        }
       });
+    return this.ready;
+  }
+
+  __ensureOutlet(outlet = this.__outlet) {
+    if (!(outlet instanceof Node)) {
+      throw new TypeError(`expected router outlet to be a valid DOM Node (but got ${outlet})`);
+    }
+  }
+
+  __setOutletContent(element) {
+    this.__ensureOutlet();
+    const children = this.__outlet.children;
+    if (children && children.length) {
+      const parent = children[0].parentNode;
+      for (let i = 0; i < children.length; i += 1) {
+        parent.removeChild(children[i]);
+      }
+    }
+    if (element) {
+      this.__outlet.appendChild(element);
+    }
+  }
+
+  /**
+   * Subscribes this instance to `popstate` events on the `window`.
+   * 
+   * NOTE: beware of resource leaks. For as long as a router instance is
+   * subscribed to events, it won't be garbage collected.
+   */
+  subscribe() {
+    window.addEventListener('popstate', this.__popstateHandler);
+  }
+
+  /**
+   * Removes the subscription to `popstate` events created in the `subscribe()`
+   * method.
+   */
+  unsubscribe() {
+    window.removeEventListener('popstate', this.__popstateHandler);
+  }
+
+  __onNavigationEvent() {
+    if (this.root.children.length > 0) {
+      this.render(window.location.pathname);
+    }
   }
 
   /**
@@ -264,6 +275,7 @@ export class Router {
    * @param {!string} component tag name of a web component to render
    * @param {?context} context an optional context object
    * @return {!HTMLElement}
+   * @protected
    */
   static renderComponent(component, context) {
     const element = document.createElement(component);

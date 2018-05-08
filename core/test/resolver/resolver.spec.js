@@ -45,7 +45,7 @@
       expect(errorHandler.calledOnce).to.be.true;
       const error = errorHandler.args[0][0];
       expect(error).to.be.an('error');
-      expect(error.message).to.be.equal('Page not found');
+      expect(error.message).to.match(/Page not found/);
       expect(error.code).to.be.equal(404);
       expect(error.context.pathname).to.be.equal('/');
       expect(error.context.resolver).to.be.equal(resolver);
@@ -73,6 +73,25 @@
     });
   });
 
+  describe('routes getter / setter', () => {
+    it('should have a getter for the routes config', () => {
+      const router = new Resolver([]);
+      const actual = router.getRoutes();
+      expect(actual).to.be.an('array').that.is.empty;
+    });
+
+    it('should have a setter for the routes config', () => {
+      const router = new Resolver([]);
+      router.setRoutes([
+        {path: '/', component: 'x-home-view'}
+      ]);
+      const actual = router.getRoutes();
+      expect(actual).to.be.an('array').that.has.lengthOf(1);
+      expect(actual[0]).to.have.property('path', '/');
+      expect(actual[0]).to.have.property('component', 'x-home-view');
+    });
+  });
+
   describe('resolver.resolve({ pathname, ...context })', () => {
     it('should throw an error if no route found', async() => {
       const resolver = new Resolver([]);
@@ -83,7 +102,7 @@
         err = e;
       }
       expect(err).to.be.an('error');
-      expect(err.message).to.be.equal('Page not found');
+      expect(err.message).to.match(/Page not found/);
       expect(err.code).to.be.equal(404);
       expect(err.context.pathname).to.be.equal('/');
       expect(err.context.path).to.be.equal(undefined);
@@ -138,7 +157,7 @@
         err = e;
       }
       expect(err).to.be.an('error');
-      expect(err.message).to.be.equal('Page not found');
+      expect(err.message).to.match(/Page not found/);
       expect(err.code).to.be.equal(404);
       expect(action.called).to.be.false;
     });
@@ -561,7 +580,7 @@
       }
       expect(action.calledOnce).to.be.true;
       expect(err).to.be.an('error');
-      expect(err.message).to.be.equal('Page not found');
+      expect(err.message).to.match(/Page not found/);
       expect(err.code).to.be.equal(404);
       expect(err.context.pathname).to.be.equal('/a/b/c');
       expect(err.context.path).to.be.equal(undefined);
@@ -628,4 +647,4 @@
       expect(middleware.calledOnce).to.be.true;
     });
   });
-})(window.VaadinTestNamespace || Vaadin.Router);
+})(window.VaadinTestNamespace || window.Vaadin.Router);

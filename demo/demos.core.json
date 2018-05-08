@@ -1,0 +1,15 @@
+{
+  "name": "Vaadin.Router",
+  "pages": [
+    {
+      "name": "Basic",
+      "url": "core-basic-examples",
+      "src": "core-basic-examples.html",
+      "meta": {
+        "title": "Vaadin.Router Basic Examples",
+        "description": "",
+        "image": ""
+      }
+    }
+  ]
+}

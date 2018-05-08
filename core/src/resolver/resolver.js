@@ -10,6 +10,7 @@
 import pathToRegexp from './path-to-regexp.js';
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
+import {toArray, ensureRoutes} from '../utils.js';
 
 function isChildRoute(parentRoute, childRoute) {
   let route = childRoute;
@@ -39,6 +40,59 @@ class Resolver {
     this.root.parent = null;
   }
 
+  /**
+   * Returns the current list of routes (as a shallow copy). Adding / removing
+   * routes to / from the returned array does not affect the routing config,
+   * but modifying the route objects does.
+   * 
+   * @return {!Array<!Route>}
+   */
+  getRoutes() {
+    return [...this.root.children];
+  }
+
+  /**
+   * Sets the routing config (replacing the existing one).
+   * 
+   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   *    (the array is shallow copied)
+   */
+  setRoutes(routes) {
+    ensureRoutes(routes);
+    this.root.children = [...toArray(routes)];
+  }
+
+  /**
+   * Appends one or several routes to the routing config and returns the
+   * effective routing config after the operation.
+   * 
+   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   *    (the array is shallow copied)
+   * @return {!Array<!Route>}
+   * @protected
+   */
+  addRoutes(routes) {
+    ensureRoutes(routes);
+    this.root.children.push(...toArray(routes));
+  }
+
+  /**
+   * Asynchronously resolves the given pathname, i.e. finds all routes matching
+   * the pathname and tries resolving them one after another in the order they
+   * are listed in the routes config until the first non-null result.
+   * 
+   * Returns a promise that is fulfilled with the return value of the first
+   * route handler that returns something other than `null` or `undefined`.
+   * 
+   * If no route handlers return a non-null result, or if no route matches the
+   * given pathname the returned promise is rejected with a 'page not found'
+   * `Error`.
+   * 
+   * @param {!string|!{pathname: !string}} pathnameOrContext the pathname to
+   *    resolve or a context object with a `pathname` property and other
+   *    properties to pass to the route resolver functions.
+   * @return {!Promise<any>}
+   */
   resolve(pathnameOrContext) {
     const context = Object.assign(
       {},
@@ -67,7 +121,7 @@ class Resolver {
       }
 
       if (matches.done) {
-        const error = new Error('Page not found');
+        const error = new Error(`Page not found (${context.pathname})`);
         error.context = context;
         error.code = 404;
         return Promise.reject(error);

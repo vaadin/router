@@ -1,0 +1,25 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+
+<dom-module id="x-not-found-view">
+	<template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h1>404</h1>
+    <p>View not found</p>
+  </template>
+  <script>
+    (() => {
+      class XNotFoundView extends Polymer.Element {
+        static get is() {
+          return 'x-not-found-view';
+        }
+      }
+
+      customElements.define(XNotFoundView.is, XNotFoundView);
+    })();
+  </script>
+</dom-module>
