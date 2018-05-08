@@ -65,7 +65,7 @@
         const step3 = () => {
           expect(element).to.be.ok;
           // TODO(vlukashov): change when https://github.com/vaadin/vaadin-router/issues/52 is implemented
-          expect(element.__router.__resolver.root.children).to.be.an('array')
+          expect(element.__router.root.children).to.be.an('array')
             .that.has.lengthOf(0);
           done();
         };
