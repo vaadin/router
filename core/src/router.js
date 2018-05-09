@@ -1,8 +1,5 @@
 import Resolver from './resolver/resolver.js';
-import {
-  navigationEventsEmitter,
-  setNavigationTriggers,
-} from './triggers/navigationEventsEmitter.js';
+import {setNavigationTriggers} from './triggers/setNavigationTriggers.js';
 import {POPSTATE} from './triggers/popstate.js';
 
 function resolveRoute(context, params) {
@@ -258,7 +255,8 @@ export class Router extends Resolver {
    * subscribed to navigation events, it won't be garbage collected.
    */
   subscribe() {
-    navigationEventsEmitter.addListener(this.__navigationEventHandler);
+    window.addEventListener('vaadin-router:navigate',
+      this.__navigationEventHandler);
   }
 
   /**
@@ -266,7 +264,8 @@ export class Router extends Resolver {
    * method.
    */
   unsubscribe() {
-    navigationEventsEmitter.removeListener(this.__navigationEventHandler);
+    window.removeEventListener('vaadin-router:navigate',
+      this.__navigationEventHandler);
   }
 
   __onNavigationEvent(event) {
@@ -301,21 +300,22 @@ export class Router extends Resolver {
    * 
    * ```
    * import {Router} from '@vaadin/router'; 
-   * import {CLICK} from '@vaadin/router/triggers/click.js';
+   * import {CLICK} from '@vaadin/router/triggers/click';
    * 
    * Router.setTriggers(CLICK);
    * // the triggers can also be combined:
    * // Router.setTriggers(CLICK, POPSTATE);
    * ```
    * 
-   * The `POPSTATE` and `CLICK` navigation triggers need to be imported separately
-   * to enable efficient tree shaking: if the app does not use `<a>` clicks as
-   * navigation triggers, the code to handle them is not included into the bundle.
+   * The `POPSTATE` and `CLICK` navigation triggers need to be imported
+   * separately to enable efficient tree shaking: if the app does not use `<a>`
+   * clicks as navigation triggers, the code to handle them is not included into
+   * the bundle.
    * 
-   * @param {...EventTarget} triggers
+   * @param {...NavigationTrigger} triggers
    */
   static setTriggers(...triggers) {
-    setNavigationTriggers(...triggers);
+    setNavigationTriggers(triggers);
   }
 }
 

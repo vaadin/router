@@ -1,9 +1,22 @@
-import {createEventTarget} from './createEventTarget.js';
+import {triggerNavigation} from './triggerNavigation.js';
 
-export const POPSTATE = createEventTarget();
-window.addEventListener('popstate',
-  function vaadinRouterGlobalPopstateHandler(event) {
-    const navEvent = new CustomEvent('vaadin-router-navigate',
-      {detail: {pathname: window.location.pathname}});
-    POPSTATE.dispatchEvent(navEvent);
-  });
+function vaadinRouterGlobalPopstateHandler() {
+  triggerNavigation(window.location.pathname);
+}
+
+/**
+ * A navigation trigger for Vaadin.Router that translates popstate events into
+ * Vaadin.Router navigation events.
+ * 
+ * @memberOf Vaadin.Router.Triggers
+ * @type {NavigationTrigger}
+ */
+export const POPSTATE = {
+  activate() {
+    window.addEventListener('popstate', vaadinRouterGlobalPopstateHandler);
+  },
+
+  inactivate() {
+    window.removeEventListener('popstate', vaadinRouterGlobalPopstateHandler);
+  }
+};
