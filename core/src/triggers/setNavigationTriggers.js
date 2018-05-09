@@ -8,7 +8,7 @@
 /** @type {Array<NavigationTrigger>} */
 let triggers = [];
 
-export function setNavigationTriggers(newTriggers) {
+export default function setNavigationTriggers(newTriggers) {
   for (const trigger of triggers) {
     trigger.inactivate();
   }

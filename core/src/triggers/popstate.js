@@ -1,4 +1,4 @@
-import {triggerNavigation} from './triggerNavigation.js';
+import triggerNavigation from './triggerNavigation.js';
 
 function vaadinRouterGlobalPopstateHandler() {
   triggerNavigation(window.location.pathname);
@@ -11,7 +11,7 @@ function vaadinRouterGlobalPopstateHandler() {
  * @memberOf Vaadin.Router.Triggers
  * @type {NavigationTrigger}
  */
-export const POPSTATE = {
+const POPSTATE = {
   activate() {
     window.addEventListener('popstate', vaadinRouterGlobalPopstateHandler);
   },
@@ -20,3 +20,5 @@ export const POPSTATE = {
     window.removeEventListener('popstate', vaadinRouterGlobalPopstateHandler);
   }
 };
+
+export default POPSTATE;

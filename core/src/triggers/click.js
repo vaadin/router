@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import {triggerNavigation} from './triggerNavigation.js';
+import triggerNavigation from './triggerNavigation.js';
 
 function vaadinRouterGlobalClickHandler(event) {
   // TODO (vlukashov): implement vaadinRouterGlobalClickHandler()
@@ -15,7 +15,7 @@ function vaadinRouterGlobalClickHandler(event) {
  * @memberOf Vaadin.Router.Triggers
  * @type {NavigationTrigger}
  */
-export const CLICK = {
+const CLICK = {
   activate() {
     window.document.addEventListener('click', vaadinRouterGlobalClickHandler);
   },
@@ -24,3 +24,5 @@ export const CLICK = {
     window.document.removeEventListener('click', vaadinRouterGlobalClickHandler);
   }
 };
+
+export default CLICK;

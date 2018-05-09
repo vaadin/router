@@ -15,14 +15,12 @@ module.exports = {
         dir: './coverage',
         reporters: ['text-summary', 'lcov'],
         include: [
-          '**/dist/test-iife/resolver/matchPath.js',
-          '**/dist/test-iife/resolver/matchRoute.js',
-          '**/dist/test-iife/resolver/resolveRoute.js',
-          '**/dist/test-iife/resolver/resolver.js',
-          // '**/dist/test-iife/resolver/generateUrls.js',
+          '**/dist/test-iife/**/*.js',
         ],
         exclude: [
-          '**/dist/test-iife/resolver/path-to-regexp.js'
+          '**/dist/test-iife/resolver/path-to-regexp.js',
+          '**/dist/test-iife/resolver/generateUrls.js',
+          '**/dist/test-iife/triggers/click.js',
         ],
         thresholds: {
           global: {

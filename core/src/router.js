@@ -1,6 +1,6 @@
 import Resolver from './resolver/resolver.js';
-import {setNavigationTriggers} from './triggers/setNavigationTriggers.js';
-import {POPSTATE} from './triggers/popstate.js';
+import setNavigationTriggers from './triggers/setNavigationTriggers.js';
+import POPSTATE from './triggers/popstate.js';
 
 function resolveRoute(context, params) {
   const route = context.route;
@@ -300,7 +300,7 @@ export class Router extends Resolver {
    * 
    * ```
    * import {Router} from '@vaadin/router'; 
-   * import {CLICK} from '@vaadin/router/triggers/click';
+   * import CLICK from '@vaadin/router/triggers/click';
    * 
    * Router.setTriggers(CLICK);
    * // the triggers can also be combined:
