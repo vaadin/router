@@ -1,8 +1,55 @@
-// eslint-disable-next-line no-unused-vars
 import triggerNavigation from './triggerNavigation.js';
 
 function vaadinRouterGlobalClickHandler(event) {
-  // TODO (vlukashov): implement vaadinRouterGlobalClickHandler()
+  if (event.defaultPrevented) {
+    return;
+  }
+
+  if (event.button !== 0) {
+    return;
+  }
+
+  if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+    return;
+  }
+
+  let anchor = event.target;
+  const path = event.composedPath
+    ? event.composedPath()
+    : (event.path || []);
+  for (const target of path) {
+    if (target.nodeName && target.nodeName.toLowerCase() === 'a') {
+      anchor = target;
+      break;
+    }
+  }
+  
+  while (anchor && anchor.nodeName.toLowerCase() !== 'a') {
+    anchor = anchor.parentNode;
+  }
+
+  if (!anchor || anchor.nodeName.toLowerCase() !== 'a') {
+    return;
+  }
+
+  if (anchor.target && anchor.target.toLowerCase() !== '_self') {
+    return;
+  }
+
+  if (anchor.hasAttribute('download')) {
+    return;
+  }
+
+  if (!anchor.href.startsWith(document.baseURI)) {
+    return;
+  }
+
+  if (anchor.pathname === window.location.pathname && anchor.hash !== '') {
+    return;
+  }
+
+  event.preventDefault();
+  triggerNavigation(anchor.pathname);
 }
 
 /**
