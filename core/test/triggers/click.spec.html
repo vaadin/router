@@ -80,9 +80,28 @@
         const shift = keys & Key.SHIFT;
         const meta = keys & Key.META;
 
-        const event = document.createEvent('MouseEvents');
-        event.initMouseEvent("click", true, true, window, 0,
-                0, 0, 0, 0, ctrl, alt, shift, meta, button, target);
+        let event;
+        try {
+          event = new MouseEvent('click', {
+            ctrlKey: ctrl,
+            altKey: alt,
+            shiftKey: shift,
+            metaKey: meta,
+            button: button,
+            bubbles: true,
+            cancelable: true,
+            composed: true
+          });
+        } catch(e) {
+          event = document.createEvent('MouseEvents');
+          event.initMouseEvent("click", true, true, window, 0,
+                  0, 0, 0, 0, ctrl, alt, shift, meta, button, null);
+          if (window.ShadyDOM) {
+            Object.defineProperty(event, 'composed', {
+              get() { return true; }
+            });
+          }
+        }
         target.dispatchEvent(event);
       }
 
@@ -166,7 +185,7 @@
 
           it('should translate `click` events on <a> links inside Shadow DOM into `vaadin-router:navigate` events on window', () => {
             const shadowRoot = document.getElementById('shadow-host-with-a-link').shadowRoot;
-            shadowRoot.getElementById('in-app-in-a-shadow').click();
+            emulateClick(shadowRoot.getElementById('in-app-in-a-shadow'));
 
             expect(navigateEvents).to.have.lengthOf(1);
             expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
@@ -178,7 +197,7 @@
 
           it('should translate `click` events inside shadow DOM inside <a> links into `vaadin-router:navigate` events on window', () => {
             const shadowRoot = document.getElementById('shadow-host-in-a-link').shadowRoot;
-            shadowRoot.getElementById('text-in-a-shadow-in-a-link').click();
+            emulateClick(shadowRoot.getElementById('text-in-a-shadow-in-a-link'));
 
             expect(navigateEvents).to.have.lengthOf(1);
             expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
