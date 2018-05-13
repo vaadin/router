@@ -209,18 +209,24 @@ export class Router extends Resolver {
    *    properties to pass to the resolver.
    * @return {!Promise<!Node>}
    */
-  render(pathnameOrContext) {
+  render(pathnameOrContext, shouldUpdateHistory) {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
       .then(element => {
         if (renderId === this.__lastStartedRenderId) {
+          if (shouldUpdateHistory) {
+            this.__updateBrowserHistory(pathnameOrContext);
+          }
           this.__setOutletContent(element);
           return this.__outlet;
         }
       })
       .catch(error => {
         if (renderId === this.__lastStartedRenderId) {
+          if (shouldUpdateHistory) {
+            this.__updateBrowserHistory(pathnameOrContext);
+          }
           this.__setOutletContent();
           throw error;
         }
@@ -231,6 +237,14 @@ export class Router extends Resolver {
   __ensureOutlet(outlet = this.__outlet) {
     if (!(outlet instanceof Node)) {
       throw new TypeError(`expected router outlet to be a valid DOM Node (but got ${outlet})`);
+    }
+  }
+
+  __updateBrowserHistory(pathnameOrContext) {
+    const pathname = pathnameOrContext.pathname || pathnameOrContext;
+    if (window.location.pathname !== pathname) {
+      window.history.pushState(null, document.title, pathname);
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   }
 
@@ -271,7 +285,7 @@ export class Router extends Resolver {
   __onNavigationEvent(event) {
     const pathname = event ? event.detail.pathname : window.location.pathname;
     if (this.root.children.length > 0) {
-      this.render(pathname);
+      this.render(pathname, true);
     }
   }
 
