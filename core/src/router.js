@@ -319,4 +319,5 @@ export class Router extends Resolver {
   }
 }
 
+Router.NavigationTrigger = {POPSTATE};
 Router.setTriggers(POPSTATE);

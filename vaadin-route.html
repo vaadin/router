@@ -58,7 +58,7 @@ This program is available under Apache License Version 2.0, available at https:/
           return;
         }
 
-        this.__route = new Vaadin.Router.Route(this.path, {action: this.__render.bind(this)});
+        this.__route = new Vaadin.Route(this.path, {action: this.__render.bind(this)});
         this.__router = isChildOfRouter ? this.parentElement : this.parentElement.__router;
         this.parentElement.addRoutes(this.__route);
 

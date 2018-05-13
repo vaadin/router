@@ -1,0 +1,1 @@
+export {default as CLICK} from './src/triggers/click.js';
