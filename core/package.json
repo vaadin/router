@@ -48,6 +48,7 @@
     "eslint": "^4.19.1",
     "eslint-config-vaadin": "latest",
     "npm-run-all": "^4.1.2",
+    "polymer-cli": "^1.7.1",
     "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
