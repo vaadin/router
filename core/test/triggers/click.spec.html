@@ -1,0 +1,302 @@
+<!doctype html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>vaadin-router-core tests</title>
+  <script src="../../../web-component-tester/browser.js"></script>
+  <script src="../../dist/test-iife/triggers/triggerNavigation.js"></script>
+  <script src="../../dist/test-iife/triggers/click.js"></script>
+
+  <base href="/">
+</head>
+
+<body>
+  <div>
+    <a id="in-app" href="in-app/link">in-app/link</a>
+    <a href="in-app/link">
+      <span id="text-in-a-link">not a link (inside a link)</span>
+      <div id="shadow-host-in-a-link" class="shadow-host">
+        <template>
+          <span id="text-in-a-shadow-in-a-link">not a link (inside a shadow DOM, inside a link)</span>
+        </template>
+      </div>
+    </a>
+    <a id="in-app-target-blank" target="_blank" href="in-app/link">in-app/link (target="_blank")</a>
+    <a id="in-app-download" download href="in-app/link">in-app/link (download)</a>
+    <a id="external" href="http://example.com/in-app/link">http://example.com/in-app/link</a>
+    <div id="shadow-host-with-a-link" class="shadow-host">
+      <template>
+        <a id="in-app-in-a-shadow" href="in-app/link">in-app/link (inside a shadow DOM)</a>
+      </template>
+    </div>
+    <p id="not-a-link">p, not a link</p>
+    <div id="default-preventer">
+      <a id="in-app-prevented" href="in-app/link">in-app/link (default prevented)</a>
+    </div>
+    <a id="in-page-hash-link" href="#in-page">#in-page</a>
+  </div>
+
+  <script>
+    (() => {
+      (function setupInPageHashLink() {
+        document.getElementById('in-page-hash-link').setAttribute('href', window.location.pathname + '#in-page')
+      })();
+
+      (function setupShadowRoots() {
+        const hosts = document.querySelectorAll('.shadow-host');
+        for (let i = 0; i < hosts.length; i += 1) {
+          const template = hosts[i].querySelector('template');
+          const root = hosts[i].attachShadow({mode: 'open'});
+          root.appendChild(template.content.cloneNode(true));
+        }
+      })();
+      
+      (function setupClickEventsPreventer() {
+        document.getElementById('default-preventer')
+          .addEventListener('click', event => event.preventDefault());
+      })();
+    })();
+  </script>
+
+  <script>
+    (({CLICK}) => {
+      // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
+      const Button = {
+        MAIN: 0, // usually left
+        AUXILLARY: 1, // usually middle
+        SECONDARY: 2, // usually right
+      };
+
+      const Key = {
+        ALT: 1 << 0,
+        CONTROL: 1 << 1,
+        META: 1 << 2,
+        SHIFT: 1 << 3,
+      };
+
+      function emulateClick(target, button = Button.MAIN, keys = 0) {
+        const ctrl = keys & Key.CONTROL;
+        const alt = keys & Key.ALT;
+        const shift = keys & Key.SHIFT;
+        const meta = keys & Key.META;
+
+        let event;
+        try {
+          event = new MouseEvent('click', {
+            ctrlKey: ctrl,
+            altKey: alt,
+            shiftKey: shift,
+            metaKey: meta,
+            button: button,
+            bubbles: true,
+            cancelable: true,
+            composed: true
+          });
+        } catch(e) {
+          event = document.createEvent('MouseEvents');
+          event.initMouseEvent("click", true, true, window, 0,
+                  0, 0, 0, 0, ctrl, alt, shift, meta, button, null);
+          if (window.ShadyDOM) {
+            Object.defineProperty(event, 'composed', {
+              get() { return true; }
+            });
+          }
+        }
+        target.dispatchEvent(event);
+      }
+
+      describe('NavigationTriggers.CLICK', function() {
+        this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
+
+        const clicks = [];
+        function onWindowClick(event) {
+          clicks.push({defaultPrevented: event.defaultPrevented});
+          event.preventDefault();
+        }
+
+        const navigateEvents = [];
+        function onWindowNavigate(event) {
+          navigateEvents.push({
+            type: event.type, 
+            detail: event.detail
+          });
+        }
+
+        before(() => {
+          window.addEventListener('click', onWindowClick);
+          window.addEventListener('vaadin-router:navigate', onWindowNavigate);
+        });
+
+        after(() => {
+          window.removeEventListener('vaadin-router:navigate', onWindowNavigate);
+          window.removeEventListener('click', onWindowClick);
+        });
+
+        beforeEach(() => {
+          // clear the array
+          clicks.length = 0;
+          navigateEvents.length = 0;
+        });
+
+        it('should expose the NavigationTrigger API', () => {
+          expect(CLICK).to.have.property('activate').that.is.a('function');
+          expect(CLICK).to.have.property('inactivate').that.is.a('function');
+        });
+
+        describe('activated', () => {
+          before(() => {
+            CLICK.activate();
+          });
+
+          after(() => {
+            CLICK.inactivate();
+          });
+
+          it('should translate `click` events on <a> links into `vaadin-router:navigate` events on window', () => {
+            emulateClick(document.getElementById('in-app'));
+
+            expect(navigateEvents).to.have.lengthOf(1);
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+          });
+
+          it('should prevent the default action on the original `click` event', () => {
+            emulateClick(document.getElementById('in-app'));
+            
+            expect(clicks).to.have.lengthOf(1);
+            expect(clicks[0]).to.have.property('defaultPrevented', true);
+          });
+
+          it('should set the `detail.pathname` property of the `vaadin-router:navigate` event to the pathname of the clicked link', () => {
+            emulateClick(document.getElementById('in-app'));
+
+            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
+          });
+
+          it('should translate `click` events inside <a> links into `vaadin-router:navigate` events on window', () => {
+            emulateClick(document.getElementById('text-in-a-link'));
+
+            expect(navigateEvents).to.have.lengthOf(1);
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
+
+            expect(clicks).to.have.lengthOf(1);
+            expect(clicks[0]).to.have.property('defaultPrevented', true);
+          });
+
+          it('should translate `click` events on <a> links inside Shadow DOM into `vaadin-router:navigate` events on window', () => {
+            const shadowRoot = document.getElementById('shadow-host-with-a-link').shadowRoot;
+            emulateClick(shadowRoot.getElementById('in-app-in-a-shadow'));
+
+            expect(navigateEvents).to.have.lengthOf(1);
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
+
+            expect(clicks).to.have.lengthOf(1);
+            expect(clicks[0]).to.have.property('defaultPrevented', true);
+          });
+
+          it('should translate `click` events inside shadow DOM inside <a> links into `vaadin-router:navigate` events on window', () => {
+            const shadowRoot = document.getElementById('shadow-host-in-a-link').shadowRoot;
+            emulateClick(shadowRoot.getElementById('text-in-a-shadow-in-a-link'));
+
+            expect(navigateEvents).to.have.lengthOf(1);
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
+
+            expect(clicks).to.have.lengthOf(1);
+            expect(clicks[0]).to.have.property('defaultPrevented', true);
+          });
+
+          describe('irrelevant `click` events', () => {
+            function expectClickIgnored() {
+              expect(navigateEvents).to.have.lengthOf(0);
+              expect(clicks).to.have.lengthOf(1);
+              expect(clicks[0]).to.have.property('defaultPrevented', false);
+            }
+
+            it('should ignore `click` events with the secondary mouse button', () => {
+              emulateClick(document.getElementById('in-app'), Button.SECONDARY);
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events with the middle mouse button', () => {
+              emulateClick(document.getElementById('in-app'), Button.AUXILLARY);
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events if the SHIFT modifier key is also pressed', () => {
+              emulateClick(document.getElementById('in-app'), Button.MAIN, Key.SHIFT);
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events if the CONTROL modifier key is also pressed', () => {
+              emulateClick(document.getElementById('in-app'), Button.MAIN, Key.CONTROL);
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events if the ALT modifier key is also pressed', () => {
+              emulateClick(document.getElementById('in-app'), Button.MAIN, Key.ALT);
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events if the META modifier key is also pressed', () => {
+              emulateClick(document.getElementById('in-app'), Button.MAIN, Key.META);
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events on links with a non-default target', () => {
+              emulateClick(document.getElementById('in-app-target-blank'));
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events on links with a `download` attribute', () => {
+              emulateClick(document.getElementById('in-app-download'));
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events on page-local links (same pathname, different hash)', () => {
+              emulateClick(document.getElementById('in-page-hash-link'));
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events on external links', () => {
+              emulateClick(document.getElementById('external'));
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events on non-link elements', () => {
+              emulateClick(document.getElementById('not-a-link'));
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events with prevented default action', () => {
+              emulateClick(document.getElementById('in-app-prevented'));
+              expect(navigateEvents).to.have.lengthOf(0);
+              expect(clicks).to.have.lengthOf(1);
+              expect(clicks[0]).to.have.property('defaultPrevented', true);
+            });
+          });
+        });
+
+        describe('inactivated', () => {
+          before(() => {
+            CLICK.inactivate();
+          });
+
+          it('should not translate `click` events into `vaadin-router:navigate` when inactivated', () => {
+            emulateClick(document.getElementById('in-app'));
+            
+            expect(navigateEvents).to.have.lengthOf(0);
+          });
+
+          it('should not prevent the default action on the original `click` event', () => {
+            emulateClick(document.getElementById('in-app'));
+            
+            expect(clicks).to.have.lengthOf(1);
+            expect(clicks[0]).to.have.property('defaultPrevented', false);
+          });
+        });
+      });
+    })(window.VaadinTestNamespace || window.Vaadin.Router.NavigationTrigger);
+  </script>
+</body>

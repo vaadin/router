@@ -647,4 +647,4 @@
       expect(middleware.calledOnce).to.be.true;
     });
   });
-})(window.VaadinTestNamespace || window.Vaadin.Router);
+})(window.VaadinTestNamespace || window.Vaadin);

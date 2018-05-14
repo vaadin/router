@@ -294,32 +294,49 @@
             router.unsubscribe();
           });
 
-          it('should automatically subscribe to popstate events when created', async() => {
-            window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
+          it('should update the history state after navigation', async() => {
+            window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/admin'}}));
+            await router.ready;
+            expect(window.location.pathname).to.equal('/admin');
+          });
+
+          it('should trigger a popstate event after navigation', async() => {
+            const onpopstate = sinon.spy();
+            window.addEventListener('popstate', onpopstate);
+            window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/admin'}}));
+            await router.ready;
+            window.removeEventListener('popstate', onpopstate);
+            expect(onpopstate).to.have.been.called.once;
+          });
+
+          it('should not trigger a popstate event after navigation if the pathname has not changed', async() => {
+            const onpopstate = sinon.spy();
+            window.addEventListener('popstate', onpopstate);
+            window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/'}}));
+            await router.ready;
+            window.removeEventListener('popstate', onpopstate);
+            expect(onpopstate).to.not.have.been.called;
+          });
+
+          it('should automatically subscribe to navigation events when created', async() => {
+            window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/'}}));
             await router.ready;
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
 
-          it('should handle popstate events as navigation triggers', async() => {
-            window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
-            await router.ready;
-            expect(outlet.children).to.have.lengthOf(1);
-            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-          });
-
-          it('should unsubscribe from popstate events after an `unsubscribe()` method call', async() => {
+          it('should unsubscribe from navigation events after an `unsubscribe()` method call', async() => {
             router.unsubscribe();
-            window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
+            window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/'}}));
             await router.ready;
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
           });
 
-          it('should subscribe to popstate events after a `subscribe()` method call', async() => {
+          it('should subscribe to navigation events after a `subscribe()` method call', async() => {
             router.unsubscribe();
             router.subscribe();
-            window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
+            window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/'}}));
             await router.ready;
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
@@ -336,11 +353,18 @@
             router.setRoutes([]);
             await router.ready;
 
-            window.dispatchEvent(new PopStateEvent('popstate', {state: null}));
+            window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/'}}));
             const fulfilled = sinon.spy();
             const rejected = sinon.spy();
             await router.ready.then(fulfilled).catch(rejected);
             expect(rejected).to.not.have.been.called;
+          });
+
+          it('should use the POPSTATE navigation trigger by default', async() => {
+            window.dispatchEvent(new PopStateEvent('popstate'));
+            await router.ready;
+            expect(outlet.children).to.have.lengthOf(1);
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
         });
       });

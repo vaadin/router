@@ -10,6 +10,16 @@
         "description": "",
         "image": ""
       }
+    },
+    {
+      "name": "Navigation Triggers",
+      "url": "core-navigation-triggers",
+      "src": "core-navigation-triggers.html",
+      "meta": {
+        "title": "Vaadin.Router Navigation Trigger Examples",
+        "description": "",
+        "image": ""
+      }
     }
   ]
 }
