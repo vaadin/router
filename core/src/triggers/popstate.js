@@ -1,5 +1,18 @@
 import triggerNavigation from './triggerNavigation.js';
 
+// PopStateEvent constructor shim
+const isIE = /Trident/.test(navigator.userAgent);
+
+if (isIE && typeof window.PopStateEvent !== 'function') {
+  window.PopStateEvent = function(inType, params) {
+    params = params || {};
+    var e = document.createEvent('CustomEvent');
+    e.initCustomEvent(inType, Boolean(params.bubbles), Boolean(params.cancelable), params.detail);
+    return e;
+  };
+  window.PopStateEvent.prototype = window.Event.prototype;
+}
+
 function vaadinRouterGlobalPopstateHandler() {
   triggerNavigation(window.location.pathname);
 }
@@ -7,7 +20,7 @@ function vaadinRouterGlobalPopstateHandler() {
 /**
  * A navigation trigger for Vaadin.Router that translates popstate events into
  * Vaadin.Router navigation events.
- * 
+ *
  * @memberOf Vaadin.Router.Triggers
  * @type {NavigationTrigger}
  */

@@ -24,13 +24,17 @@ function vaadinRouterGlobalClickHandler(event) {
   const path = event.composedPath
     ? event.composedPath()
     : (event.path || []);
-  for (const target of path) {
+
+  // FIXME(web-padawan): `Symbol.iterator` used by webcomponentsjs is broken for arrays
+  // example to check: `for...of` loop here throws the "Not yet implemented" error
+  for (let i = 0; i < path.length; i++) {
+    const target = path[i];
     if (target.nodeName && target.nodeName.toLowerCase() === 'a') {
       anchor = target;
       break;
     }
   }
-  
+
   while (anchor && anchor.nodeName.toLowerCase() !== 'a') {
     anchor = anchor.parentNode;
   }
@@ -50,8 +54,11 @@ function vaadinRouterGlobalClickHandler(event) {
     return;
   }
 
+  // IE11 does not have document.baseURI
+  const baseURI = document.baseURI || (document.querySelector('base') || window.location).href;
+
   // ignore the click if the target URL is external to the app
-  if (!anchor.href.startsWith(document.baseURI)) {
+  if (!(anchor.href.indexOf(baseURI) === 0)) {
     return;
   }
 
@@ -68,10 +75,10 @@ function vaadinRouterGlobalClickHandler(event) {
 /**
  * A navigation trigger for Vaadin.Router that translated clicks on `<a>` links
  * into Vaadin.Router navigation events.
- * 
+ *
  * Only regular clicks on in-app links are translated (primary mouse button, no
  * modifier keys, the target href is within the app's URL space).
- * 
+ *
  * @memberOf Vaadin.Router.Triggers
  * @type {NavigationTrigger}
  */
