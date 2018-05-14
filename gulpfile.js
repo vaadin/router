@@ -157,7 +157,10 @@ gulp.task('build:copy-sources:vaadin-router', ['build:clean'], () => {
 });
 
 gulp.task('build:copy-sources:vaadin-router-core', ['build:clean'], () => {
-  return gulp.src(['core/dist/umd/vaadin-router-core.js'])
+  return gulp.src([
+    'core/dist/umd/vaadin-router-core.js',
+    'core/dist/umd/click-navigation-trigger.js',
+  ])
     .pipe(gulp.dest('build/bower_components/vaadin-router/core/dist/umd'));
 });
 

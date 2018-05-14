@@ -1,4 +1,4 @@
-<dom-module id="core-basic-examples">
+<dom-module id="core-basic-demos">
   <template>
     <style include="vaadin-component-demo-shared-styles">
       :host {
@@ -33,8 +33,8 @@
       any pre-existing outlet content).</p>
     <p>The route component can be any Web Component regardless of how it is
       built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc</p>
-    <vaadin-demo-snippet id="core-basic-examples-1" iframe-src="iframe.html">
-      <template preserve-content>
+    <vaadin-demo-snippet id="core-basic-demos-1" iframe-src="iframe.html">
+      <template preserve-content="">
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -51,8 +51,8 @@
 
     <h3>Child Routes</h3>
     <p>Each route can have child routes:</p>
-    <vaadin-demo-snippet id="core-basic-examples-2" iframe-src="iframe.html">
-      <template preserve-content>
+    <vaadin-demo-snippet id="core-basic-demos-2" iframe-src="iframe.html">
+      <template preserve-content="">
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -72,12 +72,5 @@
       </template>
     </vaadin-demo-snippet>
   </template>
-  <script>
-    class CoreBasicExamples extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
-      static get is() {
-        return 'core-basic-examples';
-      }
-    }
-    customElements.define(CoreBasicExamples.is, CoreBasicExamples);
-  </script>
+  <script>var CoreBasicDemos=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'core-basic-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(CoreBasicDemos.is,CoreBasicDemos);</script>
 </dom-module>
