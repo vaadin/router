@@ -1,4 +1,4 @@
-<dom-module id="js-api-demos">
+<dom-module id="dom-js-api-demos">
   <template>
     <style include="vaadin-component-demo-shared-styles">
       :host {
@@ -9,7 +9,7 @@
     <h3>Set routes config from JS</h3>
     <p>The routes configuration can be set from JS instead of declaring a set of
       <code>&lt;vaadin-route&gt;</code> elements in HTML.</p>
-    <vaadin-demo-snippet id="js-api-demos-basic" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="dom-js-api-demos-basic" iframe-src="iframe.html">
       <template preserve-content="">
         <nav>
           <vaadin-router-link href="/jane">Jane</vaadin-router-link>
@@ -29,7 +29,7 @@
 
     <h3>Child routes</h3>
     <p>The routes configuration is a tree: every route can have zero or more children.</p>
-    <vaadin-demo-snippet id="js-api-demos-children-tree" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="dom-js-api-demos-children-tree" iframe-src="iframe.html">
       <template preserve-content="">
         <nav>
           <vaadin-router-link href="/users">All Users</vaadin-router-link>
@@ -58,7 +58,7 @@
     <h3>Child routes as a tree vs. a flat list</h3>
     <p>The routes configuration tree gets flattened. The following routes config is effectively the same
       as in the previous example.</p>
-    <vaadin-demo-snippet id="js-api-demos-children-flat" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="dom-js-api-demos-children-flat" iframe-src="iframe.html">
       <template preserve-content="">
         <nav>
           <vaadin-router-link href="/users">All Users</vaadin-router-link>
@@ -80,7 +80,7 @@
     <h3>JS vs. HTML API</h3>
     <p>The routes configuration set from JS is merged with the routes config declared in HTML.
       The HTML routes are processed before the routes set from JS.</p>
-    <vaadin-demo-snippet id="js-api-demos-basic" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="dom-js-api-demos-basic" iframe-src="iframe.html">
       <template preserve-content="">
         <nav>
           <vaadin-router-link href="/users">All Users</vaadin-router-link>
@@ -101,5 +101,5 @@
     </vaadin-demo-snippet>
 
   </template>
-  <script>(function(){var a=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'js-api-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(a.is,a)})();</script>
+  <script>(function(){var a=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'dom-js-api-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(a.is,a)})();</script>
 </dom-module>

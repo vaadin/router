@@ -8,7 +8,8 @@
   "extraDependencies": [
     "bower_components/webcomponentsjs/*.js",
     "bower_components/webcomponentsjs/*.map",
-    "bower_components/vaadin-router/demo/demos.json"
+    "bower_components/vaadin-router/demo/demos.json",
+    "bower_components/vaadin-router/demo/demos.core.json"
   ],
   "builds": [
     {

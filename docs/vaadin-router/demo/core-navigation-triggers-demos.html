@@ -1,4 +1,4 @@
-<dom-module id="core-navigation-triggers">
+<dom-module id="core-navigation-triggers-demos">
   <template>
     <style include="vaadin-component-demo-shared-styles">
       :host {
@@ -16,8 +16,8 @@
     <p>In the demo below the <code>popstate</code> events are dispatched at 3
       seconds intervals. Before dispatching an event the global <code>
       location.pathname</code> is toggled between '/' and '/users'.</p>
-    <vaadin-demo-snippet id="core-navigation-triggers-1" iframe-src="iframe.html">
-      <template preserve-content>
+    <vaadin-demo-snippet id="core-navigation-triggers-demos-1" iframe-src="iframe.html">
+      <template preserve-content="">
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -59,8 +59,8 @@
       included separately from <code>vaadin-router/dist/umd/click-navigation-trigger.js</code>
       (it is then available as <code>Vaadin.Router.NavigationTrigger.CLICK</code>).
     </p>
-    <vaadin-demo-snippet id="core-navigation-triggers-2" iframe-src="iframe.html">
-      <template preserve-content>
+    <vaadin-demo-snippet id="core-navigation-triggers-demos-2" iframe-src="iframe.html">
+      <template preserve-content="">
         <a href="/">Home</a>
         <a href="/users">Users</a>
         <div id="outlet"></div>
@@ -88,8 +88,8 @@
       to navigation events in its constructor. Use the
       <code>unsubscribe()</code> method to cancel this automatic subscription
       and the <code>subscribe()</code> method to re-subscribe.</p>
-    <vaadin-demo-snippet id="core-navigation-triggers-3" iframe-src="iframe.html">
-      <template preserve-content>
+    <vaadin-demo-snippet id="core-navigation-triggers-demos-3" iframe-src="iframe.html">
+      <template preserve-content="">
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -113,12 +113,5 @@
       </template>
     </vaadin-demo-snippet>
   </template>
-  <script>
-    class CoreNavigationTriggers extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
-      static get is() {
-        return 'core-navigation-triggers';
-      }
-    }
-    customElements.define(CoreNavigationTriggers.is, CoreNavigationTriggers);
-  </script>
+  <script>var CoreNavigationTriggersDemos=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'core-navigation-triggers-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(CoreNavigationTriggersDemos.is,CoreNavigationTriggersDemos);</script>
 </dom-module>
