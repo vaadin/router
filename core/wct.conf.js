@@ -20,7 +20,6 @@ module.exports = {
         exclude: [
           '**/dist/test-iife/resolver/path-to-regexp.js',
           '**/dist/test-iife/resolver/generateUrls.js',
-          '**/dist/test-iife/triggers/click.js',
         ],
         thresholds: {
           global: {
