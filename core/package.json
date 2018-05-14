@@ -20,15 +20,14 @@
   },
   "homepage": "https://vaadin.com/components",
   "scripts": {
-    "install": "bower install",
     "lint": "eslint *.js src test",
     "build": "rollup -c && uglifyjs dist/umd/vaadin-router-core.js --source-map --output dist/umd/vaadin-router-core.min.js",
     "build:watch": "rollup -c -w",
-    "start": "polymer serve --port 8000",
+    "start": "polymer serve --port 8000 --npm",
     "start:browser-sync": "browser-sync 'http://localhost:8000' --files test dist",
     "start:watch": "npm-run-all --parallel build:watch start start:browser-sync",
-    "test": "wct",
-    "test:coverage": "wct --profile=coverage",
+    "test": "wct --npm",
+    "test:coverage": "wct --npm --profile=coverage",
     "size-control": "bundlesize"
   },
   "bundlesize": [
@@ -41,6 +40,8 @@
     "path-to-regexp": "2.2.0"
   },
   "devDependencies": {
+    "@polymer/test-fixture": "^3.0.0-pre.19",
+    "@webcomponents/webcomponentsjs": "^2.0.0",
     "bower": "^1.8.4",
     "browser-sync": "^2.23.6",
     "bundlesize": "^0.17.0",
@@ -51,8 +52,9 @@
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
     "uglify-es": "^3.3.9",
+    "wct-browser-legacy": "^1.0.0",
     "wct-istanbub": "^0.1.1",
-    "web-component-tester": "^6.5.0",
+    "web-component-tester": "^6.6.0",
     "yargs": "^11.0.0"
   }
 }

@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>vaadin-router-core tests</title>
-  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../node_modules/wct-browser-legacy/browser.js"></script>
+  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+  <script src="../node_modules/@polymer/test-fixture/test-fixture.js" type="module"></script>
   <script src="../dist/umd/vaadin-router-core.js"></script>
 </head>
 
@@ -111,7 +113,7 @@
               router.unsubscribe();
             }));
           });
-          
+
           it('should return a promise that resolves to the router outlet DOM element', async () => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             const result = router.render('/');
@@ -271,7 +273,7 @@
               expect(outlet.children).to.have.lengthOf(1);
               sequence.push('first render done');
             });
-            
+
             await Promise.all([p1, p2]).then(() => {
               expect(sequence[0]).to.equal('no render yet');
               expect(sequence[1]).to.equal('first render done');
