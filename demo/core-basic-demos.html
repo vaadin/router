@@ -97,6 +97,7 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
+            {path: '/', component: 'x-home-view'},
             {path: '/user/:id', component: 'x-profile-view'},
             {path: '/image/:size/:color?', component: 'x-image-view'},
             {path: '/image-:size(\\d+)px', component: 'x-image-view'},
