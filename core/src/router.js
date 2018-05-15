@@ -300,10 +300,10 @@ export class Router extends Resolver {
   static renderComponent(component, context) {
     const element = document.createElement(component);
     const params = [];
-    for (const param of Object.keys(context.params)) {
+    Object.keys(context.params).forEach(param => {
       element[param] = context.params[param];
       params.push(context.params[param]);
-    }
+    });
     element.route = {params};
     return element;
   }
