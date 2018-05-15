@@ -1,0 +1,22 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+
+<dom-module id="x-profile-view">
+  <template preserve-content>
+    User ID: [[route.params.id]]<br/>
+    <code>/user</code> or <code>/users</code>: [[route.params.0]]
+  </template>
+  <script>
+    class XProfileView extends Polymer.Element {
+      static get is() {
+        return 'x-profile-view';
+      }
+
+      static get properties() {
+        return {
+          route: Object
+        };
+      }
+    }
+    window.customElements.define(XProfileView.is, XProfileView);
+  </script>
+</dom-module>

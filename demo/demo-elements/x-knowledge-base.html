@@ -1,0 +1,19 @@
+<dom-module id="x-knowledge-base">
+  <template preserve-content>
+    Knowledge base path: '[[route.params.path]]'
+  </template>
+  <script>
+    class XKnowledgeBase extends Polymer.Element {
+      static get is() {
+        return 'x-knowledge-base';
+      }
+
+      static get properties() {
+        return {
+          route: Object
+        };
+      }
+    }
+    window.customElements.define(XKnowledgeBase.is, XKnowledgeBase);
+  </script>
+</dom-module>

@@ -84,10 +84,10 @@
         <li>unnamed parameters: <code>/(user[s]?)/:id</code></li>
       </ul>
     </p>
-    <p>Named parameters are bound to route component properties. Unnamed
-      parameters are accessible by index through the <code>route.params</code>
-      array. (the <code>route</code> property is set on the route component by
-      the router).</p>
+    <p>Named parameters are bound to <code>route.params</code> property of the route component
+      (the <code>route</code> property is set on the route component by the router).</p>
+      Named parameters are accessible both by string key or numeric index.
+      Unnamed parameters are accessible by numeric index only.
     <vaadin-demo-snippet id="core-basic-examples-3" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
@@ -105,72 +105,6 @@
             {path: '/(user[s]?)/:id', component: 'x-profile-view'},
           ]);
         </script>
-
-        <dom-module id="x-profile-view">
-          <template preserve-content>
-            User ID: [[id]]<br/>
-            <code>/user</code> or <code>/users</code>: [[route.params.0]]
-          </template>
-          <script>
-            class XProfileView extends Polymer.Element {
-              static get is() {
-                return 'x-profile-view';
-              }
-
-              static get properties() {
-                return {
-                  id: String,
-                  route: Object
-                };
-              }
-            }
-            window.customElements.define(XProfileView.is, XProfileView);
-          </script>
-        </dom-module>
-
-        <dom-module id="x-image-view">
-          <template preserve-content>
-            <div style$="height: [[size]]px; width: [[size]]px; background: [[color]];"></div>
-          </template>
-          <script>
-            class XImageView extends Polymer.Element {
-              static get is() {
-                return 'x-image-view';
-              }
-
-              static get properties() {
-                return {
-                  size: String,
-                  color: {
-                    type: String,
-                    value: 'hotpink'
-                  }
-                };
-              }
-            }
-            window.customElements.define(XImageView.is, XImageView);
-          </script>
-        </dom-module>
-
-        <dom-module id="x-knowledge-base">
-          <template preserve-content>
-            Knowledge base path: '[[path]]'
-          </template>
-          <script>
-            class XKnowledgeBase extends Polymer.Element {
-              static get is() {
-                return 'x-knowledge-base';
-              }
-
-              static get properties() {
-                return {
-                  path: Array
-                };
-              }
-            }
-            window.customElements.define(XKnowledgeBase.is, XKnowledgeBase);
-          </script>
-        </dom-module>
       </template>
     </vaadin-demo-snippet>
   </template>
