@@ -299,10 +299,13 @@ export class Router extends Resolver {
    */
   static renderComponent(component, context) {
     const element = document.createElement(component);
-    const params = [];
-    Object.keys(context.params).forEach(param => {
-      element[param] = context.params[param];
-      params.push(context.params[param]);
+    const params = {};
+    Object.keys(context.params).forEach((param, i) => {
+      const value = context.params[param];
+      params[i] = value;
+      if (typeof param === 'string') {
+        params[param] = value;
+      }
     });
     element.route = {params};
     return element;

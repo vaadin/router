@@ -379,18 +379,22 @@
             router.unsubscribe();
           });
 
-          it('should bind named parameters to the route component properties', async() => {
+          it('should bind named parameters to `route.params` property using keys and numeric indexes', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/:user', component: 'x-user-profile'}
             ]);
             router.render('/foo');
             await router.ready.then((outlet) => {
-              expect(outlet.children[0].user).to.equal('foo');
+              const elem = outlet.children[0];
+              expect(elem.route).to.be.object;
+              expect(elem.route.params).to.be.object;
+              expect(elem.route.params.user).to.equal('foo');
+              expect(elem.route.params[0]).to.equal('foo');
             });
           });
 
-          it('should bind named and unnamed parameters to the `route.params` component property', async() => {
+          it('should bind unnamed parameters to `route.params` property using numeric indexes only', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/(user[s]?)/:id', component: 'x-users-view'},
@@ -399,13 +403,12 @@
             await router.ready.then((outlet) => {
               const elem = outlet.children[0];
               expect(elem.route).to.be.object;
-              expect(elem.route.params).to.be.array;
+              expect(elem.route.params).to.be.object;
               expect(elem.route.params[0]).to.equal('users');
-              expect(elem.route.params[1]).to.equal('1');
             });
           });
 
-          it('should bind custom pattern parameters to the `route.params` component property', async() => {
+          it('should bind custom pattern parameters to `route.params` property using numeric indexes', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/image-:size(\\d+)px', component: 'x-image-view'},
@@ -414,7 +417,7 @@
             await router.ready.then((outlet) => {
               const elem = outlet.children[0];
               expect(elem.route).to.be.object;
-              expect(elem.route.params).to.be.array;
+              expect(elem.route.params).to.be.object;
               expect(elem.route.params[0]).to.equal('15');
             });
           });
@@ -428,7 +431,7 @@
             await router.ready.then((outlet) => {
               const elem = outlet.children[0];
               expect(elem.route).to.be.object;
-              expect(elem.route.params).to.be.array;
+              expect(elem.route.params).to.be.object;
               expect(elem.route.params[0]).to.deep.equal(['folder', 'nested']);
               expect(elem.route.params[1]).to.equal('1');
             });
