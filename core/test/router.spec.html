@@ -393,7 +393,7 @@
           it('should bind named and unnamed parameters to the `route.params` component property', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
-              {path: '/(user[s]*)/:id', component: 'x-users-view'},
+              {path: '/(user[s]?)/:id', component: 'x-users-view'},
             ]);
             router.render('/users/1');
             await router.ready.then((outlet) => {
@@ -422,7 +422,7 @@
           it('should bind route segments to the `route.params` component property', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
-              {path: '/kb/:path*/:id', component: 'x-knowledge-base'},
+              {path: '/kb/:path+/:id', component: 'x-knowledge-base'},
             ]);
             router.render('/kb/folder/nested/1');
             await router.ready.then((outlet) => {

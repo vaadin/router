@@ -81,7 +81,7 @@
         <li>zero-or-more segments: <code>/kb/:path*</code></li>
         <li>one-or-more segments: <code>/kb/:path+</code></li>
         <li>custom parameter patterns: <code>/image-:size(\d+)px</code></li>
-        <li>unnamed parameters: <code>/(user[s]*)/:id</code></li>
+        <li>unnamed parameters: <code>/(user[s]?)/:id</code></li>
       </ul>
     </p>
     <p>Named parameters are bound to route component properties. Unnamed
@@ -102,7 +102,7 @@
             {path: '/image/:size/:color?', component: 'x-image-view'},
             {path: '/image-:size(\\d+)px', component: 'x-image-view'},
             {path: '/kb/:path*', component: 'x-knowledge-base'},
-            {path: '/(user[s]*)/:id', component: 'x-profile-view'},
+            {path: '/(user[s]?)/:id', component: 'x-profile-view'},
           ]);
         </script>
 
