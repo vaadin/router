@@ -418,6 +418,21 @@
               expect(elem.route.params[0]).to.equal('15');
             });
           });
+
+          it('should bind route segments to the `route.params` component property', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/kb/:path*/:id', component: 'x-knowledge-base'},
+            ]);
+            router.render('/kb/folder/nested/1');
+            await router.ready.then((outlet) => {
+              const elem = outlet.children[0];
+              expect(elem.route).to.be.object;
+              expect(elem.route.params).to.be.array;
+              expect(elem.route.params[0]).to.deep.equal(['folder', 'nested']);
+              expect(elem.route.params[1]).to.equal('1');
+            });
+          });
         });
       });
     });
