@@ -7,3 +7,5 @@ size-control/build
 
 .idea
 .vscode
+
+.DS_Store
