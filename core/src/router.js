@@ -300,7 +300,7 @@ export class Router extends Resolver {
   static renderComponent(component, context) {
     const element = document.createElement(component);
     const params = Object.assign({}, context.params);
-    element.route = {params};
+    element.route = {params, pathname: context.pathname};
     return element;
   }
 
