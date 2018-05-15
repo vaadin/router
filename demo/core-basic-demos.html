@@ -83,6 +83,7 @@
           <vaadin-router-link href="/users">All Users</vaadin-router-link>
           <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
         </nav>
+        <div id="stats"></div>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -92,9 +93,10 @@
           const recordUrlVisit = (context, params) => {
             const visitedPath = context.pathname;
             urlToNumberOfVisits[visitedPath] = (urlToNumberOfVisits[visitedPath] || 0) + 1;
-            console.log(`Path '${visitedPath}' had been visited ${urlToNumberOfVisits[visitedPath]} time(s)`);
+            document.getElementById('stats').innerHTML =
+              `Statistics on url visits: ${JSON.stringify(urlToNumberOfVisits, null, 2)}}`;
             return new Promise((resolve, reject) => {
-              console.log("Sending statistics update to the backend");
+              // this can be an async backend call
               setTimeout(() => resolve(), 1000);
             });
           };
