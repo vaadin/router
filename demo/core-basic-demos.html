@@ -71,6 +71,48 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Async route resolution</h3>
+    <p>Each route can have <code>action</code> method which is called before navigation to the path specified.</p>
+    <p>This method can be used for complex navigation cases. If you need to simply open the page specified, use <code>component</code> instead.</p>
+    <p>Note: For a single route, both <code>component</code> and <code>action</code> cannot be defined.</p>
+    <vaadin-demo-snippet id="core-basic-demos-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/">Root</vaadin-router-link>
+          <vaadin-router-link href="/users">All Users</vaadin-router-link>
+          <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
+        </nav>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+          const urlToNumberOfVisits = {};
+
+          const recordUrlVisit = (context, params) => {
+            const visitedPath = context.pathname;
+            urlToNumberOfVisits[visitedPath] = (urlToNumberOfVisits[visitedPath] || 0) + 1;
+            console.log(`Path '${visitedPath}' had been visited ${urlToNumberOfVisits[visitedPath]} time(s)`);
+            return new Promise((resolve, reject) => {
+              console.log("Sending statistics update to the backend");
+              setTimeout(() => resolve(), 1000);
+            });
+          };
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users',
+              action: recordUrlVisit, // will be triggered for all children
+              children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', component: 'x-user-profile'}
+              ]
+            },
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
   </template>
   <script>
     class CoreBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
