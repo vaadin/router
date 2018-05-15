@@ -25,7 +25,7 @@
     <h3>Basic</h3>
     <p>Vaadin.Router needs an outlet (a DOM Node to render into), and a routes
       config. Once created, it automatically subscribes to `popstate` events on
-      the <code>window</code> and updates the rendered compoenent every time
+      the <code>window</code> and updates the rendered component every time
       either the location or the routes config changes.</p>
     <p>The routes config maps paths to Web Components. Vaadin.Router goes
       through the routes until it finds the first match, creates an instance
@@ -72,11 +72,11 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3>Route Rarameters</h3>
+    <h3>Route Parameters</h3>
     <p>Route parameters are defined using <a href="https://github.com/pillarjs/path-to-regexp#parameters"
       target="_blank">express-like syntax</a>. All features are supported:
       <ul>
-        <li>named paramters: <code>/user/:id</code></li>
+        <li>named parameters: <code>/user/:id</code></li>
         <li>optional parameters: <code>/:size/:color?</code></li>
         <li>zero-or-more segments: <code>/kb/:path*</code></li>
         <li>one-or-more segments: <code>/kb/:path+</code></li>
@@ -160,7 +160,7 @@
               static get is() {
                 return 'x-knowledge-base';
               }
-              
+
               static get properties() {
                 return {
                   path: Array
