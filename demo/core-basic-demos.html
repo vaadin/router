@@ -76,12 +76,12 @@
     <p>Route parameters are defined using <a href="https://github.com/pillarjs/path-to-regexp#parameters"
       target="_blank">express-like syntax</a>. All features are supported:
       <ul>
-        <li>named parameters: <code>/user/:id</code></li>
+        <li>named parameters: <code>/profile/:user</code></li>
         <li>optional parameters: <code>/:size/:color?</code></li>
         <li>zero-or-more segments: <code>/kb/:path*</code></li>
         <li>one-or-more segments: <code>/kb/:path+</code></li>
         <li>custom parameter patterns: <code>/image-:size(\d+)px</code></li>
-        <li>unnamed parameters: <code>/user(s)/:id</code></li>
+        <li>unnamed parameters: <code>/(user[s]*)/:id</code></li>
       </ul>
     </p>
     <p>Named parameters are bound to route component properties. Unnamed
@@ -98,11 +98,11 @@
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
-            {path: '/user/:id', component: 'x-profile-view'},
+            {path: '/profile/:user', component: 'x-user-profile'},
             {path: '/image/:size/:color?', component: 'x-image-view'},
             {path: '/image-:size(\\d+)px', component: 'x-image-view'},
             {path: '/kb/:path*', component: 'x-knowledge-base'},
-            {path: '/user(s)/:id', component: 'x-profile-view'},
+            {path: '/(user[s]*)/:id', component: 'x-profile-view'},
           ]);
         </script>
 

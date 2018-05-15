@@ -368,6 +368,57 @@
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
         });
+
+        describe('route parameters', () => {
+          let router;
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
+          });
+
+          afterEach(() => {
+            router.unsubscribe();
+          });
+
+          it('should bind named parameters to the route component properties', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/:user', component: 'x-user-profile'}
+            ]);
+            router.render('/foo');
+            await router.ready.then((outlet) => {
+              expect(outlet.children[0].user).to.equal('foo');
+            });
+          });
+
+          it('should bind named and unnamed parameters to the `route.params` component property', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/(user[s]*)/:id', component: 'x-users-view'},
+            ]);
+            router.render('/users/1');
+            await router.ready.then((outlet) => {
+              const elem = outlet.children[0];
+              expect(elem.route).to.be.object;
+              expect(elem.route.params).to.be.array;
+              expect(elem.route.params[0]).to.equal('users');
+              expect(elem.route.params[1]).to.equal('1');
+            });
+          });
+
+          it('should bind custom pattern parameters to the `route.params` component property', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/image-:size(\\d+)px', component: 'x-image-view'},
+            ]);
+            router.render('/image-15px');
+            await router.ready.then((outlet) => {
+              const elem = outlet.children[0];
+              expect(elem.route).to.be.object;
+              expect(elem.route.params).to.be.array;
+              expect(elem.route.params[0]).to.equal('15');
+            });
+          });
+        });
       });
     });
   </script>
