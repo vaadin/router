@@ -9,13 +9,9 @@
 let triggers = [];
 
 export default function setNavigationTriggers(newTriggers) {
-  for (const trigger of triggers) {
-    trigger.inactivate();
-  }
+  triggers.forEach(trigger => trigger.inactivate());
 
-  for (const trigger of newTriggers) {
-    trigger.activate();
-  }
+  newTriggers.forEach(trigger => trigger.activate());
 
   triggers = newTriggers;
 }
