@@ -65,7 +65,7 @@
             return new Promise((resolve, reject) => {
               setTimeout(() => resolve(), 100);
             });
-          }
+          };
 
           let router;
           beforeEach(() => {
@@ -90,7 +90,7 @@
             });
           });
 
-          it('should throw if the router outlet is a not valid DOM Node (on finish)', async () => {
+          it('should throw if the router outlet is a not valid DOM Node (on finish)', async() => {
             await Promise.all([
               undefined,
               null,
@@ -98,7 +98,7 @@
               false,
               '',
               NaN
-            ].map(async (invalidOutlet) => {
+            ].map(async(invalidOutlet) => {
               const router = new Vaadin.Router(outlet);
               router.setRoutes([{path: '/', component: 'x-home-view'}]);
               const fulfilled = sinon.spy();
@@ -113,7 +113,7 @@
             }));
           });
 
-          it('should return a promise that resolves to the router outlet DOM element', async () => {
+          it('should return a promise that resolves to the router outlet DOM element', async() => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             const result = router.render('/');
             expect(result).to.be.a('promise');
@@ -121,7 +121,7 @@
             expect(actual).to.equal(outlet);
           });
 
-          it('should return a promise that resolves when the rendered content is appended to the DOM', async () => {
+          it('should return a promise that resolves when the rendered content is appended to the DOM', async() => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             const promise = router.render('/');
             expect(outlet.children).to.have.lengthOf(0);
@@ -139,14 +139,14 @@
               .catch(() => done());
           });
 
-          it('should create and append a route `component` into the router outlet', async () => {
+          it('should create and append a route `component` into the router outlet', async() => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             await router.render('/');
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
 
-          it('should replace any pre-existing content of the router outlet', async () => {
+          it('should replace any pre-existing content of the router outlet', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/users', component: 'x-users-view'},
@@ -165,7 +165,7 @@
             expect(outlet.children).to.have.lengthOf(0);
           });
 
-          it('should ignore a successful result of a resolve pass if a new resolve pass is started before the first is completed', async () => {
+          it('should ignore a successful result of a resolve pass if a new resolve pass is started before the first is completed', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/slow', action: add100msDelay, children: [
@@ -181,7 +181,7 @@
             expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
           });
 
-          it('should ignore an error result of a resolve pass if a new resolve pass is started before the first is completed', async () => {
+          it('should ignore an error result of a resolve pass if a new resolve pass is started before the first is completed', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/slow', action: add100msDelay, children: [
