@@ -115,15 +115,6 @@
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/(project[s]?)/:id', component: 'x-project-view'},
-          ]);
-
           class XProjectView extends Polymer.Element {
             static get is() {
               return 'x-project-view';
@@ -138,6 +129,15 @@
           }
 
           customElements.define(XProjectView.is, XProjectView);
+
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/(project[s]?)/:id', component: 'x-project-view'},
+          ]);
         </script>
       </template>
     </vaadin-demo-snippet>
