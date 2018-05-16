@@ -60,7 +60,7 @@ function resolveRoute(context, params) {
  * ```
  * 
  * ### Middleware example
- * A more complex example with custom route handers and server-side rendered
+ * A more complex example with custom route handlers and server-side rendered
  * content:
  * ```
  * import {Router} from '@vaadin/router';
@@ -197,7 +197,7 @@ export class Router extends Resolver {
    * calling this method, or at the time when the route resolution is completed,
    * a `TypeError` is thrown.
    * 
-   * Returns a promise that is fullfilled with the router outlet DOM Node after
+   * Returns a promise that is fulfilled with the router outlet DOM Node after
    * the route component is created and inserted into the router outlet, or
    * rejected if no route matches the given path.
    * 
