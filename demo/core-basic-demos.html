@@ -73,7 +73,7 @@
     </vaadin-demo-snippet>
 
     <h3>Route Parameters</h3>
-    <p>Route parameters are defined using <a href="https://github.com/pillarjs/path-to-regexp#parameters"
+    <p>Route parameters are defined using the <a href="https://github.com/pillarjs/path-to-regexp#parameters"
       target="_blank">express-like syntax</a>. All features are supported:
       <ul>
         <li>named parameters: <code>/profile/:user</code></li>
@@ -84,10 +84,6 @@
         <li>unnamed parameters: <code>/(user[s]?)/:id</code></li>
       </ul>
     </p>
-    <p>Named parameters are bound to <code>route.params</code> property of the route component
-      (the <code>route</code> property is set on the route component by the router).</p>
-      Named parameters are accessible both by string key or numeric index.
-      Unnamed parameters are accessible by numeric index only.
     <vaadin-demo-snippet id="core-basic-examples-3" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
@@ -107,6 +103,45 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Accessing Route Parameters</h3>
+    <p>Named parameters are bound to the <code>route.params</code> property of the route component
+      (the <code>route</code> property is set on the route component by the router).</p>
+    <ul>
+      <li>Named parameters are accessible by string key.</li>
+      <li>Unnamed parameters are accessible by numeric index.</li>
+    </ul>
+    <vaadin-demo-snippet id="core-basic-examples-4" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+        <script type="module">
+          class XProjectView extends Polymer.Element {
+            static get is() {
+              return 'x-project-view';
+            }
+            static get template() {
+              return Polymer.html`
+                <h1>Project</h1>
+                <p>ID: [[route.params.id]]</p>
+                <code>/project</code> or <code>/projects</code>: [[route.params.0]]
+              `;
+            }
+          };
+
+          customElements.define(XProjectView.is, XProjectView);
+
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/(project[s]?)/:id', component: 'x-project-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
   </template>
   <script>
     class CoreBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {

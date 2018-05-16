@@ -196,7 +196,7 @@ export class Router extends Resolver {
    * component into the router outlet. If no router outlet is set at the time of
    * calling this method, or at the time when the route resolution is completed,
    * a `TypeError` is thrown.
-   * 
+   *
    * Returns a promise that is fulfilled with the router outlet DOM Node after
    * the route component is created and inserted into the router outlet, or
    * rejected if no route matches the given path.
@@ -299,15 +299,7 @@ export class Router extends Resolver {
    */
   static renderComponent(component, context) {
     const element = document.createElement(component);
-    const params = {};
-
-    Object.keys(context.params).forEach((param, i) => {
-      const value = context.params[param];
-      params[i] = value;
-    });
-
-    Object.assign(params, context.params);
-
+    const params = Object.assign({}, context.params);
     element.route = {params};
     return element;
   }

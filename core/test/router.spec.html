@@ -379,7 +379,7 @@
             router.unsubscribe();
           });
 
-          it('should bind named parameters to `route.params` property using keys and numeric indexes', async() => {
+          it('should bind named parameters to `route.params` property using string keys', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/:user', component: 'x-user-profile'}
@@ -390,11 +390,10 @@
               expect(elem.route).to.be.object;
               expect(elem.route.params).to.be.object;
               expect(elem.route.params.user).to.equal('foo');
-              expect(elem.route.params[0]).to.equal('foo');
             });
           });
 
-          it('should bind unnamed parameters to `route.params` property using numeric indexes only', async() => {
+          it('should bind unnamed parameters to `route.params` property using numeric indexes', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/(user[s]?)/:id', component: 'x-users-view'},
@@ -408,7 +407,7 @@
             });
           });
 
-          it('should bind custom pattern parameters to `route.params` property using numeric indexes', async() => {
+          it('should bind named custom parameters to `route.params` property using string keys', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/image-:size(\\d+)px', component: 'x-image-view'},
@@ -418,11 +417,11 @@
               const elem = outlet.children[0];
               expect(elem.route).to.be.object;
               expect(elem.route.params).to.be.object;
-              expect(elem.route.params[0]).to.equal('15');
+              expect(elem.route.params.size).to.equal('15');
             });
           });
 
-          it('should bind route segments to the `route.params` component property', async() => {
+          it('should bind named segments to the `route.params` property usingstring keys', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/kb/:path+/:id', component: 'x-knowledge-base'},
@@ -432,8 +431,8 @@
               const elem = outlet.children[0];
               expect(elem.route).to.be.object;
               expect(elem.route.params).to.be.object;
-              expect(elem.route.params[0]).to.deep.equal(['folder', 'nested']);
-              expect(elem.route.params[1]).to.equal('1');
+              expect(elem.route.params.path).to.deep.equal(['folder', 'nested']);
+              expect(elem.route.params.id).to.equal('1');
             });
           });
         });
