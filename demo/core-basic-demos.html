@@ -215,12 +215,13 @@
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
-            // this allows to execute the action before navigating
-            {path: '/users', action: recordUrlVisit},
-            // both `action` and `component` cannot be declared in the same route
-            {path: '/users', component: 'x-user-list'},
-            {path: '/users/:user', action: recordUrlVisit},
-            {path: '/users/:user', component: 'x-user-profile'},
+            {path: '/users',
+              action: recordUrlVisit, // will be triggered for all children
+              children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', component: 'x-user-profile'}
+              ]
+            },
           ]);
         </script>
       </template>
