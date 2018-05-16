@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-  <title>vaadin-router Examples</title>
+  <title>Vaadin.Router Demos</title>
   <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
   <link rel="import" href="demo-shell.html">
 
@@ -13,12 +13,6 @@
 </head>
 
 <body>
-  <vaadin-component-demo id="demo"></vaadin-component-demo>
-  <script>
-    document.getElementById('demo').configSrc =
-      window.location.search.substring(1).split('&').indexOf('core') > -1
-        ? 'demos.core.json'
-        : 'demos.json';
-  </script>
+  <vaadin-component-demo config-src="demos.json"></vaadin-component-demo>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>vaadin-router-core tests</title>
+  <title>Vaadin.Router Integration Tests</title>
 
   <!--
     We can use npm package in tests, but in the demos we still need HTML Imports support.
@@ -13,14 +13,14 @@
   <script src="../bower_components/web-component-tester/browser.js"></script>
   <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="test-suites.js"></script>
-  <script src="../dist/umd/vaadin-router-core.js"></script>
+  <script src="../dist/umd/vaadin-router.js"></script>
 </head>
 
 <body>
   <span id="browser-sync-binding"></span>
   <script>
     (function() {
-      "use strict";
+      'use strict';
 
       WCT.loadSuites(
         window.VaadinRouterCoreSuites.default

@@ -40,7 +40,7 @@
   <script>
     window.addEventListener('WebComponentsReady', () => {
       (function setupInPageHashLink() {
-        document.getElementById('in-page-hash-link').setAttribute('href', window.location.pathname + '#in-page')
+        document.getElementById('in-page-hash-link').setAttribute('href', window.location.pathname + '#in-page');
       })();
 
       (function setupShadowRoots() {
@@ -93,13 +93,15 @@
             cancelable: true,
             composed: true
           });
-        } catch(e) {
+        } catch (e) {
           event = document.createEvent('MouseEvents');
-          event.initMouseEvent("click", true, true, window, 0,
-                  0, 0, 0, 0, ctrl, alt, shift, meta, button, null);
+          event.initMouseEvent('click', true, true, window, 0,
+            0, 0, 0, 0, ctrl, alt, shift, meta, button, null);
           if (window.ShadyDOM) {
             Object.defineProperty(event, 'composed', {
-              get() { return true; }
+              get() {
+                return true;
+              }
             });
           }
         }
@@ -107,6 +109,7 @@
       }
 
       describe('NavigationTriggers.CLICK', function() {
+        // eslint-disable-next-line no-invalid-this
         this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
         const clicks = [];

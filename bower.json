@@ -1,13 +1,25 @@
 {
-  "name": "vaadin-router-core",
-  "main": "dist/umd/vaadin-router-core.js",
+  "name": "vaadin-router",
+  "homepage": "https://vaadin.com",
   "authors": [
-    "Viktor Lukashov <viktor@vaadin.com>"
+    "Vaadin Ltd"
   ],
-  "license": "MIT",
-  "homepage": "https://github.com/vaadin/vaadin-router",
-  "dependencies": {
+  "description": "Small and powerfull client-side router for Web Components. Works great with any framework.",
+  "main": "dist/umd/vaadin-router.js",
+  "keywords": [
+    "Vaadin",
+    "vaadin-router",
+    "router",
+    "client-side",
+    "web-components"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
     "web-component-tester": "^6.5.0",
-    "webcomponentsjs": "^1.2.0"
+    "webcomponentsjs": "^1.2.0",
+    "iron-component-page": "^3.0.0",
+    "iron-demo-helpers": "^2.0.0",
+    "polymer": "^2.0.0",
+    "vaadin-demo-helpers": "vlukashov/vaadin-demo-helpers#feature/iframe-renderer"
   }
 }

@@ -6,9 +6,16 @@
     "es6": true
   },
   "globals": {
+    "Polymer": false,
     "Vaadin": false
   },
   "parserOptions": {
     "sourceType": "module"
-  }
+  },
+  "overrides": [{
+    "files": ["gulpfile.js"],
+    "parserOptions": {
+      "ecmaVersion": 2017
+    }
+  }]
 }
