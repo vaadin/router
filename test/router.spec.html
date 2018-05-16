@@ -2,10 +2,10 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>vaadin-router-core tests</title>
+  <title>router.spec</title>
   <script src="../bower_components/web-component-tester/browser.js"></script>
   <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-  <script src="../dist/umd/vaadin-router-core.js"></script>
+  <script src="../dist/umd/vaadin-router.js"></script>
 </head>
 
 <body>
@@ -17,6 +17,7 @@
 
   <script>
     describe('Vaadin.Router', function() {
+      // eslint-disable-next-line no-invalid-this
       this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
       var outlet;

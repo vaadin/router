@@ -18,13 +18,8 @@ branches:
    - master
 
 script:
-  - cd core
   - yarn lint
-  - xvfb-run -s '-screen 0 1024x768x24' yarn test:coverage
-  - xvfb-run -s '-screen 0 1024x768x24' yarn test
-  - yarn size-control
-  - cd ..
-  - yarn lint
+  - yarn build
   - xvfb-run -s '-screen 0 1024x768x24' yarn test:coverage
   - xvfb-run -s '-screen 0 1024x768x24' yarn test
   - yarn size-control
