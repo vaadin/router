@@ -26,23 +26,23 @@ function resolveRoute(context, params) {
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
  * lazy-loading. Works great in Polymer and non-Polymer apps.
- * 
+ *
  * ### Basic example
  * ```
  * import {Router} from '@vaadin/router';
- * 
+ *
  * const router = new Router(document.getElementById('outlet'));
  * router.setRoutes([
  *   {path: '/', component: 'x-home-view'},
  *   {path: '/users', component: 'x-user-list'}
  * ]);
  * ```
- * 
+ *
  * ### Lazy-loading example
  * A bit more involved example with lazy-loading:
  * ```
  * import {Router} from '@vaadin/router';
- * 
+ *
  * const routes = [
  *   {path: '/', component: 'x-home-view'},
  *   {
@@ -54,30 +54,30 @@ function resolveRoute(context, params) {
  *     ]
  *   }
  * ];
- * 
+ *
  * const router = new Router(document.getElementById('outlet'));
  * router.setRoutes(routes);
  * ```
- * 
+ *
  * ### Middleware example
  * A more complex example with custom route handlers and server-side rendered
  * content:
  * ```
  * import {Router} from '@vaadin/router';
- * 
+ *
  * const routes = [
  *   {
  *     path: '/',
  *     action: async (context) => {
  *       // record the navigation completed event for analytics
  *       analytics.recordNavigationStart(context.path);
- * 
+ *
  *       // let the navigation happen and wait for the result
  *       const result = await context.next();
- * 
+ *
  *       // record the navigation completed event for analytics
  *       analytics.recordNavigationEnd(context.path, result.status);
- *       
+ *
  *       // pass the result up the handlers chain
  *       return result;
  *     }
@@ -99,20 +99,20 @@ function resolveRoute(context, params) {
  *     action: async (context) => {
  *       // fetch the server-side rendered content
  *       const result = await fetch(context.path, {...});
- * 
+ *
  *       // modify the content if necessary
  *       result.body = result.body.replace(/bad/ig, 'good');
- *       
+ *
  *       // create DOM objects out of the server-side result (string)
  *       return renderToDom(result);
  *     }
  *   }
  * ];
- * 
+ *
  * const router = new Router(document.getElementById('outlet'));
  * router.setRoutes(routes);
  * ```
- * 
+ *
  * @memberof Vaadin
  * @extends Vaadin.Resolver
  * @demo demo/?core
@@ -121,7 +121,7 @@ function resolveRoute(context, params) {
  *    'popstate' and / or 'click' events.
  */
 export class Router extends Resolver {
-  
+
   /**
    * Creates a new Router instance with a given outlet, and
    * automatically subscribes it to navigation events on the `window`.
@@ -172,7 +172,7 @@ export class Router extends Resolver {
 
   /**
    * Returns the current router outlet. The initial value is `undefined`.
-   * 
+   *
    * @return {?Node} the current router outlet (or `undefined`)
    */
   getOutlet() {
@@ -196,14 +196,14 @@ export class Router extends Resolver {
    * component into the router outlet. If no router outlet is set at the time of
    * calling this method, or at the time when the route resolution is completed,
    * a `TypeError` is thrown.
-   * 
+   *
    * Returns a promise that is fulfilled with the router outlet DOM Node after
    * the route component is created and inserted into the router outlet, or
    * rejected if no route matches the given path.
-   * 
+   *
    * If another render pass is started before the previous one is completed, the
    * result of the previous render pass is ignored.
-   * 
+   *
    * @param {!string|!{pathname: !string}} pathnameOrContext the pathname to
    *    render or a context object with a `pathname` property and other
    *    properties to pass to the resolver.
@@ -264,7 +264,7 @@ export class Router extends Resolver {
 
   /**
    * Subscribes this instance to navigation events on the `window`.
-   * 
+   *
    * NOTE: beware of resource leaks. For as long as a router instance is
    * subscribed to navigation events, it won't be garbage collected.
    */
@@ -291,7 +291,7 @@ export class Router extends Resolver {
 
   /**
    * Creates and returns an instance of a given custom element.
-   * 
+   *
    * @param {!string} component tag name of a web component to render
    * @param {?context} context an optional context object
    * @return {!HTMLElement}
@@ -299,9 +299,8 @@ export class Router extends Resolver {
    */
   static renderComponent(component, context) {
     const element = document.createElement(component);
-    for (const param of Object.keys(context.params)) {
-      element[param] = context.params[param];
-    }
+    const params = Object.assign({}, context.params);
+    element.route = {params};
     return element;
   }
 
@@ -309,23 +308,23 @@ export class Router extends Resolver {
    * Configures what triggers Vaadin.Router navigation events:
    *  - `POPSTATE`: popstate events on the current `window`
    *  - `CLICK`: click events on `<a>` links leading to the current page
-   * 
+   *
    * The default is `POPSTATE`. Below is an example of how to switch to `CLICK`:
-   * 
+   *
    * ```
-   * import {Router} from '@vaadin/router'; 
+   * import {Router} from '@vaadin/router';
    * import CLICK from '@vaadin/router/triggers/click';
-   * 
+   *
    * Router.setTriggers(CLICK);
    * // the triggers can also be combined:
    * // Router.setTriggers(CLICK, POPSTATE);
    * ```
-   * 
+   *
    * The `POPSTATE` and `CLICK` navigation triggers need to be imported
    * separately to enable efficient tree shaking: if the app does not use `<a>`
    * clicks as navigation triggers, the code to handle them is not included into
    * the bundle.
-   * 
+   *
    * @param {...NavigationTrigger} triggers
    */
   static setTriggers(...triggers) {

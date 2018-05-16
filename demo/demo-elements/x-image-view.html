@@ -1,0 +1,24 @@
+<dom-module id="x-image-view">
+  <template preserve-content>
+    <style>
+      div {
+        background: hotpink;
+      }
+    </style>
+    <div style$="height: [[route.params.0]]px; width: [[route.params.0]]px; background: [[route.params.color]];"></div>
+  </template>
+  <script>
+    class XImageView extends Polymer.Element {
+      static get is() {
+        return 'x-image-view';
+      }
+
+      static get properties() {
+        return {
+          route: Object
+        };
+      }
+    }
+    window.customElements.define(XImageView.is, XImageView);
+  </script>
+</dom-module>
