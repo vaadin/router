@@ -4,25 +4,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>vaadin-router tests</title>
-  <script src="../../web-component-tester/browser.js"></script>
+  <title>vaadin-router-core tests</title>
+
+  <!--
+    We can use npm package in tests, but in the demos we still need HTML Imports support.
+    This is the only reason to use Bower for the vaadin-router-core package.
+  -->
+  <script src="../bower_components/web-component-tester/browser.js"></script>
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="test-suites.js"></script>
+  <script src="../dist/umd/vaadin-router-core.js"></script>
 </head>
 
 <body>
+  <span id="browser-sync-binding"></span>
   <script>
-    WCT._config.environmentScripts.push('webcomponentsjs/webcomponents-lite.js');
+    (function() {
+      "use strict";
 
-    // if this is true (default) console.error() from a vaadin-route's connected callback
-    // causes the '<vaadin-route> parent element check' spec to fail
-    WCT._config.trackConsoleError = false;
-
-    WCT.loadSuites(
-      window.VaadinRouterSuites
-        .reduce(function(suites, suite) {
-          return suites.concat([suite, `${suite}?wc-shadydom=true`]);
-        }, [])
-    );
+      WCT.loadSuites(
+        window.VaadinRouterCoreSuites.default
+          .reduce(function(suites, suite) {
+            return suites.concat(
+              suite.match(/\.html$/)
+                ? [suite, `${suite}?wc-shadydom=true`]
+                : suite
+            );
+          }, [])
+      );
+    })();
   </script>
 </body>
 
