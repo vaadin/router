@@ -18,7 +18,7 @@
   },
   "homepage": "https://vaadin.com/components",
   "scripts": {
-    "install": "bower install && cd core && npm install && npm run build",
+    "install": "bower install && cd core && yarn install && yarn build",
     "lint": "gulp lint && polymer lint --rules polymer-2 --input *.html",
     "start": "polymer serve --port 8081",
     "start:browser-sync": "browser-sync 'http://localhost:8081' --files './*.html' test core/dist",
@@ -26,7 +26,7 @@
     "test": "wct",
     "test:coverage": "wct --profile=coverage",
     "size-control": "gulp size-control && bundlesize",
-    "docs": "npm run docs:analyze && gulp docs",
+    "docs": "yarn docs:analyze && gulp docs",
     "docs:analyze": "polymer analyze *.html > analysis.json"
   },
   "bundlesize": [
@@ -49,14 +49,14 @@
     "gulp-html-extract": "^0.3.0",
     "gulp-rename": "^1.2.2",
     "gulp-size": "^3.0.0",
-    "gulp-stylelint": "^6.0.0",
+    "gulp-stylelint": "^7.0.0",
     "npm-run-all": "^4.1.2",
-    "polymer-cli": "^1.7.1",
+    "polymer-cli": "1.6.0",
     "run-sequence": "^2.2.1",
     "stylelint": "^9.0.0",
     "stylelint-config-vaadin": "latest",
     "wct-istanbub": "^0.1.1",
-    "web-component-tester": "^6.6.0",
+    "web-component-tester": "6.5.0",
     "yargs": "^11.0.0"
   }
 }

@@ -1,6 +1,7 @@
 bower_components
 node_modules
 build
+package-lock.json
 lib
 coverage
 size-control/build
