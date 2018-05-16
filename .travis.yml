@@ -4,6 +4,7 @@ language: node_js
 node_js: 8.9
 
 cache:
+  yarn: true
   directories:
     - node_modules
 
@@ -18,12 +19,12 @@ branches:
 
 script:
   - cd core
-  - npm run lint
-  - xvfb-run -s '-screen 0 1024x768x24' npm run test:coverage
-  - xvfb-run -s '-screen 0 1024x768x24' npm test
-  - npm run size-control
+  - yarn lint
+  - xvfb-run -s '-screen 0 1024x768x24' yarn test:coverage
+  - xvfb-run -s '-screen 0 1024x768x24' yarn test
+  - yarn size-control
   - cd ..
-  - npm run lint
-  - xvfb-run -s '-screen 0 1024x768x24' npm run test:coverage
-  - xvfb-run -s '-screen 0 1024x768x24' npm test
-  - npm run size-control
+  - yarn lint
+  - xvfb-run -s '-screen 0 1024x768x24' yarn test:coverage
+  - xvfb-run -s '-screen 0 1024x768x24' yarn test
+  - yarn size-control
