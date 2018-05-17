@@ -5,12 +5,12 @@
     "node": true,
     "es6": true
   },
-  "plugins": [
-    "html"
-  ],
   "globals": {
     "Polymer": false,
     "Vaadin": false
+  },
+  "parserOptions": {
+    "sourceType": "module"
   },
   "overrides": [{
     "files": ["gulpfile.js"],

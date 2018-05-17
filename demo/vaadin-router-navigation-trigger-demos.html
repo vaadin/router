@@ -1,4 +1,4 @@
-<dom-module id="core-navigation-triggers-demos">
+<dom-module id="vaadin-router-navigation-trigger-demos">
   <template>
     <style include="vaadin-component-demo-shared-styles">
       :host {
@@ -16,7 +16,7 @@
     <p>In the demo below the <code>popstate</code> events are dispatched at 3
       seconds intervals. Before dispatching an event the global <code>
       location.pathname</code> is toggled between '/' and '/users'.</p>
-    <vaadin-demo-snippet id="core-navigation-triggers-demos-1" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-navigation-trigger-demo-1" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -59,7 +59,7 @@
       included separately from <code>vaadin-router/dist/umd/click-navigation-trigger.js</code>
       (it is then available as <code>Vaadin.Router.NavigationTrigger.CLICK</code>).
     </p>
-    <vaadin-demo-snippet id="core-navigation-triggers-demos-2" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-navigation-trigger-demo-2" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">Users</a>
@@ -67,7 +67,7 @@
         <script type="module">
           // import {Router} from '@vaadin/router';
           // import CLICK from '@vaadin/router/triggers/click';
-          
+
           const {Router} = window.Vaadin;
           const {CLICK, POPSTATE} = Router.NavigationTrigger;
 
@@ -88,7 +88,7 @@
       to navigation events in its constructor. Use the
       <code>unsubscribe()</code> method to cancel this automatic subscription
       and the <code>subscribe()</code> method to re-subscribe.</p>
-    <vaadin-demo-snippet id="core-navigation-triggers-demos-3" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-navigation-trigger-demo-3" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -114,11 +114,14 @@
     </vaadin-demo-snippet>
   </template>
   <script>
-    class CoreNavigationTriggersDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+    class VaadinRouterNavigationTriggerDemos
+      extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+
       static get is() {
-        return 'core-navigation-triggers-demos';
+        return 'vaadin-router-navigation-trigger-demos';
       }
     }
-    customElements.define(CoreNavigationTriggersDemos.is, CoreNavigationTriggersDemos);
+    customElements.define(VaadinRouterNavigationTriggerDemos.is,
+      VaadinRouterNavigationTriggerDemos);
   </script>
 </dom-module>

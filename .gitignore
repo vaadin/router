@@ -2,9 +2,8 @@ bower_components
 node_modules
 build
 package-lock.json
-lib
+dist
 coverage
-size-control/build
 
 .idea
 .vscode

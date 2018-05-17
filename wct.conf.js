@@ -25,27 +25,31 @@ module.exports = {
     }
 
     if (argv.profile === 'coverage') {
+      context.options.suites = [
+        'test/index.coverage.html'
+      ];
+
       context.options.plugins.local.browsers = ['chrome'];
 
       context.options.plugins.istanbub = {
         dir: './coverage',
         reporters: ['text-summary', 'lcov'],
         include: [
-          '**/*.html',
+          '**/dist/test-iife/**/*.js',
         ],
         exclude: [
-          '**/dist/**/*.js'
+          '**/dist/test-iife/resolver/path-to-regexp.js',
+          '**/dist/test-iife/resolver/generateUrls.js',
         ],
-        // TODO(vlukashov): set to 80% when start working on <vaadin-router>
         thresholds: {
           global: {
-            statements: 50,
-            branches: 50,
-            functions: 50,
-            lines: 50,
+            statements: 80,
+            branches: 80,
+            functions: 80,
+            lines: 80,
           }
         }
       };
     }
-  },
+  }
 };

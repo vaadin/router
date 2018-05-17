@@ -1,4 +1,4 @@
-<dom-module id="core-basic-demos">
+<dom-module id="vaadin-router-basic-demos">
   <template>
     <style include="vaadin-component-demo-shared-styles">
       :host {
@@ -33,7 +33,7 @@
       any pre-existing outlet content).</p>
     <p>The route component can be any Web Component regardless of how it is
       built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc</p>
-    <vaadin-demo-snippet id="core-basic-demos-1" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-1" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -51,7 +51,7 @@
 
     <h3>Child Routes</h3>
     <p>Each route can have child routes:</p>
-    <vaadin-demo-snippet id="core-basic-demos-2" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-2" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -83,7 +83,7 @@
       should always be <strong>after</strong> other alternatives.</p>
     <p>The pathname that leads to the fallback route is available to the route
       component via the <code>route.pathname</code> property.</p>
-    <vaadin-demo-snippet id="core-basic-demos-7" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-7" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -113,7 +113,7 @@
         <li>unnamed parameters: <code>/(user[s]?)/:id</code></li>
       </ul>
     </p>
-    <vaadin-demo-snippet id="core-basic-demos-3" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -140,7 +140,7 @@
       <li>Named parameters are accessible by string key.</li>
       <li>Unnamed parameters are accessible by numeric index.</li>
     </ul>
-    <vaadin-demo-snippet id="core-basic-demos-4" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-4" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -176,7 +176,7 @@
     <p>This method can be used for complex navigation cases. If you need to simply open the page specified, use <code>component</code> instead.</p>
     <p>Note: For a single route, both <code>component</code> and <code>action</code> cannot be defined.</p>
     <p>Current example demonstrates the way you can perform async tasks on view enter</p>
-    <vaadin-demo-snippet id="core-basic-demos-5" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-5" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
           <vaadin-router-link href="/">Root (no delay on open)</vaadin-router-link>
@@ -219,7 +219,7 @@
       </ul>
     </p>
     <p>Current example demonstrates the way to get visit statistics for each dedicated url.</p>
-    <vaadin-demo-snippet id="core-basic-demos-6" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-6" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
           <vaadin-router-link href="/">Root</vaadin-router-link>
@@ -257,11 +257,11 @@
     </vaadin-demo-snippet>
   </template>
   <script>
-    class CoreBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+    class VaadinRouterBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
       static get is() {
-        return 'core-basic-demos';
+        return 'vaadin-router-basic-demos';
       }
     }
-    customElements.define(CoreBasicDemos.is, CoreBasicDemos);
+    customElements.define(VaadinRouterBasicDemos.is, VaadinRouterBasicDemos);
   </script>
 </dom-module>

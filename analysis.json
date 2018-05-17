@@ -1,3050 +1,621 @@
 {
   "schema_version": "1.0.0",
-  "namespaces": [
+  "classes": [
     {
-      "name": "Vaadin",
       "description": "",
       "summary": "",
+      "path": "dist/umd/vaadin-router.js",
+      "properties": [],
+      "methods": [
+        {
+          "name": "getRoutes",
+          "description": "Returns the current list of routes (as a shallow copy). Adding / removing\nroutes to / from the returned array does not affect the routing config,\nbut modifying the route objects does.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 656,
+              "column": 4
+            },
+            "end": {
+              "line": 658,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "!Array.<!Route>"
+          }
+        },
+        {
+          "name": "setRoutes",
+          "description": "Sets the routing config (replacing the existing one).",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 666,
+              "column": 4
+            },
+            "end": {
+              "line": 669,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "routes",
+              "type": "(!Array.<!Route> | !Route)",
+              "description": "a single route or an array of those\n   (the array is shallow copied)"
+            }
+          ]
+        },
+        {
+          "name": "addRoutes",
+          "description": "Appends one or several routes to the routing config and returns the\neffective routing config after the operation.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 680,
+              "column": 4
+            },
+            "end": {
+              "line": 683,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "routes",
+              "type": "(!Array.<!Route> | !Route)",
+              "description": "a single route or an array of those\n   (the array is shallow copied)"
+            }
+          ],
+          "return": {
+            "type": "!Array.<!Route>"
+          }
+        },
+        {
+          "name": "resolve",
+          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of the first\nroute handler that returns something other than `null` or `undefined`.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 702,
+              "column": 4
+            },
+            "end": {
+              "line": 758,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathnameOrContext",
+              "type": "(!string | !{pathname: !string})",
+              "description": "the pathname to\n   resolve or a context object with a `pathname` property and other\n   properties to pass to the route resolver functions."
+            }
+          ],
+          "return": {
+            "type": "!Promise.<any>"
+          }
+        }
+      ],
+      "staticMethods": [],
+      "demos": [],
+      "metadata": {},
       "sourceRange": {
-        "file": "vaadin-router-link.html",
         "start": {
-          "line": 145,
-          "column": 4
+          "line": 635,
+          "column": 2
         },
         "end": {
-          "line": 145,
-          "column": 40
+          "line": 759,
+          "column": 3
         }
       },
-      "elements": [
+      "privacy": "public",
+      "name": "Vaadin.Resolver"
+    },
+    {
+      "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\n### Basic example\n```\nimport {Router} from '@vaadin/router';\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes([\n  {path: '/', component: 'x-home-view'},\n  {path: '/users', component: 'x-user-list'}\n]);\n```\n\n### Lazy-loading example\nA bit more involved example with lazy-loading:\n```\nimport {Router} from '@vaadin/router';\n\nconst routes = [\n  {path: '/', component: 'x-home-view'},\n  {\n    path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      {path: '/', component: 'x-user-list'},\n      {path: '/:user', component: 'x-user-profile'}\n    ]\n  }\n];\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```\n\n### Middleware example\nA more complex example with custom route handlers and server-side rendered\ncontent:\n```\nimport {Router} from '@vaadin/router';\n\nconst routes = [\n  {\n    path: '/',\n    action: async (context) => {\n      // record the navigation completed event for analytics\n      analytics.recordNavigationStart(context.path);\n\n      // let the navigation happen and wait for the result\n      const result = await context.next();\n\n      // record the navigation completed event for analytics\n      analytics.recordNavigationEnd(context.path, result.status);\n\n      // pass the result up the handlers chain\n      return result;\n    }\n  },\n  {\n    path: '/',\n    component: 'x-home-view'\n  },\n  {\n    path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      {path: '/', component: 'x-user-list'},\n      {path: '/:user', component: 'x-user-profile'}\n    ]\n  },\n  {\n    path: '/server',\n    action: async (context) => {\n      // fetch the server-side rendered content\n      const result = await fetch(context.path, {...});\n\n      // modify the content if necessary\n      result.body = result.body.replace(/bad/ig, 'good');\n\n      // create DOM objects out of the server-side result (string)\n      return renderToDom(result);\n    }\n  }\n];\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```",
+      "summary": "JavaScript class that renders different DOM content depending on\n   a given path. It can re-render when triggered or automatically on\n   'popstate' and / or 'click' events.",
+      "path": "dist/umd/vaadin-router.js",
+      "properties": [
         {
-          "description": "`<vaadin-router>` is a Web Component that renders different content for different URLs. This\nenables client-side routing. Each content alternative is defined with a `<vaadin-route>` component:\n\n```\n<vaadin-router>\n  <vaadin-route path=\"/\">\n    <template>\n      <h1>Home</h1>\n    </template>\n  </vaadin-route>\n  <vaadin-route path=\"/users\" component=\"x-user-list\"></vaadin-route>\n</vaadin-router>\n```",
-          "summary": "",
-          "path": "vaadin-router.html",
-          "properties": [
-            {
-              "name": "root",
-              "type": "string",
-              "description": "the root URL for this router",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 41,
-                  "column": 10
-                },
-                "end": {
-                  "line": 41,
-                  "column": 22
-                }
-              },
-              "metadata": {
-                "polymer": {}
-              }
-            }
-          ],
-          "methods": [
-            {
-              "name": "connectedCallback",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 54,
-                  "column": 6
-                },
-                "end": {
-                  "line": 57,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "_propertiesChanged",
-              "description": "(override of `Polymer.PropertiesChanged._propertiesChanged`)\n\nCallback called when any properties with accessors created via\n`_createPropertyAccessor` have been set.",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 73,
-                  "column": 6
-                },
-                "end": {
-                  "line": 80,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "currentProps",
-                  "type": "!Object",
-                  "description": "Bag of all current accessor values"
-                },
-                {
-                  "name": "changedProps",
-                  "type": "!Object",
-                  "description": "Bag of properties changed since the last\n  call to `_propertiesChanged`"
-                },
-                {
-                  "name": "oldProps",
-                  "type": "!Object",
-                  "description": "Bag of previous values for each property\n  in `changedProps`"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "onHistoryStateChanged",
-              "description": "(override of `Vaadin.HistoryStateChangeMixin.onHistoryStateChanged`)\n\nCallback called when the 'popstate' event is triggered on the window.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 91,
-                  "column": 6
-                },
-                "end": {
-                  "line": 93,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "state",
-                  "type": "Object",
-                  "description": "the state object associated with the active history entry"
-                },
-                {
-                  "name": "pathname",
-                  "type": "!string",
-                  "description": "the current path"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "addRoutes",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 95,
-                  "column": 6
-                },
-                "end": {
-                  "line": 98,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes"
-                }
-              ]
-            },
-            {
-              "name": "removeRoutes",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 100,
-                  "column": 6
-                },
-                "end": {
-                  "line": 104,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes"
-                }
-              ]
-            },
-            {
-              "name": "render",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 106,
-                  "column": 6
-                },
-                "end": {
-                  "line": 111,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "__render",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 113,
-                  "column": 6
-                },
-                "end": {
-                  "line": 129,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": []
-            }
-          ],
-          "staticMethods": [],
-          "demos": [
-            {
-              "url": "demo/",
-              "description": ""
-            }
-          ],
-          "metadata": {},
+          "name": "ready",
+          "type": "!Promise.<?Node>",
+          "description": "A promise that is settled after the current render cycle completes. If\nthere is no render cycle in progress the promise is immediately settled\nwith the last render cycle result.",
+          "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 33,
+              "line": 977,
+              "column": 6
+            },
+            "end": {
+              "line": 977,
+              "column": 17
+            }
+          },
+          "metadata": {}
+        }
+      ],
+      "methods": [
+        {
+          "name": "getRoutes",
+          "description": "Returns the current list of routes (as a shallow copy). Adding / removing\nroutes to / from the returned array does not affect the routing config,\nbut modifying the route objects does.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 656,
               "column": 4
             },
             "end": {
-              "line": 130,
+              "line": 658,
               "column": 5
             }
           },
-          "privacy": "public",
-          "superclass": "HTMLElement",
-          "name": "Vaadin.RouterElement",
-          "attributes": [
-            {
-              "name": "root",
-              "description": "the root URL for this router",
-              "sourceRange": {
-                "start": {
-                  "line": 41,
-                  "column": 10
-                },
-                "end": {
-                  "line": 41,
-                  "column": 22
-                }
-              },
-              "metadata": {},
-              "type": "string"
-            }
-          ],
-          "events": [],
-          "styling": {
-            "cssVariables": [],
-            "selectors": []
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "!Array.<!Route>"
           },
-          "slots": [],
-          "tagname": "vaadin-router"
+          "inheritedFrom": "Vaadin.Resolver"
         },
         {
-          "description": "`<vaadin-route>` is a Web Component that defines a single route for the\n`<vaadin-router>` component.\n\n```\n<vaadin-route path=\"/users/:user\" component=\"x-user-profile\"></vaadin-route>\n```\nor with an inline template\n```\n<vaadin-route path=\"/users/:user\">\n  <tempalte>\n    View [[user]]'s profile\n  </template>\n</vaadin-route>\n```",
-          "summary": "",
-          "path": "vaadin-route.html",
-          "properties": [
-            {
-              "name": "path",
-              "type": "string",
-              "description": "Defines the path served by this route",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 40,
-                  "column": 10
-                },
-                "end": {
-                  "line": 40,
-                  "column": 22
-                }
-              },
-              "metadata": {
-                "polymer": {}
-              }
-            },
-            {
-              "name": "component",
-              "type": "string",
-              "description": "Defines the component rendered for this route",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 43,
-                  "column": 10
-                },
-                "end": {
-                  "line": 43,
-                  "column": 27
-                }
-              },
-              "metadata": {
-                "polymer": {}
-              }
-            }
-          ],
-          "methods": [
-            {
-              "name": "_createPropertyAccessor",
-              "description": "Creates a setter/getter pair for the named property with its own\nlocal storage.  The getter returns the value in the local storage,\nand the setter calls `_setProperty`, which updates the local storage\nfor the property and enqueues a `_propertiesChanged` callback.\n\nThis method may be called on a prototype or an instance.  Calling\nthis method may overwrite a property value that already exists on\nthe prototype/instance by creating the accessor.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 106,
-                  "column": 8
-                },
-                "end": {
-                  "line": 115,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                },
-                {
-                  "name": "readOnly",
-                  "type": "boolean=",
-                  "description": "When true, no setter is created; the\n  protected `_setProperty` function must be used to set the property"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_addPropertyToAttributeMap",
-              "description": "Adds the given `property` to a map matching attribute names\nto property names, using `attributeNameForProperty`. This map is\nused when deserializing attribute values to properties.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 124,
-                  "column": 8
-                },
-                "end": {
-                  "line": 132,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                }
-              ],
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_definePropertyAccessor",
-              "description": "Defines a property accessor for the given property.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 140,
-                  "column": 9
-                },
-                "end": {
-                  "line": 153,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                },
-                {
-                  "name": "readOnly",
-                  "type": "boolean=",
-                  "description": "When true, no setter is created"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "ready",
-              "description": "Lifecycle callback called when properties are enabled via\n`_enableProperties`.\n\nUsers may override this function to implement behavior that is\ndependent on the element having its property data initialized, e.g.\nfrom defaults (initialized from `constructor`, `_initializeProperties`),\n`attributeChangedCallback`, or values propagated from host e.g. via\nbindings.  `super.ready()` must be called to ensure the data system\nbecomes enabled.",
-              "privacy": "public",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 182,
-                  "column": 8
-                },
-                "end": {
-                  "line": 185,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_initializeProperties",
-              "description": "Overrides `PropertiesChanged` method and adds a call to\n`finalize` which lazily configures the element's property accessors.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-mixin.html",
-                "start": {
-                  "line": 191,
-                  "column": 6
-                },
-                "end": {
-                  "line": 194,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesMixin"
-            },
-            {
-              "name": "_initializeInstanceProperties",
-              "description": "Called at ready time with bag of instance properties that overwrote\naccessors when the element upgraded.\n\nThe default implementation sets these properties back into the\nsetter at ready time.  This method is provided as an override\npoint for customizing or providing more efficient initialization.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 222,
-                  "column": 8
-                },
-                "end": {
-                  "line": 224,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "props",
-                  "type": "Object",
-                  "description": "Bag of property values that were overwritten\n  when creating property accessors."
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_setProperty",
-              "description": "Updates the local storage for a property (via `_setPendingProperty`)\nand enqueues a `_proeprtiesChanged` callback.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 235,
-                  "column": 8
-                },
-                "end": {
-                  "line": 239,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                },
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "Value to set"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_getProperty",
-              "description": "Returns the value for the given property.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 247,
-                  "column": 8
-                },
-                "end": {
-                  "line": 249,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of property"
-                }
-              ],
-              "return": {
-                "type": "*",
-                "desc": "Value for the given property"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_setPendingProperty",
-              "description": "Updates the local storage for a property, records the previous value,\nand adds it to the set of \"pending changes\" that will be passed to the\n`_propertiesChanged` callback.  This method does not enqueue the\n`_propertiesChanged` callback.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 264,
-                  "column": 8
-                },
-                "end": {
-                  "line": 280,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                },
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "Value to set"
-                },
-                {
-                  "name": "ext",
-                  "type": "boolean=",
-                  "description": "Not used here; affordance for closure"
-                }
-              ],
-              "return": {
-                "type": "boolean",
-                "desc": "Returns true if the property changed"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_invalidateProperties",
-              "description": "Marks the properties as invalid, and enqueues an async\n`_propertiesChanged` callback.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 290,
-                  "column": 8
-                },
-                "end": {
-                  "line": 300,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_enableProperties",
-              "description": "Call to enable property accessor processing. Before this method is\ncalled accessor values will be set but side effects are\nqueued. When called, any pending side effects occur immediately.\nFor elements, generally `connectedCallback` is a normal spot to do so.\nIt is safe to call this method multiple times as it only turns on\nproperty accessors once.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 313,
-                  "column": 8
-                },
-                "end": {
-                  "line": 322,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_flushProperties",
-              "description": "Calls the `_propertiesChanged` callback with the current set of\npending changes (and old values recorded when pending changes were\nset), and resets the pending set of changes. Generally, this method\nshould not be called in user code.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 333,
-                  "column": 8
-                },
-                "end": {
-                  "line": 342,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_shouldPropertiesChange",
-              "description": "Called in `_flushProperties` to determine if `_propertiesChanged`\nshould be called. The default implementation returns true if\nproperties are pending. Override to customize when\n`_propertiesChanged` is called.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 356,
-                  "column": 8
-                },
-                "end": {
-                  "line": 358,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "currentProps",
-                  "type": "!Object",
-                  "description": "Bag of all current accessor values"
-                },
-                {
-                  "name": "changedProps",
-                  "type": "!Object",
-                  "description": "Bag of properties changed since the last\n  call to `_propertiesChanged`"
-                },
-                {
-                  "name": "oldProps",
-                  "type": "!Object",
-                  "description": "Bag of previous values for each property\n  in `changedProps`"
-                }
-              ],
-              "return": {
-                "type": "boolean",
-                "desc": "true if changedProps is truthy"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_propertiesChanged",
-              "description": "(override of `Polymer.PropertiesChanged._propertiesChanged`)\n\nCallback called when any properties with accessors created via\n`_createPropertyAccessor` have been set.",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 128,
-                  "column": 6
-                },
-                "end": {
-                  "line": 135,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "currentProps",
-                  "type": "!Object",
-                  "description": "Bag of all current accessor values"
-                },
-                {
-                  "name": "changedProps",
-                  "type": "!Object",
-                  "description": "Bag of properties changed since the last\n  call to `_propertiesChanged`"
-                },
-                {
-                  "name": "oldProps",
-                  "type": "!Object",
-                  "description": "Bag of previous values for each property\n  in `changedProps`"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "_shouldPropertyChange",
-              "description": "Method called to determine whether a property value should be\nconsidered as a change and cause the `_propertiesChanged` callback\nto be enqueued.\n\nThe default implementation returns `true` if a strict equality\ncheck fails. The method always returns false for `NaN`.\n\nOverride this method to e.g. provide stricter checking for\nObjects/Arrays when using immutable patterns.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 393,
-                  "column": 8
-                },
-                "end": {
-                  "line": 400,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Property name"
-                },
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "New property value"
-                },
-                {
-                  "name": "old",
-                  "type": "*",
-                  "description": "Previous property value"
-                }
-              ],
-              "return": {
-                "type": "boolean",
-                "desc": "Whether the property should be considered a change\n  and enqueue a `_proeprtiesChanged` callback"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "attributeChangedCallback",
-              "description": "Implements native Custom Elements `attributeChangedCallback` to\nset an attribute value to a property via `_attributeToProperty`.",
-              "privacy": "public",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 412,
-                  "column": 8
-                },
-                "end": {
-                  "line": 419,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "name",
-                  "type": "string",
-                  "description": "Name of attribute that changed"
-                },
-                {
-                  "name": "old",
-                  "type": "?string",
-                  "description": "Old attribute value"
-                },
-                {
-                  "name": "value",
-                  "type": "?string",
-                  "description": "New attribute value"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_attributeToProperty",
-              "description": "Deserializes an attribute to its associated property.\n\nThis method calls the `_deserializeValue` method to convert the string to\na typed value.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 433,
-                  "column": 8
-                },
-                "end": {
-                  "line": 440,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "attribute",
-                  "type": "string",
-                  "description": "Name of attribute to deserialize."
-                },
-                {
-                  "name": "value",
-                  "type": "?string",
-                  "description": "of the attribute."
-                },
-                {
-                  "name": "type",
-                  "type": "*=",
-                  "description": "type to deserialize to, defaults to the value\nreturned from `typeForProperty`"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_propertyToAttribute",
-              "description": "Serializes a property to its associated attribute.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 452,
-                  "column": 8
-                },
-                "end": {
-                  "line": 458,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Property name to reflect."
-                },
-                {
-                  "name": "attribute",
-                  "type": "string=",
-                  "description": "Attribute name to reflect to."
-                },
-                {
-                  "name": "value",
-                  "type": "*=",
-                  "description": "Property value to refect."
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_valueToNodeAttribute",
-              "description": "Sets a typed value to an HTML attribute on a node.\n\nThis method calls the `_serializeValue` method to convert the typed\nvalue to a string.  If the `_serializeValue` method returns `undefined`,\nthe attribute will be removed (this is the default for boolean\ntype `false`).",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 473,
-                  "column": 8
-                },
-                "end": {
-                  "line": 480,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "node",
-                  "type": "Element",
-                  "description": "Element to set attribute to."
-                },
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "Value to serialize."
-                },
-                {
-                  "name": "attribute",
-                  "type": "string",
-                  "description": "Attribute name to serialize to."
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_serializeValue",
-              "description": "Converts a typed JavaScript value to a string.\n\nThis method is called when setting JS property values to\nHTML attributes.  Users may override this method to provide\nserialization for custom types.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 493,
-                  "column": 8
-                },
-                "end": {
-                  "line": 500,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "Property value to serialize."
-                }
-              ],
-              "return": {
-                "type": "(string | undefined)",
-                "desc": "String serialized from the provided\nproperty  value."
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_deserializeValue",
-              "description": "Converts a string to a typed JavaScript value.\n\nThis method is called when reading HTML attribute values to\nJS properties.  Users may override this method to provide\ndeserialization for custom `type`s. Types for `Boolean`, `String`,\nand `Number` convert attributes to the expected types.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 514,
-                  "column": 8
-                },
-                "end": {
-                  "line": 523,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "value",
-                  "type": "?string",
-                  "description": "Value to deserialize."
-                },
-                {
-                  "name": "type",
-                  "type": "*=",
-                  "description": "Type to deserialize the string to."
-                }
-              ],
-              "return": {
-                "type": "*",
-                "desc": "Typed value deserialized from the provided string."
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "connectedCallback",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 47,
-                  "column": 6
-                },
-                "end": {
-                  "line": 69,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "disconnectedCallback",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 71,
-                  "column": 6
-                },
-                "end": {
-                  "line": 79,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "addRoutes",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 81,
-                  "column": 6
-                },
-                "end": {
-                  "line": 84,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "childRoutes"
-                }
-              ]
-            },
-            {
-              "name": "removeRoutes",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 86,
-                  "column": 6
-                },
-                "end": {
-                  "line": 89,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "childRoutes"
-                }
-              ]
-            },
-            {
-              "name": "__render",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 91,
-                  "column": 6
-                },
-                "end": {
-                  "line": 100,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "context"
-                }
-              ]
-            },
-            {
-              "name": "__renderTemplate",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 102,
-                  "column": 6
-                },
-                "end": {
-                  "line": 112,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "context"
-                }
-              ]
-            }
-          ],
-          "staticMethods": [
-            {
-              "name": "createProperties",
-              "description": "Creates property accessors for the given property names.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 58,
-                  "column": 8
-                },
-                "end": {
-                  "line": 66,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "props",
-                  "type": "!Object",
-                  "description": "Object whose keys are names of accessors."
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "attributeNameForProperty",
-              "description": "Returns an attribute name that corresponds to the given property.\nThe attribute name is the lowercased property name. Override to\ncustomize this mapping.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 77,
-                  "column": 8
-                },
-                "end": {
-                  "line": 79,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Property to convert"
-                }
-              ],
-              "return": {
-                "type": "string",
-                "desc": "Attribute name corresponding to the given property."
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "typeForProperty",
-              "description": "Overrides `PropertiesChanged` method to return type specified in the\nstatic `properties` object for the given property.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-mixin.html",
-                "start": {
-                  "line": 180,
-                  "column": 6
-                },
-                "end": {
-                  "line": 183,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "name",
-                  "type": "string",
-                  "description": "Name of property"
-                }
-              ],
-              "return": {
-                "type": "*",
-                "desc": "Type to which to deserialize attribute"
-              },
-              "inheritedFrom": "Polymer.PropertiesMixin"
-            },
-            {
-              "name": "finalize",
-              "description": "Finalizes an element definition, including ensuring any super classes\nare also finalized. This includes ensuring property\naccessors exist on the element prototype. This method calls\n`_finalizeClass` to finalize each constructor in the prototype chain.",
-              "privacy": "public",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-mixin.html",
-                "start": {
-                  "line": 128,
-                  "column": 6
-                },
-                "end": {
-                  "line": 137,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesMixin"
-            },
-            {
-              "name": "_finalizeClass",
-              "description": "Finalize an element class. This includes ensuring property\naccessors exist on the element prototype. This method is called by\n`finalize` and finalizes the class constructor.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-mixin.html",
-                "start": {
-                  "line": 146,
-                  "column": 6
-                },
-                "end": {
-                  "line": 151,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "inheritedFrom": "Polymer.PropertiesMixin"
-            }
-          ],
-          "demos": [],
-          "metadata": {},
+          "name": "setRoutes",
+          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.",
+          "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 32,
+              "line": 1017,
               "column": 4
             },
             "end": {
-              "line": 136,
+              "line": 1020,
               "column": 5
             }
           },
-          "privacy": "public",
-          "superclass": "HTMLElement",
-          "name": "Vaadin.RouteElement",
-          "attributes": [
+          "metadata": {},
+          "params": [
             {
-              "name": "path",
-              "description": "Defines the path served by this route",
-              "sourceRange": {
-                "start": {
-                  "line": 40,
-                  "column": 10
-                },
-                "end": {
-                  "line": 40,
-                  "column": 22
-                }
-              },
-              "metadata": {},
-              "type": "string"
-            },
-            {
-              "name": "component",
-              "description": "Defines the component rendered for this route",
-              "sourceRange": {
-                "start": {
-                  "line": 43,
-                  "column": 10
-                },
-                "end": {
-                  "line": 43,
-                  "column": 27
-                }
-              },
-              "metadata": {},
-              "type": "string"
+              "name": "routes",
+              "type": "(!Array.<!Route> | !Route)",
+              "description": "a single route or an array of those"
             }
-          ],
-          "events": [],
-          "styling": {
-            "cssVariables": [],
-            "selectors": []
-          },
-          "slots": [],
-          "tagname": "vaadin-route",
-          "mixins": [
-            "Polymer.PropertiesMixin"
           ]
         },
         {
-          "description": "`<vaadin-router-link>` is a Web Component that defines an in-app link. It is similar to\nan `<a>` tag but changes the URL without reloading the browser page. It uses the HTML5\nHistory API.\n\n```\n<vaadin-router-link href=\"/users/sam\">See Sam's profile</vaadin-router-link>\n```",
-          "summary": "",
-          "path": "vaadin-router-link.html",
-          "properties": [
-            {
-              "name": "href",
-              "type": "string",
-              "description": "Contains a URL or a URL fragment that the link points to",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 57,
-                  "column": 10
-                },
-                "end": {
-                  "line": 57,
-                  "column": 22
-                }
-              },
-              "metadata": {
-                "polymer": {}
-              }
-            },
-            {
-              "name": "active",
-              "type": "boolean",
-              "description": "Whether or not the route this link points to is currently active.\n\n(reflected to the `active` attribute)",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 64,
-                  "column": 10
-                },
-                "end": {
-                  "line": 64,
-                  "column": 25
-                }
-              },
-              "metadata": {
-                "polymer": {}
-              }
-            }
-          ],
-          "methods": [
-            {
-              "name": "connectedCallback",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 68,
-                  "column": 6
-                },
-                "end": {
-                  "line": 77,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "disconnectedCallback",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 79,
-                  "column": 6
-                },
-                "end": {
-                  "line": 81,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "__onPopstate",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "file": "vaadin-history-state-change-mixin.html",
-                "start": {
-                  "line": 50,
-                  "column": 4
-                },
-                "end": {
-                  "line": 52,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "event"
-                }
-              ],
-              "inheritedFrom": "Vaadin.HistoryStateChangeMixin"
-            },
-            {
-              "name": "onHistoryStateChanged",
-              "description": "(override of `Vaadin.HistoryStateChangeMixin.onHistoryStateChanged`)\n\nCallback called when the 'popstate' event is triggered on the window.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 119,
-                  "column": 6
-                },
-                "end": {
-                  "line": 121,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "state",
-                  "type": "Object",
-                  "description": "the state object associated with the active history entry"
-                },
-                {
-                  "name": "pathname",
-                  "type": "!string",
-                  "description": "the current path"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "_createPropertyAccessor",
-              "description": "Creates a setter/getter pair for the named property with its own\nlocal storage.  The getter returns the value in the local storage,\nand the setter calls `_setProperty`, which updates the local storage\nfor the property and enqueues a `_propertiesChanged` callback.\n\nThis method may be called on a prototype or an instance.  Calling\nthis method may overwrite a property value that already exists on\nthe prototype/instance by creating the accessor.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 106,
-                  "column": 8
-                },
-                "end": {
-                  "line": 115,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                },
-                {
-                  "name": "readOnly",
-                  "type": "boolean=",
-                  "description": "When true, no setter is created; the\n  protected `_setProperty` function must be used to set the property"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_addPropertyToAttributeMap",
-              "description": "Adds the given `property` to a map matching attribute names\nto property names, using `attributeNameForProperty`. This map is\nused when deserializing attribute values to properties.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 124,
-                  "column": 8
-                },
-                "end": {
-                  "line": 132,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                }
-              ],
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_definePropertyAccessor",
-              "description": "Defines a property accessor for the given property.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 140,
-                  "column": 9
-                },
-                "end": {
-                  "line": 153,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                },
-                {
-                  "name": "readOnly",
-                  "type": "boolean=",
-                  "description": "When true, no setter is created"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "ready",
-              "description": "Lifecycle callback called when properties are enabled via\n`_enableProperties`.\n\nUsers may override this function to implement behavior that is\ndependent on the element having its property data initialized, e.g.\nfrom defaults (initialized from `constructor`, `_initializeProperties`),\n`attributeChangedCallback`, or values propagated from host e.g. via\nbindings.  `super.ready()` must be called to ensure the data system\nbecomes enabled.",
-              "privacy": "public",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 182,
-                  "column": 8
-                },
-                "end": {
-                  "line": 185,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_initializeProperties",
-              "description": "Overrides `PropertiesChanged` method and adds a call to\n`finalize` which lazily configures the element's property accessors.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-mixin.html",
-                "start": {
-                  "line": 191,
-                  "column": 6
-                },
-                "end": {
-                  "line": 194,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesMixin"
-            },
-            {
-              "name": "_initializeInstanceProperties",
-              "description": "Called at ready time with bag of instance properties that overwrote\naccessors when the element upgraded.\n\nThe default implementation sets these properties back into the\nsetter at ready time.  This method is provided as an override\npoint for customizing or providing more efficient initialization.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 222,
-                  "column": 8
-                },
-                "end": {
-                  "line": 224,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "props",
-                  "type": "Object",
-                  "description": "Bag of property values that were overwritten\n  when creating property accessors."
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_setProperty",
-              "description": "Updates the local storage for a property (via `_setPendingProperty`)\nand enqueues a `_proeprtiesChanged` callback.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 235,
-                  "column": 8
-                },
-                "end": {
-                  "line": 239,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                },
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "Value to set"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_getProperty",
-              "description": "Returns the value for the given property.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 247,
-                  "column": 8
-                },
-                "end": {
-                  "line": 249,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of property"
-                }
-              ],
-              "return": {
-                "type": "*",
-                "desc": "Value for the given property"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_setPendingProperty",
-              "description": "Updates the local storage for a property, records the previous value,\nand adds it to the set of \"pending changes\" that will be passed to the\n`_propertiesChanged` callback.  This method does not enqueue the\n`_propertiesChanged` callback.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 264,
-                  "column": 8
-                },
-                "end": {
-                  "line": 280,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Name of the property"
-                },
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "Value to set"
-                },
-                {
-                  "name": "ext",
-                  "type": "boolean=",
-                  "description": "Not used here; affordance for closure"
-                }
-              ],
-              "return": {
-                "type": "boolean",
-                "desc": "Returns true if the property changed"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_invalidateProperties",
-              "description": "Marks the properties as invalid, and enqueues an async\n`_propertiesChanged` callback.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 290,
-                  "column": 8
-                },
-                "end": {
-                  "line": 300,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_enableProperties",
-              "description": "Call to enable property accessor processing. Before this method is\ncalled accessor values will be set but side effects are\nqueued. When called, any pending side effects occur immediately.\nFor elements, generally `connectedCallback` is a normal spot to do so.\nIt is safe to call this method multiple times as it only turns on\nproperty accessors once.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 313,
-                  "column": 8
-                },
-                "end": {
-                  "line": 322,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_flushProperties",
-              "description": "Calls the `_propertiesChanged` callback with the current set of\npending changes (and old values recorded when pending changes were\nset), and resets the pending set of changes. Generally, this method\nshould not be called in user code.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 333,
-                  "column": 8
-                },
-                "end": {
-                  "line": 342,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_shouldPropertiesChange",
-              "description": "Called in `_flushProperties` to determine if `_propertiesChanged`\nshould be called. The default implementation returns true if\nproperties are pending. Override to customize when\n`_propertiesChanged` is called.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 356,
-                  "column": 8
-                },
-                "end": {
-                  "line": 358,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "currentProps",
-                  "type": "!Object",
-                  "description": "Bag of all current accessor values"
-                },
-                {
-                  "name": "changedProps",
-                  "type": "!Object",
-                  "description": "Bag of properties changed since the last\n  call to `_propertiesChanged`"
-                },
-                {
-                  "name": "oldProps",
-                  "type": "!Object",
-                  "description": "Bag of previous values for each property\n  in `changedProps`"
-                }
-              ],
-              "return": {
-                "type": "boolean",
-                "desc": "true if changedProps is truthy"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_propertiesChanged",
-              "description": "(override of `Polymer.PropertiesChanged._propertiesChanged)\n\nCallback called when any properties with accessors created via\n`_createPropertyAccessor` have been set.",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 97,
-                  "column": 6
-                },
-                "end": {
-                  "line": 108,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "currentProps",
-                  "type": "!Object",
-                  "description": "Bag of all current accessor values"
-                },
-                {
-                  "name": "changedProps",
-                  "type": "!Object",
-                  "description": "Bag of properties changed since the last\n  call to `_propertiesChanged`"
-                },
-                {
-                  "name": "oldProps",
-                  "type": "!Object",
-                  "description": "Bag of previous values for each property\n  in `changedProps`"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "_shouldPropertyChange",
-              "description": "Method called to determine whether a property value should be\nconsidered as a change and cause the `_propertiesChanged` callback\nto be enqueued.\n\nThe default implementation returns `true` if a strict equality\ncheck fails. The method always returns false for `NaN`.\n\nOverride this method to e.g. provide stricter checking for\nObjects/Arrays when using immutable patterns.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 393,
-                  "column": 8
-                },
-                "end": {
-                  "line": 400,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Property name"
-                },
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "New property value"
-                },
-                {
-                  "name": "old",
-                  "type": "*",
-                  "description": "Previous property value"
-                }
-              ],
-              "return": {
-                "type": "boolean",
-                "desc": "Whether the property should be considered a change\n  and enqueue a `_proeprtiesChanged` callback"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "attributeChangedCallback",
-              "description": "Implements native Custom Elements `attributeChangedCallback` to\nset an attribute value to a property via `_attributeToProperty`.",
-              "privacy": "public",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 412,
-                  "column": 8
-                },
-                "end": {
-                  "line": 419,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "name",
-                  "type": "string",
-                  "description": "Name of attribute that changed"
-                },
-                {
-                  "name": "old",
-                  "type": "?string",
-                  "description": "Old attribute value"
-                },
-                {
-                  "name": "value",
-                  "type": "?string",
-                  "description": "New attribute value"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_attributeToProperty",
-              "description": "Deserializes an attribute to its associated property.\n\nThis method calls the `_deserializeValue` method to convert the string to\na typed value.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 433,
-                  "column": 8
-                },
-                "end": {
-                  "line": 440,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "attribute",
-                  "type": "string",
-                  "description": "Name of attribute to deserialize."
-                },
-                {
-                  "name": "value",
-                  "type": "?string",
-                  "description": "of the attribute."
-                },
-                {
-                  "name": "type",
-                  "type": "*=",
-                  "description": "type to deserialize to, defaults to the value\nreturned from `typeForProperty`"
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_propertyToAttribute",
-              "description": "Serializes a property to its associated attribute.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 452,
-                  "column": 8
-                },
-                "end": {
-                  "line": 458,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Property name to reflect."
-                },
-                {
-                  "name": "attribute",
-                  "type": "string=",
-                  "description": "Attribute name to reflect to."
-                },
-                {
-                  "name": "value",
-                  "type": "*=",
-                  "description": "Property value to refect."
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_valueToNodeAttribute",
-              "description": "Sets a typed value to an HTML attribute on a node.\n\nThis method calls the `_serializeValue` method to convert the typed\nvalue to a string.  If the `_serializeValue` method returns `undefined`,\nthe attribute will be removed (this is the default for boolean\ntype `false`).",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 473,
-                  "column": 8
-                },
-                "end": {
-                  "line": 480,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "node",
-                  "type": "Element",
-                  "description": "Element to set attribute to."
-                },
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "Value to serialize."
-                },
-                {
-                  "name": "attribute",
-                  "type": "string",
-                  "description": "Attribute name to serialize to."
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_serializeValue",
-              "description": "Converts a typed JavaScript value to a string.\n\nThis method is called when setting JS property values to\nHTML attributes.  Users may override this method to provide\nserialization for custom types.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 493,
-                  "column": 8
-                },
-                "end": {
-                  "line": 500,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "value",
-                  "type": "*",
-                  "description": "Property value to serialize."
-                }
-              ],
-              "return": {
-                "type": "(string | undefined)",
-                "desc": "String serialized from the provided\nproperty  value."
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_deserializeValue",
-              "description": "Converts a string to a typed JavaScript value.\n\nThis method is called when reading HTML attribute values to\nJS properties.  Users may override this method to provide\ndeserialization for custom `type`s. Types for `Boolean`, `String`,\nand `Number` convert attributes to the expected types.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 514,
-                  "column": 8
-                },
-                "end": {
-                  "line": 523,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "value",
-                  "type": "?string",
-                  "description": "Value to deserialize."
-                },
-                {
-                  "name": "type",
-                  "type": "*=",
-                  "description": "Type to deserialize the string to."
-                }
-              ],
-              "return": {
-                "type": "*",
-                "desc": "Typed value deserialized from the provided string."
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "_onHrefChanged",
-              "description": "",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 123,
-                  "column": 6
-                },
-                "end": {
-                  "line": 127,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "newValue"
-                },
-                {
-                  "name": "oldValue"
-                }
-              ]
-            },
-            {
-              "name": "_onActiveCriteriaChanged",
-              "description": "",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 129,
-                  "column": 6
-                },
-                "end": {
-                  "line": 131,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "_onClick",
-              "description": "",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 133,
-                  "column": 6
-                },
-                "end": {
-                  "line": 137,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "event"
-                }
-              ]
-            }
-          ],
-          "staticMethods": [
-            {
-              "name": "createProperties",
-              "description": "Creates property accessors for the given property names.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 58,
-                  "column": 8
-                },
-                "end": {
-                  "line": 66,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "props",
-                  "type": "!Object",
-                  "description": "Object whose keys are names of accessors."
-                }
-              ],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "attributeNameForProperty",
-              "description": "Returns an attribute name that corresponds to the given property.\nThe attribute name is the lowercased property name. Override to\ncustomize this mapping.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-changed.html",
-                "start": {
-                  "line": 77,
-                  "column": 8
-                },
-                "end": {
-                  "line": 79,
-                  "column": 9
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "property",
-                  "type": "string",
-                  "description": "Property to convert"
-                }
-              ],
-              "return": {
-                "type": "string",
-                "desc": "Attribute name corresponding to the given property."
-              },
-              "inheritedFrom": "Polymer.PropertiesChanged"
-            },
-            {
-              "name": "typeForProperty",
-              "description": "Overrides `PropertiesChanged` method to return type specified in the\nstatic `properties` object for the given property.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-mixin.html",
-                "start": {
-                  "line": 180,
-                  "column": 6
-                },
-                "end": {
-                  "line": 183,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "name",
-                  "type": "string",
-                  "description": "Name of property"
-                }
-              ],
-              "return": {
-                "type": "*",
-                "desc": "Type to which to deserialize attribute"
-              },
-              "inheritedFrom": "Polymer.PropertiesMixin"
-            },
-            {
-              "name": "finalize",
-              "description": "Finalizes an element definition, including ensuring any super classes\nare also finalized. This includes ensuring property\naccessors exist on the element prototype. This method calls\n`_finalizeClass` to finalize each constructor in the prototype chain.",
-              "privacy": "public",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-mixin.html",
-                "start": {
-                  "line": 128,
-                  "column": 6
-                },
-                "end": {
-                  "line": 137,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Polymer.PropertiesMixin"
-            },
-            {
-              "name": "_finalizeClass",
-              "description": "Finalize an element class. This includes ensuring property\naccessors exist on the element prototype. This method is called by\n`finalize` and finalizes the class constructor.",
-              "privacy": "protected",
-              "sourceRange": {
-                "file": "bower_components/polymer/lib/mixins/properties-mixin.html",
-                "start": {
-                  "line": 146,
-                  "column": 6
-                },
-                "end": {
-                  "line": 151,
-                  "column": 7
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "inheritedFrom": "Polymer.PropertiesMixin"
-            }
-          ],
-          "demos": [],
-          "metadata": {},
+          "name": "addRoutes",
+          "description": "Appends one or several routes to the routing config and returns the\neffective routing config after the operation.",
+          "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 49,
+              "line": 680,
               "column": 4
             },
             "end": {
-              "line": 138,
+              "line": 683,
               "column": 5
             }
           },
-          "privacy": "public",
-          "superclass": "HTMLElement",
-          "name": "Vaadin.RouterLinkElement",
-          "attributes": [
+          "metadata": {},
+          "params": [
             {
-              "name": "href",
-              "description": "Contains a URL or a URL fragment that the link points to",
-              "sourceRange": {
-                "start": {
-                  "line": 57,
-                  "column": 10
-                },
-                "end": {
-                  "line": 57,
-                  "column": 22
-                }
-              },
-              "metadata": {},
-              "type": "string"
-            },
-            {
-              "name": "active",
-              "description": "Whether or not the route this link points to is currently active.\n\n(reflected to the `active` attribute)",
-              "sourceRange": {
-                "start": {
-                  "line": 64,
-                  "column": 10
-                },
-                "end": {
-                  "line": 64,
-                  "column": 25
-                }
-              },
-              "metadata": {},
-              "type": "boolean"
+              "name": "routes",
+              "type": "(!Array.<!Route> | !Route)",
+              "description": "a single route or an array of those\n   (the array is shallow copied)"
             }
           ],
-          "events": [],
-          "styling": {
-            "cssVariables": [],
-            "selectors": []
+          "return": {
+            "type": "!Array.<!Route>"
           },
-          "slots": [],
-          "tagname": "vaadin-router-link",
-          "mixins": [
-            "Vaadin.HistoryStateChangeMixin",
-            "Polymer.PropertiesMixin"
+          "inheritedFrom": "Vaadin.Resolver"
+        },
+        {
+          "name": "resolve",
+          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of the first\nroute handler that returns something other than `null` or `undefined`.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 702,
+              "column": 4
+            },
+            "end": {
+              "line": 758,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathnameOrContext",
+              "type": "(!string | !{pathname: !string})",
+              "description": "the pathname to\n   resolve or a context object with a `pathname` property and other\n   properties to pass to the route resolver functions."
+            }
+          ],
+          "return": {
+            "type": "!Promise.<any>"
+          },
+          "inheritedFrom": "Vaadin.Resolver"
+        },
+        {
+          "name": "setOutlet",
+          "description": "Sets the router outlet (the DOM node where the content for the current\nroute is inserted). Any content pre-existing in the router outlet is\nremoved at the end of each render pass.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 994,
+              "column": 4
+            },
+            "end": {
+              "line": 999,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "outlet",
+              "type": "?Node",
+              "description": "the DOM node where the content for the current route\n    is inserted."
+            }
+          ]
+        },
+        {
+          "name": "getOutlet",
+          "description": "Returns the current router outlet. The initial value is `undefined`.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1006,
+              "column": 4
+            },
+            "end": {
+              "line": 1008,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "?Node",
+            "desc": "the current router outlet (or `undefined`)"
+          }
+        },
+        {
+          "name": "render",
+          "description": "Asynchronously resolves the given pathname and renders the resolved route\ncomponent into the router outlet. If no router outlet is set at the time of\ncalling this method, or at the time when the route resolution is completed,\na `TypeError` is thrown.\n\nReturns a promise that is fulfilled with the router outlet DOM Node after\nthe route component is created and inserted into the router outlet, or\nrejected if no route matches the given path.\n\nIf another render pass is started before the previous one is completed, the\nresult of the previous render pass is ignored.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1040,
+              "column": 4
+            },
+            "end": {
+              "line": 1063,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathnameOrContext",
+              "type": "(!string | !{pathname: !string})",
+              "description": "the pathname to\n   render or a context object with a `pathname` property and other\n   properties to pass to the resolver."
+            },
+            {
+              "name": "shouldUpdateHistory"
+            }
+          ],
+          "return": {
+            "type": "!Promise.<!Node>"
+          }
+        },
+        {
+          "name": "__ensureOutlet",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1065,
+              "column": 4
+            },
+            "end": {
+              "line": 1069,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "outlet = this.__outlet"
+            }
+          ]
+        },
+        {
+          "name": "__updateBrowserHistory",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1071,
+              "column": 4
+            },
+            "end": {
+              "line": 1077,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathnameOrContext"
+            }
+          ]
+        },
+        {
+          "name": "__setOutletContent",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1079,
+              "column": 4
+            },
+            "end": {
+              "line": 1091,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "element"
+            }
+          ]
+        },
+        {
+          "name": "subscribe",
+          "description": "Subscribes this instance to navigation events on the `window`.\n\nNOTE: beware of resource leaks. For as long as a router instance is\nsubscribed to navigation events, it won't be garbage collected.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1099,
+              "column": 4
+            },
+            "end": {
+              "line": 1102,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": []
+        },
+        {
+          "name": "unsubscribe",
+          "description": "Removes the subscription to navigation events created in the `subscribe()`\nmethod.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1108,
+              "column": 4
+            },
+            "end": {
+              "line": 1111,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": []
+        },
+        {
+          "name": "__onNavigationEvent",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1113,
+              "column": 4
+            },
+            "end": {
+              "line": 1118,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "event"
+            }
           ]
         }
       ],
-      "mixins": [
+      "staticMethods": [
         {
-          "description": "Subscribes an element to the 'popstate' event on the current window.\n\nThe users of this mixin should override the `onHistoryStateChanged` method\nto receive the event:\n```\nonHistoryStateChanged(state, pathname) {\n  // do your stuff here\n}\n```",
-          "summary": "",
-          "path": "vaadin-history-state-change-mixin.html",
-          "properties": [],
-          "methods": [
-            {
-              "name": "connectedCallback",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 33,
-                  "column": 4
-                },
-                "end": {
-                  "line": 40,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "disconnectedCallback",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 42,
-                  "column": 4
-                },
-                "end": {
-                  "line": 48,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "__onPopstate",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 50,
-                  "column": 4
-                },
-                "end": {
-                  "line": 52,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "event"
-                }
-              ]
-            },
-            {
-              "name": "onHistoryStateChanged",
-              "description": "Callback called when the 'popstate' event is triggered on the window.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 61,
-                  "column": 4
-                },
-                "end": {
-                  "line": 63,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "state",
-                  "type": "Object",
-                  "description": "the state object associated with the active history entry"
-                },
-                {
-                  "name": "pathname",
-                  "type": "!string",
-                  "description": "the current path"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            }
-          ],
-          "staticMethods": [],
-          "demos": [],
-          "metadata": {},
+          "name": "renderComponent",
+          "description": "Creates and returns an instance of a given custom element.",
+          "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 27,
-              "column": 2
+              "line": 1128,
+              "column": 4
             },
             "end": {
-              "line": 64,
-              "column": 3
+              "line": 1133,
+              "column": 5
             }
           },
+          "metadata": {},
+          "params": [
+            {
+              "name": "component",
+              "type": "!string",
+              "description": "tag name of a web component to render"
+            },
+            {
+              "name": "context",
+              "type": "?context",
+              "description": "an optional context object"
+            }
+          ],
+          "return": {
+            "type": "!HTMLElement"
+          }
+        },
+        {
+          "name": "setTriggers",
+          "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nThe default is `POPSTATE`. Below is an example of how to switch to `CLICK`:\n\n```\nimport {Router} from '@vaadin/router';\nimport CLICK from '@vaadin/router/triggers/click';\n\nRouter.setTriggers(CLICK);\n// the triggers can also be combined:\n// Router.setTriggers(CLICK, POPSTATE);\n```\n\nThe `POPSTATE` and `CLICK` navigation triggers need to be imported\nseparately to enable efficient tree shaking: if the app does not use `<a>`\nclicks as navigation triggers, the code to handle them is not included into\nthe bundle.",
           "privacy": "public",
-          "name": "Vaadin.HistoryStateChangeMixin",
-          "attributes": [],
-          "events": [],
-          "styling": {
-            "cssVariables": [],
-            "selectors": []
+          "sourceRange": {
+            "start": {
+              "line": 1158,
+              "column": 4
+            },
+            "end": {
+              "line": 1160,
+              "column": 5
+            }
           },
-          "slots": []
+          "metadata": {},
+          "params": [
+            {
+              "name": "triggers",
+              "type": "...NavigationTrigger",
+              "rest": true
+            }
+          ]
         }
       ],
-      "classes": [
+      "demos": [
         {
-          "description": "",
-          "summary": "",
-          "path": "core/dist/umd/vaadin-router-core.js",
-          "properties": [],
-          "methods": [
-            {
-              "name": "getRoutes",
-              "description": "Returns the current list of routes (as a shallow copy). Adding / removing\nroutes to / from the returned array does not affect the routing config,\nbut modifying the route objects does.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 654,
-                  "column": 4
-                },
-                "end": {
-                  "line": 656,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "!Array.<!Route>"
-              }
-            },
-            {
-              "name": "setRoutes",
-              "description": "Sets the routing config (replacing the existing one).",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 664,
-                  "column": 4
-                },
-                "end": {
-                  "line": 667,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes",
-                  "type": "(!Array.<!Route> | !Route)",
-                  "description": "a single route or an array of those\n   (the array is shallow copied)"
-                }
-              ]
-            },
-            {
-              "name": "addRoutes",
-              "description": "Appends one or several routes to the routing config and returns the\neffective routing config after the operation.",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 678,
-                  "column": 4
-                },
-                "end": {
-                  "line": 681,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes",
-                  "type": "(!Array.<!Route> | !Route)",
-                  "description": "a single route or an array of those\n   (the array is shallow copied)"
-                }
-              ],
-              "return": {
-                "type": "!Array.<!Route>"
-              }
-            },
-            {
-              "name": "resolve",
-              "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of the first\nroute handler that returns something other than `null` or `undefined`.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 700,
-                  "column": 4
-                },
-                "end": {
-                  "line": 756,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathnameOrContext",
-                  "type": "(!string | !{pathname: !string})",
-                  "description": "the pathname to\n   resolve or a context object with a `pathname` property and other\n   properties to pass to the route resolver functions."
-                }
-              ],
-              "return": {
-                "type": "!Promise.<any>"
-              }
-            }
-          ],
-          "staticMethods": [],
-          "demos": [],
-          "metadata": {},
-          "sourceRange": {
-            "start": {
-              "line": 633,
-              "column": 2
-            },
-            "end": {
-              "line": 757,
-              "column": 3
-            }
-          },
-          "privacy": "public",
-          "name": "Vaadin.Resolver"
+          "url": "demo",
+          "description": ""
         },
         {
-          "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\n### Basic example\n```\nimport {Router} from '@vaadin/router';\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes([\n  {path: '/', component: 'x-home-view'},\n  {path: '/users', component: 'x-user-list'}\n]);\n```\n\n### Lazy-loading example\nA bit more involved example with lazy-loading:\n```\nimport {Router} from '@vaadin/router';\n\nconst routes = [\n  {path: '/', component: 'x-home-view'},\n  {\n    path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      {path: '/', component: 'x-user-list'},\n      {path: '/:user', component: 'x-user-profile'}\n    ]\n  }\n];\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```\n\n### Middleware example\nA more complex example with custom route handers and server-side rendered\ncontent:\n```\nimport {Router} from '@vaadin/router';\n\nconst routes = [\n  {\n    path: '/',\n    action: async (context) => {\n      // record the navigation completed event for analytics\n      analytics.recordNavigationStart(context.path);\n\n      // let the navigation happen and wait for the result\n      const result = await context.next();\n\n      // record the navigation completed event for analytics\n      analytics.recordNavigationEnd(context.path, result.status);\n      \n      // pass the result up the handlers chain\n      return result;\n    }\n  },\n  {\n    path: '/',\n    component: 'x-home-view'\n  },\n  {\n    path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      {path: '/', component: 'x-user-list'},\n      {path: '/:user', component: 'x-user-profile'}\n    ]\n  },\n  {\n    path: '/server',\n    action: async (context) => {\n      // fetch the server-side rendered content\n      const result = await fetch(context.path, {...});\n\n      // modify the content if necessary\n      result.body = result.body.replace(/bad/ig, 'good');\n      \n      // create DOM objects out of the server-side result (string)\n      return renderToDom(result);\n    }\n  }\n];\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```",
-          "summary": "JavaScript class that renders different DOM content depending on\n   a given path. It can re-render when triggered or automatically on\n   'popstate' and / or 'click' events.",
-          "path": "core/dist/umd/vaadin-router-core.js",
-          "properties": [
-            {
-              "name": "ready",
-              "type": "!Promise.<?Node>",
-              "description": "A promise that is settled after the current render cycle completes. If\nthere is no render cycle in progress the promise is immediately settled\nwith the last render cycle result.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 966,
-                  "column": 6
-                },
-                "end": {
-                  "line": 966,
-                  "column": 17
-                }
-              },
-              "metadata": {}
-            }
-          ],
-          "methods": [
-            {
-              "name": "getRoutes",
-              "description": "Returns the current list of routes (as a shallow copy). Adding / removing\nroutes to / from the returned array does not affect the routing config,\nbut modifying the route objects does.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 654,
-                  "column": 4
-                },
-                "end": {
-                  "line": 656,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "!Array.<!Route>"
-              },
-              "inheritedFrom": "Vaadin.Resolver"
-            },
-            {
-              "name": "setRoutes",
-              "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1006,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1009,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes",
-                  "type": "(!Array.<!Route> | !Route)",
-                  "description": "a single route or an array of those"
-                }
-              ]
-            },
-            {
-              "name": "addRoutes",
-              "description": "Appends one or several routes to the routing config and returns the\neffective routing config after the operation.",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 678,
-                  "column": 4
-                },
-                "end": {
-                  "line": 681,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes",
-                  "type": "(!Array.<!Route> | !Route)",
-                  "description": "a single route or an array of those\n   (the array is shallow copied)"
-                }
-              ],
-              "return": {
-                "type": "!Array.<!Route>"
-              },
-              "inheritedFrom": "Vaadin.Resolver"
-            },
-            {
-              "name": "resolve",
-              "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of the first\nroute handler that returns something other than `null` or `undefined`.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 700,
-                  "column": 4
-                },
-                "end": {
-                  "line": 756,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathnameOrContext",
-                  "type": "(!string | !{pathname: !string})",
-                  "description": "the pathname to\n   resolve or a context object with a `pathname` property and other\n   properties to pass to the route resolver functions."
-                }
-              ],
-              "return": {
-                "type": "!Promise.<any>"
-              },
-              "inheritedFrom": "Vaadin.Resolver"
-            },
-            {
-              "name": "setOutlet",
-              "description": "Sets the router outlet (the DOM node where the content for the current\nroute is inserted). Any content pre-existing in the router outlet is\nremoved at the end of each render pass.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 983,
-                  "column": 4
-                },
-                "end": {
-                  "line": 988,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "outlet",
-                  "type": "?Node",
-                  "description": "the DOM node where the content for the current route\n    is inserted."
-                }
-              ]
-            },
-            {
-              "name": "getOutlet",
-              "description": "Returns the current router outlet. The initial value is `undefined`.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 995,
-                  "column": 4
-                },
-                "end": {
-                  "line": 997,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "?Node",
-                "desc": "the current router outlet (or `undefined`)"
-              }
-            },
-            {
-              "name": "render",
-              "description": "Asynchronously resolves the given pathname and renders the resolved route\ncomponent into the router outlet. If no router outlet is set at the time of\ncalling this method, or at the time when the route resolution is completed,\na `TypeError` is thrown.\n\nReturns a promise that is fullfilled with the router outlet DOM Node after\nthe route component is created and inserted into the router outlet, or\nrejected if no route matches the given path.\n\nIf another render pass is started before the previous one is completed, the\nresult of the previous render pass is ignored.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1029,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1052,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathnameOrContext",
-                  "type": "(!string | !{pathname: !string})",
-                  "description": "the pathname to\n   render or a context object with a `pathname` property and other\n   properties to pass to the resolver."
-                },
-                {
-                  "name": "shouldUpdateHistory"
-                }
-              ],
-              "return": {
-                "type": "!Promise.<!Node>"
-              }
-            },
-            {
-              "name": "__ensureOutlet",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1054,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1058,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "outlet = this.__outlet"
-                }
-              ]
-            },
-            {
-              "name": "__updateBrowserHistory",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1060,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1066,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathnameOrContext"
-                }
-              ]
-            },
-            {
-              "name": "__setOutletContent",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1068,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1080,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "element"
-                }
-              ]
-            },
-            {
-              "name": "subscribe",
-              "description": "Subscribes this instance to navigation events on the `window`.\n\nNOTE: beware of resource leaks. For as long as a router instance is\nsubscribed to navigation events, it won't be garbage collected.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1088,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1091,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "unsubscribe",
-              "description": "Removes the subscription to navigation events created in the `subscribe()`\nmethod.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1097,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1100,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "__onNavigationEvent",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1102,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1107,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "event"
-                }
-              ]
-            }
-          ],
-          "staticMethods": [
-            {
-              "name": "renderComponent",
-              "description": "Creates and returns an instance of a given custom element.",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 1117,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1123,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "component",
-                  "type": "!string",
-                  "description": "tag name of a web component to render"
-                },
-                {
-                  "name": "context",
-                  "type": "?context",
-                  "description": "an optional context object"
-                }
-              ],
-              "return": {
-                "type": "!HTMLElement"
-              }
-            },
-            {
-              "name": "setTriggers",
-              "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nThe default is `POPSTATE`. Below is an example of how to switch to `CLICK`:\n\n```\nimport {Router} from '@vaadin/router'; \nimport CLICK from '@vaadin/router/triggers/click';\n\nRouter.setTriggers(CLICK);\n// the triggers can also be combined:\n// Router.setTriggers(CLICK, POPSTATE);\n```\n\nThe `POPSTATE` and `CLICK` navigation triggers need to be imported\nseparately to enable efficient tree shaking: if the app does not use `<a>`\nclicks as navigation triggers, the code to handle them is not included into\nthe bundle.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1148,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1150,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "triggers",
-                  "type": "...NavigationTrigger",
-                  "rest": true
-                }
-              ]
-            }
-          ],
-          "demos": [
-            {
-              "url": "demo/?core",
-              "description": ""
-            },
-            {
-              "url": "demo/?core",
-              "description": ""
-            }
-          ],
-          "metadata": {},
+          "url": "demo",
+          "description": ""
+        }
+      ],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 951,
+          "column": 2
+        },
+        "end": {
+          "line": 1161,
+          "column": 3
+        }
+      },
+      "privacy": "public",
+      "superclass": "Vaadin.Resolver",
+      "name": "Vaadin.Router"
+    },
+    {
+      "description": "",
+      "summary": "",
+      "path": "dist/umd/vaadin-router.js",
+      "properties": [],
+      "methods": [
+        {
+          "name": "getRoutes",
+          "description": "",
+          "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 940,
-              "column": 2
+              "line": 1177,
+              "column": 4
             },
             "end": {
-              "line": 1151,
-              "column": 3
+              "line": 1179,
+              "column": 5
             }
           },
-          "privacy": "public",
-          "superclass": "Vaadin.Resolver",
-          "name": "Vaadin.Router"
+          "metadata": {},
+          "params": []
         },
         {
+          "name": "setRoutes",
           "description": "",
-          "summary": "",
-          "path": "core/dist/umd/vaadin-router-core.js",
-          "properties": [],
-          "methods": [
-            {
-              "name": "getRoutes",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1167,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1169,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": []
-            },
-            {
-              "name": "setRoutes",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1171,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1174,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes"
-                }
-              ]
-            },
-            {
-              "name": "addRoutes",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1176,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1180,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes"
-                }
-              ]
-            },
-            {
-              "name": "removeRoutes",
-              "description": "",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1182,
-                  "column": 4
-                },
-                "end": {
-                  "line": 1189,
-                  "column": 5
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes"
-                }
-              ]
-            }
-          ],
-          "staticMethods": [],
-          "demos": [],
-          "metadata": {},
+          "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1159,
-              "column": 2
+              "line": 1181,
+              "column": 4
+            },
+            "end": {
+              "line": 1184,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "routes"
+            }
+          ]
+        },
+        {
+          "name": "addRoutes",
+          "description": "",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1186,
+              "column": 4
             },
             "end": {
               "line": 1190,
-              "column": 3
+              "column": 5
             }
           },
+          "metadata": {},
+          "params": [
+            {
+              "name": "routes"
+            }
+          ]
+        },
+        {
+          "name": "removeRoutes",
+          "description": "",
           "privacy": "public",
-          "name": "Vaadin.Route"
+          "sourceRange": {
+            "start": {
+              "line": 1192,
+              "column": 4
+            },
+            "end": {
+              "line": 1199,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "routes"
+            }
+          ]
         }
-      ]
+      ],
+      "staticMethods": [],
+      "demos": [],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 1169,
+          "column": 2
+        },
+        "end": {
+          "line": 1200,
+          "column": 3
+        }
+      },
+      "privacy": "public",
+      "name": "Vaadin.Route"
     }
   ]
 }

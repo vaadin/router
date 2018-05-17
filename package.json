@@ -1,60 +1,66 @@
 {
   "name": "vaadin-router",
   "version": "1.0.0-alpha1",
-  "description": "vaadin-router",
-  "main": "vaadin-router.html",
+  "description": "Small and powerfull client-side router for Web Components. Framework-agnostic.",
+  "main": "dist/vaadin-router.js",
+  "module": "dist/es/vaadin-router.js",
+  "browser": "dist/umd/vaadin-router.js",
   "repository": "vaadin/vaadin-router",
   "keywords": [
     "Vaadin",
     "vaadin-router",
-    "web-components",
-    "web-component",
-    "polymer"
+    "router",
+    "client-side",
+    "web-components"
   ],
   "author": "Vaadin Ltd",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/vaadin/vaadin-router/issues"
   },
-  "homepage": "https://vaadin.com/components",
+  "homepage": "https://vaadin.com",
   "scripts": {
-    "install": "bower install && cd core && yarn install && yarn build",
-    "lint": "gulp lint && polymer lint --rules polymer-2 --input *.html",
-    "start": "polymer serve --port 8081",
-    "start:browser-sync": "browser-sync 'http://localhost:8081' --files './*.html' test core/dist",
-    "start:watch": "npm-run-all --parallel start start:browser-sync",
+    "install": "bower install",
+    "lint": "gulp lint",
+    "build": "rollup -c && uglifyjs dist/umd/vaadin-router.js --source-map --output dist/umd/vaadin-router.min.js",
+    "build:watch": "rollup -c -w",
+    "start": "polymer serve --port 8000",
+    "start:browser-sync": "browser-sync 'http://localhost:8000' --files test dist demo analysis.json",
+    "start:watch": "npm-run-all --parallel build:watch start start:browser-sync",
     "test": "wct",
     "test:coverage": "wct --profile=coverage",
-    "size-control": "gulp size-control && bundlesize",
+    "size-control": "bundlesize",
     "docs": "yarn docs:analyze && gulp docs",
-    "docs:analyze": "polymer analyze *.html > analysis.json"
+    "docs:analyze": "polymer analyze dist/umd/vaadin-router.js dist/umd/click-navigation-trigger.js > analysis.json"
   },
   "bundlesize": [
     {
-      "path": "size-control/build/no-polymer/vaadin-router-bundle.html",
-      "maxSize": "10 kB"
+      "path": "dist/umd/vaadin-router.min.js",
+      "maxSize": "5 kB"
     }
   ],
+  "dependencies": {
+    "path-to-regexp": "2.2.0"
+  },
   "devDependencies": {
     "bower": "^1.8.4",
     "browser-sync": "^2.23.6",
     "bundlesize": "^0.17.0",
-    "del": "^3.0.0",
-    "eslint": "^4.13.0",
+    "eslint": "^4.19.0",
     "eslint-config-vaadin": "latest",
-    "eslint-plugin-html": "^4.0.0",
-    "fs-extra": "^5.0.0",
-    "gulp": "^3.9.1",
+    "fs-extra": "^6.0.0",
+    "gulp": "^3.9.0",
     "gulp-eslint": "^4.0.0",
     "gulp-html-extract": "^0.3.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-size": "^3.0.0",
     "gulp-stylelint": "^7.0.0",
-    "npm-run-all": "^4.1.2",
+    "npm-run-all": "^4.1.0",
     "polymer-cli": "1.6.0",
-    "run-sequence": "^2.2.1",
+    "rollup": "^0.59.0",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
     "stylelint": "^9.0.0",
     "stylelint-config-vaadin": "latest",
+    "uglify-es": "^3.3.0",
     "wct-istanbub": "^0.1.1",
     "web-component-tester": "6.5.0",
     "yargs": "^11.0.0"
