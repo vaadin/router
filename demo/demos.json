@@ -12,6 +12,16 @@
       }
     },
     {
+      "name": "Advanced",
+      "url": "vaadin-router-advanced-demos",
+      "src": "vaadin-router-advanced-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Advanced Examples",
+        "description": "",
+        "image": ""
+      }
+    },
+    {
       "name": "Navigation Triggers",
       "url": "vaadin-router-navigation-trigger-demos",
       "src": "vaadin-router-navigation-trigger-demos.html",
