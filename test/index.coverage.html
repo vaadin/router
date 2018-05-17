@@ -7,7 +7,7 @@
   <title>Vaadin.Router Unit Tests</title>
   <!--
     We can use npm package in tests, but in the demos we still need HTML Imports support.
-    This is the only reason to use Bower for the vaadin-router-core package.
+    This is the only reason to use Bower for the vaadin-router package.
   -->
   <script src="../bower_components/web-component-tester/browser.js"></script>
   <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
@@ -31,7 +31,7 @@
       'use strict';
 
       WCT.loadSuites(
-        window.VaadinRouterCoreSuites.coverage
+        window.VaadinRouterSuites.coverage
           .reduce(function(suites, suite) {
             return suites.concat(
               suite.match(/\.html$/)

@@ -23,7 +23,7 @@ module.exports = {
     } else if (argv.env === 'saucelabs-cron') {
       context.options.plugins.sauce.browsers = cronPlatforms;
     }
-    
+
     if (argv.profile === 'coverage') {
       context.options.suites = [
         'test/index.coverage.html'

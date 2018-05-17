@@ -4,7 +4,7 @@
   "authors": [
     "Vaadin Ltd"
   ],
-  "description": "Small and powerfull client-side router for Web Components. Works great with any framework.",
+  "description": "Small and powerfull client-side router for Web Components. Framework-agnostic.",
   "main": "dist/umd/vaadin-router.js",
   "keywords": [
     "Vaadin",

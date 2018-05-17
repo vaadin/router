@@ -1,4 +1,4 @@
-window.VaadinRouterCoreSuites = {
+window.VaadinRouterSuites = {
   default: [
     'resolver/resolver.spec.js',
     'router.spec.html',
