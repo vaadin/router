@@ -1,0 +1,32 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+
+<dom-module id="x-user-not-found-view">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h1>The princess is in another castle</h1>
+    <p>You've come to <code>[[route.pathname]]</code>, but alas, there is
+      nothing there.</p>
+  </template>
+  <script>
+    (() => {
+      class XUserNotFoundView extends Polymer.Element {
+        static get is() {
+          return 'x-user-not-found-view';
+        }
+
+        static get properties() {
+          return {
+            route: Object
+          };
+        }
+      }
+
+      customElements.define(XUserNotFoundView.is, XUserNotFoundView);
+    })();
+  </script>
+</dom-module>

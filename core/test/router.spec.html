@@ -440,6 +440,16 @@
               expect(elem.route.params.id).to.equal('1');
             });
           });
+
+          it('should set the `route.pathname` property on the route component', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/admin', component: 'x-admin-view'},
+              {path: '(.*)', component: 'x-not-found-view'},
+            ]);
+            await router.render('/non-existent/path');
+            expect(outlet.children[0]).to.have.deep.property('route.pathname', '/non-existent/path');
+          });
         });
       });
     });

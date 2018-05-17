@@ -72,6 +72,35 @@
       </template>
     </vaadin-demo-snippet>
 
+    <h3>Fallback Routes (404)</h3>
+    <p>If Vaadin.Router does not find a matching route, it rejects the
+      <code>ready</code> promise and clears the router outlet. In order to show
+      a user-friendly 'page not found' view, a fallback route with a
+      <code>'(.*)'</code> path can be added to the <strong>end</strong> of the
+      routes list.</p>
+    <p>There can be different fallbacks for different route prefixes, but since
+      the route resolution is based on the first match, the fallback route
+      should always be <strong>after</strong> other alternatives.</p>
+    <p>The pathname that leads to the fallback route is available to the route
+      component via the <code>route.pathname</code> property.</p>
+    <vaadin-demo-snippet id="core-basic-demos-7" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-user-list'},
+            {path: '/users/(.*)', component: 'x-user-not-found-view'},
+            {path: '(.*)', component: 'x-not-found-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
     <h3>Route Parameters</h3>
     <p>Route parameters are defined using the <a href="https://github.com/pillarjs/path-to-regexp#parameters"
       target="_blank">express-like syntax</a>. All features are supported:
@@ -226,7 +255,6 @@
         </script>
       </template>
     </vaadin-demo-snippet>
-
   </template>
   <script>
     class CoreBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
