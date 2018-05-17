@@ -1,4 +1,4 @@
-<dom-module id="vaadin-router-advanced-demos">
+<dom-module id="vaadin-router-route-actions-demos">
   <template>
     <style include="vaadin-component-demo-shared-styles">
       :host {
@@ -6,26 +6,28 @@
       }
     </style>
 
-    <p>Current demos cover advanced <code>Vaadin.Router</code> features.</p>
-    <p>These features are not mandatory for every router use, but might be helpful in certain situations.</p>
-
     <h3>Async Route Resolution</h3>
     <p>Each route can have <code>action</code> method which is called before navigation to the path specified.</p>
     <p>This method can be used for complex navigation cases. If you need to simply open the page specified, use
       <code>component</code> instead.</p>
     <p>Note: For a single route, both <code>component</code> and <code>action</code> cannot be defined.</p>
     <p>Current example demonstrates the way you can perform async tasks on view enter</p>
-    <vaadin-demo-snippet id="vaadin-router-advanced-demo-1" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-route-actions-demo-1" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
-          <vaadin-router-link href="/">Root (no delay on open)</vaadin-router-link>
-          <vaadin-router-link href="/users">All Users (slight delay on open)</vaadin-router-link>
-          <vaadin-router-link href="/users/kim">Kim (slight delay on open)</vaadin-router-link>
+          <a href="/">Root (no delay on open)</a>
+          <a href="/users">All Users (slight delay on open)</a>
+          <a href="/users/kim">Kim (slight delay on open)</a>
         </nav>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
+          // import CLICK from '@vaadin/router/triggers/click';
           const {Router} = window.Vaadin;
+          const {CLICK, POPSTATE} = Router.NavigationTrigger;
+
+          // triggers can be combined
+          Router.setTriggers(CLICK, POPSTATE);
 
           const pollBackendForChanges = () => {
             return new Promise((resolve, reject) => {
@@ -59,18 +61,23 @@
     </ul>
     </p>
     <p>Current example demonstrates the way to get visit statistics for each dedicated url.</p>
-    <vaadin-demo-snippet id="vaadin-router-advanced-demo-2" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-route-actions-demo-2" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
-          <vaadin-router-link href="/">Root</vaadin-router-link>
-          <vaadin-router-link href="/users">All Users</vaadin-router-link>
-          <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
+          <a href="/">Root</a>
+          <a href="/users">All Users</a>
+          <a href="/users/kim">Kim</a>
         </nav>
         <div id="stats"></div>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
+          // import CLICK from '@vaadin/router/triggers/click';
           const {Router} = window.Vaadin;
+          const {CLICK, POPSTATE} = Router.NavigationTrigger;
+
+          // triggers can be combined
+          Router.setTriggers(CLICK, POPSTATE);
           const urlToNumberOfVisits = {};
 
           const recordUrlVisit = (context, params) => {
@@ -98,12 +105,12 @@
     </vaadin-demo-snippet>
   </template>
   <script>
-    class VaadinRouterAdvancedDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+    class VaadinRouterRouteActionsDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
       static get is() {
-        return 'vaadin-router-advanced-demos';
+        return 'vaadin-router-route-actions-demos';
       }
     }
 
-    customElements.define(VaadinRouterAdvancedDemos.is, VaadinRouterAdvancedDemos);
+    customElements.define(VaadinRouterRouteActionsDemos.is, VaadinRouterRouteActionsDemos);
   </script>
 </dom-module>
