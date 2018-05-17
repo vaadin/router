@@ -72,6 +72,35 @@
       </template>
     </vaadin-demo-snippet>
 
+    <h3>Fallback Routes (404)</h3>
+    <p>If Vaadin.Router does not find a matching route, it rejects the
+      <code>ready</code> promise and clears the router outlet. In order to show
+      a user-friendly 'page not found' view, a fallback route with a
+      <code>'(.*)'</code> path can be added to the <strong>end</strong> of the
+      routes list.</p>
+    <p>There can be different fallbacks for different route prefixes, but since
+      the route resolution is based on the first match, the fallback route
+      should always be <strong>after</strong> other alternatives.</p>
+    <p>The pathname that leads to the fallback route is available to the route
+      component via the <code>route.pathname</code> property.</p>
+    <vaadin-demo-snippet id="core-basic-demos-7" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-user-list'},
+            {path: '/users/(.*)', component: 'x-user-not-found-view'},
+            {path: '(.*)', component: 'x-not-found-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
     <h3>Route Parameters</h3>
     <p>Route parameters are defined using the <a href="https://github.com/pillarjs/path-to-regexp#parameters"
       target="_blank">express-like syntax</a>. All features are supported:
@@ -84,7 +113,7 @@
         <li>unnamed parameters: <code>/(user[s]?)/:id</code></li>
       </ul>
     </p>
-    <vaadin-demo-snippet id="core-basic-examples-3" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="core-basic-demos-3" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -111,7 +140,7 @@
       <li>Named parameters are accessible by string key.</li>
       <li>Unnamed parameters are accessible by numeric index.</li>
     </ul>
-    <vaadin-demo-snippet id="core-basic-examples-4" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="core-basic-demos-4" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -142,30 +171,86 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3>Fallback Routes (404)</h3>
-    <p>If Vaadin.Router does not find a matching route, it rejects the
-      <code>ready</code> promise and clears the router outlet. In order to show
-      a user-friendly 'page not found' view, a fallback route with a
-      <code>'(.*)'</code> path can be added to the <strong>end</strong> of the
-      routes list.</p>
-    <p>There can be different fallbacks for different route prefixes, but since
-      the route resolution is based on the first match, the fallback route
-      should always be <strong>after</strong> other alternatives.</p>
-    <p>The pathname that leads to the fallback route is available to the route
-      component via the <code>route.pathname</code> property.</p>
-    <vaadin-demo-snippet id="core-basic-demos-7" iframe-src="iframe.html">
-    <template preserve-content>
+    <h3>Async Route Resolution</h3>
+    <p>Each route can have <code>action</code> method which is called before navigation to the path specified.</p>
+    <p>This method can be used for complex navigation cases. If you need to simply open the page specified, use <code>component</code> instead.</p>
+    <p>Note: For a single route, both <code>component</code> and <code>action</code> cannot be defined.</p>
+    <p>Current example demonstrates the way you can perform async tasks on view enter</p>
+    <vaadin-demo-snippet id="core-basic-demos-5" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/">Root (no delay on open)</vaadin-router-link>
+          <vaadin-router-link href="/users">All Users (slight delay on open)</vaadin-router-link>
+          <vaadin-router-link href="/users/kim">Kim (slight delay on open)</vaadin-router-link>
+        </nav>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
           const {Router} = window.Vaadin;
 
+          const pollBackendForChanges = () => {
+            return new Promise((resolve, reject) => {
+              // this can be an async backend call
+              setTimeout(() => resolve(), 1000);
+            });
+          };
+
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
-            {path: '/users', component: 'x-user-list'},
-            {path: '/users/(.*)', component: 'x-user-not-found-view'},
-            {path: '(.*)', component: 'x-not-found-view'},
+            {path: '/users',
+              action: pollBackendForChanges, // will be triggered for all children
+              children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', component: 'x-user-profile'}
+              ]
+            },
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Custom Route Action</h3>
+    <p><code>vaadin-router</code> provides an api for handling current route:
+      <ul>
+        <li>`context.pathname` property holding the current path string</li>
+        <li>`context.next` method for navigating to the next route in the route's list (if any)</li>
+        <li>`params` object that holds current route's parameters</li>
+      </ul>
+    </p>
+    <p>Current example demonstrates the way to get visit statistics for each dedicated url.</p>
+    <vaadin-demo-snippet id="core-basic-demos-6" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <vaadin-router-link href="/">Root</vaadin-router-link>
+          <vaadin-router-link href="/users">All Users</vaadin-router-link>
+          <vaadin-router-link href="/users/kim">Kim</vaadin-router-link>
+        </nav>
+        <div id="stats"></div>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+          const urlToNumberOfVisits = {};
+
+          const recordUrlVisit = (context, params) => {
+            const visitedPath = context.pathname; // get current path
+            urlToNumberOfVisits[visitedPath] = (urlToNumberOfVisits[visitedPath] || 0) + 1;
+            document.getElementById('stats').innerHTML =
+              `Statistics on url visits: ${JSON.stringify(urlToNumberOfVisits, null, 2)}}`;
+            return context.next(); // redirect to the next route in the list
+          };
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users',
+              action: recordUrlVisit, // will be triggered for all children
+              children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', component: 'x-user-profile'}
+              ]
+            },
           ]);
         </script>
       </template>
