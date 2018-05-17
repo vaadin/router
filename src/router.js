@@ -217,7 +217,7 @@ export class Router extends Resolver {
     this.ready = this.resolve(pathnameOrContext)
       .then(result => {
         if (result.redirect) {
-          return this.resolve({
+          return this.render({
             pathname: Router.pathToRegexp.compile(result.redirect)(result.params),
             from: result.from
           });

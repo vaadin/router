@@ -206,12 +206,25 @@
           it('should start a new resolve pass when route has "redirect" property', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
+              {path: '/people', redirect: '/users'}
+            ]);
+            const spy = sinon.spy(router, 'render');
+            await router.render('/people');
+            expect(spy).to.be.calledTwice;
+          });
+
+          it('should only render a component for the new route once when redirecting', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
               {path: '/people', redirect: '/users'},
               {path: '/users', component: 'x-users-view'},
             ]);
+            await router.render('/');
+            const spy = sinon.spy(router.constructor, 'renderComponent');
             await router.render('/people');
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+            expect(spy).to.be.calledOnce;
           });
 
           it('should set the `route.redirectFrom` property on the route component in case of redirect', async() => {
