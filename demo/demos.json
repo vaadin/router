@@ -20,6 +20,16 @@
         "description": "",
         "image": ""
       }
+    },
+    {
+      "name": "Route Actions",
+      "url": "vaadin-router-route-actions-demos",
+      "src": "vaadin-router-route-actions-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Route Actions Examples",
+        "description": "",
+        "image": ""
+      }
     }
   ]
 }
