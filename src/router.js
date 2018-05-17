@@ -1,9 +1,19 @@
 import Resolver from './resolver/resolver.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import POPSTATE from './triggers/popstate.js';
+import {loadBundle} from './utils.js';
 
 function resolveRoute(context, params) {
   const route = context.route;
+  if (route.bundle) {
+    return loadBundle(route.bundle).then(() => processRoute(route, context, params));
+  } else {
+    return processRoute(route, context, params);
+  }
+
+}
+
+function processRoute(route, context, params) {
   // TODO(vlukashov): export this from UniversalRouter
   if (typeof route.redirect === 'string') {
     return {redirect: {pathname: route.redirect, from: context.pathname, params}};
