@@ -36,17 +36,18 @@ router.setRoutes([
 
 1. When in the `vaadin-router` directory, run `npm install` to install dependencies.
 
-1. Run `npm run start`, and open [http://127.0.0.1:8000/components/vaadin-router](http://127.0.0.1:8000/components/vaadin-router) in your browser to see the component API documentation.
+1. Run `npm start`, and open [http://127.0.0.1:8000/components/vaadin-router](http://127.0.0.1:8000/components/vaadin-router) in your browser to see the component API documentation.
 
 1. You can also open demo or in-browser tests by adding **demo** or **test** to the URL, for example:
 
   - [http://127.0.0.1:8000/components/vaadin-router/demo](http://127.0.0.1:8000/components/vaadin-router/demo)
-  - [http://127.0.0.1:8000/components/vaadin-router/test](http://127.0.0.1:8000/components/vaadin-router/demo)
+  - Public API tests: [http://127.0.0.1:8000/components/vaadin-router/test](http://127.0.0.1:8000/components/vaadin-router/test)
+  - Unit tests: [http://127.0.0.1:8000/components/vaadin-router/test/index.coverage.html](http://127.0.0.1:8000/components/vaadin-router/test/index.coverage.html)
 
 
 ## Running tests from the command line
 
-1. When in the `vaadin-router` directory, run `npm run test`
+1. When in the `vaadin-router` directory, run `npm test`
 
 
 ## Following the coding style
@@ -57,7 +58,7 @@ We are using [ESLint](http://eslint.org/) for linting JavaScript code. You can c
 ## Contributing
 
   - Make sure your code is compliant with our code linters: `npm run lint`
-  - Check that tests are passing: `npm run test`
+  - Check that tests are passing: `npm test`
   - [Submit a pull request](https://www.digitalocean.com/community/tutorials/how-to-create-a-pull-request-on-github) with detailed title and description
   - Wait for response from one of Vaadin components team members
 

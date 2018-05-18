@@ -1,59 +1,9 @@
 'use strict';
 
 var gulp = require('gulp');
-var eslint = require('gulp-eslint');
-var htmlExtract = require('gulp-html-extract');
-var stylelint = require('gulp-stylelint');
 const path = require('path');
 const {exec} = require('child_process');
 const fs = require('fs-extra');
-
-gulp.task('lint', ['lint:js', 'lint:html', 'lint:css']);
-
-gulp.task('lint:js', function() {
-  return gulp.src([
-    '*.js',
-    'src/**/*.js',
-    'demo/**/*.js',
-    'test/**/*.js'
-  ])
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError('fail'));
-});
-
-gulp.task('lint:html', function() {
-  return gulp.src([
-    '*.html',
-    'src/**/*.html',
-    'demo/**/*.html',
-    'test/**/*.html'
-  ])
-    .pipe(htmlExtract({
-      sel: 'script, code-example code',
-      strip: true
-    }))
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError('fail'));
-});
-
-gulp.task('lint:css', function() {
-  return gulp.src([
-    '*.html',
-    'src/**/*.html',
-    'demo/**/*.html',
-    'test/**/*.html'
-  ])
-    .pipe(htmlExtract({
-      sel: 'style'
-    }))
-    .pipe(stylelint({
-      reporters: [
-        {formatter: 'string', console: true}
-      ]
-    }));
-});
 
 // build the docs (including demos)
 gulp.task('build:clean', () => {
