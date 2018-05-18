@@ -202,6 +202,48 @@
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
           });
+
+          it('should start a new resolve pass when route has "redirect" property', async() => {
+            const from = '/people';
+            const redirect = '/users';
+            const result = {resolveResult: {redirect, from, params: {}}};
+
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/people', redirect: '/users'},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+            const spy = sinon.spy(router, 'resolve');
+            await router.render(from);
+
+            expect(spy).to.be.calledTwice;
+            const firstResult = await spy.returnValues[0];
+            expect(firstResult).to.deep.equal(result);
+
+            expect(spy.secondCall.args[0].from).to.equal(from);
+            expect(spy.secondCall.args[0].pathname).to.equal(redirect);
+          });
+
+          it('should render a component for the new when redirecting', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/people', redirect: '/users'},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+            await router.render('/people');
+            expect(outlet.children).to.have.lengthOf(1);
+            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          });
+
+          it('should set the `route.redirectFrom` property on the route component in case of redirect', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/people', redirect: '/users'},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+            await router.render('/people');
+            expect(outlet.children[0]).to.have.deep.property('route.redirectFrom', '/people');
+          });
         });
 
         describe('router.ready', () => {
@@ -427,7 +469,7 @@
             });
           });
 
-          it('should bind named segments to the `route.params` property usingstring keys', async() => {
+          it('should bind named segments to the `route.params` property using string keys', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/kb/:path+/:id', component: 'x-knowledge-base'},
@@ -450,6 +492,19 @@
             ]);
             await router.render('/non-existent/path');
             expect(outlet.children[0]).to.have.deep.property('route.pathname', '/non-existent/path');
+          });
+
+          it('should keep route parameters when redirecting to different route', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/users/:id', redirect: '/user/:id'},
+              {path: '/user/:id', component: 'x-users-view'},
+            ]);
+            await router.render('/users/1');
+            const elem = outlet.children[0];
+            expect(elem.tagName).to.match(/x-users-view/i);
+            expect(elem.route.params).to.be.object;
+            expect(elem.route.params.id).to.equal('1');
           });
         });
       });

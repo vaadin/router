@@ -5,7 +5,9 @@ import POPSTATE from './triggers/popstate.js';
 function resolveRoute(context, params) {
   const route = context.route;
   // TODO(vlukashov): export this from UniversalRouter
-  if (typeof route.action === 'function') {
+  if (typeof route.redirect === 'string') {
+    return {resolveResult: {redirect: route.redirect, from: context.pathname, params}};
+  } else if (typeof route.action === 'function') {
     return route.action(context, params);
   } else if (typeof route.component === 'string') {
     return Router.renderComponent(route.component, context);
@@ -213,10 +215,21 @@ export class Router extends Resolver {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
+      .then(data => {
+        const result = data.resolveResult;
+        if (result && result.redirect) {
+          return this.resolve({
+            pathname: Router.pathToRegexp.compile(result.redirect)(result.params),
+            from: result.from
+          });
+        } else {
+          return Promise.resolve(data);
+        }
+      })
       .then(element => {
         if (renderId === this.__lastStartedRenderId) {
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(pathnameOrContext);
+            this.__updateBrowserHistory(element.route.pathname);
           }
           this.__setOutletContent(element);
           return this.__outlet;
@@ -301,6 +314,9 @@ export class Router extends Resolver {
     const element = document.createElement(component);
     const params = Object.assign({}, context.params);
     element.route = {params, pathname: context.pathname};
+    if (context.from) {
+      element.route.redirectFrom = context.from;
+    }
     return element;
   }
 

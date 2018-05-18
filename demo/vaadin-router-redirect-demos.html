@@ -1,0 +1,46 @@
+<dom-module id="vaadin-router-redirect-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>Unconditional Redirect</h3>
+    <vaadin-demo-snippet id="vaadin-router-redirect-demos-1" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/u/Kim">User profile</a>
+        <a href="/data/entity/view/12">Knowledge Base</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          // import CLICK from '@vaadin/router/triggers/click';
+
+          const {Router} = window.Vaadin;
+          const {CLICK, POPSTATE} = Router.NavigationTrigger;
+
+          // triggers can be combined
+          Router.setTriggers(CLICK, POPSTATE);
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/u/:user', redirect: '/user/:user'},
+            {path: '/user/:user', component: 'x-user-profile'},
+            {path: '/data/:segments+/:path+', redirect: '/kb/:path+'},
+            {path: '/kb/:path+', component: 'x-knowledge-base'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+  </template>
+  <script>
+    class VaadinRouterRedirectDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'vaadin-router-redirect-demos';
+      }
+    }
+    customElements.define(VaadinRouterRedirectDemos.is, VaadinRouterRedirectDemos);
+  </script>
+</dom-module>

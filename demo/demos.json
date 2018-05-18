@@ -30,6 +30,16 @@
         "description": "",
         "image": ""
       }
+    },
+    {
+      "name": "Redirect",
+      "url": "vaadin-router-redirect-demos",
+      "src": "vaadin-router-redirect-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Redirect Examples",
+        "description": "",
+        "image": ""
+      }
     }
   ]
 }
