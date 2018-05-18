@@ -537,11 +537,12 @@
           });
 
           it('should load bundle once, bundle should be executed', async() => {
-            const path = 'components/vaadin-router/demo/demo-elements/component-definition.js';
+            const path = 'components/vaadin-router/demo/demo-elements/bundle-script.js';
             router.setRoutes([
               {path: '/', component: 'x-home-view', bundle: path},
             ]);
             await router.render('/');
+            expect(window.bundle_script_test_variable).to.equal('Hello from bundle script!');
             expect(document.head.querySelectorAll('script[src="' + path + '"][async]').length).to.equal(1);
           });
         });
