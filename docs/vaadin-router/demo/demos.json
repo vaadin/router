@@ -1,59 +1,35 @@
 {
-  "name": "Vaadin Element",
+  "name": "Vaadin.Router",
   "pages": [
-  {
-    "name": "Basic Examples",
-    "url": "element-basic-demos",
-    "src": "element-basic-demos.html",
-    "meta": {
-      "title": "vaadin-router Basic Examples",
-      "description": "",
-      "image": ""
-     }
-  }
-  ,
-  {
-    "name": "Polymer Integration",
-    "url": "polymer-integration-demos",
-    "src": "polymer-integration-demos.html",
-    "meta": {
-      "title": "Polymer Integration Examples",
-      "description": "",
-      "image": ""
-     }
-  }
-  ,
-  {
-    "name": "Route Parameters",
-    "url": "route-parameters-demos",
-    "src": "route-parameters-demos.html",
-    "meta": {
-      "title": "Route Parameters Examples",
-      "description": "",
-      "image": ""
-     }
-  }
-  ,
-  {
-    "name": "Nested Routes",
-    "url": "nested-routes-demos",
-    "src": "nested-routes-demos.html",
-    "meta": {
-      "title": "Nested Routes Examples",
-      "description": "",
-      "image": ""
-     }
-  }
-  ,
-  {
-    "name": "DOM JS API",
-    "url": "dom-js-api-demos",
-    "src": "dom-js-api-demos.html",
-    "meta": {
-      "title": "DOM JS API Examples",
-      "description": "",
-      "image": ""
-     }
-  }
+    {
+      "name": "Basic",
+      "url": "vaadin-router-basic-demos",
+      "src": "vaadin-router-basic-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Basic Examples",
+        "description": "",
+        "image": ""
+      }
+    },
+    {
+      "name": "Navigation Triggers",
+      "url": "vaadin-router-navigation-trigger-demos",
+      "src": "vaadin-router-navigation-trigger-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Navigation Trigger Examples",
+        "description": "",
+        "image": ""
+      }
+    },
+    {
+      "name": "Route Actions",
+      "url": "vaadin-router-route-actions-demos",
+      "src": "vaadin-router-route-actions-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Route Actions Examples",
+        "description": "",
+        "image": ""
+      }
+    }
   ]
 }
