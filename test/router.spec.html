@@ -205,8 +205,8 @@
 
           it('should start a new resolve pass when route has "redirect" property', async() => {
             const from = '/people';
-            const redirect = '/users';
-            const result = {redirect, from, params: {}};
+            const pathname = '/users';
+            const result = {redirect: {pathname, from, params: {}}};
 
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
@@ -221,7 +221,7 @@
             expect(firstResult).to.deep.equal(result);
 
             expect(spy.secondCall.args[0].from).to.equal(from);
-            expect(spy.secondCall.args[0].pathname).to.equal(redirect);
+            expect(spy.secondCall.args[0].pathname).to.equal(pathname);
           });
 
           it('should render a component for the new when redirecting', async() => {
