@@ -206,7 +206,7 @@
           it('should start a new resolve pass when route has "redirect" property', async() => {
             const from = '/people';
             const redirect = '/users';
-            const result = {resolveResult: {redirect, from, params: {}}};
+            const result = {redirect, from, params: {}};
 
             router.setRoutes([
               {path: '/', component: 'x-home-view'},

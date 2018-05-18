@@ -6,7 +6,7 @@ function resolveRoute(context, params) {
   const route = context.route;
   // TODO(vlukashov): export this from UniversalRouter
   if (typeof route.redirect === 'string') {
-    return {resolveResult: {redirect: route.redirect, from: context.pathname, params}};
+    return {redirect: route.redirect, from: context.pathname, params};
   } else if (typeof route.action === 'function') {
     return route.action(context, params);
   } else if (typeof route.component === 'string') {
@@ -215,15 +215,14 @@ export class Router extends Resolver {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
-      .then(data => {
-        const result = data.resolveResult;
-        if (result && result.redirect) {
+      .then(result => {
+        if (result instanceof HTMLElement) {
+          return Promise.resolve(result);
+        } else if (result.redirect) {
           return this.resolve({
             pathname: Router.pathToRegexp.compile(result.redirect)(result.params),
             from: result.from
           });
-        } else {
-          return Promise.resolve(data);
         }
       })
       .then(element => {
