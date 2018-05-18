@@ -1,0 +1,108 @@
+<dom-module id="vaadin-router-route-actions-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>Custom Route Action</h3>
+    <p>Vaadin.Router provides an API for handling the current route:
+    </p><ul>
+      <li><code>context.pathname</code> property holding the current path string</li>
+      <li><code>context.next</code> method for navigating to the next route in the route's list (if any)</li>
+      <li><code>params</code> object that holds current route's parameters</li>
+    </ul>
+    <p></p>
+    <p>Current example demonstrates the way to get visit statistics for each dedicated URL.</p>
+    <vaadin-demo-snippet id="vaadin-router-route-actions-demo-1" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <a href="/">Root</a>
+          <a href="/users">All Users</a>
+          <a href="/users/kim">Kim</a>
+        </nav>
+        <div id="stats"></div>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          // import CLICK from '@vaadin/router/triggers/click';
+          const {Router} = window.Vaadin;
+          const {CLICK, POPSTATE} = Router.NavigationTrigger;
+
+          // triggers can be combined
+          Router.setTriggers(CLICK, POPSTATE);
+          const urlToNumberOfVisits = {};
+
+          const recordUrlVisit = (context, params) => {
+            const visitedPath = context.pathname; // get current path
+            urlToNumberOfVisits[visitedPath] = (urlToNumberOfVisits[visitedPath] || 0) + 1;
+            document.getElementById('stats').innerHTML =
+              `Statistics on URL visits: ${JSON.stringify(urlToNumberOfVisits, null, 2)}}`;
+            return context.next(); // redirect to the next route in the list
+          };
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {
+              path: '/users',
+              action: recordUrlVisit, // will be triggered for all children
+              children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', component: 'x-user-profile'}
+              ]
+            },
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Async Route Resolution</h3>
+    <p>Each route can have <code>action</code> method which is called before navigation to the path specified.</p>
+    <p>This method can be used for complex navigation cases. If you need to simply open the page specified, use
+      <code>component</code> instead.</p>
+    <p>Note: For a single route, both <code>component</code> and <code>action</code> cannot be defined.</p>
+    <p>Current example demonstrates the way you can perform async tasks on view enter</p>
+    <vaadin-demo-snippet id="vaadin-router-route-actions-demo-2" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <a href="/">Root (no delay on open)</a>
+          <a href="/users">All Users (slight delay on open)</a>
+          <a href="/users/kim">Kim (slight delay on open)</a>
+        </nav>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          // import CLICK from '@vaadin/router/triggers/click';
+          const {Router} = window.Vaadin;
+          const {CLICK, POPSTATE} = Router.NavigationTrigger;
+
+          // triggers can be combined
+          Router.setTriggers(CLICK, POPSTATE);
+
+          const pollBackendForChanges = () => {
+            return new Promise((resolve, reject) => {
+              // this can be an async backend call
+              setTimeout(() => resolve(), 1000);
+            });
+          };
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {
+              path: '/users',
+              action: pollBackendForChanges, // will be triggered for all children
+              children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', component: 'x-user-profile'}
+              ]
+            },
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+  </template>
+  <script>var VaadinRouterRouteActionsDemos=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'vaadin-router-route-actions-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterRouteActionsDemos.is,VaadinRouterRouteActionsDemos);</script>
+</dom-module>
