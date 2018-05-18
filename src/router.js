@@ -217,7 +217,7 @@ export class Router extends Resolver {
     this.ready = this.resolve(pathnameOrContext)
       .then(result => {
         if (result instanceof HTMLElement) {
-          return Promise.resolve(result);
+          return result;
         } else if (result.redirect) {
           const redirect = result.redirect;
           return this.resolve({

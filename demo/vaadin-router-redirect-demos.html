@@ -7,6 +7,15 @@
     </style>
 
     <h3>Unconditional Redirect</h3>
+    <p>Vaadin.Router supports the <code>redirect</code> property on the route object,
+      allowing to unconditionally redirect users from one URL to another.
+      The valid values are path string or pattern in the same format, as used for the
+      <code>path</code> property.</p>
+    <p>The redirected URL is not stored as the <code>window.history</code> entry
+      and cannot be reached by pressing "Back" browser button.
+      Unconditional redirects work for routes both with and without parameters.</p>
+    <p>When defined, this property overrides other route properties: both <code>action</code>
+      and <code>component</code> properties will be ignored.</p>
     <vaadin-demo-snippet id="vaadin-router-redirect-demos-1" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>

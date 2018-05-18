@@ -224,7 +224,7 @@
             expect(spy.secondCall.args[0].pathname).to.equal(pathname);
           });
 
-          it('should render a component for the new when redirecting', async() => {
+          it('should render a component for the new route when redirecting', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/people', redirect: '/users'},
