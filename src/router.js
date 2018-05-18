@@ -10,7 +10,6 @@ function resolveRoute(context, params) {
   } else {
     return processRoute(route, context, params);
   }
-
 }
 
 function processRoute(route, context, params) {
