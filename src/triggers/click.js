@@ -69,7 +69,7 @@ function vaadinRouterGlobalClickHandler(event) {
 
   // if none of the above, convert the click into a navigation event
   event.preventDefault();
-  triggerNavigation(anchor.pathname);
+  triggerNavigation(anchor.pathname, event);
 }
 
 /**

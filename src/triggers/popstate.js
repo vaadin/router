@@ -13,8 +13,8 @@ if (isIE && typeof window.PopStateEvent !== 'function') {
   window.PopStateEvent.prototype = window.Event.prototype;
 }
 
-function vaadinRouterGlobalPopstateHandler() {
-  triggerNavigation(window.location.pathname);
+function vaadinRouterGlobalPopstateHandler(event) {
+  triggerNavigation(window.location.pathname, event);
 }
 
 /**

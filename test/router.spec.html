@@ -367,6 +367,15 @@
             expect(onpopstate).to.not.have.been.called;
           });
 
+          it('should fire navigate event only once per single pathname change', async() => {
+            const navigateSpy = sinon.spy();
+            window.addEventListener('vaadin-router:navigate', navigateSpy);
+            const event = new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/admin'}});
+            window.dispatchEvent(event);
+            await router.ready;
+            expect(navigateSpy).to.be.calledOnce;
+          });
+
           it('should automatically subscribe to navigation events when created', async() => {
             window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/'}}));
             await router.ready;
