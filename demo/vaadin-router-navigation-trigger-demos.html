@@ -8,16 +8,17 @@
 
     <h3>Navigation Trigger Concept</h3>
     <p>
-      The <code>Router</code> class does not handle any DOM events by itself.
-      Instead, it listens for a custom navigation event, which is expected to be only produced
-      by the special Navigation Trigger objects (not by some arbitrary application code).</p>
-    <p>
-      According to the naming convention, the Navigation Trigger object must implement two methods:
-      <code>activate</code> to start listening on some UI events, and <code>deactivate</code> to stop.
-      You should use them to add and remove the event listeners you need, respectively.</p>
+      There are several events that can trigger in-app navigation with <code>Vaadin.Router</code>:
+      popstate events, clicks on the <code>&lt;a&gt;</code> elements, imperative navigation triggered by JavaScript.
+      In order to make a flexible solution that can be tweaked to particular app needs and remain efficient,
+      <code>Vaadin.Router</code> has a concept of pluggable Navigation Triggers that listen to specific
+      browser events and convert them into the <code>Vaadin.Router</code> navigation events.</p>
     <p>
       The <code>@vaadin/router</code> package comes with two Navigation Triggers bundled by default:
       <code>POPSTATE</code> and <code>CLICK</code>.</p>
+    <p>According to the naming convention, the Navigation Trigger object must implement two methods:
+      <code>activate</code> to start listening on some UI events, and <code>deactivate</code> to stop.
+      You should use them to add and remove the event listeners you need, respectively.</p>
 
     <h3>NavigationTrigger.POPSTATE</h3>
     <p>
