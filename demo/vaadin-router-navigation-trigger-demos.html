@@ -65,13 +65,6 @@
       navigation events for <code>Vaadin.Router</code> if they refer to a
       location within the app. That allows using regular <code>&lt;a&gt;</code>
       link elements for in-app navigation.</p>
-    <p>Before the <code>CLICK</code> navigation trigger can be used, it needs to
-      be explicitly imported from <code>@vaadin/router/triggers/click</code>.
-      It is in a separate module and can easily be excluded from the production
-      bundle if it is not used (to keep the bundle size smaller).</p>
-    <p>If using UMD bundles, the <code>CLICK</code> navigation trigger should be
-      included separately from <code>vaadin-router/dist/umd/click-navigation-trigger.js</code>
-      (it is then available as <code>Vaadin.Router.NavigationTrigger.CLICK</code>).
     </p>
     <vaadin-demo-snippet id="vaadin-router-navigation-trigger-demo-2" iframe-src="iframe.html">
       <template preserve-content>
