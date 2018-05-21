@@ -1,6 +1,5 @@
 import Resolver from './resolver/resolver.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
-import POPSTATE from './triggers/popstate.js';
 
 function resolveRoute(context, params) {
   const route = context.route;
@@ -139,6 +138,9 @@ export class Router extends Resolver {
    */
   constructor(outlet, options) {
     super([], Object.assign({resolveRoute}, options));
+
+    const triggers = Router.NavigationTrigger;
+    Router.setTriggers.apply(Router, Object.keys(triggers).map(key => triggers[key]));
 
     /**
      * A promise that is settled after the current render cycle completes. If
@@ -325,21 +327,25 @@ export class Router extends Resolver {
    *  - `POPSTATE`: popstate events on the current `window`
    *  - `CLICK`: click events on `<a>` links leading to the current page
    *
-   * The default is `POPSTATE`. Below is an example of how to switch to `CLICK`:
+   * By default, both `POPSTATE` and `CLICK` are enabled.
+   * Below is an example of how to only use one of them:
    *
    * ```
    * import {Router} from '@vaadin/router';
    * import CLICK from '@vaadin/router/triggers/click';
    *
-   * Router.setTriggers(CLICK);
-   * // the triggers can also be combined:
-   * // Router.setTriggers(CLICK, POPSTATE);
+   * Router.setTriggers(POPSTATE);
+   * // or, if you only need click:
+   * // Router.setTriggers(CLICK);
    * ```
    *
    * The `POPSTATE` and `CLICK` navigation triggers need to be imported
    * separately to enable efficient tree shaking: if the app does not use `<a>`
-   * clicks as navigation triggers, the code to handle them is not included into
-   * the bundle.
+   * clicks as navigation triggers, you should be able to exclude the code
+   * needed to handle them from the bundle.
+   *
+   * See the `router-config.js` for the default navigation triggers config.
+   * Based on this file, you can create the own one and import it instead.
    *
    * @param {...NavigationTrigger} triggers
    */
@@ -347,6 +353,3 @@ export class Router extends Resolver {
     setNavigationTriggers(triggers);
   }
 }
-
-Router.NavigationTrigger = {POPSTATE};
-Router.setTriggers(POPSTATE);
