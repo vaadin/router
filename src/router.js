@@ -258,9 +258,8 @@ export class Router extends Resolver {
   __updateBrowserHistory(pathnameOrContext) {
     const pathname = pathnameOrContext.pathname || pathnameOrContext;
     if (window.location.pathname !== pathname) {
-      const state = 'vaadin-router:ignore';
-      window.history.pushState(state, document.title, pathname);
-      window.dispatchEvent(new PopStateEvent('popstate', {state}));
+      window.history.pushState(null, document.title, pathname);
+      window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router:ignore'}));
     }
   }
 
