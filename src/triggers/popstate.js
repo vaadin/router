@@ -6,8 +6,9 @@ const isIE = /Trident/.test(navigator.userAgent);
 if (isIE && typeof window.PopStateEvent !== 'function') {
   window.PopStateEvent = function(inType, params) {
     params = params || {};
-    var e = document.createEvent('CustomEvent');
-    e.initCustomEvent(inType, Boolean(params.bubbles), Boolean(params.cancelable), {state: params.state || null});
+    var e = document.createEvent('Event');
+    e.initEvent(inType, Boolean(params.bubbles), Boolean(params.cancelable));
+    e.state = params.state || null;
     return e;
   };
   window.PopStateEvent.prototype = window.Event.prototype;
