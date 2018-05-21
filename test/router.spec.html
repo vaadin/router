@@ -560,6 +560,7 @@
               exceptionThrown = true;
             }
             expect(exceptionThrown).to.equal(true);
+            expect(document.head.querySelectorAll('script[src="' + nonExistingPath + '"][async]').length).to.equal(0);
           });
         });
       });
