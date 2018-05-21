@@ -6,16 +6,37 @@
       }
     </style>
 
+    <h3>Navigation Trigger Concept</h3>
+    <p>
+      There are several events that can trigger in-app navigation with <code>Vaadin.Router</code>:
+      popstate events, clicks on the <code>&lt;a&gt;</code> elements, imperative navigation triggered by JavaScript.
+      In order to make a flexible solution that can be tweaked to particular app needs and remain efficient,
+      <code>Vaadin.Router</code> has a concept of pluggable Navigation Triggers that listen to specific
+      browser events and convert them into the <code>Vaadin.Router</code> navigation events.</p>
+    <p>
+      The <code>@vaadin/router</code> package comes with two Navigation Triggers bundled by default:
+      <code>POPSTATE</code> and <code>CLICK</code>.</p>
+    <p>According to the naming convention, the Navigation Trigger object must implement two methods:
+      <code>activate</code> to start listening on some UI events, and <code>deactivate</code> to stop.
+      You should use them to add and remove the event listeners you need, respectively.</p>
+
     <h3>NavigationTrigger.POPSTATE</h3>
-    <p>The default navigation trigger for <code>Vaadin.Router</code> intercepts
+    <p>
+      The default <code>POPSTATE</code> navigation trigger for <code>Vaadin.Router</code> intercepts
       <code>popstate</code> events on the current <code>window</code> and for
-      each of them dispatches a naviation event for <code>Vaadin.Router</code>
+      each of them dispatches a navigation event for <code>Vaadin.Router</code>
       using the current <code>window.location.pathname</code> as the navigation
       target.
     </p>
-    <p>In the demo below the <code>popstate</code> events are dispatched at 3
+    <p>
+      In the demo below the <code>popstate</code> events are dispatched at 3
       seconds intervals. Before dispatching an event the global <code>
       location.pathname</code> is toggled between '/' and '/users'.</p>
+    <p>
+      Please note that you must dispatch the <code>popstate</code> event manually after
+      you invoke either <code>window.history.pushState</code> or <code>window.history.replaceState</code>.
+      Those methods do not do that by themselves and only alter the <code>history</code> object.
+      This is an "undo" feature for single page applications.</p>
     <vaadin-demo-snippet id="vaadin-router-navigation-trigger-demo-1" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
@@ -39,26 +60,12 @@
     </vaadin-demo-snippet>
 
     <h3>NavigationTrigger.CLICK</h3>
-    <p>The default <code>POPSTATE</code> navigation trigger can be changed using
-      the <code>Router.setTriggers()</code> static method. It accepts zero,
-      one or more <code>NavigationTrigger</code>s.
-      The <code>@vaadin/router</code> package comes with two of them:
-      <code>POPSTATE</code> and <code>CLICK</code>.
-    </p>
     <p>
       The <code>CLICK</code> navigation trigger intercepts clicks on
       <code>&lt;a&gt;</code> elements on the the page and converts them into
       navigation events for <code>Vaadin.Router</code> if they refer to a
       location within the app. That allows using regular <code>&lt;a&gt;</code>
       link elements for in-app navigation.</p>
-    <p>Before the <code>CLICK</code> navigation trigger can be used, it needs to
-      be explicitly imported from <code>@vaadin/router/triggers/click</code>.
-      It is in a separate module and can easily be excluded from the production
-      bundle if it is not used (to keep the bundle size smaller).</p>
-    <p>If using UMD bundles, the <code>CLICK</code> navigation trigger should be
-      included separately from <code>vaadin-router/dist/umd/click-navigation-trigger.js</code>
-      (it is then available as <code>Vaadin.Router.NavigationTrigger.CLICK</code>).
-    </p>
     <vaadin-demo-snippet id="vaadin-router-navigation-trigger-demo-2" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
@@ -66,13 +73,7 @@
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
-          // import CLICK from '@vaadin/router/triggers/click';
-
           const {Router} = window.Vaadin;
-          const {CLICK, POPSTATE} = Router.NavigationTrigger;
-
-          // triggers can be combined
-          Router.setTriggers(CLICK, POPSTATE);
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -83,12 +84,51 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3>Unsubscribe from automatic navigation triggers</h3>
+    <h3>Switch Navigation Triggers</h3>
+    <p>
+      The set of default navigation triggers can be changed using
+      the <code>Router.setTriggers()</code> static method. It accepts zero,
+      one or more <code>NavigationTrigger</code>s.</p>
+    <p>The demo below demonstrates how you can disable a <code>CLICK</code> navigation trigger
+      and setup a custom event listener used to fire <code>popstate</code> event on list item click.
+      Use this approach, if you want to implement custom in-app navigation links.</p>
+    <vaadin-demo-snippet id="vaadin-router-navigation-trigger-demo-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <ul>
+          <li data-href="/">Home</li>
+          <li data-href="/users">Users</li>
+        </ul>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const {POPSTATE} = Router.NavigationTrigger;
+          Router.setTriggers(POPSTATE);
+
+          document.querySelector('ul').addEventListener('click', event => {
+            const target = event.target;
+            if (target.localName === 'li' && target.dataset.href) {
+              window.history.pushState({}, null, target.dataset.href);
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }
+          });
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-user-list'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Unsubscribe from Automatic Navigation Triggers</h3>
     <p>Each <code>Vaadin.Router</code> instance is automatically subscribed
       to navigation events in its constructor. Use the
       <code>unsubscribe()</code> method to cancel this automatic subscription
       and the <code>subscribe()</code> method to re-subscribe.</p>
-    <vaadin-demo-snippet id="vaadin-router-navigation-trigger-demo-3" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-navigation-trigger-demo-4" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">

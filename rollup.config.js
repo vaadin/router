@@ -55,18 +55,6 @@ export default [
     }
   }),
 
-  // a UMD bundle for the CLICK navigation trigger
-  {
-    input: 'index.click.js',
-    output: {
-      format: 'umd',
-      file: 'dist/umd/click-navigation-trigger.js',
-      name: 'Vaadin.Router.NavigationTrigger',
-      extend: true,
-      sourcemap: true,
-    }
-  },
-
   // ES module build with all dependencies bundled-in
   // This is a tradeoff between ease of use (always) and size-efficiency (in some
   // cases): The 'path-to-regexp' dependency is not compatible with the ES module

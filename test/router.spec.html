@@ -336,7 +336,7 @@
               {path: '/', component: 'x-home-view'},
               {path: '/admin', component: 'x-admin-view'},
             ]);
-            await router.render('/admin');
+            await router.render('/');
           });
 
           afterEach(() => {
@@ -376,10 +376,10 @@
 
           it('should unsubscribe from navigation events after an `unsubscribe()` method call', async() => {
             router.unsubscribe();
-            window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/'}}));
+            window.dispatchEvent(new CustomEvent('vaadin-router:navigate', {detail: {pathname: '/admin'}}));
             await router.ready;
             expect(outlet.children).to.have.lengthOf(1);
-            expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
 
           it('should subscribe to navigation events after a `subscribe()` method call', async() => {
@@ -414,6 +414,16 @@
             await router.ready;
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
+          it('should use the CLICK navigation trigger by default', async() => {
+            const link = document.createElement('a');
+            link.setAttribute('href', '/admin');
+            outlet.children[0].appendChild(link);
+            link.click();
+            await router.ready;
+            expect(outlet.children).to.have.lengthOf(1);
+            expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
           });
         });
 
