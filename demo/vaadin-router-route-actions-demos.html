@@ -26,12 +26,8 @@
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
-          // import CLICK from '@vaadin/router/triggers/click';
           const {Router} = window.Vaadin;
-          const {CLICK, POPSTATE} = Router.NavigationTrigger;
 
-          // triggers can be combined
-          Router.setTriggers(CLICK, POPSTATE);
           const urlToNumberOfVisits = {};
 
           const recordUrlVisit = (context, params) => {
@@ -74,12 +70,7 @@
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
-          // import CLICK from '@vaadin/router/triggers/click';
           const {Router} = window.Vaadin;
-          const {CLICK, POPSTATE} = Router.NavigationTrigger;
-
-          // triggers can be combined
-          Router.setTriggers(CLICK, POPSTATE);
 
           const pollBackendForChanges = () => {
             return new Promise((resolve, reject) => {
