@@ -523,8 +523,24 @@
               {path: '/', component: 'x-home-view', bundle: path},
             ]);
             await router.render('/');
-            expect(window.bundle_script_test_variable).to.equal('Hello from bundle script!');
+            expect(window.bundleScriptTestVariable).to.equal('Hello from bundle script!');
             expect(document.head.querySelectorAll('script[src="' + path + '"][async]').length).to.equal(1);
+          });
+
+          it('should throw on incorrect bundle path', async() => {
+            const nonExistingPath = 'does-not-exist.js';
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', bundle: nonExistingPath},
+            ]);
+
+            let exceptionThrown = false;
+            try {
+              await router.render('/');
+            } catch (e) {
+              expect(e.message).to.contain(nonExistingPath);
+              exceptionThrown = true;
+            }
+            expect(exceptionThrown).to.equal(true);
           });
         });
       });

@@ -12,7 +12,7 @@ export function ensureRoute(route) {
   if (route.component && route.action) {
     throw new Error('Route object cannot have both `component` and `action` parameters defined');
   }
-  if (route.bundle && (typeof route.bundle !== 'string' || !(route.bundle.endsWith('.js') || route.bundle.endsWith('.mjs')))) {
+  if (route.bundle && (typeof route.bundle !== 'string' || !route.bundle.match(/.+\.[m]?js$/))) {
     throw new Error(`Route bundle '${route.bundle}' has undefined type: should be either '.js' or '.mjs' file.`);
   }
 }

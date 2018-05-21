@@ -6,7 +6,11 @@ import {loadBundle} from './utils.js';
 function resolveRoute(context, params) {
   const route = context.route;
   if (route.bundle) {
-    return loadBundle(route.bundle).then(() => processRoute(route, context, params));
+    return loadBundle(route.bundle)
+      .catch(() => {
+        throw new Error(`Failed to load bundle '${route.bundle}'`);
+      })
+      .then(() => processRoute(route, context, params));
   } else {
     return processRoute(route, context, params);
   }
