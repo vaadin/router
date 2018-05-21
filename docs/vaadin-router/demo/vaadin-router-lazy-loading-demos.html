@@ -14,16 +14,24 @@
     <p>The component template is already imported in this case, but only the <code>component-definition.js</code> script turns it into the real component.</p>
     <vaadin-demo-snippet id="vaadin-router-lazy-loading-1" iframe-src="iframe.html">
       <template preserve-content="">
+        <a href="/">Home</a>
+        <a href="/lazy">Lazy load bundle</a>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
+          // import CLICK from '@vaadin/router/triggers/click';
           const {Router} = window.Vaadin;
+          const {CLICK, POPSTATE} = Router.NavigationTrigger;
+
+          // triggers can be combined
+          Router.setTriggers(CLICK, POPSTATE);
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
+            {path: '/', component: 'x-home-view'},
             {
-              path: '/',
-              bundle: 'components/vaadin-router/demo/demo-elements/component-definition.js',
+              path: '/lazy',
+              bundle: './demo-elements/component-definition.js',
               component: 'x-bundle-test-view'
             },
           ]);
@@ -33,29 +41,37 @@
 
     <h3>Lazy Loading other types of bundles.</h3>
     <p>Sometimes loading <code>.js</code> and <code>.mjs</code> is not enough.</p>
-    <p>Vaadin.Router allows executing arbitrary tasks via `action` route property,
+    <p>Vaadin.Router allows executing arbitrary tasks via <code>action</code> route property,
       which can be used for asynchronous bundle loading also.</p>
     <p>Current example shows how it's possible to load <code>component-definition.html</code> bundle using Polymer 2 library</p>
     <p><code>component-definition.html</code> contains the whole component definition: template and the script that registers it.</p>
     <vaadin-demo-snippet id="vaadin-router-lazy-loading-2" iframe-src="iframe.html">
       <template preserve-content="">
+        <a href="/">Home</a>
+        <a href="/lazy">Lazy load custom bundle</a>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
+          // import CLICK from '@vaadin/router/triggers/click';
           const {Router} = window.Vaadin;
+          const {CLICK, POPSTATE} = Router.NavigationTrigger;
+
+          // triggers can be combined
+          Router.setTriggers(CLICK, POPSTATE);
 
           const loadCustomBundle = () => {
             return new Promise((resolve, reject) => {
               // This is just an example way of loading the bundle, you can use any other way you like to do so.
               Polymer.importHref(
-                'demo/demo-elements/component-definition.html', () => resolve(), reject, true);
+                './demo-elements/component-definition.html', () => resolve(), reject, true);
             });
           };
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', action: loadCustomBundle},
-            {path: '/', component: 'x-bundle-custom-test'},
+            {path: '/', component: 'x-home-view'},
+            {path: '/lazy', action: loadCustomBundle},
+            {path: '/lazy', component: 'x-bundle-custom-test'},
           ]);
         </script>
       </template>
