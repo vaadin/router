@@ -12,6 +12,16 @@
       }
     },
     {
+      "name": "Route Parameters",
+      "url": "vaadin-router-route-parameters-demos",
+      "src": "vaadin-router-route-parameters-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Route Parameters Examples",
+        "description": "",
+        "image": ""
+      }
+    },
+    {
       "name": "Navigation Triggers",
       "url": "vaadin-router-navigation-trigger-demos",
       "src": "vaadin-router-navigation-trigger-demos.html",
@@ -27,6 +37,16 @@
       "src": "vaadin-router-route-actions-demos.html",
       "meta": {
         "title": "Vaadin.Router Route Actions Examples",
+        "description": "",
+        "image": ""
+      }
+    },
+    {
+      "name": "Redirect",
+      "url": "vaadin-router-redirect-demos",
+      "src": "vaadin-router-redirect-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Redirect Examples",
         "description": "",
         "image": ""
       }
