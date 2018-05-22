@@ -1,5 +1,6 @@
 import triggerNavigation from './triggerNavigation.js';
 
+/* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
 function getAnchorOrigin(anchor) {
   // IE11: on HTTP and HTTPS the default port is not included into
   // window.location.origin, so won't include it here either.
