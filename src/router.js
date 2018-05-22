@@ -6,8 +6,8 @@ function resolveRoute(context, params) {
   const route = context.route;
   if (route.bundle) {
     return loadBundle(route.bundle)
-      .catch(() => {
-        throw new Error(`Failed to load bundle '${route.bundle}'`);
+      .catch(e => {
+        processRouteError(`load bundle '${route.bundle}'`, route.path, e);
       })
       .then(() => processRoute(route, context, params));
   } else {
@@ -20,10 +20,25 @@ function processRoute(route, context, params) {
   if (typeof route.redirect === 'string') {
     return {redirect: {pathname: route.redirect, from: context.pathname, params}};
   } else if (typeof route.action === 'function') {
-    return route.action(context, params);
+    try {
+      return route.action(context, params).catch(e => processRouteError('execute action', route.path, e));
+    } catch (e) {
+      processRouteError('execute action', route.path, e);
+    }
   } else if (typeof route.component === 'string') {
     return Router.renderComponent(route.component, context);
   }
+}
+
+function processRouteError(routeAction, routePath, error) {
+  let errorMessage = `Failed to ${routeAction} for route with path '${routePath}'.`;
+  if (error) {
+    const cause = error.stack || error.message;
+    if (cause) {
+      errorMessage += ` Cause: ${cause}`;
+    }
+  }
+  throw new Error(errorMessage);
 }
 
 /**
