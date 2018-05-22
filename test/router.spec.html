@@ -563,18 +563,48 @@
               {path: '/', component: 'x-home-view', bundle: nonExistingPath},
             ]);
 
-            let exceptionThrown = false;
-            try {
-              await router.render('/');
-            } catch (e) {
-              expect(e.message).to.contain(nonExistingPath);
-              exceptionThrown = true;
-            }
-            expect(exceptionThrown).to.equal(true);
+            verifyExceptionThrown(router.render(nonExistingPath), [nonExistingPath]);
             expect(document.head.querySelectorAll('script[src="' + nonExistingPath + '"][async]').length).to.equal(0);
+          });
+
+          it('should throw when action fails eagerly', async() => {
+            const path = 'erroneous-route';
+            const errorMessage = 'custom error message';
+            router.setRoutes([{path: path, action: () => {
+              throw new Error(errorMessage);
+            }}]);
+
+            verifyExceptionThrown(router.render(path), [path, errorMessage]);
+          });
+
+          it('should throw when action promise rejected without an error', async() => {
+            const routePath = 'erroneous-route';
+            router.setRoutes([{path: routePath, action: () => {
+              return new Promise((resolve, reject) => {
+                reject('Because I can');
+              });
+            }}]);
+
+            verifyExceptionThrown(router.render(routePath), [routePath]);
           });
         });
       });
     });
+
+    async function verifyExceptionThrown(throwingCallback, exceptionContents) {
+      let exceptionThrown = false;
+      try {
+        await throwingCallback;
+      } catch (e) {
+        if (exceptionContents) {
+          expect(exceptionContents).to.be.array;
+          for (const line of exceptionContents) {
+            expect(e.message).to.contain(line);
+          }
+        }
+        exceptionThrown = true;
+      }
+      expect(exceptionThrown).to.equal(true);
+    }
   </script>
 </body>
