@@ -10,8 +10,7 @@
     <p>Vaadin.Router supports loading <code>.js</code> and <code>.mjs</code> bundles asynchronously before rendering the route target.</p>
     <p>Note: If any other type of bundle is specified, it won't be loaded but an exception will be thrown.
       Refer to the next demo if you need to load different types of the bundles.</p>
-    <p>Current example loads <code>component-definition.js</code> script which registers the component that serves as a route target.</p>
-    <p>The component template is already imported in this case, but only the <code>component-definition.js</code> script turns it into the real component.</p>
+    <p>Current example loads <code>component-definition.js</code> script which creates and registers the component that serves as a route target.</p>
     <vaadin-demo-snippet id="vaadin-router-lazy-loading-1" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>

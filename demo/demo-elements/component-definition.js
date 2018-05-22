@@ -1,18 +1,9 @@
 (() => {
   class XBundleTestView extends Polymer.Element {
-    static get is() {
-      return 'x-bundle-test-view';
-    }
-
-    static get properties() {
-      return {
-        bundleScriptTestVariable: {
-          type: String,
-          value: 'Hello from js bundle!'
-        }
-      };
+    static get template() {
+      return Polymer.html`<h1>Hello from js bundle!</h1>`;
     }
   }
 
-  customElements.define(XBundleTestView.is, XBundleTestView);
+  customElements.define('x-bundle-test-view', XBundleTestView);
 })();
