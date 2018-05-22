@@ -13,6 +13,7 @@
 
 <body>
   <div>
+    <a id="home" href="">home</a>
     <a id="in-app" href="in-app/link">in-app/link</a>
     <a href="in-app/link">
       <span id="text-in-a-link">not a link (inside a link)</span>
@@ -25,6 +26,7 @@
     <a id="in-app-target-blank" target="_blank" href="in-app/link">in-app/link (target="_blank")</a>
     <a id="in-app-download" download href="in-app/link">in-app/link (download)</a>
     <a id="external" href="http://example.com/in-app/link">http://example.com/in-app/link</a>
+    <a id="cross-origin" href="[same domain, different port]">[same domain, different port]</a>
     <div id="shadow-host-with-a-link" class="shadow-host">
       <template>
         <a id="in-app-in-a-shadow" href="in-app/link">in-app/link (inside a shadow DOM)</a>
@@ -39,8 +41,17 @@
 
   <script>
     window.addEventListener('WebComponentsReady', () => {
+      (function setupCrossOriginLink() {
+        const origin = window.location.protocol + '//'
+          + window.location.hostname + ':'
+          + (parseInt(window.location.port) + 1);
+        document.getElementById('cross-origin')
+          .setAttribute('href', `${origin}/in-app`);
+      })();
+
       (function setupInPageHashLink() {
-        document.getElementById('in-page-hash-link').setAttribute('href', window.location.pathname + '#in-page');
+        document.getElementById('in-page-hash-link')
+          .setAttribute('href', window.location.pathname + '#in-page');
       })();
 
       (function setupShadowRoots() {
@@ -211,6 +222,20 @@
             expect(clicks[0]).to.have.property('defaultPrevented', true);
           });
 
+          it('should work for navigation from /deep/pages/in/app to /', () => {
+            const location = window.location.pathname;
+            window.history.replaceState(null, document.title, '/deep/page/in/app');
+            emulateClick(document.getElementById('home'));
+            window.history.replaceState(null, document.title, location);
+
+            expect(navigateEvents).to.have.lengthOf(1);
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/');
+
+            expect(clicks).to.have.lengthOf(1);
+            expect(clicks[0]).to.have.property('defaultPrevented', true);
+          });
+
           describe('irrelevant `click` events', () => {
             function expectClickIgnored() {
               expect(navigateEvents).to.have.lengthOf(0);
@@ -265,6 +290,11 @@
 
             it('should ignore `click` events on external links', () => {
               emulateClick(document.getElementById('external'));
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events on cross-origin links', () => {
+              emulateClick(document.getElementById('cross-origin'));
               expectClickIgnored();
             });
 
