@@ -152,6 +152,17 @@
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
 
+          it('should rethrow DOMException if the route `component` is not a valid tag name', async() => {
+            router.setRoutes([{path: '/', component: 'src/x-home-view'}]);
+            const fulfilled = sinon.spy();
+            const rejected = sinon.spy();
+            const ready = router.render('/').then(fulfilled).catch(rejected);
+            await ready;
+            expect(fulfilled).to.not.have.been.called;
+            expect(rejected).to.have.been.called.once;
+            expect(rejected.args[0][0]).to.be.instanceof(DOMException);
+          });
+
           it('should replace any pre-existing content of the router outlet', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
