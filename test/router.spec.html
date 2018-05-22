@@ -9,6 +9,7 @@
 </head>
 
 <body>
+  <a id="admin-anchor" href="/admin"></a>
   <test-fixture id="outlet">
     <template>
       <div></div>
@@ -447,9 +448,7 @@
           });
 
           it('should use the CLICK navigation trigger by default', async() => {
-            const link = document.createElement('a');
-            link.setAttribute('href', '/admin');
-            outlet.children[0].appendChild(link);
+            const link = document.getElementById('admin-anchor');
             link.click();
             await router.ready;
             expect(outlet.children).to.have.lengthOf(1);

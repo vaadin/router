@@ -1,5 +1,19 @@
 import triggerNavigation from './triggerNavigation.js';
 
+/* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
+function getAnchorOrigin(anchor) {
+  // IE11: on HTTP and HTTPS the default port is not included into
+  // window.location.origin, so won't include it here either.
+  const port = anchor.port;
+  const protocol = anchor.protocol;
+  const defaultHttp = protocol === 'http:' && port === '80';
+  const defaultHttps = protocol === 'https:' && port === '443';
+  const host = (defaultHttp || defaultHttps)
+    ? anchor.hostname // does not include the port number (e.g. www.example.org)
+    : anchor.host; // does include the port number (e.g. www.example.org:80)
+  return `${protocol}//${host}`;
+}
+
 // The list of checks is not complete:
 //  - SVG support is missing
 //  - the 'rel' attribute is not considered
@@ -54,16 +68,15 @@ function vaadinRouterGlobalClickHandler(event) {
     return;
   }
 
-  // IE11 does not have document.baseURI
-  const baseURI = document.baseURI || (document.querySelector('base') || window.location).href;
-
-  // ignore the click if the target URL is external to the app
-  if (!(anchor.href.indexOf(baseURI) === 0)) {
+  // ignore the click if the target URL is a fragment on the current page
+  if (anchor.pathname === window.location.pathname && anchor.hash !== '') {
     return;
   }
 
-  // ignore the click if the target URL is a fragment on the current page
-  if (anchor.pathname === window.location.pathname && anchor.hash !== '') {
+  // ignore the click if the target is external to the app
+  // In IE11 HTMLAnchorElement does not have the `origin` property
+  const origin = anchor.origin || getAnchorOrigin(anchor);
+  if (origin !== window.location.origin) {
     return;
   }
 

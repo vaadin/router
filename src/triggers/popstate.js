@@ -3,6 +3,7 @@ import triggerNavigation from './triggerNavigation.js';
 // PopStateEvent constructor shim
 const isIE = /Trident/.test(navigator.userAgent);
 
+/* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
 if (isIE && typeof window.PopStateEvent !== 'function') {
   window.PopStateEvent = function(inType, params) {
     params = params || {};
