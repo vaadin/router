@@ -74,6 +74,16 @@ gulp.task('docs', ['docs:clean', 'build:copy-sources'], async() => {
   await fs.copy(
     path.join(__dirname, 'build', 'build', 'es5-bundled', 'bower_components', 'vaadin-router', 'demo', 'iframe.html'),
     path.join(__dirname, 'docs', 'vaadin-router', 'demo', 'iframe.html'));
+
+  // TODO a stub to bypass
+  // https://github.com/vaadin/vaadin-router/issues/53
+  // https://github.com/vaadin/vaadin-router/issues/54
+  // local developer demos (yarn start:watch) and demos in docs directory have different
+  // root urls, hence different resolutions for files to load.
+  // We cannot use <base href=''> and make both demos to work at the same time.
+  await fs.move(
+    path.join(__dirname, 'docs', 'vaadin-router', 'demo', 'demo-elements'),
+    path.join(__dirname, 'docs', 'demo-elements'));
 });
 
 gulp.task('docs:clean', () => {

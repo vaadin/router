@@ -19,12 +19,7 @@
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
-          // import CLICK from '@vaadin/router/triggers/click';
           const {Router} = window.Vaadin;
-          const {CLICK, POPSTATE} = Router.NavigationTrigger;
-
-          // triggers can be combined
-          Router.setTriggers(CLICK, POPSTATE);
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -52,12 +47,7 @@
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
-          // import CLICK from '@vaadin/router/triggers/click';
           const {Router} = window.Vaadin;
-          const {CLICK, POPSTATE} = Router.NavigationTrigger;
-
-          // triggers can be combined
-          Router.setTriggers(CLICK, POPSTATE);
 
           const loadCustomBundle = () => {
             return new Promise((resolve, reject) => {
