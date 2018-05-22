@@ -2,22 +2,34 @@ import Resolver from './resolver/resolver.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import {loadBundle} from './utils.js';
 
+// TODO(vlukashov): export this from UniversalRouter
 function resolveRoute(context, params) {
   const route = context.route;
+
+  const actionResult = processAction(route, context, params);
+  if (actionResult) {
+    return actionResult;
+  }
+
+  if (typeof route.redirect === 'string') {
+    return {redirect: {pathname: route.redirect, from: context.pathname, params}};
+  }
+
   if (route.bundle) {
-    return loadBundle(route.bundle).then(() => processRoute(route, context, params));
-  } else {
-    return processRoute(route, context, params);
+    return loadBundle(route.bundle).then(() => processComponent(route, context));
+  }
+
+  return processComponent(route, context);
+}
+
+function processAction(route, context, params) {
+  if (typeof route.action === 'function') {
+    return route.action(context, params);
   }
 }
 
-function processRoute(route, context, params) {
-  // TODO(vlukashov): export this from UniversalRouter
-  if (typeof route.redirect === 'string') {
-    return {redirect: {pathname: route.redirect, from: context.pathname, params}};
-  } else if (typeof route.action === 'function') {
-    return route.action(context, params);
-  } else if (typeof route.component === 'string') {
+function processComponent(route, context) {
+  if (typeof route.component === 'string') {
     return Router.renderComponent(route.component, context);
   }
 }
