@@ -8,8 +8,8 @@ function getAnchorOrigin(anchor) {
   const defaultHttp = protocol === 'http:' && port === '80';
   const defaultHttps = protocol === 'https:' && port === '443';
   const host = (defaultHttp || defaultHttps)
-    ? anchor.hostname
-    : anchor.host;
+    ? anchor.hostname // does not include the port number (e.g. www.example.org)
+    : anchor.host; // does include the port number (e.g. www.example.org:80)
   return `${protocol}//${host}`;
 }
 
