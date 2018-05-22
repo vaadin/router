@@ -40,6 +40,16 @@
         "description": "",
         "image": ""
       }
+    },
+    {
+      "name": "Lazy Loading",
+      "url": "vaadin-router-lazy-loading-demos",
+      "src": "vaadin-router-lazy-loading-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Lazy Loading Examples",
+        "description": "",
+        "image": ""
+      }
     }
   ]
 }

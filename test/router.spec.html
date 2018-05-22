@@ -60,6 +60,16 @@
             expect(() => router.setRoutes([{path: '/', component: 'x-home-view', action: () => {}}])).to.throw(Error);
           });
 
+          it('route should throw when created with unknown bundle type', () => {
+            const router = new Vaadin.Router(outlet);
+            expect(() => router.setRoutes([{path: '/', bundle: () => {}}])).to.throw(Error);
+          });
+
+          it('route should throw when created with unknown bundle extension', () => {
+            const router = new Vaadin.Router(outlet);
+            expect(() => router.setRoutes([{path: '/', bundle: 'test.html'}])).to.throw(Error);
+          });
+
           it('should accept an options object as the 2nd argument', () => {
             const router = new Vaadin.Router(null, {baseUrl: '/users'});
             expect(router).to.have.property('baseUrl', '/users');
@@ -535,6 +545,33 @@
             expect(elem.tagName).to.match(/x-users-view/i);
             expect(elem.route.params).to.be.object;
             expect(elem.route.params.id).to.equal('1');
+          });
+
+          it('should load bundle once, bundle should be executed', async() => {
+            const path = 'components/vaadin-router/demo/demo-elements/bundle-script.js';
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', bundle: path},
+            ]);
+            await router.render('/');
+            expect(window.bundleScriptTestVariable).to.equal('Hello from bundle script!');
+            expect(document.head.querySelectorAll('script[src="' + path + '"][async]').length).to.equal(1);
+          });
+
+          it('should throw on incorrect bundle path', async() => {
+            const nonExistingPath = 'does-not-exist.js';
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', bundle: nonExistingPath},
+            ]);
+
+            let exceptionThrown = false;
+            try {
+              await router.render('/');
+            } catch (e) {
+              expect(e.message).to.contain(nonExistingPath);
+              exceptionThrown = true;
+            }
+            expect(exceptionThrown).to.equal(true);
+            expect(document.head.querySelectorAll('script[src="' + nonExistingPath + '"][async]').length).to.equal(0);
           });
         });
       });

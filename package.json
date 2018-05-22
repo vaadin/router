@@ -38,7 +38,7 @@
   "bundlesize": [
     {
       "path": "dist/umd/vaadin-router.min.js",
-      "maxSize": "5 kB"
+      "maxSize": "6 kB"
     }
   ],
   "dependencies": {

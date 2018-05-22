@@ -30,6 +30,26 @@
         "description": "",
         "image": ""
       }
+    },
+    {
+      "name": "Redirect",
+      "url": "vaadin-router-redirect-demos",
+      "src": "vaadin-router-redirect-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Redirect Examples",
+        "description": "",
+        "image": ""
+      }
+    },
+    {
+      "name": "Lazy Loading",
+      "url": "vaadin-router-lazy-loading-demos",
+      "src": "vaadin-router-lazy-loading-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Lazy Loading Examples",
+        "description": "",
+        "image": ""
+      }
     }
   ]
 }

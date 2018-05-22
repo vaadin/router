@@ -13,11 +13,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 656,
+              "line": 854,
               "column": 4
             },
             "end": {
-              "line": 658,
+              "line": 856,
               "column": 5
             }
           },
@@ -33,11 +33,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 666,
+              "line": 864,
               "column": 4
             },
             "end": {
-              "line": 669,
+              "line": 867,
               "column": 5
             }
           },
@@ -56,11 +56,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 680,
+              "line": 878,
               "column": 4
             },
             "end": {
-              "line": 683,
+              "line": 881,
               "column": 5
             }
           },
@@ -82,11 +82,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 702,
+              "line": 900,
               "column": 4
             },
             "end": {
-              "line": 758,
+              "line": 959,
               "column": 5
             }
           },
@@ -108,11 +108,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 635,
+          "line": 833,
           "column": 2
         },
         "end": {
-          "line": 759,
+          "line": 960,
           "column": 3
         }
       },
@@ -131,11 +131,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 977,
+              "line": 1143,
               "column": 6
             },
             "end": {
-              "line": 977,
+              "line": 1143,
               "column": 17
             }
           },
@@ -149,11 +149,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 656,
+              "line": 854,
               "column": 4
             },
             "end": {
-              "line": 658,
+              "line": 856,
               "column": 5
             }
           },
@@ -170,11 +170,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1017,
+              "line": 1183,
               "column": 4
             },
             "end": {
-              "line": 1020,
+              "line": 1186,
               "column": 5
             }
           },
@@ -193,11 +193,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 680,
+              "line": 878,
               "column": 4
             },
             "end": {
-              "line": 683,
+              "line": 881,
               "column": 5
             }
           },
@@ -220,11 +220,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 702,
+              "line": 900,
               "column": 4
             },
             "end": {
-              "line": 758,
+              "line": 959,
               "column": 5
             }
           },
@@ -247,11 +247,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 994,
+              "line": 1160,
               "column": 4
             },
             "end": {
-              "line": 999,
+              "line": 1165,
               "column": 5
             }
           },
@@ -270,11 +270,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1006,
+              "line": 1172,
               "column": 4
             },
             "end": {
-              "line": 1008,
+              "line": 1174,
               "column": 5
             }
           },
@@ -291,11 +291,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1040,
+              "line": 1206,
               "column": 4
             },
             "end": {
-              "line": 1063,
+              "line": 1240,
               "column": 5
             }
           },
@@ -320,11 +320,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1065,
+              "line": 1242,
               "column": 4
             },
             "end": {
-              "line": 1069,
+              "line": 1246,
               "column": 5
             }
           },
@@ -341,11 +341,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1071,
+              "line": 1248,
               "column": 4
             },
             "end": {
-              "line": 1077,
+              "line": 1254,
               "column": 5
             }
           },
@@ -362,11 +362,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1079,
+              "line": 1256,
               "column": 4
             },
             "end": {
-              "line": 1091,
+              "line": 1268,
               "column": 5
             }
           },
@@ -383,11 +383,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1099,
+              "line": 1276,
               "column": 4
             },
             "end": {
-              "line": 1102,
+              "line": 1279,
               "column": 5
             }
           },
@@ -400,11 +400,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1108,
+              "line": 1285,
               "column": 4
             },
             "end": {
-              "line": 1111,
+              "line": 1288,
               "column": 5
             }
           },
@@ -417,11 +417,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1113,
+              "line": 1290,
               "column": 4
             },
             "end": {
-              "line": 1118,
+              "line": 1295,
               "column": 5
             }
           },
@@ -440,11 +440,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 1128,
+              "line": 1305,
               "column": 4
             },
             "end": {
-              "line": 1133,
+              "line": 1313,
               "column": 5
             }
           },
@@ -467,15 +467,15 @@
         },
         {
           "name": "setTriggers",
-          "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nThe default is `POPSTATE`. Below is an example of how to switch to `CLICK`:\n\n```\nimport {Router} from '@vaadin/router';\nimport CLICK from '@vaadin/router/triggers/click';\n\nRouter.setTriggers(CLICK);\n// the triggers can also be combined:\n// Router.setTriggers(CLICK, POPSTATE);\n```\n\nThe `POPSTATE` and `CLICK` navigation triggers need to be imported\nseparately to enable efficient tree shaking: if the app does not use `<a>`\nclicks as navigation triggers, the code to handle them is not included into\nthe bundle.",
+          "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nBy default, both `POPSTATE` and `CLICK` are enabled.\nBelow is an example of how to only use one of them:\n\n```\nimport {Router} from '@vaadin/router';\nimport CLICK from '@vaadin/router/triggers/click';\n\nRouter.setTriggers(POPSTATE);\n// or, if you only need click:\n// Router.setTriggers(CLICK);\n```\n\nThe `POPSTATE` and `CLICK` navigation triggers need to be imported\nseparately to enable efficient tree shaking: if the app does not use `<a>`\nclicks as navigation triggers, you should be able to exclude the code\nneeded to handle them from the bundle.\n\nSee the `router-config.js` for the default navigation triggers config.\nBased on this file, you can create the own one and import it instead.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1158,
+              "line": 1342,
               "column": 4
             },
             "end": {
-              "line": 1160,
+              "line": 1344,
               "column": 5
             }
           },
@@ -502,120 +502,17 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 951,
+          "line": 1114,
           "column": 2
         },
         "end": {
-          "line": 1161,
+          "line": 1345,
           "column": 3
         }
       },
       "privacy": "public",
       "superclass": "Vaadin.Resolver",
       "name": "Vaadin.Router"
-    },
-    {
-      "description": "",
-      "summary": "",
-      "path": "dist/umd/vaadin-router.js",
-      "properties": [],
-      "methods": [
-        {
-          "name": "getRoutes",
-          "description": "",
-          "privacy": "public",
-          "sourceRange": {
-            "start": {
-              "line": 1177,
-              "column": 4
-            },
-            "end": {
-              "line": 1179,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": []
-        },
-        {
-          "name": "setRoutes",
-          "description": "",
-          "privacy": "public",
-          "sourceRange": {
-            "start": {
-              "line": 1181,
-              "column": 4
-            },
-            "end": {
-              "line": 1184,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "routes"
-            }
-          ]
-        },
-        {
-          "name": "addRoutes",
-          "description": "",
-          "privacy": "public",
-          "sourceRange": {
-            "start": {
-              "line": 1186,
-              "column": 4
-            },
-            "end": {
-              "line": 1190,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "routes"
-            }
-          ]
-        },
-        {
-          "name": "removeRoutes",
-          "description": "",
-          "privacy": "public",
-          "sourceRange": {
-            "start": {
-              "line": 1192,
-              "column": 4
-            },
-            "end": {
-              "line": 1199,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "routes"
-            }
-          ]
-        }
-      ],
-      "staticMethods": [],
-      "demos": [],
-      "metadata": {},
-      "sourceRange": {
-        "start": {
-          "line": 1169,
-          "column": 2
-        },
-        "end": {
-          "line": 1200,
-          "column": 3
-        }
-      },
-      "privacy": "public",
-      "name": "Vaadin.Route"
     }
   ]
 }
