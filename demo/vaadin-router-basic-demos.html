@@ -72,6 +72,32 @@
       </template>
     </vaadin-demo-snippet>
 
+    <h3>Ambiguous Match</h3>
+    <p>
+      URL matching rules can be ambiguous, so that several routes would match the same URL string.
+      In that case, the order in which the rules are defined, from top to bottom, determines the
+      matching route. The first matching route will be loaded.</p>
+    <p>
+      Always place any exactly matching route objects at the top of the list, and the wildcard
+      route, if any, should come after them. Otherwise, in the example below you would get the
+      <code>&lt;x-user-profile&gt;</code> component rendered for the <code>/users</code> URL.</p>
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-user-list'},
+            {path: '/:user', component: 'x-user-profile'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
     <h3>Fallback Routes (404)</h3>
     <p>If Vaadin.Router does not find a matching route, it rejects the
       <code>ready</code> promise and clears the router outlet. In order to show
@@ -83,7 +109,7 @@
       should always be <strong>after</strong> other alternatives.</p>
     <p>The pathname that leads to the fallback route is available to the route
       component via the <code>route.pathname</code> property.</p>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-7" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-4" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
