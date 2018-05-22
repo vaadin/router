@@ -72,6 +72,32 @@
       </template>
     </vaadin-demo-snippet>
 
+    <h3>Ambiguous Match</h3>
+    <p>
+      URL matching rules can be ambiguous, so that several routes would match the same URL string.
+      In that case, the order in which the rules are defined, from top to bottom, determines the
+      matching route. The first matching route will be loaded.</p>
+    <p>
+      Always place any exactly matching route objects at the top of the list, and the wildcard
+      route, if any, should come after them. Otherwise, in the example below you would get the
+      <code>&lt;x-user-profile&gt;</code> component rendered for the <code>/users</code> URL.</p>
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-user-list'},
+            {path: '/:user', component: 'x-user-profile'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
     <h3>Fallback Routes (404)</h3>
     <p>If Vaadin.Router does not find a matching route, it rejects the
       <code>ready</code> promise and clears the router outlet. In order to show
@@ -83,7 +109,7 @@
       should always be <strong>after</strong> other alternatives.</p>
     <p>The pathname that leads to the fallback route is available to the route
       component via the <code>route.pathname</code> property.</p>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-7" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-4" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
         <script type="module">
@@ -96,76 +122,6 @@
             {path: '/users', component: 'x-user-list'},
             {path: '/users/(.*)', component: 'x-user-not-found-view'},
             {path: '(.*)', component: 'x-not-found-view'},
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>
-
-    <h3>Route Parameters</h3>
-    <p>Route parameters are defined using the <a href="https://github.com/pillarjs/path-to-regexp#parameters"
-      target="_blank">express-like syntax</a>. All features are supported:
-      <ul>
-        <li>named parameters: <code>/profile/:user</code></li>
-        <li>optional parameters: <code>/:size/:color?</code></li>
-        <li>zero-or-more segments: <code>/kb/:path*</code></li>
-        <li>one-or-more segments: <code>/kb/:path+</code></li>
-        <li>custom parameter patterns: <code>/image-:size(\d+)px</code></li>
-        <li>unnamed parameters: <code>/(user[s]?)/:id</code></li>
-      </ul>
-    </p>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
-      <template preserve-content>
-        <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/profile/:user', component: 'x-user-profile'},
-            {path: '/image/:size/:color?', component: 'x-image-view'},
-            {path: '/image-:size(\\d+)px', component: 'x-image-view'},
-            {path: '/kb/:path*', component: 'x-knowledge-base'},
-            {path: '/(user[s]?)/:id', component: 'x-profile-view'},
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>
-
-    <h3>Accessing Route Parameters</h3>
-    <p>Named parameters are bound to the <code>route.params</code> property of the route component
-      (the <code>route</code> property is set on the route component by the router).</p>
-    <ul>
-      <li>Named parameters are accessible by string key.</li>
-      <li>Unnamed parameters are accessible by numeric index.</li>
-    </ul>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-4" iframe-src="iframe.html">
-      <template preserve-content>
-        <div id="outlet"></div>
-        <script type="module">
-          class XProjectView extends Polymer.Element {
-            static get is() {
-              return 'x-project-view';
-            }
-            static get template() {
-              return Polymer.html`
-                <h1>Project</h1>
-                <p>ID: [[route.params.id]]</p>
-                <code>/project</code> or <code>/projects</code>: [[route.params.0]]
-              `;
-            }
-          }
-
-          customElements.define(XProjectView.is, XProjectView);
-
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/(project[s]?)/:id', component: 'x-project-view'},
           ]);
         </script>
       </template>
