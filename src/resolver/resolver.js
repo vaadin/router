@@ -23,6 +23,15 @@ function isChildRoute(parentRoute, childRoute) {
   return false;
 }
 
+function generateErrorMessage(currentContext) {
+  let errorMessage = `Path '${currentContext.pathname}' is not properly resolved due to an error.`;
+  const routePath = (currentContext.route || {}).path;
+  if (routePath) {
+    errorMessage += ` Resolution had failed on route: '${routePath}'`;
+  }
+  return errorMessage;
+}
+
 /**
  * @memberof Vaadin
  */
@@ -142,7 +151,7 @@ class Resolver {
     return Promise.resolve()
       .then(() => next(true, this.root))
       .catch((error) => {
-        const errorMessage = `Route with path '${currentContext.pathname}' is not properly resolved due to an error.`;
+        const errorMessage = generateErrorMessage(currentContext);
         if (!error) {
           error = new Error(errorMessage);
         } else {
