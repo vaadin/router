@@ -566,7 +566,6 @@
             try {
               await router.render('/');
             } catch (e) {
-              expect(e.message).to.contain(nonExistingPath);
               exceptionThrown = true;
             }
             expect(exceptionThrown).to.equal(true);
