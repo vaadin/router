@@ -452,6 +452,11 @@
         });
 
         describe('route parameters', () => {
+          const existingBundlePath = 'components/vaadin-router/demo/demo-elements/bundle-script.js';
+          // variable name and value that is set in global context in the bundle above
+          const bundleVariableName = 'bundleScriptTestVariable';
+          const bundleVariableValue = 'Hello from bundle script!';
+
           let router;
           beforeEach(() => {
             router = new Vaadin.Router(outlet);
@@ -542,13 +547,12 @@
           });
 
           it('should load bundle once, bundle should be executed', async() => {
-            const path = 'components/vaadin-router/demo/demo-elements/bundle-script.js';
             router.setRoutes([
-              {path: '/', component: 'x-home-view', bundle: path},
+              {path: '/', component: 'x-home-view', bundle: existingBundlePath},
             ]);
             await router.render('/');
-            expect(window.bundleScriptTestVariable).to.equal('Hello from bundle script!');
-            expect(document.head.querySelectorAll('script[src="' + path + '"][async]').length).to.equal(1);
+            expect(window[bundleVariableName]).to.equal(bundleVariableValue);
+            expect(getBundleScripts(existingBundlePath).length).to.equal(1);
           });
 
           it('should throw on incorrect bundle path', async() => {
@@ -564,10 +568,117 @@
               exceptionThrown = true;
             }
             expect(exceptionThrown).to.equal(true);
-            expect(document.head.querySelectorAll('script[src="' + nonExistingPath + '"][async]').length).to.equal(0);
+            expect(getBundleScripts(nonExistingPath).length).to.equal(0);
+          });
+
+          it('action without return should be executed before bundle but allow the bundle to be loaded', async() => {
+            let actionExecuted = false;
+            const removeBundle = () => {
+              const bundleScript = document.head.querySelector('script[src="' + existingBundlePath + '"][async]');
+              if (bundleScript) {
+                bundleScript.parentNode.removeChild(bundleScript);
+              }
+              actionExecuted = true;
+              expect(getBundleScripts(existingBundlePath).length).to.equal(0);
+            };
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', bundle: existingBundlePath, action: removeBundle},
+            ]);
+
+            await router.render('/');
+
+            expect(actionExecuted).to.equal(true);
+            expect(getBundleScripts(existingBundlePath).length).to.equal(1);
+          });
+
+          it('action with return should be executed before bundle and stop it from loading', async() => {
+            let actionExecuted = false;
+            const removeBundleAndReturn = (context) => {
+              const bundleScript = document.head.querySelector('script[src="' + existingBundlePath + '"][async]');
+              if (bundleScript) {
+                bundleScript.parentNode.removeChild(bundleScript);
+              }
+              actionExecuted = true;
+              expect(getBundleScripts(existingBundlePath).length).to.equal(0);
+              return context.next();
+            };
+
+            router.setRoutes([
+              {path: '/', bundle: existingBundlePath, action: removeBundleAndReturn},
+              {path: '/', component: 'x-home-view'},
+            ]);
+
+            await router.render('/');
+
+            expect(actionExecuted).to.equal(true);
+            expect(getBundleScripts(existingBundlePath).length).to.equal(0);
+          });
+
+          it('action without return should be executed before redirect and allow it to happen', async() => {
+            let actionExecuted = false;
+
+            router.setRoutes([
+              {path: '/test', redirect: '/home', action: () => {actionExecuted = true}},
+              {path: '/home', component: 'x-home-view'},
+            ]);
+
+            await router.render('/test');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+            expect(actionExecuted).to.equal(true);
+          });
+
+          it('action with return should be executed before redirect and stop it from happening', async() => {
+            let actionExecuted = false;
+
+            router.setRoutes([
+              {path: '/home', redirect: '/users', action: (context) => {
+                actionExecuted = true;
+                return context.next();
+              }},
+              {path: '/home', component: 'x-home-view'},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+
+            await router.render('/home');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+            expect(actionExecuted).to.equal(true);
+          });
+
+          it('action with return should be executed before component and stop it from loading', async() => {
+            let actionExecuted = false;
+
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', action: (context) => {
+                actionExecuted = true;
+                return context.next();
+              }},
+              {path: '/', component: 'x-users-view'},
+            ]);
+
+            await router.render('/');
+
+            expect(actionExecuted).to.equal(true);
+            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          });
+
+          it('redirect should be executed before bundle and stop it from loading', async() => {
+            router.setRoutes([
+              {path: '/test', redirect: '/users', component: 'x-home-view'},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+
+            await router.render('/test');
+
+            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
           });
         });
       });
     });
+
+    function getBundleScripts(scriptPath) {
+      return document.head.querySelectorAll('script[src="' + scriptPath + '"][async]');
+    }
   </script>
 </body>
