@@ -21,14 +21,8 @@ export function ensureRoutes(routes) {
   toArray(routes).forEach(route => ensureRoute(route));
 }
 
-export function loadBundle(path) {
-  return new Promise((resolve, reject) => {
-    loadEsModule(path).then(resolve).catch(e => reject(e));
-  });
-}
-
 // TODO replace this with dynamic import after https://github.com/vaadin/vaadin-router/issues/34 is done
-function loadEsModule(path) {
+export function loadBundle(path) {
   let script = document.head.querySelector('script[src="' + path + '"][async]');
   if (script && script.parentNode === document.head) {
     if (script.__dynamicImportLoaded) {
