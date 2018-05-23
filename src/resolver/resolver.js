@@ -142,6 +142,12 @@ class Resolver {
     return Promise.resolve()
       .then(() => next(true, this.root))
       .catch((error) => {
+        const errorMessage = `Route with path '${currentContext.pathname}' is not properly resolved due to an error.`;
+        if (!error) {
+          error = new Error(errorMessage);
+        } else {
+          console.warn(errorMessage);
+        }
         error.context = error.context || currentContext;
         // DOMException has its own code which is read-only
         if (!(error instanceof DOMException)) {
