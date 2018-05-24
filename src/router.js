@@ -1,12 +1,12 @@
 import Resolver from './resolver/resolver.js';
+import {resolveRoute as processAction} from './resolver/resolveRoute';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import {loadBundle} from './utils.js';
 
-// TODO(vlukashov): export this from UniversalRouter
 function resolveRoute(context, params) {
   const route = context.route;
 
-  const actionResult = processAction(route, context, params);
+  const actionResult = processAction(context);
   if (actionResult) {
     return actionResult;
   }
@@ -20,12 +20,6 @@ function resolveRoute(context, params) {
   }
 
   return processComponent(route, context);
-}
-
-function processAction(route, context, params) {
-  if (typeof route.action === 'function') {
-    return route.action(context, params);
-  }
 }
 
 function processComponent(route, context) {
