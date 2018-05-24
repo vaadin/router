@@ -35,16 +35,6 @@ function processComponent(route, context) {
 }
 
 /**
- * @typedef Route
- * @type {object}
- * @property {!string} path
- * @property {?string} component
- * @property {?string} importUrl
- * @property {?function(context, next)} action
- * @property {?Array<Route>} children
- */
-
-/**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
  * lazy-loading. Works great in Polymer and non-Polymer apps.
@@ -135,6 +125,8 @@ function processComponent(route, context) {
  * router.setRoutes(routes);
  * ```
  *
+ * For more detailed information on the route object properties, refer to {@link setRoutes} method description.
+ *
  * @memberof Vaadin
  * @extends Vaadin.Resolver
  * @demo demo
@@ -209,7 +201,28 @@ export class Router extends Resolver {
    * navigation event so that the router outlet is refreshed according to the
    * current `window.location` and the new routing config.
    *
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   * Each route object may have the following properties (properties are aligned in the order they are processed):
+   * * {!string} path – path of the route that will be used when resolving routes.
+   *
+   * * {?function(context, params)} action – the action that is executed before the route is resolved.
+   * If present, action property is always processed first, disregarding of the other properties' presence.
+   * If action returns a value, current route resolution is finished (i.e. other route properties are not processed).
+   * 'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'
+   * 'params' parameter contains route parameters
+   *
+   * * {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.
+   * The target route should also be defined.
+   *
+   * * {?string} bundle – '*.js' or '*.jsm' bundles to load before resolving the route. Each bundle is loaded only once.
+   * Is not triggered when either an 'action' returns the result or 'redirect' property is present.
+   *
+   * * {?string} component – the id of the Web Component to resolve the route to.
+   * Is not considered when either an 'action' returns the result or 'redirect' property is present.
+   *
+   * * {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.
+   * Children 'path' values are relative to the parent ones.
+   *
+   * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */
   setRoutes(routes) {
     super.setRoutes(routes);
