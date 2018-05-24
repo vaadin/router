@@ -1,9 +1,9 @@
 import Resolver from './resolver/resolver.js';
-import {resolveRoute as processAction} from './resolver/resolveRoute';
+import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import {loadBundle} from './utils.js';
 
-function resolveRoute(context, params) {
+function resolveRoute(context) {
   const route = context.route;
 
   const actionResult = processAction(context);
@@ -12,6 +12,7 @@ function resolveRoute(context, params) {
   }
 
   if (typeof route.redirect === 'string') {
+    const params = Object.assign({}, context.params);
     return {redirect: {pathname: route.redirect, from: context.pathname, params}};
   }
 
@@ -199,11 +200,11 @@ export class Router extends Resolver {
    * * {!string} path – the route path (relative to the parent route if any) in the
    * <a href="https://expressjs.com/en/guide/routing.html#route-paths" target="_blank">express.js syntax</a>.
    *
-   * * {?function(context, params)} action – the action that is executed before the route is resolved.
+   * * {?function(context)} action – the action that is executed before the route is resolved.
    * If present, action property is always processed first, disregarding of the other properties' presence.
    * If action returns a value, current route resolution is finished (i.e. other route properties are not processed).
    * 'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'
-   * 'params' parameter contains route parameters
+   * and for getting route parameters via 'context.params'.
    *
    * * {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.
    * The target route should also be defined.

@@ -11,7 +11,7 @@
     </p><ul>
       <li><code>context.pathname</code> property holding the current path string</li>
       <li><code>context.next</code> method for navigating to the next route in the route's list (if any)</li>
-      <li><code>params</code> object that holds current route's parameters</li>
+      <li><code>context.params</code> object that holds current route's parameters</li>
     </ul>
     <p></p>
     <p>Current example demonstrates the way to get visit statistics for each dedicated URL.</p>
@@ -30,7 +30,7 @@
 
           const urlToNumberOfVisits = {};
 
-          const recordUrlVisit = (context, params) => {
+          const recordUrlVisit = context => {
             const visitedPath = context.pathname; // get current path
             urlToNumberOfVisits[visitedPath] = (urlToNumberOfVisits[visitedPath] || 0) + 1;
             document.getElementById('stats').innerHTML =
