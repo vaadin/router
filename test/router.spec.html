@@ -618,7 +618,9 @@
             let actionExecuted = false;
 
             router.setRoutes([
-              {path: '/test', redirect: '/home', action: () => {actionExecuted = true}},
+              {path: '/test', redirect: '/home', action: () => {
+                actionExecuted = true;
+              }},
               {path: '/home', component: 'x-home-view'},
             ]);
 
