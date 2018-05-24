@@ -35,6 +35,8 @@
       built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc</p>
     <vaadin-demo-snippet id="vaadin-router-basic-demo-1" iframe-src="iframe.html">
       <template preserve-content="">
+        <a href="/">Home</a>
+        <a href="/users">Users</a>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -53,6 +55,9 @@
     <p>Each route can have child routes:</p>
     <vaadin-demo-snippet id="vaadin-router-basic-demo-2" iframe-src="iframe.html">
       <template preserve-content="">
+        <a href="/">Home</a>
+        <a href="/users">All Users</a>
+        <a href="/users/kim">Kim</a>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -83,6 +88,9 @@
       <code>&lt;x-user-profile&gt;</code> component rendered for the <code>/users</code> URL.</p>
     <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
       <template preserve-content="">
+        <a href="/">Home</a>
+        <a href="/users">All Users</a>
+        <a href="/users/kim">Kim</a>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -111,6 +119,10 @@
       component via the <code>route.pathname</code> property.</p>
     <vaadin-demo-snippet id="vaadin-router-basic-demo-4" iframe-src="iframe.html">
       <template preserve-content="">
+        <a href="/">Home</a>
+        <a href="/users">All Users</a>
+        <a href="/users/kim">Kim</a>
+        <a href="/about">About</a>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
