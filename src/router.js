@@ -201,8 +201,9 @@ export class Router extends Resolver {
    * navigation event so that the router outlet is refreshed according to the
    * current `window.location` and the new routing config.
    *
-   * Each route object may have the following properties (properties are aligned in the order they are processed):
-   * * {!string} path – path of the route that will be used when resolving routes.
+   * Each route object may have the following properties, listed here in the processing order:
+   * * {!string} path – the route path (relative to the parent route if any) in the
+   * <a href="https://expressjs.com/en/guide/routing.html#route-paths" target="_blank">express.js syntax</a>.
    *
    * * {?function(context, params)} action – the action that is executed before the route is resolved.
    * If present, action property is always processed first, disregarding of the other properties' presence.
@@ -213,10 +214,10 @@ export class Router extends Resolver {
    * * {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.
    * The target route should also be defined.
    *
-   * * {?string} bundle – '*.js' or '*.jsm' bundles to load before resolving the route. Each bundle is loaded only once.
+   * * {?string} bundle – '*.js' or '*.mjs' bundles to load before resolving the route. Each bundle is loaded only once.
    * Is not triggered when either an 'action' returns the result or 'redirect' property is present.
    *
-   * * {?string} component – the id of the Web Component to resolve the route to.
+   * * {?string} component – the tag name of the Web Component to resolve the route to.
    * Is not considered when either an 'action' returns the result or 'redirect' property is present.
    *
    * * {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.
