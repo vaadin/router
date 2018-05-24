@@ -125,7 +125,7 @@ function processComponent(route, context) {
  * router.setRoutes(routes);
  * ```
  *
- * For more detailed information on the route object properties, refer to {@link setRoutes} method description.
+ * For more detailed information on the route object properties, refer to 'setRoutes' method description.
  *
  * @memberof Vaadin
  * @extends Vaadin.Resolver
