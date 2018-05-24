@@ -20,6 +20,12 @@
     </p>
     <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-1" iframe-src="iframe.html">
       <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/users/1">Admin</a>
+        <a href="/profile/guest">Guest</a>
+        <a href="/image/24/blue">Image 24px blue</a>
+        <a href="/image-32px">Image 32px pink</a>
+        <a href="/kb/animals/cats">Cats</a>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -47,6 +53,9 @@
     </ul>
     <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-2" iframe-src="iframe.html">
       <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/projects/1">Project 1</a>
+        <a href="/project/2">Project 2</a>
         <div id="outlet"></div>
         <script type="module">
           class XProjectView extends Polymer.Element {
