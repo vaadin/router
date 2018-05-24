@@ -13,11 +13,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 871,
+              "line": 877,
               "column": 4
             },
             "end": {
-              "line": 873,
+              "line": 879,
               "column": 5
             }
           },
@@ -33,11 +33,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 881,
+              "line": 887,
               "column": 4
             },
             "end": {
-              "line": 884,
+              "line": 890,
               "column": 5
             }
           },
@@ -56,11 +56,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 895,
+              "line": 901,
               "column": 4
             },
             "end": {
-              "line": 898,
+              "line": 904,
               "column": 5
             }
           },
@@ -82,11 +82,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 917,
+              "line": 923,
               "column": 4
             },
             "end": {
-              "line": 982,
+              "line": 988,
               "column": 5
             }
           },
@@ -108,11 +108,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 850,
+          "line": 856,
           "column": 2
         },
         "end": {
-          "line": 983,
+          "line": 989,
           "column": 3
         }
       },
@@ -120,7 +120,7 @@
       "name": "Vaadin.Resolver"
     },
     {
-      "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\n### Basic example\n```\nimport {Router} from '@vaadin/router';\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes([\n  {path: '/', component: 'x-home-view'},\n  {path: '/users', component: 'x-user-list'}\n]);\n```\n\n### Lazy-loading example\nA bit more involved example with lazy-loading:\n```\nimport {Router} from '@vaadin/router';\n\nconst routes = [\n  {path: '/', component: 'x-home-view'},\n  {\n    path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      {path: '/', component: 'x-user-list'},\n      {path: '/:user', component: 'x-user-profile'}\n    ]\n  }\n];\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```\n\n### Middleware example\nA more complex example with custom route handlers and server-side rendered\ncontent:\n```\nimport {Router} from '@vaadin/router';\n\nconst routes = [\n  {\n    path: '/',\n    action: async (context) => {\n      // record the navigation completed event for analytics\n      analytics.recordNavigationStart(context.path);\n\n      // let the navigation happen and wait for the result\n      const result = await context.next();\n\n      // record the navigation completed event for analytics\n      analytics.recordNavigationEnd(context.path, result.status);\n\n      // pass the result up the handlers chain\n      return result;\n    }\n  },\n  {\n    path: '/',\n    component: 'x-home-view'\n  },\n  {\n    path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      {path: '/', component: 'x-user-list'},\n      {path: '/:user', component: 'x-user-profile'}\n    ]\n  },\n  {\n    path: '/server',\n    action: async (context) => {\n      // fetch the server-side rendered content\n      const result = await fetch(context.path, {...});\n\n      // modify the content if necessary\n      result.body = result.body.replace(/bad/ig, 'good');\n\n      // create DOM objects out of the server-side result (string)\n      return renderToDom(result);\n    }\n  }\n];\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```",
+      "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\n### Basic example\n```\nimport {Router} from '@vaadin/router';\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes([\n  {path: '/', component: 'x-home-view'},\n  {path: '/users', component: 'x-user-list'}\n]);\n```\n\n### Lazy-loading example\nA bit more involved example with lazy-loading:\n```\nimport {Router} from '@vaadin/router';\n\nconst routes = [\n  {path: '/', component: 'x-home-view'},\n  {\n    path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      {path: '/', component: 'x-user-list'},\n      {path: '/:user', component: 'x-user-profile'}\n    ]\n  }\n];\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```\n\n### Middleware example\nA more complex example with custom route handlers and server-side rendered\ncontent:\n```\nimport {Router} from '@vaadin/router';\n\nconst routes = [\n  {\n    path: '/',\n    action: async (context) => {\n      // record the navigation completed event for analytics\n      analytics.recordNavigationStart(context.path);\n\n      // let the navigation happen and wait for the result\n      const result = await context.next();\n\n      // record the navigation completed event for analytics\n      analytics.recordNavigationEnd(context.path, result.status);\n\n      // pass the result up the handlers chain\n      return result;\n    }\n  },\n  {\n    path: '/',\n    component: 'x-home-view'\n  },\n  {\n    path: '/users',\n    bundle: 'bundles/user-bundle.html',\n    children: [\n      {path: '/', component: 'x-user-list'},\n      {path: '/:user', component: 'x-user-profile'}\n    ]\n  },\n  {\n    path: '/server',\n    action: async (context) => {\n      // fetch the server-side rendered content\n      const result = await fetch(context.path, {...});\n\n      // modify the content if necessary\n      result.body = result.body.replace(/bad/ig, 'good');\n\n      // create DOM objects out of the server-side result (string)\n      return renderToDom(result);\n    }\n  }\n];\n\nconst router = new Router(document.getElementById('outlet'));\nrouter.setRoutes(routes);\n```\n\nFor more detailed information on the route object properties, refer to 'setRoutes' method description.",
       "summary": "JavaScript class that renders different DOM content depending on\n   a given path. It can re-render when triggered or automatically on\n   'popstate' and / or 'click' events.",
       "path": "dist/umd/vaadin-router.js",
       "properties": [
@@ -131,11 +131,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1162,
+              "line": 1172,
               "column": 6
             },
             "end": {
-              "line": 1162,
+              "line": 1172,
               "column": 17
             }
           },
@@ -149,11 +149,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 871,
+              "line": 877,
               "column": 4
             },
             "end": {
-              "line": 873,
+              "line": 879,
               "column": 5
             }
           },
@@ -166,15 +166,15 @@
         },
         {
           "name": "setRoutes",
-          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.",
+          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* {!string} path – the route path (relative to the parent route if any) in the\n<a href=\"https://expressjs.com/en/guide/routing.html#route-paths\" target=\"_blank\">express.js syntax</a>.\n\n* {?function(context, params)} action – the action that is executed before the route is resolved.\nIf present, action property is always processed first, disregarding of the other properties' presence.\nIf action returns a value, current route resolution is finished (i.e. other route properties are not processed).\n'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'\n'params' parameter contains route parameters\n\n* {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\n\n* {?string} bundle – '*.js' or '*.mjs' bundles to load before resolving the route. Each bundle is loaded only once.\nIs not triggered when either an 'action' returns the result or 'redirect' property is present.\n\n* {?string} component – the tag name of the Web Component to resolve the route to.\nIs not considered when either an 'action' returns the result or 'redirect' property is present.\n\n* {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.\nChildren 'path' values are relative to the parent ones.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1202,
+              "line": 1234,
               "column": 4
             },
             "end": {
-              "line": 1205,
+              "line": 1237,
               "column": 5
             }
           },
@@ -182,7 +182,7 @@
           "params": [
             {
               "name": "routes",
-              "type": "(!Array.<!Route> | !Route)",
+              "type": "(!Array.<!Object> | !Object)",
               "description": "a single route or an array of those"
             }
           ]
@@ -193,11 +193,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 895,
+              "line": 901,
               "column": 4
             },
             "end": {
-              "line": 898,
+              "line": 904,
               "column": 5
             }
           },
@@ -220,11 +220,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 917,
+              "line": 923,
               "column": 4
             },
             "end": {
-              "line": 982,
+              "line": 988,
               "column": 5
             }
           },
@@ -247,11 +247,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1179,
+              "line": 1189,
               "column": 4
             },
             "end": {
-              "line": 1184,
+              "line": 1194,
               "column": 5
             }
           },
@@ -270,11 +270,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1191,
+              "line": 1201,
               "column": 4
             },
             "end": {
-              "line": 1193,
+              "line": 1203,
               "column": 5
             }
           },
@@ -291,11 +291,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1225,
+              "line": 1257,
               "column": 4
             },
             "end": {
-              "line": 1259,
+              "line": 1291,
               "column": 5
             }
           },
@@ -320,11 +320,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1261,
+              "line": 1293,
               "column": 4
             },
             "end": {
-              "line": 1265,
+              "line": 1297,
               "column": 5
             }
           },
@@ -341,11 +341,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1267,
+              "line": 1299,
               "column": 4
             },
             "end": {
-              "line": 1273,
+              "line": 1305,
               "column": 5
             }
           },
@@ -362,11 +362,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1275,
+              "line": 1307,
               "column": 4
             },
             "end": {
-              "line": 1287,
+              "line": 1319,
               "column": 5
             }
           },
@@ -383,11 +383,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1295,
+              "line": 1327,
               "column": 4
             },
             "end": {
-              "line": 1298,
+              "line": 1330,
               "column": 5
             }
           },
@@ -400,11 +400,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1304,
+              "line": 1336,
               "column": 4
             },
             "end": {
-              "line": 1307,
+              "line": 1339,
               "column": 5
             }
           },
@@ -417,11 +417,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1309,
+              "line": 1341,
               "column": 4
             },
             "end": {
-              "line": 1314,
+              "line": 1346,
               "column": 5
             }
           },
@@ -440,11 +440,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 1324,
+              "line": 1356,
               "column": 4
             },
             "end": {
-              "line": 1332,
+              "line": 1364,
               "column": 5
             }
           },
@@ -471,11 +471,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1361,
+              "line": 1393,
               "column": 4
             },
             "end": {
-              "line": 1363,
+              "line": 1395,
               "column": 5
             }
           },
@@ -502,11 +502,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1133,
+          "line": 1143,
           "column": 2
         },
         "end": {
-          "line": 1364,
+          "line": 1396,
           "column": 3
         }
       },

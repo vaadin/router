@@ -2,35 +2,37 @@ import Resolver from './resolver/resolver.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import {loadBundle} from './utils.js';
 
+// TODO(vlukashov): export this from UniversalRouter
 function resolveRoute(context, params) {
   const route = context.route;
+
+  const actionResult = processAction(route, context, params);
+  if (actionResult) {
+    return actionResult;
+  }
+
+  if (typeof route.redirect === 'string') {
+    return {redirect: {pathname: route.redirect, from: context.pathname, params}};
+  }
+
   if (route.bundle) {
-    return loadBundle(route.bundle).then(() => processRoute(route, context, params));
-  } else {
-    return processRoute(route, context, params);
+    return loadBundle(route.bundle).then(() => processComponent(route, context));
+  }
+
+  return processComponent(route, context);
+}
+
+function processAction(route, context, params) {
+  if (typeof route.action === 'function') {
+    return route.action(context, params);
   }
 }
 
-function processRoute(route, context, params) {
-  // TODO(vlukashov): export this from UniversalRouter
-  if (typeof route.redirect === 'string') {
-    return {redirect: {pathname: route.redirect, from: context.pathname, params}};
-  } else if (typeof route.action === 'function') {
-    return route.action(context, params);
-  } else if (typeof route.component === 'string') {
+function processComponent(route, context) {
+  if (typeof route.component === 'string') {
     return Router.renderComponent(route.component, context);
   }
 }
-
-/**
- * @typedef Route
- * @type {object}
- * @property {!string} path
- * @property {?string} component
- * @property {?string} importUrl
- * @property {?function(context, next)} action
- * @property {?Array<Route>} children
- */
 
 /**
  * A simple client-side router for single-page applications. It uses
@@ -123,6 +125,8 @@ function processRoute(route, context, params) {
  * router.setRoutes(routes);
  * ```
  *
+ * For more detailed information on the route object properties, refer to 'setRoutes' method description.
+ *
  * @memberof Vaadin
  * @extends Vaadin.Resolver
  * @demo demo
@@ -197,7 +201,29 @@ export class Router extends Resolver {
    * navigation event so that the router outlet is refreshed according to the
    * current `window.location` and the new routing config.
    *
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   * Each route object may have the following properties, listed here in the processing order:
+   * * {!string} path – the route path (relative to the parent route if any) in the
+   * <a href="https://expressjs.com/en/guide/routing.html#route-paths" target="_blank">express.js syntax</a>.
+   *
+   * * {?function(context, params)} action – the action that is executed before the route is resolved.
+   * If present, action property is always processed first, disregarding of the other properties' presence.
+   * If action returns a value, current route resolution is finished (i.e. other route properties are not processed).
+   * 'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'
+   * 'params' parameter contains route parameters
+   *
+   * * {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.
+   * The target route should also be defined.
+   *
+   * * {?string} bundle – '*.js' or '*.mjs' bundles to load before resolving the route. Each bundle is loaded only once.
+   * Is not triggered when either an 'action' returns the result or 'redirect' property is present.
+   *
+   * * {?string} component – the tag name of the Web Component to resolve the route to.
+   * Is not considered when either an 'action' returns the result or 'redirect' property is present.
+   *
+   * * {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.
+   * Children 'path' values are relative to the parent ones.
+   *
+   * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */
   setRoutes(routes) {
     super.setRoutes(routes);
