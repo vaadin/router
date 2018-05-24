@@ -9,11 +9,17 @@ export function ensureRoute(route) {
      + 'with a `path` string property or an array of such objects';
     throw new Error(message);
   }
-  if (route.component && route.action) {
-    throw new Error('Route object cannot have both `component` and `action` parameters defined');
-  }
   if (route.bundle && (typeof route.bundle !== 'string' || !route.bundle.match(/.+\.[m]?js$/))) {
     throw new Error(`Route bundle '${route.bundle}' has undefined type: should be either '.js' or '.mjs' file.`);
+  }
+
+  if (route.redirect) {
+    ['bundle', 'component'].forEach(incorrectlyUsedProperty => {
+      if (incorrectlyUsedProperty in route) {
+        console.warn(`Route with path '${route.path}' has both 'redirect' and '${incorrectlyUsedProperty}' properties specified.` +
+          ` Latter will never evaluated since 'redirect' will be executed earlier.`);
+      }
+    });
   }
 }
 
