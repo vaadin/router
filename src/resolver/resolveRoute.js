@@ -7,9 +7,9 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-function resolveRoute(context, params) {
+function resolveRoute(context) {
   if (typeof context.route.action === 'function') {
-    return context.route.action(context, params);
+    return context.route.action(context);
   }
   return undefined;
 }

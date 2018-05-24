@@ -1,17 +1,18 @@
 import Resolver from './resolver/resolver.js';
+import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import {loadBundle} from './utils.js';
 
-// TODO(vlukashov): export this from UniversalRouter
-function resolveRoute(context, params) {
+function resolveRoute(context) {
   const route = context.route;
 
-  const actionResult = processAction(route, context, params);
+  const actionResult = processAction(context);
   if (actionResult) {
     return actionResult;
   }
 
   if (typeof route.redirect === 'string') {
+    const params = Object.assign({}, context.params);
     return {redirect: {pathname: route.redirect, from: context.pathname, params}};
   }
 
@@ -20,12 +21,6 @@ function resolveRoute(context, params) {
   }
 
   return processComponent(route, context);
-}
-
-function processAction(route, context, params) {
-  if (typeof route.action === 'function') {
-    return route.action(context, params);
-  }
 }
 
 function processComponent(route, context) {
@@ -205,11 +200,11 @@ export class Router extends Resolver {
    * * {!string} path – the route path (relative to the parent route if any) in the
    * <a href="https://expressjs.com/en/guide/routing.html#route-paths" target="_blank">express.js syntax</a>.
    *
-   * * {?function(context, params)} action – the action that is executed before the route is resolved.
+   * * {?function(context)} action – the action that is executed before the route is resolved.
    * If present, action property is always processed first, disregarding of the other properties' presence.
    * If action returns a value, current route resolution is finished (i.e. other route properties are not processed).
    * 'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'
-   * 'params' parameter contains route parameters
+   * and for getting route parameters via 'context.params'.
    *
    * * {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.
    * The target route should also be defined.

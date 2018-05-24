@@ -138,7 +138,7 @@ class Resolver {
 
       currentContext = Object.assign({}, context, matches.value);
 
-      return Promise.resolve(resolve(currentContext, matches.value.params)).then((result) => {
+      return Promise.resolve(resolve(currentContext)).then(result => {
         if (result !== null && result !== undefined) {
           return result;
         }
