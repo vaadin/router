@@ -9,7 +9,7 @@
 
 function resolveRoute(context) {
   if (typeof context.route.action === 'function') {
-    return context.route.action(context, context.params);
+    return context.route.action(context);
   }
   return undefined;
 }
