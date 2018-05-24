@@ -24,7 +24,7 @@
     "lint": "npm-run-all --parallel lint:*",
     "lint:js": "eslint --ext .html,.js src test demo *.js *.html",
     "lint:css": "stylelint demo/**/*.html",
-    "build": "rollup -c && uglifyjs dist/umd/vaadin-router.js --source-map --output dist/umd/vaadin-router.min.js",
+    "build": "rollup -c && uglifyjs dist/umd/vaadin-router.js -c -m --mangle-props regex=/^__/ --source-map --output dist/umd/vaadin-router.min.js",
     "build:watch": "rollup -c -w",
     "start": "polymer serve --port 8000",
     "start:browser-sync": "browser-sync start --config bs-config.js",
