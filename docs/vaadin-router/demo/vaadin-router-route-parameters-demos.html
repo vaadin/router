@@ -52,25 +52,20 @@
     </ul>
     <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-2" iframe-src="iframe.html">
       <template preserve-content="">
+        <dom-module id="x-project-view">
+          <template>
+            <h1>Project</h1>
+            <p>ID: [[route.params.id]]</p>
+            <code>/project</code> or <code>/projects</code>: [[route.params.0]]
+          </template>
+        </dom-module>
+
         <a href="/">Home</a>
         <a href="/projects/1">Project 1</a>
         <a href="/project/2">Project 2</a>
         <div id="outlet"></div>
         <script type="module">
-          class XProjectView extends Polymer.Element {
-            static get is() {
-              return 'x-project-view';
-            }
-            static get template() {
-              return Polymer.html`
-                <h1>Project</h1>
-                <p>ID: [[route.params.id]]</p>
-                <code>/project</code> or <code>/projects</code>: [[route.params.0]]
-              `;
-            }
-          }
-
-          customElements.define(XProjectView.is, XProjectView);
+          Polymer({is: 'x-project-view'});
 
           // import {Router} from '@vaadin/router';
           const {Router} = window.Vaadin;
