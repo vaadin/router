@@ -692,6 +692,38 @@
           });
         });
       });
+
+      describe('dynamic rerouting', () => {
+        let router;
+        beforeEach(() => {
+          router = new Vaadin.Router(outlet);
+        });
+
+        afterEach(() => {
+          router.unsubscribe();
+        });
+
+        it('active routes', async() => {
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users',
+              children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', component: 'x-user-profile'}
+              ]
+            },
+            {path: '/test', component: 'x-home-view'},
+          ]);
+
+          await router.render('/users/Kim');
+
+          expect(router.__activeRoutes.map(route => route.path)).to.deep.equal(['/users', '/:user']);
+
+          await router.render('/test');
+
+          expect(router.__activeRoutes.map(route => route.path)).to.deep.equal(['/test']);
+        });
+      });
     });
 
     function getBundleScripts(scriptPath) {

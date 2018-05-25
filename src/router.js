@@ -165,6 +165,7 @@ export class Router extends Resolver {
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
     this.subscribe();
+    this.__activeRoutes = [];
   }
 
   /**
