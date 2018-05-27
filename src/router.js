@@ -16,6 +16,10 @@ function resolveRoute(context) {
     return {redirect: {pathname: route.redirect, from: context.pathname, params}};
   }
 
+  if (route.path) {
+    (context.__newActiveRoutes || (context.__newActiveRoutes = [])).push(context.route);
+  }
+
   if (route.bundle) {
     return loadBundle(route.bundle).then(() => processComponent(route, context));
   }
@@ -165,7 +169,6 @@ export class Router extends Resolver {
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
     this.subscribe();
-    this.__activeRoutes = [];
   }
 
   /**
@@ -268,6 +271,7 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(element.route.pathname);
           }
           this.__setOutletContent(element);
+          this.__updateActiveRoutes(element.context);
           return this.__outlet;
         }
       })
@@ -294,6 +298,26 @@ export class Router extends Resolver {
     if (window.location.pathname !== pathname) {
       window.history.pushState(null, document.title, pathname);
       window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router:ignore'}));
+    }
+  }
+
+  __updateActiveRoutes(context) {
+    console.log('----------');
+    console.table(context.__newActiveRoutes);
+    console.log('----------');
+    if (!context.__newActiveRoutes) {
+      return;
+    }
+
+    if (!context.__activeRoutes.length) {
+      context.__activeRoutes = context.__newActiveRoutes;
+      context.__newActiveRoutes = [];
+    } else {
+      let minimumCommonIndex = -1;
+      const maximumCommonIndex = Math.min(context.__activeRoutes.length, context.__newActiveRoutes.length);
+      while (minimumCommonIndex < maximumCommonIndex) {
+        minimumCommonIndex++;
+      }
     }
   }
 
@@ -353,6 +377,7 @@ export class Router extends Resolver {
     if (context.from) {
       element.route.redirectFrom = context.from;
     }
+    element.context = context;
     return element;
   }
 
