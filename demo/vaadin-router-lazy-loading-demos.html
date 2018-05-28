@@ -32,14 +32,14 @@
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          const {Router, componentsDir} = window.Vaadin; // <-- `componentsDir` is for demo purpose only
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
             {
               path: '/lazy',
-              bundle: './demo-elements/component-definition.js',
+              bundle: `${componentsDir}/demo-elements/component-definition.js`,
               component: 'x-bundle-test-view' // <-- defined in the bundle
             },
           ]);
@@ -68,14 +68,14 @@
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          const {Router, componentsDir} = window.Vaadin; // <-- `componentsDir` is for demo purpose only
 
           const loadCustomBundle = () => {
             return new Promise((resolve, reject) => {
               // This is one way of loading a bundle lazily (works for Polymer apps).
               // Other apps might use different ways.
               Polymer.importHref(
-                './demo-elements/component-definition.html', () => resolve(), reject, true);
+                `${componentsDir}/demo-elements/component-definition.html`, () => resolve(), reject, true);
             });
           };
 
