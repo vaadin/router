@@ -8,15 +8,16 @@
 
     <h3>Route Parameters</h3>
     <p>Route parameters are useful when the same Web Component should be
-      rendered for a set paths, where a part of the path is static, and another
-      part contains a parameter value. E.g. for both <code>/user/1</code> and
-      <code>/user/42</code> paths it's the same Web Component that renders the
-      content, the <code>/user/</code> part is static, and <code>1</code> and
-      <code>42</code> are the parameter values.</p>
+      rendered for a number of paths, where a part of the path is static, and
+      another part contains a parameter value. E.g. for both <code>/user/1
+      </code> and <code>/user/42</code> paths it's the same Web Component that
+      renders the content, the <code>/user/</code> part is static, and <code>1
+      </code> and <code>42</code> are the parameter values.</p>
     <p>Route parameters are defined using an express.js-like syntax. The
       implementation is based on the <a href="https://github.com/pillarjs/path-to-regexp#parameters"
-      target="_blank">path-ot-regexp</a> library that is also used in several
-      popular front-end frameworks. All features are supported:
+      target="_blank" rel="noopener">path-ot-regexp</a> library that is commonly
+      used in modern front-end libraries and frameworks. All features are
+      supported:
       <ul>
         <li>named parameters: <code>/profile/:user</code></li>
         <li>optional parameters: <code>/:size/:color?</code></li>

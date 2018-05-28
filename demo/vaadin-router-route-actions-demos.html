@@ -20,15 +20,14 @@
       Vaadin.Router provides a flexible API to customize the default route
       resolution rule. Each route may have an <code>action</code> functional
       property that defines how exactly that route is resolved. An <code>action
-      </code> function may or may not return a value. If it does, that completed
-      the resolution pass, and the returned value is what gets rendered. If it
-      returns <code>null</code> or <code>undefined</code>, the resolution
-      process continues to check the other properties of the route and apply the
-      default resolution rules, and further, to check other matching routes if
-      necessary.
+      </code> function may or may not return a value. If it does, that completes
+      the resolution pass, and the returned value is what gets rendered.
+      Otherwise, the resolution process continues to check the other properties
+      of the route and apply the default resolution rules, and then further to
+      check other matching routes.
     </p>
     <p>
-      The <code>action(context)</code> function reveives a <code>context</code>
+      The <code>action(context)</code> function receives a <code>context</code>
       parameter with the following properties:
       <ul>
         <li><code>context.pathname</code> [string] the pathname being resolved
@@ -36,6 +35,19 @@
         <li><code>context.params</code> [object] the route parameters</li>
         <li><code>context.next</code> [function] proceed to resolving the next
           matching route (if any)</li>
+      </ul>
+      The supported return values are
+      <ul>
+        <li>an instance of <code>HTMLElement</code></li>
+        <li>a <em>redirect</em> object, i.e. an <code>object</code> with a
+          <code>redirect</code> property that looks like <code><pre>{
+  redirect: {
+    pathname: '/new/path/:param',
+    from: '/old/path/:param',
+    params: /* the parameters object (if any) */
+  }
+}</pre></code></li>
+        <li><code>null</code> or <code>undefined</code></li>
       </ul>
     </p>
     <p>
