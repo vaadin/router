@@ -6,15 +6,54 @@
       }
     </style>
 
-    <h3>Custom Route Action</h3>
-    <p>Vaadin.Router provides an API for handling the current route:
-    </p><ul>
-      <li><code>context.pathname</code> property holding the current path string</li>
-      <li><code>context.next</code> method for navigating to the next route in the route's list (if any)</li>
-      <li><code>context.params</code> object that holds current route's parameters</li>
-    </ul>
+    <h3>Custom Route Actions</h3>
+    <p>
+      Route resolution is an async operation started by a navigation event, or
+      by an explicit <code>render()</code> method call. In that process
+      Vaadin.Router goes through the routes config and tries to <em>resolve</em>
+      each matching route from the root onwards. The default route resolution
+      rule is to create and return an instance of the route's <code>component
+      </code> (see the API docs for the <code>setRoutes()</code> method for
+      details on other route properties and how they affect the route resolution).
+    </p>
+    <p>
+      Vaadin.Router provides a flexible API to customize the default route
+      resolution rule. Each route may have an <code>action</code> functional
+      property that defines how exactly that route is resolved. An <code>action
+      </code> function may or may not return a value. If it does, that completes
+      the resolution pass, and the returned value is what gets rendered.
+      Otherwise, the resolution process continues to check the other properties
+      of the route and apply the default resolution rules, and then further to
+      check other matching routes.
+    </p>
+    <p>
+      The <code>action(context)</code> function receives a <code>context</code>
+      parameter with the following properties:
+      </p><ul>
+        <li><code>context.pathname</code> [string] the pathname being resolved
+          </li>
+        <li><code>context.params</code> [object] the route parameters</li>
+        <li><code>context.next</code> [function] proceed to resolving the next
+          matching route (if any)</li>
+      </ul>
+      The supported return values are
+      <ul>
+        <li>an instance of <code>HTMLElement</code></li>
+        <li>a <em>redirect</em> object, i.e. an <code>object</code> with a
+          <code>redirect</code> property that looks like <code><pre>{
+  redirect: {
+    pathname: '/new/path/:param',
+    from: '/old/path/:param',
+    params: /* the parameters object (if any) */
+  }
+}</pre></code></li>
+        <li><code>null</code> or <code>undefined</code></li>
+      </ul>
     <p></p>
-    <p>Current example demonstrates the way to get visit statistics for each dedicated URL.</p>
+    <p>
+      This demo shows how to use the custom <code>action</code> property to
+      collect visit statistics for each route.
+    </p>
     <vaadin-demo-snippet id="vaadin-router-route-actions-demo-1" iframe-src="iframe.html">
       <template preserve-content="">
         <nav>
@@ -35,7 +74,7 @@
             urlToNumberOfVisits[visitedPath] = (urlToNumberOfVisits[visitedPath] || 0) + 1;
             document.getElementById('stats').innerHTML =
               `Statistics on URL visits: ${JSON.stringify(urlToNumberOfVisits, null, 2)}}`;
-            return context.next(); // redirect to the next route in the list
+            return context.next(); // pass to the next route in the list
           };
 
           const router = new Router(document.getElementById('outlet'));
@@ -55,11 +94,22 @@
     </vaadin-demo-snippet>
 
     <h3>Async Route Resolution</h3>
-    <p>Each route can have <code>action</code> method which is called before navigation to the path specified.</p>
-    <p>This method can be used for complex navigation cases. If you need to simply open the page specified, use
-      <code>component</code> instead.</p>
-    <p>Note: For a single route, both <code>component</code> and <code>action</code> cannot be defined.</p>
-    <p>Current example demonstrates the way you can perform async tasks on view enter</p>
+    <p>
+      Since route resolution is async, the <code>action()</code> callback may be
+      async as well and return a promise. One use case for that is to create
+      a custom route action that makes a remote API call to fetch the data
+      necessary to render the route component, before navigating to a route.
+    </p>
+    <p>
+      Note: If a route has both the <code>component</code> and <code>action
+      </code> properties, <code>action</code> is executed first and if it does
+      not return a result Vaadin.Router proceeds to check the <code>component
+      </code> property.
+    </p>
+    <p>
+      This demo shows a way to perform async tasks before navigating to any
+      route under <code>/users</code>.
+    </p>
     <vaadin-demo-snippet id="vaadin-router-route-actions-demo-2" iframe-src="iframe.html">
       <template preserve-content="">
         <nav>
