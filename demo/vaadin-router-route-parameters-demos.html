@@ -7,8 +7,17 @@
     </style>
 
     <h3>Route Parameters</h3>
-    <p>Route parameters are defined using the <a href="https://github.com/pillarjs/path-to-regexp#parameters"
-      target="_blank">express-like syntax</a>. All features are supported:
+    <p>Route parameters are useful when the same Web Component should be
+      rendered for a number of paths, where a part of the path is static, and
+      another part contains a parameter value. E.g. for both <code>/user/1
+      </code> and <code>/user/42</code> paths it's the same Web Component that
+      renders the content, the <code>/user/</code> part is static, and <code>1
+      </code> and <code>42</code> are the parameter values.</p>
+    <p>Route parameters are defined using an express.js-like syntax. The
+      implementation is based on the <a href="https://github.com/pillarjs/path-to-regexp#parameters"
+      target="_blank" rel="noopener">path-ot-regexp</a> library that is commonly
+      used in modern front-end libraries and frameworks. All features are
+      supported:
       <ul>
         <li>named parameters: <code>/profile/:user</code></li>
         <li>optional parameters: <code>/:size/:color?</code></li>
@@ -45,12 +54,17 @@
     </vaadin-demo-snippet>
 
     <h3>Accessing Route Parameters</h3>
-    <p>Named parameters are bound to the <code>route.params</code> property of the route component
-      (the <code>route</code> property is set on the route component by the router).</p>
+    <p>Route parameters are bound to the <code>route.params</code> property of
+      the route Web Component (the <code>route</code> property is set on the
+      route component by Vaadin.Router).</p>
     <ul>
-      <li>Named parameters are accessible by string key.</li>
-      <li>Unnamed parameters are accessible by numeric index.</li>
+      <li>Named parameters are accessible by a string key, e.g.
+        <code>route.params.id</code> or <code>route.params['id']</code></li>
+      <li>Unnamed parameters are accessible by a numeric index, e.g.
+        <code>route.params[0]</code></li>
     </ul>
+    <p>The example below shows how to access route parameters in a Polymer 2
+      based Web Component:</p>
     <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-2" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>

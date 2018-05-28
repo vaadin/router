@@ -6,16 +6,28 @@
       }
     </style>
 
-    <h3>Unconditional Redirect</h3>
-    <p>Vaadin.Router supports the <code>redirect</code> property on the route object,
-      allowing to unconditionally redirect users from one URL to another.
-      The valid values are path string or pattern in the same format, as used for the
-      <code>path</code> property.</p>
-    <p>The redirected URL is not stored as the <code>window.history</code> entry
-      and cannot be reached by pressing "Back" browser button.
-      Unconditional redirects work for routes both with and without parameters.</p>
-    <p>When defined, this property overrides other route properties: both <code>action</code>
-      and <code>component</code> properties will be ignored.</p>
+    <h3>Unconditional Redirects</h3>
+    <p>
+      Vaadin.Router supports the <code>redirect</code> property on the route
+      objects, allowing to unconditionally redirect users from one path to
+      another. The valid values are a path string or a pattern in the same
+      format as used for the <code>path</code> property.
+    </p>
+    <p>
+      The original path is not stored as the <code>window.history</code> entry
+      and cannot be reached by pressing the "Back" browser button. Unconditional
+      redirects work for routes both with and without parameters. The original
+      path is available to the route component as the <code>route.redirect.from
+      </code> string property, and to custom route actions as <code>context.from
+      </code>.
+    </p>
+    <p>
+      Note: If a route has both the <code>redirect</code> and <code>action</code>
+      properties, <code>action</code> is executed first and if it does not
+      return a result Vaadin.Router proceeds to check the <code>redirect</code>
+      property. Other route properties (if any) would be ignored. In that case
+      Vaadin.Router would also log a warning to the browser console.
+    </p>
     <vaadin-demo-snippet id="vaadin-router-redirect-demos-1" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
