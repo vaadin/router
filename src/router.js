@@ -7,7 +7,7 @@ function resolveRoute(context) {
   const route = context.route;
 
   const actionResult = processAction(context);
-  if (actionResult) {
+  if (actionResult !== null && actionResult !== undefined) {
     return actionResult;
   }
 
@@ -256,6 +256,9 @@ export class Router extends Resolver {
             pathname: Router.pathToRegexp.compile(redirect.pathname)(redirect.params),
             from: redirect.from
           });
+        } else {
+          return Promise.reject(new Error(`Incorrect route resolution result for path '${pathnameOrContext}'. ` +
+            `Expected redirect object or HTML element, but got: '${result}'. Double check the action return value for the route.`));
         }
       })
       .then(element => {
