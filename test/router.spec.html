@@ -561,13 +561,7 @@
               {path: '/', component: 'x-home-view', bundle: nonExistingPath},
             ]);
 
-            let exceptionThrown = false;
-            try {
-              await router.render('/');
-            } catch (e) {
-              exceptionThrown = true;
-            }
-            expect(exceptionThrown).to.equal(true);
+            await expectException(router.render('/'));
             expect(getBundleScripts(nonExistingPath).length).to.equal(0);
           });
 
@@ -648,6 +642,22 @@
             expect(actionExecuted).to.equal(true);
           });
 
+          it('action with incorrect return throws before redirect', async() => {
+            const erroneousPath = '/error';
+            const incorrectReturnValue = 0;
+            let actionExecuted = false;
+            router.setRoutes([
+              {path: erroneousPath, redirect: '/users', action: () => {
+                actionExecuted = true;
+                return incorrectReturnValue;
+              }},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+
+            await expectException(router.render(erroneousPath), [erroneousPath, incorrectReturnValue]);
+            expect(actionExecuted).to.equal(true);
+          });
+
           it('action with return should be executed before component and stop it from loading', async() => {
             let actionExecuted = false;
 
@@ -681,6 +691,26 @@
 
     function getBundleScripts(scriptPath) {
       return document.head.querySelectorAll('script[src="' + scriptPath + '"][async]');
+    }
+
+    async function expectException(callback, expectedContents) {
+      let exceptionThrown = false;
+      try {
+        await callback;
+      } catch (e) {
+        exceptionThrown = true;
+        if (expectedContents) {
+          const exceptionString = e.message || JSON.stringify(e);
+          if (typeof expectedContents[Symbol.iterator] === 'function') {
+            for (const expectedString of expectedContents) {
+              expect(exceptionString).to.contain(expectedString);
+            }
+          } else {
+            expect(exceptionString).to.contain(expectedContents);
+          }
+        }
+      }
+      expect(exceptionThrown).to.equal(true);
     }
   </script>
 </body>
