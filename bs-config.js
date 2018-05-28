@@ -7,7 +7,7 @@ module.exports = {
     'analysis.json'
   ],
   snippetOptions: {
-    blacklist: [
+    ignorePaths: [
       '**/demo/iframe.html'
     ]
   }
