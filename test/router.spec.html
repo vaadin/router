@@ -643,19 +643,22 @@
           });
 
           it('action with incorrect return throws before redirect', async() => {
-            const erroneousPath = '/error';
-            const incorrectReturnValue = 0;
-            let actionExecuted = false;
-            router.setRoutes([
-              {path: erroneousPath, redirect: '/users', action: () => {
-                actionExecuted = true;
-                return incorrectReturnValue;
-              }},
-              {path: '/users', component: 'x-users-view'},
-            ]);
+            [undefined, null, NaN, 0, false, '', 'thisIsAlsoIncorrect'].forEach(async(incorrectReturnValue) => {
+              const erroneousPath = '/error';
+              let actionExecuted = false;
+              router.setRoutes([
+                {
+                  path: erroneousPath, redirect: '/users', action: () => {
+                    actionExecuted = true;
+                    return incorrectReturnValue;
+                  }
+                },
+                {path: '/users', component: 'x-users-view'},
+              ]);
 
-            await expectException(router.render(erroneousPath), [erroneousPath, incorrectReturnValue]);
-            expect(actionExecuted).to.equal(true);
+              await expectException(router.render(erroneousPath), [erroneousPath, incorrectReturnValue]);
+              expect(actionExecuted).to.equal(true);
+            });
           });
 
           it('action with return should be executed before component and stop it from loading', async() => {

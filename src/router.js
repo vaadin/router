@@ -257,8 +257,8 @@ export class Router extends Resolver {
             from: redirect.from
           });
         } else {
-          return Promise.reject(new Error(`Got unexpected resolution result: '${result}' for path '${pathnameOrContext}.` +
-            ' Double check that the action on this route returns an html element.'));
+          return Promise.reject(new Error(`Incorrect route resolution result for path '${pathnameOrContext}'. ` +
+            `Expected redirect object or HTML element, but got: '${result}'. Double check the action return value for the route.`));
         }
       })
       .then(element => {
