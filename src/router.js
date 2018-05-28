@@ -3,36 +3,6 @@ import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import {loadBundle} from './utils.js';
 
-function resolveRoute(context) {
-  const route = context.route;
-
-  const actionResult = processAction(context);
-  if (actionResult !== null && actionResult !== undefined) {
-    return actionResult;
-  }
-
-  if (typeof route.redirect === 'string') {
-    const params = Object.assign({}, context.params);
-    return {redirect: {pathname: route.redirect, from: context.pathname, params}};
-  }
-
-  if (route.path) {
-    (context.__resolutionChain || (context.__resolutionChain = [])).push(context.route);
-  }
-
-  if (route.bundle) {
-    return loadBundle(route.bundle).then(() => processComponent(route, context));
-  }
-
-  return processComponent(route, context);
-}
-
-function processComponent(route, context) {
-  if (typeof route.component === 'string') {
-    return Router.renderComponent(route.component, context);
-  }
-}
-
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -149,7 +119,7 @@ export class Router extends Resolver {
    * @param {?RouterOptions} options
    */
   constructor(outlet, options) {
-    super([], Object.assign({resolveRoute}, options));
+    super([], Object.assign({}, options));
 
     const triggers = Router.NavigationTrigger;
     Router.setTriggers.apply(Router, Object.keys(triggers).map(key => triggers[key]));
@@ -170,6 +140,69 @@ export class Router extends Resolver {
     this.__activeRoutes = [];
     this.setOutlet(outlet);
     this.subscribe();
+  }
+
+  __resolveRoute(context) {
+    const route = context.route;
+
+    const actionResult = processAction(context);
+    if (actionResult !== null && actionResult !== undefined) {
+      return actionResult;
+    }
+
+    if (typeof route.redirect === 'string') {
+      const params = Object.assign({}, context.params);
+      return {redirect: {pathname: route.redirect, from: context.pathname, params}};
+    }
+
+    if (route.path) {
+      const newActiveRouteIndex = (context.__resolutionChain || (context.__resolutionChain = [])).push(context.route) - 1;
+      if (this.__activeRoutes && (this.__activeRoutes.length || 0) > newActiveRouteIndex) {
+        const oldActiveRoute = this.__activeRoutes[newActiveRouteIndex];
+        if (oldActiveRoute.path !== context.__resolutionChain[newActiveRouteIndex].path) {
+          const deactivationResult = this.__runDeactivationChain(newActiveRouteIndex, context);
+          if (deactivationResult !== null && deactivationResult !== undefined) {
+            return deactivationResult;
+          }
+        }
+      }
+    }
+
+    if (route.bundle) {
+      return loadBundle(route.bundle).then(() => this.__processComponent(route, context));
+    }
+
+    return this.__processComponent(route, context);
+  }
+
+  __processComponent(route, context) {
+    if (typeof route.component === 'string') {
+      const renderingResult = Router.renderComponent(route.component, context);
+      if (renderingResult !== null && renderingResult !== undefined) {
+        const newActiveRoutesLength = (context.__resolutionChain || []).length;
+        if (newActiveRoutesLength < this.__activeRoutes.length) {
+          const deactivationResult = this.__runDeactivationChain(newActiveRoutesLength - 1, context);
+          if (deactivationResult !== null && deactivationResult !== undefined) {
+            return deactivationResult;
+          }
+        }
+      }
+      return renderingResult;
+    }
+  }
+
+  __runDeactivationChain(newActiveRouteIndex, context) {
+    for (let i = newActiveRouteIndex; i < this.__activeRoutes.length; i++) {
+      const routeToInactivate = this.__activeRoutes[i];
+      if (routeToInactivate.inactivate) {
+        const inactivationResult = routeToInactivate.inactivate(context);
+        if (inactivationResult !== null && inactivationResult !== undefined) {
+          context.__resolutionChain = this.__activeRoutes;
+          this.__activeRoutes = [];
+          return inactivationResult;
+        }
+      }
+    }
   }
 
   /**
@@ -249,6 +282,8 @@ export class Router extends Resolver {
    * @return {!Promise<!Node>}
    */
   render(pathnameOrContext, shouldUpdateHistory) {
+    // TODO kb ugly, does not allow users to override the function
+    this.resolveRoute = (context) => this.__resolveRoute(context);
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)

@@ -709,7 +709,7 @@
             {path: '/users',
               children: [
                 {path: '/', component: 'x-user-list'},
-                {path: '/:user', component: 'x-user-profile'}
+                {path: '/:user', component: 'x-user-profile', inactivate: () => console.log('!2!!')}
               ]
             },
             {path: '/test', component: 'x-home-view'},
