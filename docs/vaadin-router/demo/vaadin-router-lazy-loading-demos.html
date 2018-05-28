@@ -6,11 +6,25 @@
       }
     </style>
 
-    <h3>Lazy Loading</h3>
-    <p>Vaadin.Router supports loading <code>.js</code> and <code>.mjs</code> bundles asynchronously before rendering the route target.</p>
-    <p>Note: If any other type of bundle is specified, it won't be loaded but an exception will be thrown.
-      Refer to the next demo if you need to load different types of the bundles.</p>
-    <p>Current example loads <code>component-definition.js</code> script which creates and registers the component that serves as a route target.</p>
+    <h3>Lazy Loading JS Bundles</h3>
+    <p>
+      Vaadin.Router has a special support for lazy loading <code>.js</code> and
+      <code>.mjs</code> scripts just-in-time before rendering a route Web
+      Component. In order to use this feature, specify the script URL in a
+      <code>bundle</code> property of the route object.
+    </p>
+    <p>
+      Note: If the bundle URL does not end with <code>.js</code> nor with <code>
+      .mjs</code>, Vaadin.Router throws an <code>Error</code> and does not
+      attempt to loaded the bundle. Use a custom route action as shown in the
+      next demo if you need to load different types of the bundles.
+    </p>
+    <p>
+      This demo shows how to load the <code>component-definition.js</code>
+      script which defines the custom element for the <code>/lazy</code> route.
+      Check the network tab in the browser DevTools to see that the script is
+      loaded only after clickig at the <code>/lazy</code> route link.
+    </p>
     <vaadin-demo-snippet id="vaadin-router-lazy-loading-1" iframe-src="iframe.html">
       <template preserve-content="">
         <a href="/">Home</a>
@@ -26,19 +40,27 @@
             {
               path: '/lazy',
               bundle: './demo-elements/component-definition.js',
-              component: 'x-bundle-test-view'
+              component: 'x-bundle-test-view' // <-- defined in the bundle
             },
           ]);
         </script>
       </template>
     </vaadin-demo-snippet>
 
-    <h3>Lazy Loading other types of bundles.</h3>
-    <p>Sometimes loading <code>.js</code> and <code>.mjs</code> is not enough.</p>
-    <p>Vaadin.Router allows executing arbitrary tasks via <code>action</code> route property,
-      which can be used for asynchronous bundle loading also.</p>
-    <p>Current example shows how it's possible to load <code>component-definition.html</code> bundle using Polymer 2 library</p>
-    <p><code>component-definition.html</code> contains the whole component definition: template and the script that registers it.</p>
+    <h3>Lazy Loading non-JS Bundles</h3>
+    <p>
+      In cases when loading <code>.js</code> and <code>.mjs</code> is not
+      enough—most notably, when using HTML imports in Polymer-based
+      apps—the lazy loading feature can be implemented with a custom route
+      action (for more details see <a href="#vaadin-router-route-actions-demos">
+      Route Actions</a>).
+    </p>
+    <p>
+      This demo shows a way to lazily add an HTML import. The <code>
+      component-definition.html</code> file contains entire Polymer 2 component
+      definition including a template, a class, and a script that defines a
+      custom element.
+    </p>
     <vaadin-demo-snippet id="vaadin-router-lazy-loading-2" iframe-src="iframe.html">
       <template preserve-content="">
         <a href="/">Home</a>
@@ -50,7 +72,8 @@
 
           const loadCustomBundle = () => {
             return new Promise((resolve, reject) => {
-              // This is just an example way of loading the bundle, you can use any other way you like to do so.
+              // This is one way of loading a bundle lazily (works for Polymer apps).
+              // Other apps might use different ways.
               Polymer.importHref(
                 './demo-elements/component-definition.html', () => resolve(), reject, true);
             });
