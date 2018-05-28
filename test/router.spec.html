@@ -696,20 +696,16 @@
       return document.head.querySelectorAll('script[src="' + scriptPath + '"][async]');
     }
 
-    async function expectException(callback, expectedContents) {
+    async function expectException(callback, expectedContentsArray) {
       let exceptionThrown = false;
       try {
         await callback;
       } catch (e) {
         exceptionThrown = true;
-        if (expectedContents) {
+        if (expectedContentsArray && expectedContentsArray.length) {
           const exceptionString = e.message || JSON.stringify(e);
-          if (typeof expectedContents[Symbol.iterator] === 'function') {
-            for (const expectedString of expectedContents) {
-              expect(exceptionString).to.contain(expectedString);
-            }
-          } else {
-            expect(exceptionString).to.contain(expectedContents);
+          for (let i = 0; i < expectedContentsArray.length; i++) {
+            expect(exceptionString).to.contain(expectedContentsArray[i]);
           }
         }
       }
