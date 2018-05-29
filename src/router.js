@@ -3,6 +3,10 @@ import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import {loadBundle} from './utils.js';
 
+function isResultNotEmpty(result) {
+  return result !== null && result !== undefined;
+}
+
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -142,15 +146,11 @@ export class Router extends Resolver {
     this.subscribe();
   }
 
-  __isResultNotEmpty(result) {
-    return result !== null && result !== undefined;
-  }
-
   __resolveRoute(context) {
     const route = context.route;
 
     const actionResult = processAction(context);
-    if (this.__isResultNotEmpty(actionResult)) {
+    if (isResultNotEmpty(actionResult)) {
       return actionResult;
     }
 
@@ -165,7 +165,7 @@ export class Router extends Resolver {
         const oldActiveRoute = this.__activeRoutes[newActiveRouteIndex];
         if (oldActiveRoute.path !== context.__resolutionChain[newActiveRouteIndex].path) {
           const inactivationResult = this.__runInactivationChain(newActiveRouteIndex, context);
-          if (this.__isResultNotEmpty(inactivationResult)) {
+          if (isResultNotEmpty(inactivationResult)) {
             return inactivationResult;
           }
         }
@@ -182,11 +182,11 @@ export class Router extends Resolver {
   __processComponent(route, context) {
     if (typeof route.component === 'string') {
       const renderingResult = Router.renderComponent(route.component, context);
-      if (this.__isResultNotEmpty(renderingResult)) {
+      if (isResultNotEmpty(renderingResult)) {
         const newActiveRoutesLength = (context.__resolutionChain || []).length;
         if (newActiveRoutesLength < this.__activeRoutes.length) {
           const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
-          if (this.__isResultNotEmpty(inactivationResult)) {
+          if (isResultNotEmpty(inactivationResult)) {
             return inactivationResult;
           }
         }
@@ -200,7 +200,7 @@ export class Router extends Resolver {
       const routeToInactivate = this.__activeRoutes[i];
       if (typeof routeToInactivate.inactivate === 'function') {
         const inactivationResult = routeToInactivate.inactivate(context);
-        if (this.__isResultNotEmpty(inactivationResult)) {
+        if (isResultNotEmpty(inactivationResult)) {
           this.__fallBackToPreviousActiveChain(context);
           return inactivationResult;
         }
