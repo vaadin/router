@@ -643,7 +643,8 @@
           });
 
           it('action with incorrect return throws before redirect', async() => {
-            [undefined, null, NaN, 0, false, '', 'thisIsAlsoIncorrect'].forEach(async(incorrectReturnValue) => {
+            await Promise.all([NaN, 0, false, '', 'thisIsAlsoIncorrect'].map(async(incorrectReturnValue) => {
+              const router = new Vaadin.Router(outlet);
               const erroneousPath = '/error';
               let actionExecuted = false;
               router.setRoutes([
@@ -658,7 +659,8 @@
 
               await expectException(router.render(erroneousPath), [erroneousPath, incorrectReturnValue]);
               expect(actionExecuted).to.equal(true);
-            });
+              router.unsubscribe();
+            }));
           });
 
           it('action with return should be executed before component and stop it from loading', async() => {
