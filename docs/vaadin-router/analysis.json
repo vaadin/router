@@ -86,7 +86,7 @@
               "column": 4
             },
             "end": {
-              "line": 988,
+              "line": 989,
               "column": 5
             }
           },
@@ -112,7 +112,7 @@
           "column": 2
         },
         "end": {
-          "line": 989,
+          "line": 990,
           "column": 3
         }
       },
@@ -131,11 +131,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1166,
+              "line": 1141,
               "column": 6
             },
             "end": {
-              "line": 1166,
+              "line": 1141,
               "column": 17
             }
           },
@@ -170,11 +170,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1228,
+              "line": 1275,
               "column": 4
             },
             "end": {
-              "line": 1231,
+              "line": 1278,
               "column": 5
             }
           },
@@ -224,7 +224,7 @@
               "column": 4
             },
             "end": {
-              "line": 988,
+              "line": 989,
               "column": 5
             }
           },
@@ -242,16 +242,127 @@
           "inheritedFrom": "Vaadin.Resolver"
         },
         {
+          "name": "__isResultNotEmpty",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1151,
+              "column": 4
+            },
+            "end": {
+              "line": 1153,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "result"
+            }
+          ]
+        },
+        {
+          "name": "__resolveRoute",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1155,
+              "column": 4
+            },
+            "end": {
+              "line": 1186,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context"
+            }
+          ]
+        },
+        {
+          "name": "__processComponent",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1188,
+              "column": 4
+            },
+            "end": {
+              "line": 1202,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "route"
+            },
+            {
+              "name": "context"
+            }
+          ]
+        },
+        {
+          "name": "__runInactivationChain",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1204,
+              "column": 4
+            },
+            "end": {
+              "line": 1215,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "divergedRouteIndex"
+            },
+            {
+              "name": "context"
+            }
+          ]
+        },
+        {
+          "name": "__fallBackToPreviousActiveChain",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1217,
+              "column": 4
+            },
+            "end": {
+              "line": 1220,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context"
+            }
+          ]
+        },
+        {
           "name": "setOutlet",
           "description": "Sets the router outlet (the DOM node where the content for the current\nroute is inserted). Any content pre-existing in the router outlet is\nremoved at the end of each render pass.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1183,
+              "line": 1230,
               "column": 4
             },
             "end": {
-              "line": 1188,
+              "line": 1235,
               "column": 5
             }
           },
@@ -270,11 +381,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1195,
+              "line": 1242,
               "column": 4
             },
             "end": {
-              "line": 1197,
+              "line": 1244,
               "column": 5
             }
           },
@@ -291,11 +402,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1251,
+              "line": 1298,
               "column": 4
             },
             "end": {
-              "line": 1288,
+              "line": 1337,
               "column": 5
             }
           },
@@ -320,11 +431,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1290,
+              "line": 1339,
               "column": 4
             },
             "end": {
-              "line": 1294,
+              "line": 1343,
               "column": 5
             }
           },
@@ -341,11 +452,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1296,
+              "line": 1345,
               "column": 4
             },
             "end": {
-              "line": 1302,
+              "line": 1351,
               "column": 5
             }
           },
@@ -362,11 +473,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1304,
+              "line": 1353,
               "column": 4
             },
             "end": {
-              "line": 1316,
+              "line": 1365,
               "column": 5
             }
           },
@@ -383,11 +494,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1324,
+              "line": 1373,
               "column": 4
             },
             "end": {
-              "line": 1327,
+              "line": 1376,
               "column": 5
             }
           },
@@ -400,11 +511,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1333,
+              "line": 1382,
               "column": 4
             },
             "end": {
-              "line": 1336,
+              "line": 1385,
               "column": 5
             }
           },
@@ -417,11 +528,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1338,
+              "line": 1387,
               "column": 4
             },
             "end": {
-              "line": 1343,
+              "line": 1392,
               "column": 5
             }
           },
@@ -440,11 +551,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 1353,
+              "line": 1402,
               "column": 4
             },
             "end": {
-              "line": 1361,
+              "line": 1411,
               "column": 5
             }
           },
@@ -471,11 +582,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1390,
+              "line": 1440,
               "column": 4
             },
             "end": {
-              "line": 1392,
+              "line": 1442,
               "column": 5
             }
           },
@@ -502,11 +613,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1137,
+          "line": 1112,
           "column": 2
         },
         "end": {
-          "line": 1393,
+          "line": 1443,
           "column": 3
         }
       },
