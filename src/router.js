@@ -142,11 +142,15 @@ export class Router extends Resolver {
     this.subscribe();
   }
 
+  __isResultNotEmpty(result) {
+    return result !== null && result !== undefined;
+  }
+
   __resolveRoute(context) {
     const route = context.route;
 
     const actionResult = processAction(context);
-    if (actionResult !== null && actionResult !== undefined) {
+    if (this.__isResultNotEmpty(actionResult)) {
       return actionResult;
     }
 
@@ -157,12 +161,12 @@ export class Router extends Resolver {
 
     if (route.path) {
       const newActiveRouteIndex = (context.__resolutionChain || (context.__resolutionChain = [])).push(context.route) - 1;
-      if (this.__activeRoutes && (this.__activeRoutes.length || 0) > newActiveRouteIndex) {
+      if (this.__activeRoutes && this.__activeRoutes.length > newActiveRouteIndex) {
         const oldActiveRoute = this.__activeRoutes[newActiveRouteIndex];
         if (oldActiveRoute.path !== context.__resolutionChain[newActiveRouteIndex].path) {
-          const deactivationResult = this.__runDeactivationChain(newActiveRouteIndex, context);
-          if (deactivationResult !== null && deactivationResult !== undefined) {
-            return deactivationResult;
+          const inactivationResult = this.__runInactivationChain(newActiveRouteIndex, context);
+          if (this.__isResultNotEmpty(inactivationResult)) {
+            return inactivationResult;
           }
         }
       }
@@ -178,12 +182,12 @@ export class Router extends Resolver {
   __processComponent(route, context) {
     if (typeof route.component === 'string') {
       const renderingResult = Router.renderComponent(route.component, context);
-      if (renderingResult !== null && renderingResult !== undefined) {
+      if (this.__isResultNotEmpty(renderingResult)) {
         const newActiveRoutesLength = (context.__resolutionChain || []).length;
         if (newActiveRoutesLength < this.__activeRoutes.length) {
-          const deactivationResult = this.__runDeactivationChain(newActiveRoutesLength - 1, context);
-          if (deactivationResult !== null && deactivationResult !== undefined) {
-            return deactivationResult;
+          const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
+          if (this.__isResultNotEmpty(inactivationResult)) {
+            return inactivationResult;
           }
         }
       }
@@ -191,18 +195,22 @@ export class Router extends Resolver {
     }
   }
 
-  __runDeactivationChain(newActiveRouteIndex, context) {
-    for (let i = newActiveRouteIndex; i < this.__activeRoutes.length; i++) {
+  __runInactivationChain(divergedRouteIndex, context) {
+    for (let i = divergedRouteIndex; i < this.__activeRoutes.length; i++) {
       const routeToInactivate = this.__activeRoutes[i];
-      if (routeToInactivate.inactivate) {
+      if (typeof routeToInactivate.inactivate === 'function') {
         const inactivationResult = routeToInactivate.inactivate(context);
-        if (inactivationResult !== null && inactivationResult !== undefined) {
-          context.__resolutionChain = this.__activeRoutes;
-          this.__activeRoutes = [];
+        if (this.__isResultNotEmpty(inactivationResult)) {
+          this.__fallBackToPreviousActiveChain(context);
           return inactivationResult;
         }
       }
     }
+  }
+
+  __fallBackToPreviousActiveChain(context) {
+    context.__resolutionChain = this.__activeRoutes;
+    this.__activeRoutes = [];
   }
 
   /**
@@ -282,8 +290,7 @@ export class Router extends Resolver {
    * @return {!Promise<!Node>}
    */
   render(pathnameOrContext, shouldUpdateHistory) {
-    // TODO kb ugly, does not allow users to override the function
-    this.resolveRoute = (context) => this.__resolveRoute(context);
+    this.resolveRoute = context => this.__resolveRoute(context);
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)

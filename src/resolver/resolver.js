@@ -139,7 +139,6 @@ class Resolver {
       currentContext = Object.assign({}, context, matches.value);
 
       return Promise.resolve(resolve(currentContext)).then(result => {
-        // TODO ks this bad. Remove `currentContext` and use `context` instead?
         context.__resolutionChain = currentContext.__resolutionChain;
         if (result !== null && result !== undefined) {
           return result;
