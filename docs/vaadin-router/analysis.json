@@ -491,11 +491,11 @@
       ],
       "demos": [
         {
-          "url": "demo",
+          "url": "demo/index.html",
           "description": ""
         },
         {
-          "url": "demo",
+          "url": "demo/index.html",
           "description": ""
         }
       ],

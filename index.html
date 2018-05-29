@@ -10,5 +10,9 @@
   </head>
   <body>
     <iron-component-page></iron-component-page>
+    <script>
+      // Set the full URL to avoid the "mixed content" error when serving the demos over HTTPS on GitHub pages
+      document.querySelector('iron-component-page').demoSrcPrefix = `${window.location.origin}${window.location.pathname}`;
+    </script>
   </body>
 </html>
