@@ -119,7 +119,7 @@
 
         it('action that returns custom component does not activate route', async() => {
           router.setRoutes([
-            {path: '/', action: context => Vaadin.Router.renderComponent('x-home-view', context)},
+            {path: '/', action: context => context.render('x-home-view')},
           ]);
 
           await router.render('/');
