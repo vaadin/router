@@ -129,9 +129,7 @@
 
         it('action that returns redirect activates redirect route', async() => {
           router.setRoutes([
-            {path: '/', action: () => {
-              return {redirect: {pathname: '/a', from: '/'}};
-            }},
+            {path: '/', action: context => context.redirect('/a')},
             {path: '/a', component: 'x-users-view'},
           ]);
 

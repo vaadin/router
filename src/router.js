@@ -156,8 +156,7 @@ export class Router extends Resolver {
     }
 
     if (typeof route.redirect === 'string') {
-      const params = Object.assign({}, context.params);
-      return {redirect: {pathname: route.redirect, from: context.pathname, params}};
+      return context.redirect(route.redirect);
     }
 
     if (route.path) {
