@@ -35,6 +35,7 @@
         <li><code>context.params</code> [object] the route parameters</li>
         <li><code>context.next</code> [function] proceed to resolving the next
           matching route (if any)</li>
+        <li><code>context.redirect(path)</code> [function] redirect to the path specified</li>
       </ul>
       The supported return values are
       <ul>
@@ -140,6 +141,47 @@
                 {path: '/:user', component: 'x-user-profile'}
               ]
             },
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Redirecting from an action</h3>
+    <p>
+      <code>action()</code> can use its <code>context</code> parameter to influence
+      the route resolution result.
+      First demo had demonstrated the <code>context.next()</code> usage,
+      this demo demonstrates <code>context.redirect(path)</code> method usage
+      that allows you to redirect to any other defined route by using its path.
+      All the parameters in current context will be passed to the redirect target.
+    </p>
+    <p>
+      Note: If you need only to redirect to another route, defining an action might be an overkill.
+      More convenient way is described in <a href="#vaadin-router-redirect-demos">Router redirect</a> section.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-route-actions-demo-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/employees/Kim">Route that redirects</a>
+          <a href="/users/Kim">Redirect target</a>
+        </nav>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const redirect = context => {
+            context.params.user += ' (redirected)';
+            return context.redirect('/users/:user');
+          };
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            // current route parameters are automatically transferred to redirect target
+            {path: '/employees/:user', action: redirect},
+            {path: '/users/:user', component: 'x-user-profile'},
           ]);
         </script>
       </template>
