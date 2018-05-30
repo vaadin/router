@@ -92,6 +92,58 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Ambiguous Matches</h3>
+    <p>
+      Route matching rules can be ambiguous, so that several routes would match
+      the same path. In that case, the order in which the routes are defined is
+      important. The first route matching the path gets rendered (starting from
+      the top of the list / root of the tree).</p>
+    <p>
+      The default route matching is <strong>exact</strong>, i.e. a
+      <code>'/user'</code> route (if it does not have children) matches only the
+      <code>'/user'</code> path, but not <code>'/users'</code> nor
+      <code>'/user/42'</code>. Trailing slashes are not significant in paths,
+      but are significant in routes, i.e. a <code>'/user'</code> route matches
+      both <code>'/user'</code> the <code>'/user/'</code>, but a
+      <code>'/user/'</code> route matches only the <code>'/user/'</code> path.
+    </p>
+    <p><strong>Prefix</strong> matching is used for routes with children, or if
+      the route explicitly indicates that trailing content is expected (e.g.
+      a <code>'/users/(*.)'</code> route matches any path starting with
+      <code>'/users/'</code>).
+    </p>
+    <p>
+      Always place more specific routes before less specific:
+      </p><ul>
+        <li><code>{path: '/user/new', ...}</code> - matches only
+          <code>'/user/new'</code></li>
+        <li><code>{path: '/user/:user', ...}</code> - matches
+          <code>'/user/42'</code>, but not <code>'/user/42/edit'</code></li>
+        <li><code>{path: '/user/(.*)', ...}</code> - matches anything starting
+          with <code>'/user/'</code></li>
+      </ul>
+    <p></p>
+    <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-3" iframe-src="iframe.html">
+      <template preserve-content="">
+        <a href="/">Home</a>
+        <a href="/users">All Users</a>
+        <a href="/kim">Kim</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-user-list'},
+            {path: '/:user', component: 'x-user-profile'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
   </template>
   <script>var VaadinRouterRouteParametersDemos=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'vaadin-router-route-parameters-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterRouteParametersDemos.is,VaadinRouterRouteParametersDemos);</script>
 </dom-module>
