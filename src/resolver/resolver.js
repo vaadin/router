@@ -90,8 +90,8 @@ class Resolver {
    * the pathname and tries resolving them one after another in the order they
    * are listed in the routes config until the first non-null result.
    *
-   * Returns a promise that is fulfilled with the return value of the first
-   * route handler that returns something other than `null` or `undefined`.
+   * Returns a promise that is fulfilled with the return value of an object that consists of the first
+   * route handler result that returns something other than `null` or `undefined` and context used to get this result.
    *
    * If no route handlers return a non-null result, or if no route matches the
    * given pathname the returned promise is rejected with a 'page not found'
@@ -138,12 +138,15 @@ class Resolver {
 
       currentContext = Object.assign({}, context, matches.value);
 
-      return Promise.resolve(resolve(currentContext)).then(result => {
+      return Promise.resolve(resolve(currentContext)).then(resolution => {
         context.__resolutionChain = currentContext.__resolutionChain;
-        if (result !== null && result !== undefined) {
-          return result;
+        if (resolution !== null && resolution !== undefined) {
+          return {
+            result: resolution.result || resolution,
+            context: context
+          };
         }
-        return next(resume, parent, result);
+        return next(resume, parent, resolution);
       });
     }
 

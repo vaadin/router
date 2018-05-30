@@ -31,17 +31,17 @@
         },
         {resolveRoute},
       );
-      const result = await resolver.resolve('/a/c');
+      const resolution = await resolver.resolve('/a/c');
       expect(resolveRoute.calledThrice).to.be.true;
       expect(action.called).to.be.false;
-      expect(result).to.be.equal('c');
+      expect(resolution.result).to.be.equal('c');
     });
 
     it('should support custom error handler option', async() => {
       const errorHandler = sinon.spy(() => 'result');
       const resolver = new Resolver([], {errorHandler});
-      const result = await resolver.resolve('/');
-      expect(result).to.be.equal('result');
+      const resolution = await resolver.resolve('/');
+      expect(resolution).to.be.equal('result');
       expect(errorHandler.calledOnce).to.be.true;
       const error = errorHandler.args[0][0];
       expect(error).to.be.an('error');
@@ -60,8 +60,8 @@
         },
       };
       const resolver = new Resolver(route, {errorHandler});
-      const result = await resolver.resolve('/');
-      expect(result).to.be.equal('result');
+      const resolution = await resolver.resolve('/');
+      expect(resolution).to.be.equal('result');
       expect(errorHandler.calledOnce).to.be.true;
       const error = errorHandler.args[0][0];
       expect(error).to.be.an('error');
@@ -112,10 +112,10 @@
     it('should execute the matching route\'s action method and return its result', async() => {
       const action = sinon.spy(() => 'b');
       const resolver = new Resolver({path: '/a', action});
-      const result = await resolver.resolve('/a');
+      const resolution = await resolver.resolve('/a');
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.deep.property('route.path', '/a');
-      expect(result).to.be.equal('b');
+      expect(resolution.result).to.be.equal('b');
     });
 
     it('should find the first route whose action method !== undefined or null', async() => {
@@ -129,8 +129,8 @@
         {path: '/a', action: action3},
         {path: '/a', action: action4},
       ]);
-      const result = await resolver.resolve('/a');
-      expect(result).to.be.equal('c');
+      const resolution = await resolver.resolve('/a');
+      expect(resolution.result).to.be.equal('c');
       expect(action1.calledOnce).to.be.true;
       expect(action2.calledOnce).to.be.true;
       expect(action3.calledOnce).to.be.true;
@@ -140,11 +140,11 @@
     it('should be able to pass context variables to action methods', async() => {
       const action = sinon.spy(() => true);
       const resolver = new Resolver([{path: '/a', action}]);
-      const result = await resolver.resolve({pathname: '/a', test: 'b'});
+      const resolution = await resolver.resolve({pathname: '/a', test: 'b'});
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.deep.property('route.path', '/a');
       expect(action.args[0][0]).to.have.property('test', 'b');
-      expect(result).to.be.true;
+      expect(resolution.result).to.be.true;
     });
 
     it('should not call action methods of routes that don\'t match the URL path', async() => {
@@ -164,19 +164,19 @@
 
     it('should support asynchronous route actions', async() => {
       const resolver = new Resolver([{path: '/a', action: async() => 'b'}]);
-      const result = await resolver.resolve('/a');
-      expect(result).to.be.equal('b');
+      const resolution = await resolver.resolve('/a');
+      expect(resolution.result).to.be.equal('b');
     });
 
     it('URL parameters are captured and added to context.params', async() => {
       const action = sinon.spy(() => true);
       const resolver = new Resolver([{path: '/:one/:two', action}]);
-      const result = await resolver.resolve({pathname: '/a/b'});
+      const resolution = await resolver.resolve({pathname: '/a/b'});
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0])
         .to.have.property('params')
         .that.deep.equals({one: 'a', two: 'b'});
-      expect(result).to.be.true;
+      expect(resolution.result).to.be.true;
     });
 
     it('should provide all URL parameters to each route', async() => {
@@ -194,7 +194,7 @@
           ],
         },
       ]);
-      const result = await resolver.resolve({pathname: '/a/b'});
+      const resolution = await resolver.resolve({pathname: '/a/b'});
       expect(action1.calledOnce).to.be.true;
       expect(action1.args[0][0])
         .to.have.property('params')
@@ -203,7 +203,7 @@
       expect(action2.args[0][0])
         .to.have.property('params')
         .that.deep.equals({one: 'a', two: 'b'});
-      expect(result).to.be.true;
+      expect(resolution.result).to.be.true;
     });
 
     it('should override URL parameters with same name in child route', async() => {
@@ -225,7 +225,7 @@
           ],
         },
       ]);
-      const result = await resolver.resolve({pathname: '/a/b'});
+      const resolution = await resolver.resolve({pathname: '/a/b'});
       expect(action1.calledTwice).to.be.true;
       expect(action1.args[0][0])
         .to.have.property('params')
@@ -237,7 +237,7 @@
       expect(action2.args[0][0])
         .to.have.property('params')
         .that.deep.equals({one: 'a', two: 'b'});
-      expect(result).to.be.true;
+      expect(resolution.result).to.be.true;
     });
 
     it('should not collect parameters from previous routes', async() => {
@@ -270,7 +270,7 @@
           ],
         },
       ]);
-      const result = await resolver.resolve({pathname: '/a/b'});
+      const resolution = await resolver.resolve({pathname: '/a/b'});
       expect(action1.calledTwice).to.be.true;
       expect(action1.args[0][0])
         .to.have.property('params')
@@ -289,7 +289,7 @@
       expect(action3.args[0][0])
         .to.have.property('params')
         .that.deep.equals({three: 'a', five: 'b'});
-      expect(result).to.be.true;
+      expect(resolution.result).to.be.true;
     });
 
     it('should support next() across multiple routes', async() => {
@@ -375,9 +375,9 @@
         },
       ]);
 
-      const result = await resolver.resolve('/test');
+      const resolution = await resolver.resolve('/test');
       expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-      expect(result).to.be.equal('done');
+      expect(resolution.result).to.be.equal('done');
     });
 
     it('should support next(true) across multiple routes', async() => {
@@ -437,21 +437,21 @@
         ],
       });
 
-      const result = await resolver.resolve('/a/b/c');
+      const resolution = await resolver.resolve('/a/b/c');
       expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-      expect(result).to.be.equal('done');
+      expect(resolution.result).to.be.equal('done');
     });
 
     it('should support parametrized routes 1', async() => {
       const action = sinon.spy(() => true);
       const resolver = new Resolver([{path: '/path/:a/other/:b', action}]);
-      const result = await resolver.resolve('/path/1/other/2');
+      const resolution = await resolver.resolve('/path/1/other/2');
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.deep.property('params.a', '1');
       expect(action.args[0][0]).to.have.deep.property('params.b', '2');
       expect(action.args[0][0].params).to.have.property('a', '1');
       expect(action.args[0][0].params).to.have.property('b', '2');
-      expect(result).to.be.true;
+      expect(resolution.result).to.be.true;
     });
 
     it('should support nested routes (1)', async() => {
@@ -470,12 +470,12 @@
         },
       ]);
 
-      const result = await resolver.resolve('/a');
+      const resolution = await resolver.resolve('/a');
       expect(action1.calledOnce).to.be.true;
       expect(action1.args[0][0]).to.have.deep.property('route.path', '');
       expect(action2.calledOnce).to.be.true;
       expect(action2.args[0][0]).to.have.deep.property('route.path', '/a');
-      expect(result).to.be.true;
+      expect(resolution.result).to.be.true;
     });
 
     it('should support nested routes (2)', async() => {
@@ -494,12 +494,12 @@
         },
       ]);
 
-      const result = await resolver.resolve('/a/b');
+      const resolution = await resolver.resolve('/a/b');
       expect(action1.calledOnce).to.be.true;
       expect(action1.args[0][0]).to.have.deep.property('route.path', '/a');
       expect(action2.calledOnce).to.be.true;
       expect(action2.args[0][0]).to.have.deep.property('route.path', '/b');
-      expect(result).to.be.true;
+      expect(resolution.result).to.be.true;
     });
 
     it('should support nested routes (3)', async() => {
@@ -523,14 +523,14 @@
         },
       ]);
 
-      const result = await resolver.resolve('/a/b');
+      const resolution = await resolver.resolve('/a/b');
       expect(action1.calledOnce).to.be.true;
       expect(action1.args[0][0]).to.have.deep.property('route.path', '/a');
       expect(action2.calledOnce).to.be.true;
       expect(action2.args[0][0]).to.have.deep.property('route.path', '/b');
       expect(action3.calledOnce).to.be.true;
       expect(action3.args[0][0]).to.have.deep.property('route.path', '/a/b');
-      expect(result).to.be.true;
+      expect(resolution.result).to.be.true;
     });
 
     it('should re-throw an error', async() => {
@@ -564,13 +564,13 @@
         ],
       };
       const resolver = new Resolver(routes, {baseUrl: '/base'});
-      const result = await resolver.resolve('/base/a/b/c');
+      const resolution = await resolver.resolve('/base/a/b/c');
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.property('pathname', '/base/a/b/c');
       expect(action.args[0][0]).to.have.deep.property('route.path', '/c');
       expect(action.args[0][0]).to.have.property('route', routes.children[0].children[0]);
       expect(action.args[0][0]).to.have.property('resolver', resolver);
-      expect(result).to.be.equal(17);
+      expect(resolution.result).to.be.equal(17);
 
       let err;
       try {
@@ -599,10 +599,10 @@
           ],
         },
       ]);
-      expect(await resolver.resolve('/')).to.be.equal('a');
-      expect(await resolver.resolve('/page/')).to.be.equal('b');
-      expect(await resolver.resolve('/child/')).to.be.equal('c');
-      expect(await resolver.resolve('/child/page/')).to.be.equal('d');
+      expect((await resolver.resolve('/')).result).to.be.equal('a');
+      expect((await resolver.resolve('/page/')).result).to.be.equal('b');
+      expect((await resolver.resolve('/child/')).result).to.be.equal('c');
+      expect((await resolver.resolve('/child/page/')).result).to.be.equal('d');
     });
 
     it('should skip nested routes when middleware route returns null', async() => {
@@ -620,8 +620,8 @@
         },
       ]);
 
-      const result = await resolver.resolve('/match');
-      expect(result).to.be.equal(404);
+      const resolution = await resolver.resolve('/match');
+      expect(resolution.result).to.be.equal(404);
       expect(action.called).to.be.false;
       expect(middleware.calledOnce).to.be.true;
     });
@@ -641,8 +641,8 @@
         },
       ]);
 
-      const result = await resolver.resolve('/match');
-      expect(result).to.be.equal(404);
+      const resolution = await resolver.resolve('/match');
+      expect(resolution.result).to.be.equal(404);
       expect(action.calledOnce).to.be.true;
       expect(middleware.calledOnce).to.be.true;
     });
