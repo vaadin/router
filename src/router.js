@@ -262,6 +262,23 @@ export class Router extends Resolver {
    * * {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.
    * Children 'path' values are relative to the parent ones.
    *
+   * * {?function(context)} inactivate – after each resolution, router marks each route used in the resolution as an active route:
+   * if a hierarchy of '/a', '/b' (child of '/a'), '/c' (child of '/b') routes was defined, and user visits '/a/b/c' path,
+   * router will track ['/a', '/b', '/c'] routes as active ones, remembering their order also.
+   * During the next resolution, router compares new routes used in the resolution and,
+   * at the moment when they start to differ from the active ones, router calls 'inactivate' method on each route that is different:
+   * if, for previous example, user visits '/a/d' path and it's a valid path, routes '/c' and '/b' will be inactivated.
+   * Inactivation always happens from the last active element to the first that is different from the new route,
+   * if the method is not defined for any route, the route is skipped.
+   * Each `inactivate` call gets a `context` parameter, described above.
+   * In this case, context parameter contains an additional `inactivatedRoute` property,
+   * that holds an information on the currently inactivated route.
+   * If `inactivate` method returns `false`, inactivation and new path resolution is cancelled,
+   * router restores the state before new resolution.
+   * Otherwise router updates the active routes and waits for the next resolution to happen.
+   *
+   * Note: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
+   *
    * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */
   setRoutes(routes) {
