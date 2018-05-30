@@ -200,6 +200,7 @@ export class Router extends Resolver {
     for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
       const routeToInactivate = this.__activeRoutes[i];
       if (typeof routeToInactivate.inactivate === 'function') {
+        context.inactivatedRoute = routeToInactivate;
         const inactivationResult = routeToInactivate.inactivate(context);
         if (inactivationResult === false) {
           context.__resolutionChain = this.__activeRoutes;
