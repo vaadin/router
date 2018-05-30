@@ -182,17 +182,14 @@ export class Router extends Resolver {
 
   __processComponent(route, context) {
     if (typeof route.component === 'string') {
-      const renderingResult = Router.renderComponent(route.component, context);
-      if (isResultNotEmpty(renderingResult)) {
-        const newActiveRoutesLength = (context.__resolutionChain || []).length;
-        if (newActiveRoutesLength < this.__activeRoutes.length) {
-          const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
-          if (isResultNotEmpty(inactivationResult)) {
-            return inactivationResult;
-          }
+      const newActiveRoutesLength = (context.__resolutionChain || []).length;
+      if (newActiveRoutesLength < this.__activeRoutes.length) {
+        const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
+        if (isResultNotEmpty(inactivationResult)) {
+          return inactivationResult;
         }
       }
-      return renderingResult;
+      return Router.renderComponent(route.component, context);
     }
   }
 
