@@ -124,6 +124,7 @@ export class Router extends Resolver {
    */
   constructor(outlet, options) {
     super([], Object.assign({}, options));
+    this.resolveRoute = context => this.__resolveRoute(context);
 
     const triggers = Router.NavigationTrigger;
     Router.setTriggers.apply(Router, Object.keys(triggers).map(key => triggers[key]));
@@ -196,20 +197,16 @@ export class Router extends Resolver {
   }
 
   __runInactivationChain(divergedRouteIndex, context) {
-    for (let i = divergedRouteIndex; i < this.__activeRoutes.length; i++) {
+    for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
       const routeToInactivate = this.__activeRoutes[i];
       if (typeof routeToInactivate.inactivate === 'function') {
         const inactivationResult = routeToInactivate.inactivate(context);
-        if (isResultNotEmpty(inactivationResult)) {
-          this.__fallBackToPreviousActiveChain(context);
-          return inactivationResult;
+        if (inactivationResult === false) {
+          context.__resolutionChain = this.__activeRoutes;
+          return this.__previousResolution;
         }
       }
     }
-  }
-
-  __fallBackToPreviousActiveChain(context) {
-    context.__resolutionChain = this.__activeRoutes;
     this.__activeRoutes = [];
   }
 
@@ -290,7 +287,6 @@ export class Router extends Resolver {
    * @return {!Promise<!Node>}
    */
   render(pathnameOrContext, shouldUpdateHistory) {
-    this.resolveRoute = context => this.__resolveRoute(context);
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
@@ -315,6 +311,7 @@ export class Router extends Resolver {
           }
           this.__setOutletContent(element);
           this.__activeRoutes = element.context.__resolutionChain || [];
+          this.__previousResolution = element;
           return this.__outlet;
         }
       })

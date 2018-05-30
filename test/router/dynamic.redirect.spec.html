@@ -157,6 +157,22 @@
           verifyActiveRoutes(router, ['/b']);
         });
 
+        it('inactivate chain is called in reversed order, from last route to first', async() => {
+          const deactivatedPaths = [];
+          router.setRoutes([
+            {path: '/a', inactivate: () => deactivatedPaths.push('a'), children: [
+              {path: '/b', inactivate: () => deactivatedPaths.push('b'), children: [
+                {path: '/c', inactivate: () => deactivatedPaths.push('c'), component: 'x-users-view'},
+              ]},
+            ]},
+            {path: '/', component: 'x-home-view'},
+          ]);
+
+          await router.render('/a/b/c');
+          await router.render('/');
+          expect(deactivatedPaths).to.deep.equal(['c', 'b', 'a']);
+        });
+
         it('inactivate is called with correct context argument', async() => {
           const lastResolvedRoute = '/b';
           const lastComponentToRender = 'x-users-view';
@@ -199,10 +215,10 @@
           expect(inactivateC).to.have.been.called.once;
         });
 
-        it('inactivate that returns rendered component, changes render target and reverts active routes changes', async() => {
+        it('inactivate that returns false, changes render target and reverts active routes changes every time it is triggered', async() => {
           router.setRoutes([
             {path: '/a', children: [
-              {path: '/b', inactivate: context => Vaadin.Router.renderComponent('x-users-view', context), children: [
+              {path: '/b', inactivate: () => false, children: [
                 {path: '/c', component: 'x-home-view'}
               ]},
             ]},
@@ -211,31 +227,14 @@
 
           await router.render('/a/b/c');
           await router.render('/d');
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          verifyActiveRoutes(router, ['/a', '/b', '/c']);
 
-          expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          await router.render('/d');
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           verifyActiveRoutes(router, ['/a', '/b', '/c']);
         });
 
-        it('inactivate that returns redirect, changes render target and reverts active routes changes', async() => {
-          const inactivateWithRedirect = () => {
-            return {redirect: {pathname: '/e', from: '/a/b'}};
-          };
-          router.setRoutes([
-            {path: '/a', children: [
-              {path: '/b', inactivate: inactivateWithRedirect, children: [
-                {path: '/c', component: 'x-home-view'}
-              ]},
-            ]},
-            {path: '/d', component: 'whatever'},
-            {path: '/e', component: 'x-users-view'}
-          ]);
-
-          await router.render('/a/b/c');
-          await router.render('/d');
-
-          expect(outlet.children[0].tagName).to.match(/x-users-view/i);
-          verifyActiveRoutes(router, ['/e']);
-        });
 
         it('inactivate is called when new activation path has no different routes but is shorter', async() => {
           const inactivate = sinon.spy();
@@ -262,7 +261,7 @@
           expect(inactivate).to.have.been.called.once;
         });
 
-        it('inactivate that returns rendered component, changes render target and reverts active routes changes ' +
+        it('inactivate that returns false, changes render target and reverts active routes changes ' +
           'when new activation path has no different routes but is shorter', async() => {
           const actionToEmulateShorterResolvePass = context => {
             if ((context.pathname.match(/\//g) || []).length < 2) {
@@ -271,7 +270,7 @@
           };
           router.setRoutes([
             {path: '/a', action: actionToEmulateShorterResolvePass, children: [
-              {path: '/b', component: 'x-users-view', inactivate: context => Vaadin.Router.renderComponent('x-home-view', context)},
+              {path: '/b', component: 'x-users-view', inactivate: () => false},
             ]},
             {path: '/a', component: 'whatever'}
           ]);
@@ -279,33 +278,8 @@
           await router.render('/a/b');
           await router.render('/a');
 
-          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          expect(outlet.children[0].tagName).to.match(/x-users-view/i);
           verifyActiveRoutes(router, ['/a', '/b']);
-        });
-
-        it('inactivate that returns redirect, changes render target and reverts active routes changes ' +
-          'when new activation path has no different routes but is shorter', async() => {
-          const actionToEmulateShorterResolvePass = context => {
-            if ((context.pathname.match(/\//g) || []).length < 2) {
-              return context.next();
-            }
-          };
-          const inactivateWithRedirect = () => {
-            return {redirect: {pathname: '/c', from: '/a/b'}};
-          };
-          router.setRoutes([
-            {path: '/a', action: actionToEmulateShorterResolvePass, children: [
-              {path: '/b', component: 'x-users-view', inactivate: inactivateWithRedirect},
-            ]},
-            {path: '/a', component: 'whatever'},
-            {path: '/c', component: 'x-home-view'}
-          ]);
-
-          await router.render('/a/b');
-          await router.render('/a');
-
-          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-          verifyActiveRoutes(router, ['/c']);
         });
       });
     });
