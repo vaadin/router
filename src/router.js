@@ -123,7 +123,7 @@ export class Router extends Resolver {
    * @param {?RouterOptions} options
    */
   constructor(outlet, options) {
-    super([], Object.assign({}, options));
+    super([], Object.assign({}, {context: {render: Router.renderComponent}}, options));
     this.resolveRoute = context => this.__resolveRoute(context);
 
     const triggers = Router.NavigationTrigger;
