@@ -14,7 +14,7 @@ export function ensureRoute(route) {
   }
 
   if (route.redirect) {
-    ['bundle', 'component'].forEach(incorrectlyUsedProperty => {
+    ['bundle', 'component', 'inactivate'].forEach(incorrectlyUsedProperty => {
       if (incorrectlyUsedProperty in route) {
         console.warn(`Route with path '${route.path}' has both 'redirect' and '${incorrectlyUsedProperty}' properties specified.` +
           ` Latter will never evaluated since 'redirect' will be executed earlier.`);

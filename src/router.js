@@ -3,30 +3,8 @@ import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import {loadBundle} from './utils.js';
 
-function resolveRoute(context) {
-  const route = context.route;
-
-  const actionResult = processAction(context);
-  if (actionResult !== null && actionResult !== undefined) {
-    return actionResult;
-  }
-
-  if (typeof route.redirect === 'string') {
-    const params = Object.assign({}, context.params);
-    return {redirect: {pathname: route.redirect, from: context.pathname, params}};
-  }
-
-  if (route.bundle) {
-    return loadBundle(route.bundle).then(() => processComponent(route, context));
-  }
-
-  return processComponent(route, context);
-}
-
-function processComponent(route, context) {
-  if (typeof route.component === 'string') {
-    return Router.renderComponent(route.component, context);
-  }
+function isResultNotEmpty(result) {
+  return result !== null && result !== undefined;
 }
 
 /**
@@ -145,7 +123,8 @@ export class Router extends Resolver {
    * @param {?RouterOptions} options
    */
   constructor(outlet, options) {
-    super([], Object.assign({resolveRoute}, options));
+    super([], Object.assign({}, options));
+    this.resolveRoute = context => this.__resolveRoute(context);
 
     const triggers = Router.NavigationTrigger;
     Router.setTriggers.apply(Router, Object.keys(triggers).map(key => triggers[key]));
@@ -163,8 +142,70 @@ export class Router extends Resolver {
 
     this.__lastStartedRenderId = 0;
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
+    this.__activeRoutes = [];
     this.setOutlet(outlet);
     this.subscribe();
+  }
+
+  __resolveRoute(context) {
+    const route = context.route;
+
+    const actionResult = processAction(context);
+    if (isResultNotEmpty(actionResult)) {
+      return actionResult;
+    }
+
+    if (typeof route.redirect === 'string') {
+      const params = Object.assign({}, context.params);
+      return {redirect: {pathname: route.redirect, from: context.pathname, params}};
+    }
+
+    if (route.path) {
+      const newActiveRouteIndex = (context.__resolutionChain || (context.__resolutionChain = [])).push(context.route) - 1;
+      if (this.__activeRoutes && this.__activeRoutes.length > newActiveRouteIndex) {
+        const oldActiveRoute = this.__activeRoutes[newActiveRouteIndex];
+        if (oldActiveRoute.path !== context.__resolutionChain[newActiveRouteIndex].path) {
+          const inactivationResult = this.__runInactivationChain(newActiveRouteIndex, context);
+          if (isResultNotEmpty(inactivationResult)) {
+            return inactivationResult;
+          }
+        }
+      }
+    }
+
+    if (route.bundle) {
+      return loadBundle(route.bundle).then(() => this.__processComponent(route, context));
+    }
+
+    return this.__processComponent(route, context);
+  }
+
+  __processComponent(route, context) {
+    if (typeof route.component === 'string') {
+      const newActiveRoutesLength = (context.__resolutionChain || []).length;
+      if (newActiveRoutesLength < this.__activeRoutes.length) {
+        const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
+        if (isResultNotEmpty(inactivationResult)) {
+          return inactivationResult;
+        }
+      }
+      return Router.renderComponent(route.component, context);
+    }
+  }
+
+  __runInactivationChain(divergedRouteIndex, context) {
+    for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
+      const routeToInactivate = this.__activeRoutes[i];
+      if (typeof routeToInactivate.inactivate === 'function') {
+        context.inactivatedRoute = routeToInactivate;
+        const inactivationResult = routeToInactivate.inactivate(context);
+        if (inactivationResult === false) {
+          context.__resolutionChain = this.__activeRoutes;
+          return this.__previousResolution;
+        }
+      }
+    }
+    this.__activeRoutes = [];
   }
 
   /**
@@ -218,6 +259,23 @@ export class Router extends Resolver {
    * * {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.
    * Children 'path' values are relative to the parent ones.
    *
+   * * {?function(context)} inactivate – after each resolution, router marks each route used in the resolution as an active route:
+   * if a hierarchy of '/a', '/b' (child of '/a'), '/c' (child of '/b') routes was defined, and user visits '/a/b/c' path,
+   * router will track ['/a', '/b', '/c'] routes as active ones, remembering their order also.
+   * During the next resolution, router compares new routes used in the resolution and,
+   * at the moment when they start to differ from the active ones, router calls 'inactivate' method on each route that is different:
+   * if, for previous example, user visits '/a/d' path and it's a valid path, routes '/c' and '/b' will be inactivated.
+   * Inactivation always happens from the last active element to the first that is different from the new route,
+   * if the method is not defined for any route, the route is skipped.
+   * Each `inactivate` call gets a `context` parameter, described above.
+   * In this case, context parameter contains an additional `inactivatedRoute` property,
+   * that holds an information on the currently inactivated route.
+   * If `inactivate` method returns `false`, inactivation and new path resolution is cancelled,
+   * router restores the state before new resolution.
+   * Otherwise router updates the active routes and waits for the next resolution to happen.
+   *
+   * Note: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
+   *
    * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */
   setRoutes(routes) {
@@ -267,6 +325,8 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(element.route.pathname);
           }
           this.__setOutletContent(element);
+          this.__activeRoutes = element.context.__resolutionChain || [];
+          this.__previousResolution = element;
           return this.__outlet;
         }
       })
@@ -352,6 +412,7 @@ export class Router extends Resolver {
     if (context.from) {
       element.route.redirectFrom = context.from;
     }
+    element.context = context;
     return element;
   }
 

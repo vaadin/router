@@ -139,6 +139,7 @@ class Resolver {
       currentContext = Object.assign({}, context, matches.value);
 
       return Promise.resolve(resolve(currentContext)).then(result => {
+        context.__resolutionChain = currentContext.__resolutionChain;
         if (result !== null && result !== undefined) {
           return result;
         }
