@@ -1,7 +1,8 @@
 window.VaadinRouterSuites = {
   default: [
     'resolver/resolver.spec.js',
-    'router.spec.html',
+    'router/router.spec.html',
+    'router/dynamic.redirect.spec.html',
   ],
   coverage: [
     'resolver/matchPath.spec.js',
