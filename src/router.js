@@ -305,28 +305,29 @@ export class Router extends Resolver {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
-      .then(result => {
-        if (result instanceof HTMLElement) {
-          return result;
-        } else if (result.redirect) {
-          const redirect = result.redirect;
+      .then(resolution => {
+        if (resolution.result instanceof HTMLElement) {
+          return resolution;
+        } else if (resolution.result.redirect) {
+          const redirect = resolution.result.redirect;
           return this.resolve({
             pathname: Router.pathToRegexp.compile(redirect.pathname)(redirect.params),
             from: redirect.from
           });
         } else {
           return Promise.reject(new Error(`Incorrect route resolution result for path '${pathnameOrContext}'. ` +
-            `Expected redirect object or HTML element, but got: '${result}'. Double check the action return value for the route.`));
+            `Expected redirect object or HTML element, but got: '${resolution.result}'.` +
+            `Double check the action return value for the route.`));
         }
       })
-      .then(element => {
+      .then(resolution => {
         if (renderId === this.__lastStartedRenderId) {
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(element.route.pathname);
+            this.__updateBrowserHistory(resolution.result.route.pathname);
           }
-          this.__setOutletContent(element);
-          this.__activeRoutes = element.context.__resolutionChain || [];
-          this.__previousResolution = element;
+          this.__setOutletContent(resolution.result);
+          this.__activeRoutes = resolution.context.__resolutionChain || [];
+          this.__previousResolution = resolution.result;
           return this.__outlet;
         }
       })
@@ -412,7 +413,6 @@ export class Router extends Resolver {
     if (context.from) {
       element.route.redirectFrom = context.from;
     }
-    element.context = context;
     return element;
   }
 

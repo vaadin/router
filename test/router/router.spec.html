@@ -235,7 +235,7 @@
 
             expect(spy).to.be.calledTwice;
             const firstResult = await spy.returnValues[0];
-            expect(firstResult).to.deep.equal(result);
+            expect(firstResult.result).to.deep.equal(result);
 
             expect(spy.secondCall.args[0].from).to.equal(from);
             expect(spy.secondCall.args[0].pathname).to.equal(pathname);
