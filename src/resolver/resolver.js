@@ -141,10 +141,8 @@ class Resolver {
       return Promise.resolve(resolve(currentContext)).then(resolution => {
         context.__resolutionChain = currentContext.__resolutionChain;
         if (resolution !== null && resolution !== undefined) {
-          return {
-            result: resolution.result || resolution,
-            context: currentContext
-          };
+          currentContext.result = resolution.result || resolution;
+          return currentContext;
         }
         return next(resume, parent, resolution);
       });
@@ -167,10 +165,8 @@ class Resolver {
           error.code = error.code || 500;
         }
         if (this.errorHandler) {
-          return {
-            result: this.errorHandler(error),
-            context: currentContext
-          };
+          currentContext.result = this.errorHandler(error);
+          return currentContext;
         }
         throw error;
       });

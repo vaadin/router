@@ -305,29 +305,29 @@ export class Router extends Resolver {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
-      .then(resolution => {
-        if (resolution.result instanceof HTMLElement) {
-          return resolution;
-        } else if (resolution.result.redirect) {
-          const redirect = resolution.result.redirect;
+      .then(context => {
+        if (context.result instanceof HTMLElement) {
+          return context;
+        } else if (context.result.redirect) {
+          const redirect = context.result.redirect;
           return this.resolve({
             pathname: Router.pathToRegexp.compile(redirect.pathname)(redirect.params),
             from: redirect.from
           });
         } else {
           return Promise.reject(new Error(`Incorrect route resolution result for path '${pathnameOrContext}'. ` +
-            `Expected redirect object or HTML element, but got: '${resolution.result}'.` +
+            `Expected redirect object or HTML element, but got: '${context.result}'.` +
             `Double check the action return value for the route.`));
         }
       })
-      .then(resolution => {
+      .then(context => {
         if (renderId === this.__lastStartedRenderId) {
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(resolution.result.route.pathname);
+            this.__updateBrowserHistory(context.result.route.pathname);
           }
-          this.__setOutletContent(resolution.result);
-          this.__activeRoutes = resolution.context.__resolutionChain || [];
-          this.__previousResolution = resolution.result;
+          this.__setOutletContent(context.result);
+          this.__activeRoutes = context.__resolutionChain || [];
+          this.__previousResolution = context.result;
           return this.__outlet;
         }
       })
