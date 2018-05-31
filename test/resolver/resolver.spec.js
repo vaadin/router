@@ -41,7 +41,7 @@
       const errorHandler = sinon.spy(() => 'result');
       const resolver = new Resolver([], {errorHandler});
       const resolution = await resolver.resolve('/');
-      expect(resolution).to.be.equal('result');
+      expect(resolution.result).to.be.equal('result');
       expect(errorHandler.calledOnce).to.be.true;
       const error = errorHandler.args[0][0];
       expect(error).to.be.an('error');
@@ -61,7 +61,7 @@
       };
       const resolver = new Resolver(route, {errorHandler});
       const resolution = await resolver.resolve('/');
-      expect(resolution).to.be.equal('result');
+      expect(resolution.result).to.be.equal('result');
       expect(errorHandler.calledOnce).to.be.true;
       const error = errorHandler.args[0][0];
       expect(error).to.be.an('error');

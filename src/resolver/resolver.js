@@ -143,7 +143,7 @@ class Resolver {
         if (resolution !== null && resolution !== undefined) {
           return {
             result: resolution.result || resolution,
-            context: context
+            context: currentContext
           };
         }
         return next(resume, parent, resolution);
@@ -167,7 +167,10 @@ class Resolver {
           error.code = error.code || 500;
         }
         if (this.errorHandler) {
-          return this.errorHandler(error);
+          return {
+            result: this.errorHandler(error),
+            context: currentContext
+          };
         }
         throw error;
       });
