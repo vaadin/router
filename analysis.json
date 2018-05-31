@@ -131,11 +131,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1141,
+              "line": 1146,
               "column": 6
             },
             "end": {
-              "line": 1141,
+              "line": 1146,
               "column": 17
             }
           },
@@ -166,15 +166,15 @@
         },
         {
           "name": "setRoutes",
-          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* {!string} path – the route path (relative to the parent route if any) in the\n<a href=\"https://expressjs.com/en/guide/routing.html#route-paths\" target=\"_blank\">express.js syntax</a>.\n\n* {?function(context)} action – the action that is executed before the route is resolved.\nIf present, action property is always processed first, disregarding of the other properties' presence.\nIf action returns a value, current route resolution is finished (i.e. other route properties are not processed).\n'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'\nand for getting route parameters via 'context.params'.\n\n* {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\n\n* {?string} bundle – '*.js' or '*.mjs' bundles to load before resolving the route. Each bundle is loaded only once.\nIs not triggered when either an 'action' returns the result or 'redirect' property is present.\n\n* {?string} component – the tag name of the Web Component to resolve the route to.\nIs not considered when either an 'action' returns the result or 'redirect' property is present.\n\n* {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.\nChildren 'path' values are relative to the parent ones.",
+          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* {!string} path – the route path (relative to the parent route if any) in the\n<a href=\"https://expressjs.com/en/guide/routing.html#route-paths\" target=\"_blank\">express.js syntax</a>.\n\n* {?function(context)} action – the action that is executed before the route is resolved.\nIf present, action property is always processed first, disregarding of the other properties' presence.\nIf action returns a value, current route resolution is finished (i.e. other route properties are not processed).\n'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'\nand for getting route parameters via 'context.params'.\n\n* {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\n\n* {?string} bundle – '*.js' or '*.mjs' bundles to load before resolving the route. Each bundle is loaded only once.\nIs not triggered when either an 'action' returns the result or 'redirect' property is present.\n\n* {?string} component – the tag name of the Web Component to resolve the route to.\nIs not considered when either an 'action' returns the result or 'redirect' property is present.\n\n* {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.\nChildren 'path' values are relative to the parent ones.\n\n* {?function(context)} inactivate – after each resolution, router marks each route used in the resolution as an active route:\nif a hierarchy of '/a', '/b' (child of '/a'), '/c' (child of '/b') routes was defined, and user visits '/a/b/c' path,\nrouter will track ['/a', '/b', '/c'] routes as active ones, remembering their order also.\nDuring the next resolution, router compares new routes used in the resolution and,\nat the moment when they start to differ from the active ones, router calls 'inactivate' method on each route that is different:\nif, for previous example, user visits '/a/d' path and it's a valid path, routes '/c' and '/b' will be inactivated.\nInactivation always happens from the last active element to the first that is different from the new route,\nif the method is not defined for any route, the route is skipped.\nEach `inactivate` call gets a `context` parameter, described above.\nIn this case, context parameter contains an additional `inactivatedRoute` property,\nthat holds an information on the currently inactivated route.\nIf `inactivate` method returns `false`, inactivation and new path resolution is cancelled,\nrouter restores the state before new resolution.\nOtherwise router updates the active routes and waits for the next resolution to happen.\n\nNote: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1275,
+              "line": 1287,
               "column": 4
             },
             "end": {
-              "line": 1278,
+              "line": 1290,
               "column": 5
             }
           },
@@ -242,37 +242,16 @@
           "inheritedFrom": "Vaadin.Resolver"
         },
         {
-          "name": "__isResultNotEmpty",
-          "description": "",
-          "privacy": "private",
-          "sourceRange": {
-            "start": {
-              "line": 1151,
-              "column": 4
-            },
-            "end": {
-              "line": 1153,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "result"
-            }
-          ]
-        },
-        {
           "name": "__resolveRoute",
           "description": "",
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1155,
+              "line": 1156,
               "column": 4
             },
             "end": {
-              "line": 1186,
+              "line": 1187,
               "column": 5
             }
           },
@@ -289,11 +268,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1188,
+              "line": 1189,
               "column": 4
             },
             "end": {
-              "line": 1202,
+              "line": 1200,
               "column": 5
             }
           },
@@ -313,7 +292,7 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1204,
+              "line": 1202,
               "column": 4
             },
             "end": {
@@ -332,37 +311,16 @@
           ]
         },
         {
-          "name": "__fallBackToPreviousActiveChain",
-          "description": "",
-          "privacy": "private",
-          "sourceRange": {
-            "start": {
-              "line": 1217,
-              "column": 4
-            },
-            "end": {
-              "line": 1220,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "context"
-            }
-          ]
-        },
-        {
           "name": "setOutlet",
           "description": "Sets the router outlet (the DOM node where the content for the current\nroute is inserted). Any content pre-existing in the router outlet is\nremoved at the end of each render pass.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1230,
+              "line": 1225,
               "column": 4
             },
             "end": {
-              "line": 1235,
+              "line": 1230,
               "column": 5
             }
           },
@@ -381,11 +339,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1242,
+              "line": 1237,
               "column": 4
             },
             "end": {
-              "line": 1244,
+              "line": 1239,
               "column": 5
             }
           },
@@ -402,11 +360,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1298,
+              "line": 1310,
               "column": 4
             },
             "end": {
-              "line": 1337,
+              "line": 1349,
               "column": 5
             }
           },
@@ -431,11 +389,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1339,
+              "line": 1351,
               "column": 4
             },
             "end": {
-              "line": 1343,
+              "line": 1355,
               "column": 5
             }
           },
@@ -452,11 +410,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1345,
+              "line": 1357,
               "column": 4
             },
             "end": {
-              "line": 1351,
+              "line": 1363,
               "column": 5
             }
           },
@@ -473,11 +431,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1353,
+              "line": 1365,
               "column": 4
             },
             "end": {
-              "line": 1365,
+              "line": 1377,
               "column": 5
             }
           },
@@ -494,11 +452,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1373,
+              "line": 1385,
               "column": 4
             },
             "end": {
-              "line": 1376,
+              "line": 1388,
               "column": 5
             }
           },
@@ -511,11 +469,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1382,
+              "line": 1394,
               "column": 4
             },
             "end": {
-              "line": 1385,
+              "line": 1397,
               "column": 5
             }
           },
@@ -528,11 +486,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1387,
+              "line": 1399,
               "column": 4
             },
             "end": {
-              "line": 1392,
+              "line": 1404,
               "column": 5
             }
           },
@@ -551,11 +509,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 1402,
+              "line": 1414,
               "column": 4
             },
             "end": {
-              "line": 1411,
+              "line": 1423,
               "column": 5
             }
           },
@@ -582,11 +540,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1440,
+              "line": 1452,
               "column": 4
             },
             "end": {
-              "line": 1442,
+              "line": 1454,
               "column": 5
             }
           },
@@ -613,11 +571,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1112,
+          "line": 1116,
           "column": 2
         },
         "end": {
-          "line": 1443,
+          "line": 1455,
           "column": 3
         }
       },
