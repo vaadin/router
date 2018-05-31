@@ -35,6 +35,10 @@
         <li><code>context.params</code> [object] the route parameters</li>
         <li><code>context.next</code> [function] proceed to resolving the next
           matching route (if any)</li>
+        <li><code>context.redirect(path)</code> [function] that creates a redirect data for the path specified.
+        This data can be returned from <code>action</code> to perform an actual redirect</li>
+        <li><code>context.component(component)</code> [function] that creates a new <code>HTMLElement</code>
+          with current context</li>
       </ul>
       The supported return values are
       <ul>
@@ -140,6 +144,89 @@
                 {path: '/:user', component: 'x-user-profile'}
               ]
             },
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Redirecting from an Action</h3>
+    <p>
+      <code>action()</code> can use its <code>context</code> parameter to influence
+      the route resolution result.
+      First demo had demonstrated the <code>context.next()</code> usage,
+      this demo demonstrates <code>context.redirect(path)</code> method usage
+      that allows you to redirect to any other defined route by using its path.
+      All the parameters in current context will be passed to the redirect target.
+    </p>
+    <p>
+      Note: If you need only to redirect to another route, defining an action might be an overkill.
+      More convenient way is described in <a href="#vaadin-router-redirect-demos">Redirects</a> section.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-route-actions-demo-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/employees/Kim">Route that redirects</a>
+          <a href="/users/Kim">Redirect target</a>
+        </nav>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const redirect = context => {
+            context.params.user += ' (redirected)';
+            return context.redirect('/users/:user');
+          };
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            // current route parameters are automatically transferred to redirect target
+            {path: '/employees/:user', action: redirect},
+            {path: '/users/:user', component: 'x-user-profile'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Returning Custom Element as an Action Result</h3>
+    <p>
+      Another thing that <code>action()</code> can do with <code>context</code>
+      parameter is to create a custom element with current context.
+      All the parameters in current context will be passed to the rendered element.
+    </p>
+    <p>
+      Note: If the only thing your action does is custom element creation, it can
+      be replaced with <code>component</code> property of the route.
+      See <a href="#vaadin-router-basic-demos">Getting Started</a> section for examples.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-route-actions-demo-4" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/users/Kim">Renders stub page</a>
+          <a href="/users/admin">Renders user info page</a>
+        </nav>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const render = context => {
+            if (context.params.user === 'admin') {
+              return context.component('x-user-profile');
+            }
+            const stubElement = context.component('h3');
+            stubElement.innerHTML = 'Access denied';
+            return stubElement;
+          };
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            // current route parameters are automatically transferred to rendered element
+            {path: '/users/:user', action: render},
           ]);
         </script>
       </template>

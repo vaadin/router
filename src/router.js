@@ -7,6 +7,22 @@ function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
 }
 
+function redirect(context, path) {
+  const params = Object.assign({}, context.params);
+  return {redirect: {pathname: path, from: context.pathname, params}};
+}
+
+function renderComponent(context, component) {
+  const element = document.createElement(component);
+  const params = Object.assign({}, context.params);
+  element.route = {params, pathname: context.pathname};
+  if (context.from) {
+    element.route.redirectFrom = context.from;
+  }
+  element.context = context;
+  return element;
+}
+
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -149,6 +165,8 @@ export class Router extends Resolver {
 
   __resolveRoute(context) {
     const route = context.route;
+    context.redirect = path => redirect(context, path);
+    context.component = component => renderComponent(context, component);
 
     const actionResult = processAction(context);
     if (isResultNotEmpty(actionResult)) {
@@ -156,8 +174,7 @@ export class Router extends Resolver {
     }
 
     if (typeof route.redirect === 'string') {
-      const params = Object.assign({}, context.params);
-      return {redirect: {pathname: route.redirect, from: context.pathname, params}};
+      return context.redirect(route.redirect);
     }
 
     if (route.path) {
@@ -189,7 +206,7 @@ export class Router extends Resolver {
           return inactivationResult;
         }
       }
-      return Router.renderComponent(route.component, context);
+      return context.component(route.component);
     }
   }
 
@@ -305,28 +322,29 @@ export class Router extends Resolver {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
-      .then(result => {
-        if (result instanceof HTMLElement) {
-          return result;
-        } else if (result.redirect) {
-          const redirect = result.redirect;
+      .then(context => {
+        if (context.result instanceof HTMLElement) {
+          return context;
+        } else if (context.result.redirect) {
+          const redirect = context.result.redirect;
           return this.resolve({
             pathname: Router.pathToRegexp.compile(redirect.pathname)(redirect.params),
             from: redirect.from
           });
         } else {
           return Promise.reject(new Error(`Incorrect route resolution result for path '${pathnameOrContext}'. ` +
-            `Expected redirect object or HTML element, but got: '${result}'. Double check the action return value for the route.`));
+            `Expected redirect object or HTML element, but got: '${context.result}'.` +
+            `Double check the action return value for the route.`));
         }
       })
-      .then(element => {
+      .then(context => {
         if (renderId === this.__lastStartedRenderId) {
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(element.route.pathname);
+            this.__updateBrowserHistory(context.result.route.pathname);
           }
-          this.__setOutletContent(element);
-          this.__activeRoutes = element.context.__resolutionChain || [];
-          this.__previousResolution = element;
+          this.__setOutletContent(context.result);
+          this.__activeRoutes = context.__resolutionChain || [];
+          this.__previousResolution = context.result;
           return this.__outlet;
         }
       })
@@ -395,25 +413,6 @@ export class Router extends Resolver {
     if (this.root.children.length > 0) {
       this.render(pathname, true);
     }
-  }
-
-  /**
-   * Creates and returns an instance of a given custom element.
-   *
-   * @param {!string} component tag name of a web component to render
-   * @param {?context} context an optional context object
-   * @return {!HTMLElement}
-   * @protected
-   */
-  static renderComponent(component, context) {
-    const element = document.createElement(component);
-    const params = Object.assign({}, context.params);
-    element.route = {params, pathname: context.pathname};
-    if (context.from) {
-      element.route.redirectFrom = context.from;
-    }
-    element.context = context;
-    return element;
   }
 
   /**

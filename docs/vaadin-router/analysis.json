@@ -78,7 +78,7 @@
         },
         {
           "name": "resolve",
-          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of the first\nroute handler that returns something other than `null` or `undefined`.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
+          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
           "privacy": "public",
           "sourceRange": {
             "start": {
@@ -86,7 +86,7 @@
               "column": 4
             },
             "end": {
-              "line": 989,
+              "line": 991,
               "column": 5
             }
           },
@@ -112,7 +112,7 @@
           "column": 2
         },
         "end": {
-          "line": 990,
+          "line": 992,
           "column": 3
         }
       },
@@ -131,11 +131,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1146,
+              "line": 1164,
               "column": 6
             },
             "end": {
-              "line": 1146,
+              "line": 1164,
               "column": 17
             }
           },
@@ -170,11 +170,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1287,
+              "line": 1306,
               "column": 4
             },
             "end": {
-              "line": 1290,
+              "line": 1309,
               "column": 5
             }
           },
@@ -216,7 +216,7 @@
         },
         {
           "name": "resolve",
-          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of the first\nroute handler that returns something other than `null` or `undefined`.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
+          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
           "privacy": "public",
           "sourceRange": {
             "start": {
@@ -224,7 +224,7 @@
               "column": 4
             },
             "end": {
-              "line": 989,
+              "line": 991,
               "column": 5
             }
           },
@@ -247,11 +247,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1156,
+              "line": 1174,
               "column": 4
             },
             "end": {
-              "line": 1187,
+              "line": 1206,
               "column": 5
             }
           },
@@ -268,11 +268,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1189,
+              "line": 1208,
               "column": 4
             },
             "end": {
-              "line": 1200,
+              "line": 1219,
               "column": 5
             }
           },
@@ -292,11 +292,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1202,
+              "line": 1221,
               "column": 4
             },
             "end": {
-              "line": 1215,
+              "line": 1234,
               "column": 5
             }
           },
@@ -316,11 +316,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1225,
+              "line": 1244,
               "column": 4
             },
             "end": {
-              "line": 1230,
+              "line": 1249,
               "column": 5
             }
           },
@@ -339,11 +339,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1237,
+              "line": 1256,
               "column": 4
             },
             "end": {
-              "line": 1239,
+              "line": 1258,
               "column": 5
             }
           },
@@ -360,11 +360,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1310,
+              "line": 1329,
               "column": 4
             },
             "end": {
-              "line": 1349,
+              "line": 1369,
               "column": 5
             }
           },
@@ -389,11 +389,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1351,
+              "line": 1371,
               "column": 4
             },
             "end": {
-              "line": 1355,
+              "line": 1375,
               "column": 5
             }
           },
@@ -410,11 +410,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1357,
+              "line": 1377,
               "column": 4
             },
             "end": {
-              "line": 1363,
+              "line": 1383,
               "column": 5
             }
           },
@@ -431,11 +431,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1365,
+              "line": 1385,
               "column": 4
             },
             "end": {
-              "line": 1377,
+              "line": 1397,
               "column": 5
             }
           },
@@ -452,11 +452,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1385,
+              "line": 1405,
               "column": 4
             },
             "end": {
-              "line": 1388,
+              "line": 1408,
               "column": 5
             }
           },
@@ -469,11 +469,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1394,
+              "line": 1414,
               "column": 4
             },
             "end": {
-              "line": 1397,
+              "line": 1417,
               "column": 5
             }
           },
@@ -486,11 +486,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1399,
+              "line": 1419,
               "column": 4
             },
             "end": {
-              "line": 1404,
+              "line": 1424,
               "column": 5
             }
           },
@@ -504,47 +504,16 @@
       ],
       "staticMethods": [
         {
-          "name": "renderComponent",
-          "description": "Creates and returns an instance of a given custom element.",
-          "privacy": "protected",
-          "sourceRange": {
-            "start": {
-              "line": 1414,
-              "column": 4
-            },
-            "end": {
-              "line": 1423,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "component",
-              "type": "!string",
-              "description": "tag name of a web component to render"
-            },
-            {
-              "name": "context",
-              "type": "?context",
-              "description": "an optional context object"
-            }
-          ],
-          "return": {
-            "type": "!HTMLElement"
-          }
-        },
-        {
           "name": "setTriggers",
           "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nBy default, both `POPSTATE` and `CLICK` are enabled.\nBelow is an example of how to only use one of them:\n\n```\nimport {Router} from '@vaadin/router';\nimport CLICK from '@vaadin/router/triggers/click';\n\nRouter.setTriggers(POPSTATE);\n// or, if you only need click:\n// Router.setTriggers(CLICK);\n```\n\nThe `POPSTATE` and `CLICK` navigation triggers need to be imported\nseparately to enable efficient tree shaking: if the app does not use `<a>`\nclicks as navigation triggers, you should be able to exclude the code\nneeded to handle them from the bundle.\n\nSee the `router-config.js` for the default navigation triggers config.\nBased on this file, you can create the own one and import it instead.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1452,
+              "line": 1453,
               "column": 4
             },
             "end": {
-              "line": 1454,
+              "line": 1455,
               "column": 5
             }
           },
@@ -571,11 +540,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1116,
+          "line": 1134,
           "column": 2
         },
         "end": {
-          "line": 1455,
+          "line": 1456,
           "column": 3
         }
       },
