@@ -37,8 +37,8 @@
           matching route (if any)</li>
         <li><code>context.redirect(path)</code> [function] that creates a redirect data for the path specified.
         This data can be returned from <code>action</code> to perform an actual redirect</li>
-        <li><code>context.component(component)</code> [function] that calls
-          <code>Router.renderComponent(component, context)</code> with current context</li>
+        <li><code>context.component(component)</code> [function] that creates a new <code>HTMLElement</code>
+          with current context</li>
       </ul>
       The supported return values are
       <ul>
