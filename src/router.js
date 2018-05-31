@@ -12,7 +12,7 @@ function redirect(context, path) {
   return {redirect: {pathname: path, from: context.pathname, params}};
 }
 
-function renderComponent(component, context) {
+function renderComponent(context, component) {
   const element = document.createElement(component);
   const params = Object.assign({}, context.params);
   element.route = {params, pathname: context.pathname};
@@ -166,7 +166,7 @@ export class Router extends Resolver {
   __resolveRoute(context) {
     const route = context.route;
     context.redirect = path => redirect(context, path);
-    context.component = component => renderComponent(component, context);
+    context.component = component => renderComponent(context, component);
 
     const actionResult = processAction(context);
     if (isResultNotEmpty(actionResult)) {
