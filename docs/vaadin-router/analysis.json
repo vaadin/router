@@ -13,11 +13,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 882,
+              "line": 877,
               "column": 4
             },
             "end": {
-              "line": 884,
+              "line": 879,
               "column": 5
             }
           },
@@ -33,11 +33,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 892,
+              "line": 887,
               "column": 4
             },
             "end": {
-              "line": 895,
+              "line": 890,
               "column": 5
             }
           },
@@ -56,11 +56,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 906,
+              "line": 901,
               "column": 4
             },
             "end": {
-              "line": 909,
+              "line": 904,
               "column": 5
             }
           },
@@ -82,11 +82,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 928,
+              "line": 923,
               "column": 4
             },
             "end": {
-              "line": 996,
+              "line": 989,
               "column": 5
             }
           },
@@ -108,11 +108,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 861,
+          "line": 856,
           "column": 2
         },
         "end": {
-          "line": 997,
+          "line": 990,
           "column": 3
         }
       },
@@ -131,11 +131,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1153,
+              "line": 1162,
               "column": 6
             },
             "end": {
-              "line": 1153,
+              "line": 1162,
               "column": 17
             }
           },
@@ -149,11 +149,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 882,
+              "line": 877,
               "column": 4
             },
             "end": {
-              "line": 884,
+              "line": 879,
               "column": 5
             }
           },
@@ -170,11 +170,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1293,
+              "line": 1304,
               "column": 4
             },
             "end": {
-              "line": 1296,
+              "line": 1307,
               "column": 5
             }
           },
@@ -193,11 +193,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 906,
+              "line": 901,
               "column": 4
             },
             "end": {
-              "line": 909,
+              "line": 904,
               "column": 5
             }
           },
@@ -220,11 +220,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 928,
+              "line": 923,
               "column": 4
             },
             "end": {
-              "line": 996,
+              "line": 989,
               "column": 5
             }
           },
@@ -247,11 +247,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1163,
+              "line": 1172,
               "column": 4
             },
             "end": {
-              "line": 1193,
+              "line": 1204,
               "column": 5
             }
           },
@@ -268,11 +268,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1195,
+              "line": 1206,
               "column": 4
             },
             "end": {
-              "line": 1206,
+              "line": 1217,
               "column": 5
             }
           },
@@ -292,11 +292,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1208,
+              "line": 1219,
               "column": 4
             },
             "end": {
-              "line": 1221,
+              "line": 1232,
               "column": 5
             }
           },
@@ -316,11 +316,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1231,
+              "line": 1242,
               "column": 4
             },
             "end": {
-              "line": 1236,
+              "line": 1247,
               "column": 5
             }
           },
@@ -339,11 +339,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1243,
+              "line": 1254,
               "column": 4
             },
             "end": {
-              "line": 1245,
+              "line": 1256,
               "column": 5
             }
           },
@@ -360,11 +360,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1316,
+              "line": 1327,
               "column": 4
             },
             "end": {
-              "line": 1355,
+              "line": 1366,
               "column": 5
             }
           },
@@ -389,11 +389,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1357,
+              "line": 1368,
               "column": 4
             },
             "end": {
-              "line": 1361,
+              "line": 1372,
               "column": 5
             }
           },
@@ -410,11 +410,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1363,
+              "line": 1374,
               "column": 4
             },
             "end": {
-              "line": 1369,
+              "line": 1380,
               "column": 5
             }
           },
@@ -431,11 +431,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1371,
+              "line": 1382,
               "column": 4
             },
             "end": {
-              "line": 1383,
+              "line": 1394,
               "column": 5
             }
           },
@@ -452,11 +452,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1391,
+              "line": 1402,
               "column": 4
             },
             "end": {
-              "line": 1394,
+              "line": 1405,
               "column": 5
             }
           },
@@ -469,11 +469,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1400,
+              "line": 1411,
               "column": 4
             },
             "end": {
-              "line": 1403,
+              "line": 1414,
               "column": 5
             }
           },
@@ -486,11 +486,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1405,
+              "line": 1416,
               "column": 4
             },
             "end": {
-              "line": 1410,
+              "line": 1421,
               "column": 5
             }
           },
@@ -504,47 +504,16 @@
       ],
       "staticMethods": [
         {
-          "name": "renderComponent",
-          "description": "Creates and returns an instance of a given custom element.",
-          "privacy": "protected",
-          "sourceRange": {
-            "start": {
-              "line": 1420,
-              "column": 4
-            },
-            "end": {
-              "line": 1429,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "component",
-              "type": "!string",
-              "description": "tag name of a web component to render"
-            },
-            {
-              "name": "context",
-              "type": "?context",
-              "description": "an optional context object"
-            }
-          ],
-          "return": {
-            "type": "!HTMLElement"
-          }
-        },
-        {
           "name": "setTriggers",
           "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nBy default, both `POPSTATE` and `CLICK` are enabled.\nBelow is an example of how to only use one of them:\n\n```\nimport {Router} from '@vaadin/router';\nimport CLICK from '@vaadin/router/triggers/click';\n\nRouter.setTriggers(POPSTATE);\n// or, if you only need click:\n// Router.setTriggers(CLICK);\n```\n\nThe `POPSTATE` and `CLICK` navigation triggers need to be imported\nseparately to enable efficient tree shaking: if the app does not use `<a>`\nclicks as navigation triggers, you should be able to exclude the code\nneeded to handle them from the bundle.\n\nSee the `router-config.js` for the default navigation triggers config.\nBased on this file, you can create the own one and import it instead.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1458,
+              "line": 1450,
               "column": 4
             },
             "end": {
-              "line": 1460,
+              "line": 1452,
               "column": 5
             }
           },
@@ -571,11 +540,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1123,
+          "line": 1132,
           "column": 2
         },
         "end": {
-          "line": 1461,
+          "line": 1453,
           "column": 3
         }
       },
