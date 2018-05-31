@@ -32,11 +32,6 @@ function generateErrorMessage(currentContext) {
   return errorMessage;
 }
 
-function redirect(context, path) {
-  const params = Object.assign({}, context.params);
-  return {redirect: {pathname: path, from: context.pathname, params}};
-}
-
 /**
  * @memberof Vaadin
  */
@@ -142,8 +137,6 @@ class Resolver {
       }
 
       currentContext = Object.assign({}, context, matches.value);
-      currentContext.redirect = path => redirect(currentContext, path);
-      currentContext.component = component => context.render(component, currentContext);
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {
         context.__resolutionChain = currentContext.__resolutionChain;
