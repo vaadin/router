@@ -78,7 +78,7 @@
         },
         {
           "name": "resolve",
-          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of the first\nroute handler that returns something other than `null` or `undefined`.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
+          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
           "privacy": "public",
           "sourceRange": {
             "start": {
@@ -86,7 +86,7 @@
               "column": 4
             },
             "end": {
-              "line": 989,
+              "line": 991,
               "column": 5
             }
           },
@@ -112,7 +112,7 @@
           "column": 2
         },
         "end": {
-          "line": 990,
+          "line": 992,
           "column": 3
         }
       },
@@ -131,11 +131,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1146,
+              "line": 1148,
               "column": 6
             },
             "end": {
-              "line": 1146,
+              "line": 1148,
               "column": 17
             }
           },
@@ -170,11 +170,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1287,
+              "line": 1289,
               "column": 4
             },
             "end": {
-              "line": 1290,
+              "line": 1292,
               "column": 5
             }
           },
@@ -216,7 +216,7 @@
         },
         {
           "name": "resolve",
-          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of the first\nroute handler that returns something other than `null` or `undefined`.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
+          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
           "privacy": "public",
           "sourceRange": {
             "start": {
@@ -224,7 +224,7 @@
               "column": 4
             },
             "end": {
-              "line": 989,
+              "line": 991,
               "column": 5
             }
           },
@@ -247,11 +247,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1156,
+              "line": 1158,
               "column": 4
             },
             "end": {
-              "line": 1187,
+              "line": 1189,
               "column": 5
             }
           },
@@ -268,11 +268,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1189,
+              "line": 1191,
               "column": 4
             },
             "end": {
-              "line": 1200,
+              "line": 1202,
               "column": 5
             }
           },
@@ -292,11 +292,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1202,
+              "line": 1204,
               "column": 4
             },
             "end": {
-              "line": 1215,
+              "line": 1217,
               "column": 5
             }
           },
@@ -316,11 +316,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1225,
+              "line": 1227,
               "column": 4
             },
             "end": {
-              "line": 1230,
+              "line": 1232,
               "column": 5
             }
           },
@@ -339,11 +339,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1237,
+              "line": 1239,
               "column": 4
             },
             "end": {
-              "line": 1239,
+              "line": 1241,
               "column": 5
             }
           },
@@ -360,11 +360,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1310,
+              "line": 1312,
               "column": 4
             },
             "end": {
-              "line": 1349,
+              "line": 1352,
               "column": 5
             }
           },
@@ -389,11 +389,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1351,
+              "line": 1354,
               "column": 4
             },
             "end": {
-              "line": 1355,
+              "line": 1358,
               "column": 5
             }
           },
@@ -410,11 +410,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1357,
+              "line": 1360,
               "column": 4
             },
             "end": {
-              "line": 1363,
+              "line": 1366,
               "column": 5
             }
           },
@@ -431,11 +431,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1365,
+              "line": 1368,
               "column": 4
             },
             "end": {
-              "line": 1377,
+              "line": 1380,
               "column": 5
             }
           },
@@ -452,11 +452,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1385,
+              "line": 1388,
               "column": 4
             },
             "end": {
-              "line": 1388,
+              "line": 1391,
               "column": 5
             }
           },
@@ -469,11 +469,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1394,
+              "line": 1397,
               "column": 4
             },
             "end": {
-              "line": 1397,
+              "line": 1400,
               "column": 5
             }
           },
@@ -486,11 +486,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1399,
+              "line": 1402,
               "column": 4
             },
             "end": {
-              "line": 1404,
+              "line": 1407,
               "column": 5
             }
           },
@@ -509,11 +509,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 1414,
+              "line": 1417,
               "column": 4
             },
             "end": {
-              "line": 1423,
+              "line": 1425,
               "column": 5
             }
           },
@@ -540,11 +540,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1452,
+              "line": 1454,
               "column": 4
             },
             "end": {
-              "line": 1454,
+              "line": 1456,
               "column": 5
             }
           },
@@ -571,11 +571,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1116,
+          "line": 1118,
           "column": 2
         },
         "end": {
-          "line": 1455,
+          "line": 1457,
           "column": 3
         }
       },
