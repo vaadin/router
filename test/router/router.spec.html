@@ -696,7 +696,7 @@
 
           it('action can render components by using the context method', async() => {
             router.setRoutes([
-              {path: '/users/:id', action: context => context.render('x-users-view')},
+              {path: '/users/:id', action: context => context.component('x-users-view')},
             ]);
 
             await router.render('/users/1');
