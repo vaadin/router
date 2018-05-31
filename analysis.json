@@ -131,11 +131,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1148,
+              "line": 1164,
               "column": 6
             },
             "end": {
-              "line": 1148,
+              "line": 1164,
               "column": 17
             }
           },
@@ -170,11 +170,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1289,
+              "line": 1306,
               "column": 4
             },
             "end": {
-              "line": 1292,
+              "line": 1309,
               "column": 5
             }
           },
@@ -247,11 +247,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1158,
+              "line": 1174,
               "column": 4
             },
             "end": {
-              "line": 1189,
+              "line": 1206,
               "column": 5
             }
           },
@@ -268,11 +268,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1191,
+              "line": 1208,
               "column": 4
             },
             "end": {
-              "line": 1202,
+              "line": 1219,
               "column": 5
             }
           },
@@ -292,11 +292,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1204,
+              "line": 1221,
               "column": 4
             },
             "end": {
-              "line": 1217,
+              "line": 1234,
               "column": 5
             }
           },
@@ -316,11 +316,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1227,
+              "line": 1244,
               "column": 4
             },
             "end": {
-              "line": 1232,
+              "line": 1249,
               "column": 5
             }
           },
@@ -339,11 +339,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1239,
+              "line": 1256,
               "column": 4
             },
             "end": {
-              "line": 1241,
+              "line": 1258,
               "column": 5
             }
           },
@@ -360,11 +360,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1312,
+              "line": 1329,
               "column": 4
             },
             "end": {
-              "line": 1352,
+              "line": 1369,
               "column": 5
             }
           },
@@ -389,11 +389,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1354,
+              "line": 1371,
               "column": 4
             },
             "end": {
-              "line": 1358,
+              "line": 1375,
               "column": 5
             }
           },
@@ -410,11 +410,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1360,
+              "line": 1377,
               "column": 4
             },
             "end": {
-              "line": 1366,
+              "line": 1383,
               "column": 5
             }
           },
@@ -431,11 +431,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1368,
+              "line": 1385,
               "column": 4
             },
             "end": {
-              "line": 1380,
+              "line": 1397,
               "column": 5
             }
           },
@@ -452,11 +452,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1388,
+              "line": 1405,
               "column": 4
             },
             "end": {
-              "line": 1391,
+              "line": 1408,
               "column": 5
             }
           },
@@ -469,11 +469,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1397,
+              "line": 1414,
               "column": 4
             },
             "end": {
-              "line": 1400,
+              "line": 1417,
               "column": 5
             }
           },
@@ -486,11 +486,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1402,
+              "line": 1419,
               "column": 4
             },
             "end": {
-              "line": 1407,
+              "line": 1424,
               "column": 5
             }
           },
@@ -504,47 +504,16 @@
       ],
       "staticMethods": [
         {
-          "name": "renderComponent",
-          "description": "Creates and returns an instance of a given custom element.",
-          "privacy": "protected",
-          "sourceRange": {
-            "start": {
-              "line": 1417,
-              "column": 4
-            },
-            "end": {
-              "line": 1425,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "component",
-              "type": "!string",
-              "description": "tag name of a web component to render"
-            },
-            {
-              "name": "context",
-              "type": "?context",
-              "description": "an optional context object"
-            }
-          ],
-          "return": {
-            "type": "!HTMLElement"
-          }
-        },
-        {
           "name": "setTriggers",
           "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nBy default, both `POPSTATE` and `CLICK` are enabled.\nBelow is an example of how to only use one of them:\n\n```\nimport {Router} from '@vaadin/router';\nimport CLICK from '@vaadin/router/triggers/click';\n\nRouter.setTriggers(POPSTATE);\n// or, if you only need click:\n// Router.setTriggers(CLICK);\n```\n\nThe `POPSTATE` and `CLICK` navigation triggers need to be imported\nseparately to enable efficient tree shaking: if the app does not use `<a>`\nclicks as navigation triggers, you should be able to exclude the code\nneeded to handle them from the bundle.\n\nSee the `router-config.js` for the default navigation triggers config.\nBased on this file, you can create the own one and import it instead.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1454,
+              "line": 1453,
               "column": 4
             },
             "end": {
-              "line": 1456,
+              "line": 1455,
               "column": 5
             }
           },
@@ -571,11 +540,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1118,
+          "line": 1134,
           "column": 2
         },
         "end": {
-          "line": 1457,
+          "line": 1456,
           "column": 3
         }
       },

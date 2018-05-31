@@ -7,6 +7,22 @@ function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
 }
 
+function redirect(context, path) {
+  const params = Object.assign({}, context.params);
+  return {redirect: {pathname: path, from: context.pathname, params}};
+}
+
+function renderComponent(context, component) {
+  const element = document.createElement(component);
+  const params = Object.assign({}, context.params);
+  element.route = {params, pathname: context.pathname};
+  if (context.from) {
+    element.route.redirectFrom = context.from;
+  }
+  element.context = context;
+  return element;
+}
+
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -149,6 +165,8 @@ export class Router extends Resolver {
 
   __resolveRoute(context) {
     const route = context.route;
+    context.redirect = path => redirect(context, path);
+    context.component = component => renderComponent(context, component);
 
     const actionResult = processAction(context);
     if (isResultNotEmpty(actionResult)) {
@@ -156,8 +174,7 @@ export class Router extends Resolver {
     }
 
     if (typeof route.redirect === 'string') {
-      const params = Object.assign({}, context.params);
-      return {redirect: {pathname: route.redirect, from: context.pathname, params}};
+      return context.redirect(route.redirect);
     }
 
     if (route.path) {
@@ -189,7 +206,7 @@ export class Router extends Resolver {
           return inactivationResult;
         }
       }
-      return Router.renderComponent(route.component, context);
+      return context.component(route.component);
     }
   }
 
@@ -396,24 +413,6 @@ export class Router extends Resolver {
     if (this.root.children.length > 0) {
       this.render(pathname, true);
     }
-  }
-
-  /**
-   * Creates and returns an instance of a given custom element.
-   *
-   * @param {!string} component tag name of a web component to render
-   * @param {?context} context an optional context object
-   * @return {!HTMLElement}
-   * @protected
-   */
-  static renderComponent(component, context) {
-    const element = document.createElement(component);
-    const params = Object.assign({}, context.params);
-    element.route = {params, pathname: context.pathname};
-    if (context.from) {
-      element.route.redirectFrom = context.from;
-    }
-    return element;
   }
 
   /**
