@@ -35,8 +35,9 @@
         <li><code>context.params</code> [object] the route parameters</li>
         <li><code>context.next</code> [function] proceed to resolving the next
           matching route (if any)</li>
-        <li><code>context.redirect(path)</code> [function] redirect to the path specified</li>
-        <li><code>context.render(component)</code> [function] that calls
+        <li><code>context.redirect(path)</code> [function] that creates a redirect data for the path specified.
+        This data can be returned from <code>action</code> to perform an actual redirect</li>
+        <li><code>context.component(component)</code> [function] that calls
           <code>Router.renderComponent(component, context)</code> with current context</li>
       </ul>
       The supported return values are
@@ -214,9 +215,9 @@
 
           const render = context => {
             if (context.params.user === 'admin') {
-              return context.render('x-user-profile');
+              return context.component('x-user-profile');
             }
-            const stubElement = context.render('h3');
+            const stubElement = context.component('h3');
             stubElement.innerHTML = 'Access denied';
             return stubElement;
           };

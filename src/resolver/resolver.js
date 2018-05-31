@@ -143,7 +143,7 @@ class Resolver {
 
       currentContext = Object.assign({}, context, matches.value);
       currentContext.redirect = path => redirect(currentContext, path);
-      currentContext.render = component => context.render(component, currentContext);
+      currentContext.component = component => context.render(component, currentContext);
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {
         context.__resolutionChain = currentContext.__resolutionChain;
