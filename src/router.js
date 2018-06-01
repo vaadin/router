@@ -19,7 +19,6 @@ function renderComponent(context, component) {
   if (context.from) {
     element.route.redirectFrom = context.from;
   }
-  element.context = context;
   return element;
 }
 
