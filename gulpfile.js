@@ -21,11 +21,8 @@ gulp.task('build:copy-sources:bower', ['build:clean'], () => {
 });
 
 gulp.task('build:copy-sources:vaadin-router', ['build:clean'], () => {
-  return gulp.src([
-    'dist/umd/vaadin-router.js',
-    'dist/umd/click-navigation-trigger.js',
-  ])
-    .pipe(gulp.dest('build/bower_components/vaadin-router/dist/umd'));
+  return gulp.src(['dist/vaadin-router.umd.js'])
+    .pipe(gulp.dest('build/bower_components/vaadin-router/dist'));
 });
 
 gulp.task('docs', ['docs:clean', 'build:copy-sources'], async() => {
