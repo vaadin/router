@@ -71,6 +71,15 @@ gulp.task('docs', ['docs:clean', 'build:copy-sources'], async() => {
   await fs.copy(
     path.join(__dirname, 'build', 'build', 'es5-bundled', 'bower_components', 'vaadin-router', 'demo', 'iframe.html'),
     path.join(__dirname, 'docs', 'vaadin-router', 'demo', 'iframe.html'));
+
+  // HTML imports for lazy loading demo
+  await fs.copy(
+    path.join(__dirname, 'bower_components', 'polymer', 'lib', 'utils', 'import-href.html'),
+    path.join(__dirname, 'docs', 'polymer', 'lib', 'utils', 'import-href.html'));
+
+  await fs.copy(
+    path.join(__dirname, 'bower_components', 'polymer', 'lib', 'utils', 'boot.html'),
+    path.join(__dirname, 'docs', 'polymer', 'lib', 'utils', 'boot.html'));
 });
 
 gulp.task('docs:clean', () => {
