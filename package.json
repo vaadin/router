@@ -34,7 +34,7 @@
     "test:coverage": "wct --profile=coverage",
     "size-control": "bundlesize",
     "docs": "npm run build && npm run docs:analyze && gulp docs",
-    "docs:analyze": "polymer analyze dist/vaadin-router.umd.js > analysis.json",
+    "docs:analyze": "polymer analyze dist/vaadin-router.js > analysis.json",
     "browserslist": "browserslist && browserslist --coverage"
   },
   "bundlesize": [
