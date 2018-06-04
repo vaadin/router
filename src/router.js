@@ -9,7 +9,21 @@ function isResultNotEmpty(result) {
 
 function redirect(context, path) {
   const params = Object.assign({}, context.params);
-  return {redirect: {pathname: path, from: context.pathname, params}};
+  return {redirect: {pathname: path, from: getInvocationPath(context), params}};
+}
+
+function getInvocationPath(context) {
+  if (!context.invocationPath) {
+    return context.pathname;
+  }
+
+  let currentPath = context.invocationPath;
+  let invocationPathName = '';
+  while (currentPath) {
+    invocationPathName = currentPath.path + invocationPathName;
+    currentPath = currentPath.parent;
+  }
+  return invocationPathName;
 }
 
 function renderComponent(context, component) {
@@ -22,9 +36,9 @@ function renderComponent(context, component) {
   return element;
 }
 
-function runCallbackIfPossible(callback, context) {
+function runCallbackIfPossible(callback, context, invocationPath) {
   if (callback && typeof callback === 'function') {
-    const result = callback(context);
+    const result = callback(Object.assign({}, context, {invocationPath: invocationPath}));
     if (!redirectsToCurrentStateSecondTimeInARow(context, (result || {}).redirect)) {
       return result;
     }
@@ -177,10 +191,14 @@ export class Router extends Resolver {
 
   __resolveRoute(context) {
     const route = context.route;
-    context.redirect = path => redirect(context, path);
-    context.component = component => renderComponent(context, component);
+    context.redirect = function(path) {
+      return redirect(this, path);
+    };
+    context.component = function(component) {
+      return renderComponent(this, component);
+    };
 
-    const actionResult = runCallbackIfPossible(processAction, context);
+    const actionResult = runCallbackIfPossible(processAction, context, route);
     if (isResultNotEmpty(actionResult)) {
       return actionResult;
     }
@@ -228,8 +246,7 @@ export class Router extends Resolver {
   __runInactivationChain(divergedRouteIndex, context) {
     for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
       const routeToInactivate = this.__activeRoutes[i];
-      context.inactivatedRoute = routeToInactivate;
-      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context);
+      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context, routeToInactivate);
       if (inactivationResult === false) {
         context.__resolutionChain = this.__activeRoutes;
         return this.__previousResolution;
@@ -274,8 +291,10 @@ export class Router extends Resolver {
    * * {?function(context)} action – the action that is executed before the route is resolved.
    * If present, action property is always processed first, disregarding of the other properties' presence.
    * If action returns a value, current route resolution is finished (i.e. other route properties are not processed).
-   * 'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'
+   * 'context' parameter can be used for asynchronously getting the next route contents in the resolution chain via 'context.next()'
    * and for getting route parameters via 'context.params'.
+   * Also, 'context' contains 'invocationPath' property that holds the info on the route that caused the function to be triggered.
+   * For 'action' this is the same route, but for other functions it may differ.
    *
    * * {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.
    * The target route should also be defined.
@@ -298,8 +317,6 @@ export class Router extends Resolver {
    * Inactivation always happens from the last active element to the first that is different from the new route,
    * if the method is not defined for any route, the route is skipped.
    * Each `inactivate` call gets a `context` parameter, described above.
-   * In this case, context parameter contains an additional `inactivatedRoute` property,
-   * that holds an information on the currently inactivated route.
    * If `inactivate` method returns `false`, inactivation and new path resolution is cancelled,
    * router restores the state before new resolution.
    * Otherwise router updates the active routes and waits for the next resolution to happen.
