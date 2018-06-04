@@ -57,15 +57,48 @@
       </template>
     </vaadin-demo-snippet>
 
+    <h3>Fallback Routes (404)</h3>
+    <p>If Vaadin.Router does not find a matching route, the promise returned
+      from the <code>render()</code> method gets rejected, and any content in
+      the router outlet is removed. In order to show a user-friendly 'page not
+      found' view, a fallback route with a wildcard <code>'(.*)'</code> path can
+      be added to the <strong>end</strong> of the routes list.</p>
+    <p>There can be different fallbacks for different route prefixes, but since
+      the route resolution is based on the first match, the fallback route
+      should always be <strong>after</strong> other alternatives.</p>
+    <p>The path that leads to the fallback route is available to the route
+      component via the <code>route.pathname</code> property.</p>
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-2" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/users">All Users</a>
+        <a href="/users/kim">Kim</a>
+        <a href="/about">About</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-user-list'},
+            {path: '/users/(.*)', component: 'x-user-not-found-view'},
+            {path: '(.*)', component: 'x-not-found-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
     <h3>Child Routes</h3>
     <p>Each route can have child routes, which makes it easier to group related
       routes together under a common parent. This is optional, i.e. the same
       routes config can be expressed as a flat list, or as a parent-children
       tree. The routes config in the example below is effectively the same as in
-      the example above.</p>
+      the "Getting Started" example above.</p>
     <p>The leading <code>'/'</code> in child route paths is optional&mdash;they
       are always relative to the path of the parent route.</p>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-2" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">All Users</a>
@@ -89,38 +122,6 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3>Fallback Routes (404)</h3>
-    <p>If Vaadin.Router does not find a matching route, the promise returned
-      from the <code>render()</code> method gets rejected, and any content in
-      the router outlet is removed. In order to show a user-friendly 'page not
-      found' view, a fallback route with a wildcard <code>'(.*)'</code> path can
-      be added to the <strong>end</strong> of the routes list.</p>
-    <p>There can be different fallbacks for different route prefixes, but since
-      the route resolution is based on the first match, the fallback route
-      should always be <strong>after</strong> other alternatives.</p>
-    <p>The path that leads to the fallback route is available to the route
-      component via the <code>route.pathname</code> property.</p>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
-      <template preserve-content>
-        <a href="/">Home</a>
-        <a href="/users">All Users</a>
-        <a href="/users/kim">Kim</a>
-        <a href="/about">About</a>
-        <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/users', component: 'x-user-list'},
-            {path: '/users/(.*)', component: 'x-user-not-found-view'},
-            {path: '(.*)', component: 'x-not-found-view'},
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>
   </template>
   <script>
     class VaadinRouterBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
