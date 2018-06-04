@@ -6,9 +6,12 @@
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../dist/vaadin-router.umd.js"></script>
+
+  <link rel="import" href="../test-pushstate-throttler.html">
 </head>
 
 <body>
+  <test-pushstate-throttler id="throttler"></test-pushstate-throttler>
   <a id="admin-anchor" href="/admin"></a>
   <test-fixture id="outlet">
     <template>
@@ -28,6 +31,11 @@
 
         // stamp the test fixture DOM into the page
         outlet = fixture('outlet');
+      });
+
+      const throttler = document.querySelector('#throttler');
+      afterEach(function() {
+        return throttler.throttle(this);
       });
 
       describe('JS API (basic functionality)', () => {
