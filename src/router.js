@@ -88,9 +88,14 @@ export class Router extends Resolver {
 
   __resolveRoute(context) {
     const route = context.route;
+    if (!route.path) {
+      return;
+    }
+
     context.redirect = path => redirect(context, path);
     context.component = component => renderComponent(context, component);
 
+    (context.__resolutionChain || (context.__resolutionChain = [])).push(route);
     const actionResult = processAction(context);
     if (isResultNotEmpty(actionResult)) {
       return actionResult;
@@ -101,7 +106,7 @@ export class Router extends Resolver {
     }
 
     if (route.path) {
-      const newActiveRouteIndex = (context.__resolutionChain || (context.__resolutionChain = [])).push(context.route) - 1;
+      const newActiveRouteIndex = context.__resolutionChain.length - 1;
       if (this.__activeRoutes && this.__activeRoutes.length > newActiveRouteIndex) {
         const oldActiveRoute = this.__activeRoutes[newActiveRouteIndex];
         if (oldActiveRoute.path !== context.__resolutionChain[newActiveRouteIndex].path) {
@@ -124,13 +129,6 @@ export class Router extends Resolver {
 
   __processComponent(route, context) {
     if (typeof route.component === 'string') {
-      const newActiveRoutesLength = (context.__resolutionChain || []).length;
-      if (newActiveRoutesLength < this.__activeRoutes.length) {
-        const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
-        if (isResultNotEmpty(inactivationResult)) {
-          return inactivationResult;
-        }
-      }
       return context.component(route.component);
     }
   }
@@ -257,6 +255,13 @@ export class Router extends Resolver {
       .then(context => {
         const result = context.result;
         if (result instanceof HTMLElement) {
+          const newActiveRoutesLength = (context.__resolutionChain || []).length;
+          if (newActiveRoutesLength < this.__activeRoutes.length) {
+            const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
+            if (isResultNotEmpty(inactivationResult)) {
+              context.result = inactivationResult;
+            }
+          }
           return context;
         } else if (result.redirect) {
           const redirect = result.redirect;
