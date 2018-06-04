@@ -1,7 +1,7 @@
 import Resolver from './resolver/resolver.js';
 import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
-import {loadBundle} from './utils.js';
+import {log, loadBundle} from './utils.js';
 
 function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
@@ -190,7 +190,9 @@ export class Router extends Resolver {
     }
 
     if (route.bundle) {
-      return loadBundle(route.bundle).then(() => this.__processComponent(route, context));
+      return loadBundle(route.bundle)
+        .then(() => this.__processComponent(route, context))
+        .catch(e => new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`)));
     }
 
     return this.__processComponent(route, context);
@@ -322,18 +324,26 @@ export class Router extends Resolver {
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
       .then(context => {
-        if (context.result instanceof HTMLElement) {
+        const result = context.result;
+        if (result instanceof HTMLElement) {
           return context;
-        } else if (context.result.redirect) {
-          const redirect = context.result.redirect;
+        } else if (result.redirect) {
+          const redirect = result.redirect;
           return this.resolve({
             pathname: Router.pathToRegexp.compile(redirect.pathname)(redirect.params),
             from: redirect.from
           });
+        } else if (result instanceof Error) {
+          return Promise.reject(result);
         } else {
-          return Promise.reject(new Error(`Incorrect route resolution result for path '${pathnameOrContext}'. ` +
-            `Expected redirect object or HTML element, but got: '${context.result}'.` +
-            `Double check the action return value for the route.`));
+          return Promise.reject(
+            new Error(
+              log(
+                `Invalid route resolution result for path "${pathnameOrContext}". ` +
+                `Expected redirect object or HTML element, but got: "${result}". ` +
+                `Double check the action return value for the route.`
+              )
+            ));
         }
       })
       .then(context => {
@@ -361,7 +371,7 @@ export class Router extends Resolver {
 
   __ensureOutlet(outlet = this.__outlet) {
     if (!(outlet instanceof Node)) {
-      throw new TypeError(`expected router outlet to be a valid DOM Node (but got ${outlet})`);
+      throw new TypeError(log(`Expected router outlet to be a valid DOM Node (but got ${outlet})`));
     }
   }
 

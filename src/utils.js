@@ -3,21 +3,39 @@ export function toArray(objectOrArray) {
   return Array.isArray(objectOrArray) ? objectOrArray : [objectOrArray];
 }
 
+export function log(msg) {
+  return `[Vaadin.Router] ${msg}`;
+}
+
 export function ensureRoute(route) {
   if (!route || typeof route.path !== 'string') {
-    const message = 'the `routes` parameter of Vaadin Router should be an object '
-     + 'with a `path` string property or an array of such objects';
-    throw new Error(message);
+    throw new Error(
+      log(`Expected route config to be an object with a "path" string property, or an array of such objects`)
+    );
   }
+
+  const stringKeys = ['component', 'redirect', 'bundle'];
+  if (typeof route.action !== 'function' && !Array.isArray(route.children) && !stringKeys.some(key => typeof route[key] === 'string')) {
+    throw new Error(
+      log(`Expected route config "${route.path}" to include either "${stringKeys.join('", "')}" or "action" but none found.`)
+    );
+  }
+
   if (route.bundle && (typeof route.bundle !== 'string' || !route.bundle.match(/.+\.[m]?js$/))) {
-    throw new Error(`Route bundle '${route.bundle}' has undefined type: should be either '.js' or '.mjs' file.`);
+    throw new Error(
+      log(`Unsupported type for bundle "${route.bundle}": .js or .mjs expected.`)
+    );
   }
 
   if (route.redirect) {
-    ['bundle', 'component', 'inactivate'].forEach(incorrectlyUsedProperty => {
-      if (incorrectlyUsedProperty in route) {
-        console.warn(`Route with path '${route.path}' has both 'redirect' and '${incorrectlyUsedProperty}' properties specified.` +
-          ` Latter will never evaluated since 'redirect' will be executed earlier.`);
+    ['bundle', 'component', 'inactivate'].forEach(overriddenProp => {
+      if (overriddenProp in route) {
+        console.warn(
+          log(
+            `Route config "${route.path}" has both "redirect" and "${overriddenProp}" properties, ` +
+            `and "redirect" will always override the latter. Did you mean to only use "${overriddenProp}"?`
+          )
+        );
       }
     });
   }
