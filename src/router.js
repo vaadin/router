@@ -9,7 +9,21 @@ function isResultNotEmpty(result) {
 
 function redirect(context, path) {
   const params = Object.assign({}, context.params);
-  return {redirect: {pathname: path, from: context.pathname, params}};
+  return {redirect: {pathname: path, from: getInvocationPath(context), params}};
+}
+
+function getInvocationPath(context) {
+  if (!context.invocationPath) {
+    return context.pathname;
+  }
+
+  let currentPath = context.invocationPath;
+  let invocationPathName = '';
+  while (currentPath) {
+    invocationPathName = currentPath.path + invocationPathName;
+    currentPath = currentPath.parent;
+  }
+  return invocationPathName;
 }
 
 function renderComponent(context, component) {
@@ -22,9 +36,9 @@ function renderComponent(context, component) {
   return element;
 }
 
-function runCallbackIfPossible(callback, context) {
+function runCallbackIfPossible(callback, context, invocationPath) {
   if (callback && typeof callback === 'function') {
-    const result = callback(context);
+    const result = callback(Object.assign({}, context, {invocationPath: invocationPath}));
     if (!redirectsToCurrentStateSecondTimeInARow(context, (result || {}).redirect)) {
       return result;
     }
@@ -101,11 +115,16 @@ export class Router extends Resolver {
 
   __resolveRoute(context) {
     const route = context.route;
-    context.redirect = path => redirect(context, path);
-    context.component = component => renderComponent(context, component);
-    context.cancel = () => ({cancel: true});
 
-    const actionResult = runCallbackIfPossible(processAction, context);
+    context.redirect = function(path) {
+      return redirect(this, path);
+    };
+    context.component = function(component) {
+      return renderComponent(this, component);
+    };
+      context.cancel = () => ({cancel: true});
+
+    const actionResult = runCallbackIfPossible(processAction, context, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
     }
@@ -155,13 +174,10 @@ export class Router extends Resolver {
   __runInactivationChain(divergedRouteIndex, context) {
     for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
       const routeToInactivate = this.__activeRoutes[i];
-      if (typeof routeToInactivate.inactivate === 'function') {
-        context.inactivatedRoute = routeToInactivate;
-        const inactivationResult = routeToInactivate.inactivate(context);
-        if ((inactivationResult || {}).cancel) {
-          context.__resolutionChain = this.__activeRoutes;
-          return this.__previousResolution;
-        }
+      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context, routeToInactivate);
+      if ((inactivationResult || {}).cancel) {
+        context.__resolutionChain = this.__activeRoutes;
+        return this.__previousResolution;
       }
     }
     this.__activeRoutes = [];

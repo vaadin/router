@@ -569,6 +569,24 @@
             expect(getBundleScripts(existingBundlePath).length).to.equal(1);
           });
 
+          it('action should be called with correct parameters', async() => {
+            const action = sinon.spy();
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', action: action}
+            ]);
+
+            await router.render('/');
+
+            expect(action).to.have.been.called.once;
+            expect(action.args[0].length).to.equal(1);
+            const contextParam = action.args[0][0];
+            expect(contextParam.pathname).to.equal('/');
+            expect(contextParam.route.path).to.equal('/');
+            expect(contextParam.route.component).to.equal('x-home-view');
+            expect(contextParam.invocationPath.path).to.equal('/');
+            expect(contextParam.invocationPath.component).to.equal('x-home-view');
+          });
+
           it('should throw on incorrect bundle path', async() => {
             const nonExistingPath = 'does-not-exist.js';
             router.setRoutes([
