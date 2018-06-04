@@ -27,93 +27,9 @@ function renderComponent(context, component) {
  * express-style middleware and has a first-class support for Web Components and
  * lazy-loading. Works great in Polymer and non-Polymer apps.
  *
- * ### Basic example
- * ```
- * import {Router} from '@vaadin/router';
+ * See [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.
  *
- * const router = new Router(document.getElementById('outlet'));
- * router.setRoutes([
- *   {path: '/', component: 'x-home-view'},
- *   {path: '/users', component: 'x-user-list'}
- * ]);
- * ```
- *
- * ### Lazy-loading example
- * A bit more involved example with lazy-loading:
- * ```
- * import {Router} from '@vaadin/router';
- *
- * const routes = [
- *   {path: '/', component: 'x-home-view'},
- *   {
- *     path: '/users',
- *     bundle: 'bundles/user-bundle.html',
- *     children: [
- *       {path: '/', component: 'x-user-list'},
- *       {path: '/:user', component: 'x-user-profile'}
- *     ]
- *   }
- * ];
- *
- * const router = new Router(document.getElementById('outlet'));
- * router.setRoutes(routes);
- * ```
- *
- * ### Middleware example
- * A more complex example with custom route handlers and server-side rendered
- * content:
- * ```
- * import {Router} from '@vaadin/router';
- *
- * const routes = [
- *   {
- *     path: '/',
- *     action: async (context) => {
- *       // record the navigation completed event for analytics
- *       analytics.recordNavigationStart(context.path);
- *
- *       // let the navigation happen and wait for the result
- *       const result = await context.next();
- *
- *       // record the navigation completed event for analytics
- *       analytics.recordNavigationEnd(context.path, result.status);
- *
- *       // pass the result up the handlers chain
- *       return result;
- *     }
- *   },
- *   {
- *     path: '/',
- *     component: 'x-home-view'
- *   },
- *   {
- *     path: '/users',
- *     bundle: 'bundles/user-bundle.html',
- *     children: [
- *       {path: '/', component: 'x-user-list'},
- *       {path: '/:user', component: 'x-user-profile'}
- *     ]
- *   },
- *   {
- *     path: '/server',
- *     action: async (context) => {
- *       // fetch the server-side rendered content
- *       const result = await fetch(context.path, {...});
- *
- *       // modify the content if necessary
- *       result.body = result.body.replace(/bad/ig, 'good');
- *
- *       // create DOM objects out of the server-side result (string)
- *       return renderToDom(result);
- *     }
- *   }
- * ];
- *
- * const router = new Router(document.getElementById('outlet'));
- * router.setRoutes(routes);
- * ```
- *
- * For more detailed information on the route object properties, refer to 'setRoutes' method description.
+ * See [setRoutes](#/classes/Vaadin.Router#method-setRoutes) API docs for the route config description.
  *
  * @memberof Vaadin
  * @extends Vaadin.Resolver
@@ -256,28 +172,32 @@ export class Router extends Resolver {
    * current `window.location` and the new routing config.
    *
    * Each route object may have the following properties, listed here in the processing order:
-   * * {!string} path – the route path (relative to the parent route if any) in the
-   * <a href="https://expressjs.com/en/guide/routing.html#route-paths" target="_blank">express.js syntax</a>.
+   * * `path` – the route path (relative to the parent route if any) in the
+   * [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
    *
-   * * {?function(context)} action – the action that is executed before the route is resolved.
-   * If present, action property is always processed first, disregarding of the other properties' presence.
-   * If action returns a value, current route resolution is finished (i.e. other route properties are not processed).
-   * 'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'
-   * and for getting route parameters via 'context.params'.
+   * * `action` – the action that is executed before the route is resolved.
+   * The value for this property should be a function, accepting a `context` parameter.
+   * If present, this function is always invoked first, disregarding of the other properties' presence.
+   * If the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.
+   * `context parameter can be used for asynchronously getting the resolved route contents via `context.next()
+   * and for getting route parameters via `context.params`.
    *
-   * * {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.
+   * * `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.
    * The target route should also be defined.
+   * See also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
-   * * {?string} bundle – '*.js' or '*.mjs' bundles to load before resolving the route. Each bundle is loaded only once.
-   * Is not triggered when either an 'action' returns the result or 'redirect' property is present.
+   * * `bundle` – `.js` or `.mjs` bundle to load before resolving the route. Each bundle is only loaded once.
+   * The property is ignored when either an `action` returns the result or `redirect` property is present.
+   * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
+   * See also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
-   * * {?string} component – the tag name of the Web Component to resolve the route to.
-   * Is not considered when either an 'action' returns the result or 'redirect' property is present.
+   * * `component` – the tag name of the Web Component to resolve the route to.
+   *The property is ignored when either an `action` returns the result or `redirect` property is present.
    *
-   * * {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.
+   * * `children` – nested routes. Parent routes' properties are executed before resolving the children.
    * Children 'path' values are relative to the parent ones.
    *
-   * * {?function(context)} inactivate – after each resolution, router marks each route used in the resolution as an active route:
+   * * `inactivate` – after each resolution, router marks each route used in the resolution as an active route:
    * if a hierarchy of '/a', '/b' (child of '/a'), '/c' (child of '/b') routes was defined, and user visits '/a/b/c' path,
    * router will track ['/a', '/b', '/c'] routes as active ones, remembering their order also.
    * During the next resolution, router compares new routes used in the resolution and,
