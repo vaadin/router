@@ -291,6 +291,38 @@
           verifyActiveRoutes(router, ['/a', '/b']);
         });
       });
+
+      describe('recursive redirects', () => {
+        let router;
+        beforeEach(() => {
+          router = new Vaadin.Router(outlet);
+        });
+
+        afterEach(() => {
+          router.unsubscribe();
+        });
+
+        it('recursive redirect defined with property works and activates the path once', async() => {
+          router.setRoutes([
+            {path: '/', redirect: '/', component: 'x-home-view'}
+          ]);
+
+          await router.render('/');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        });
+
+        it('recursive redirect caused by action works and activates the path once', async() => {
+          router.setRoutes([
+            {path: '/', action: context => context.redirect('/'), component: 'x-home-view'}
+          ]);
+
+          await router.render('/');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          verifyActiveRoutes(router, ['/']);
+        });
+      });
     });
 
     function verifyActiveRoutes(router, expectedSegments) {
