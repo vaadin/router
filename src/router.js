@@ -22,6 +22,19 @@ function renderComponent(context, component) {
   return element;
 }
 
+function runCallbackIfPossible(callback, context) {
+  if (callback && typeof callback === 'function') {
+    const result = callback(context);
+    if (!redirectsToCurrentStateSecondTimeInARow(context, (result || {}).redirect)) {
+      return result;
+    }
+  }
+}
+
+function redirectsToCurrentStateSecondTimeInARow(context, redirectData) {
+  return redirectData && context.pathname === redirectData.pathname && context.from === redirectData.from;
+}
+
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -167,13 +180,16 @@ export class Router extends Resolver {
     context.redirect = path => redirect(context, path);
     context.component = component => renderComponent(context, component);
 
-    const actionResult = processAction(context);
+    const actionResult = runCallbackIfPossible(processAction, context);
     if (isResultNotEmpty(actionResult)) {
       return actionResult;
     }
 
     if (typeof route.redirect === 'string') {
-      return context.redirect(route.redirect);
+      const redirectTarget = context.redirect(route.redirect);
+      if (!redirectsToCurrentStateSecondTimeInARow(context, redirectTarget.redirect)) {
+        return redirectTarget;
+      }
     }
 
     if (route.path) {
@@ -212,13 +228,11 @@ export class Router extends Resolver {
   __runInactivationChain(divergedRouteIndex, context) {
     for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
       const routeToInactivate = this.__activeRoutes[i];
-      if (typeof routeToInactivate.inactivate === 'function') {
-        context.inactivatedRoute = routeToInactivate;
-        const inactivationResult = routeToInactivate.inactivate(context);
-        if (inactivationResult === false) {
-          context.__resolutionChain = this.__activeRoutes;
-          return this.__previousResolution;
-        }
+      context.inactivatedRoute = routeToInactivate;
+      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context);
+      if (inactivationResult === false) {
+        context.__resolutionChain = this.__activeRoutes;
+        return this.__previousResolution;
       }
     }
     this.__activeRoutes = [];
