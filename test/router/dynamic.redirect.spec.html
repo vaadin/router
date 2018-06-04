@@ -101,7 +101,7 @@
           verifyActiveRoutes(router, ['/a', '/b', '/c']);
         });
 
-        it('action that returns an element does not add an extra active route', async() => {
+        it('action that returns an element still adds an extra active route with the same path', async() => {
           router.setRoutes([
             {path: '/', action: context => context.next()},
             {path: '/', component: 'x-home-view'},
@@ -109,10 +109,10 @@
 
           await router.render('/');
 
-          verifyActiveRoutes(router, ['/']);
+          verifyActiveRoutes(router, ['/', '/']);
         });
 
-        it('action that returns an element overrides inactivate for the same route', async() => {
+        it('action that returns an element does not override inactivate for the same route', async() => {
           const inactivate = sinon.spy();
           router.setRoutes([
             {path: '/', action: context => context.next(), inactivate: inactivate},
@@ -121,19 +121,22 @@
           ]);
 
           await router.render('/');
-          await router.render('/b');
 
           expect(inactivate).to.not.have.been.called;
+
+          await router.render('/b');
+
+          expect(inactivate).to.have.been.called.once;
         });
 
-        it('action that returns custom component does not activate route', async() => {
+        it('action that returns custom component activates route', async() => {
           router.setRoutes([
             {path: '/', action: context => context.component('x-home-view')},
           ]);
 
           await router.render('/');
 
-          verifyActiveRoutes(router, []);
+          verifyActiveRoutes(router, ['/']);
         });
 
         it('action that returns redirect activates redirect route', async() => {
@@ -269,19 +272,17 @@
           verifyActiveRoutes(router, ['/a', '/b', '/c']);
         });
 
-
         it('inactivate is called when new activation path has no different routes but is shorter', async() => {
           const inactivate = sinon.spy();
           const actionToEmulateShorterResolvePass = context => {
             if ((context.pathname.match(/\//g) || []).length < 2) {
-              return context.next();
+              return context.component('x-home-view');
             }
           };
           router.setRoutes([
             {path: '/a', action: actionToEmulateShorterResolvePass, children: [
               {path: '/b', component: 'x-users-view', inactivate: inactivate},
             ]},
-            {path: '/a', component: 'x-home-view'}
           ]);
 
           await router.render('/a/b');
@@ -299,14 +300,13 @@
           'when new activation path has no different routes but is shorter', async() => {
           const actionToEmulateShorterResolvePass = context => {
             if ((context.pathname.match(/\//g) || []).length < 2) {
-              return context.next();
+              return context.component('x-home-view');
             }
           };
           router.setRoutes([
             {path: '/a', action: actionToEmulateShorterResolvePass, children: [
               {path: '/b', component: 'x-users-view', inactivate: context => context.cancel()},
             ]},
-            {path: '/a', component: 'whatever'}
           ]);
 
           await router.render('/a/b');
