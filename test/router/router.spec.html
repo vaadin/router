@@ -721,6 +721,16 @@
             expect(elem.route.params.id).to.equal('1');
           });
 
+          it('context.cancel() return value is ignored for action', async() => {
+            router.setRoutes([
+              {path: '/', action: context => context.cancel(), component: 'x-home-view'}
+            ]);
+
+            await router.render('/');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
           it('redirect should be executed before bundle and stop it from loading', async() => {
             router.setRoutes([
               {path: '/test', redirect: '/users', component: 'x-home-view'},
