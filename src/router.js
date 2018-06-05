@@ -350,24 +350,12 @@ export class Router extends Resolver {
    *  - `CLICK`: click events on `<a>` links leading to the current page
    *
    * By default, both `POPSTATE` and `CLICK` are enabled.
-   * Below is an example of how to only use one of them:
+
+   * See the `router-config.js` for the default navigation triggers config. Based on that file, you can
+   * create the own one and only import what you actually need, instead of pulling in all the Router code.
    *
-   * ```
-   * import {Router} from '@vaadin/router';
-   * import CLICK from '@vaadin/router/triggers/click';
    *
-   * Router.setTriggers(POPSTATE);
-   * // or, if you only need click:
-   * // Router.setTriggers(CLICK);
-   * ```
-   *
-   * The `POPSTATE` and `CLICK` navigation triggers need to be imported
-   * separately to enable efficient tree shaking: if the app does not use `<a>`
-   * clicks as navigation triggers, you should be able to exclude the code
-   * needed to handle them from the bundle.
-   *
-   * See the `router-config.js` for the default navigation triggers config.
-   * Based on this file, you can create the own one and import it instead.
+   * See also **Navigation Triggers** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
    * @param {...NavigationTrigger} triggers
    */

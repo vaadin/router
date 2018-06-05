@@ -505,15 +505,15 @@
       "staticMethods": [
         {
           "name": "setTriggers",
-          "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nBy default, both `POPSTATE` and `CLICK` are enabled.\nBelow is an example of how to only use one of them:\n\n```\nimport {Router} from '@vaadin/router';\nimport CLICK from '@vaadin/router/triggers/click';\n\nRouter.setTriggers(POPSTATE);\n// or, if you only need click:\n// Router.setTriggers(CLICK);\n```\n\nThe `POPSTATE` and `CLICK` navigation triggers need to be imported\nseparately to enable efficient tree shaking: if the app does not use `<a>`\nclicks as navigation triggers, you should be able to exclude the code\nneeded to handle them from the bundle.\n\nSee the `router-config.js` for the default navigation triggers config.\nBased on this file, you can create the own one and import it instead.",
+          "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nBy default, both `POPSTATE` and `CLICK` are enabled.\n\nSee the `router-config.js` for the default navigation triggers config. Based on that file, you can\ncreate the own one and only import what you actually need, instead of pulling in all the Router code.\n\n\nSee also **Navigation Triggers** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1394,
+              "line": 1382,
               "column": 2
             },
             "end": {
-              "line": 1396,
+              "line": 1384,
               "column": 3
             }
           },
@@ -544,7 +544,7 @@
           "column": 0
         },
         "end": {
-          "line": 1397,
+          "line": 1385,
           "column": 1
         }
       },
