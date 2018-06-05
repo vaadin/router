@@ -27,9 +27,18 @@ function renderComponent(context, component) {
  * express-style middleware and has a first-class support for Web Components and
  * lazy-loading. Works great in Polymer and non-Polymer apps.
  *
+ * Use the `new Router(outlet)` to create a new Router instance. The `outlet` parameter is a reference to the DOM node
+ * to render the content into. The Router instance is automatically subscribed to navigation events on `window`.
+ *
  * See [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.
  *
- * See [setRoutes](#/classes/Vaadin.Router#method-setRoutes) API docs for the route config description.
+ * See also detailed API docs for the following methods, for the advanced usage:
+ *
+ * * [setOutlet](#/classes/Vaadin.Router#method-setOutlet) – should be used to configure the outlet.
+ * * [setTriggers](#/classes/Vaadin.Router#method-setTriggers) – should be used to configure the navigation events.
+ * * [setRoutes](#/classes/Vaadin.Router#method-setRoutes) – should be used to configure the routes.
+ *
+ * Only the `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
  *
  * @memberof Vaadin
  * @extends Vaadin.Resolver
@@ -49,7 +58,6 @@ export class Router extends Resolver {
    * const router = new Vaadin.Router();
    * router.setOutlet(outlet);
    * ```
-   *
    * @param {?Node} outlet
    * @param {?RouterOptions} options
    */
@@ -147,6 +155,8 @@ export class Router extends Resolver {
    * route is inserted). Any content pre-existing in the router outlet is
    * removed at the end of each render pass.
    *
+   * NOTE: this method is automatically invoked first time when creating a new Router instance.
+   *
    * @param {?Node} outlet the DOM node where the content for the current route
    *     is inserted.
    */
@@ -212,7 +222,7 @@ export class Router extends Resolver {
    * router restores the state before new resolution.
    * Otherwise router updates the active routes and waits for the next resolution to happen.
    *
-   * Note: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
+   * NOTE: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
    *
    * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */
@@ -349,11 +359,12 @@ export class Router extends Resolver {
    *  - `POPSTATE`: popstate events on the current `window`
    *  - `CLICK`: click events on `<a>` links leading to the current page
    *
-   * By default, both `POPSTATE` and `CLICK` are enabled.
-
-   * See the `router-config.js` for the default navigation triggers config. Based on that file, you can
-   * create the own one and only import what you actually need, instead of pulling in all the Router code.
+   * This method is invoked with the pre-configured values when creating a new Router instance.
+   * By default, both `POPSTATE` and `CLICK` are enabled. This setup is expected to cover most of the use cases.
    *
+   * See the `router-config.js` for the default navigation triggers config. Based on it, you can
+   * create the own one and only import the triggers you need, instead of pulling in all the code,
+   * e.g. if you want to handle `click` differently.
    *
    * See also **Navigation Triggers** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
