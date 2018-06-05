@@ -37,16 +37,9 @@ function renderComponent(context, component) {
 }
 
 function runCallbackIfPossible(callback, context, invocationPath) {
-  if (callback && typeof callback === 'function') {
-    const result = callback(Object.assign({}, context, {invocationPath: invocationPath}));
-    if (!redirectsToCurrentStateSecondTimeInARow(context, (result || {}).redirect)) {
-      return result;
-    }
+  if (typeof callback === 'function') {
+    return callback(Object.assign({}, context, {invocationPath: invocationPath}));
   }
-}
-
-function redirectsToCurrentStateSecondTimeInARow(context, redirectData) {
-  return redirectData && context.pathname === redirectData.pathname && context.from === redirectData.from;
 }
 
 /**
@@ -130,10 +123,7 @@ export class Router extends Resolver {
     }
 
     if (typeof route.redirect === 'string') {
-      const redirectTarget = context.redirect(route.redirect);
-      if (!redirectsToCurrentStateSecondTimeInARow(context, redirectTarget.redirect)) {
-        return redirectTarget;
-      }
+      return context.redirect(route.redirect);
     }
 
     if (route.path) {
