@@ -16,11 +16,28 @@
     <p>
       The original path is not stored as the <code>window.history</code> entry
       and cannot be reached by pressing the "Back" browser button. Unconditional
-      redirects work for routes both with and without parameters. The original
-      path is available to the route component as the <code>route.redirectFrom
-      </code> string property, and to custom route actions as <code>context.from
-      </code>.
+      redirects work for routes both with and without parameters.
+    <p>
+      The original path is available to the view Web Component as the
+      <code>route.redirectFrom</code> string property, as described in the snippet below.
+      <a href="#vaadin-router-route-actions-demos">Route Actions</a> can access
+      the original path reference as <code>context.from</code>.
     </p>
+    <marked-element>
+      <script type="text/markdown">
+        ```js
+        {
+          route: {
+            pathname: '/user/guest',
+            redirectFrom: '/u/guest', /* the path which redirected */
+            params: {
+              id: 'guest'
+            }
+          }
+        }
+        ```
+      </script>
+    </marked-element>
     <p>
       Note: If a route has both the <code>redirect</code> and <code>action</code>
       properties, <code>action</code> is executed first and if it does not
