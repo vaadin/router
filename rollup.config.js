@@ -44,6 +44,7 @@ const config = [
 
   // ES module bundle, not transpiled (for the API docs generation)
   // FIXME: remove once polymer-cli adds `.mjs` file extension support
+  // See https://github.com/Polymer/tools/issues/415
   {
     input: 'index.js',
     output: {
