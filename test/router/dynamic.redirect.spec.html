@@ -34,7 +34,8 @@
 
       const throttler = document.querySelector('#throttler');
       afterEach(function() {
-        return throttler.throttle(this);
+        const test = this; // eslint-disable-line no-invalid-this
+        return throttler.throttle(test);
       });
 
       describe('active routes', () => {

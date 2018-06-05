@@ -76,7 +76,7 @@
     var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     var isSafari = /^Apple/.test(navigator.vendor);
     if (isChrome || isSafari) {
-      TestPushstateThrottler.prototype.throttle = function (test, force) {
+      TestPushstateThrottler.prototype.throttle = function(test, force) {
         return new Promise((resolve, reject) => {
           if (runnerWindow.pushStateCount > 85 || force) {
             const cooldownPeriod = 30 * 1000;
