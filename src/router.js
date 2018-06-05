@@ -166,9 +166,10 @@ export class Router extends Resolver {
     const route = context.route;
     context.redirect = path => redirect(context, path);
     context.component = component => renderComponent(context, component);
+    context.cancel = () => Object.freeze({cancel: true});
 
     const actionResult = processAction(context);
-    if (isResultNotEmpty(actionResult)) {
+    if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
     }
 
@@ -215,7 +216,7 @@ export class Router extends Resolver {
       if (typeof routeToInactivate.inactivate === 'function') {
         context.inactivatedRoute = routeToInactivate;
         const inactivationResult = routeToInactivate.inactivate(context);
-        if (inactivationResult === false) {
+        if ((inactivationResult || {}).cancel) {
           context.__resolutionChain = this.__activeRoutes;
           return this.__previousResolution;
         }
@@ -261,7 +262,9 @@ export class Router extends Resolver {
    * If present, action property is always processed first, disregarding of the other properties' presence.
    * If action returns a value, current route resolution is finished (i.e. other route properties are not processed).
    * 'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'
-   * and for getting route parameters via 'context.params'.
+   * and for getting route parameters via 'context.params'. 'context.cancel()' creates an object that can be returned
+   * during 'inactivate' method execution (described below) to abort ongoing route resolution. If an 'action' return
+   * 'context.cancel()', it will be considered as no return value.
    *
    * * {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.
    * The target route should also be defined.
@@ -286,7 +289,7 @@ export class Router extends Resolver {
    * Each `inactivate` call gets a `context` parameter, described above.
    * In this case, context parameter contains an additional `inactivatedRoute` property,
    * that holds an information on the currently inactivated route.
-   * If `inactivate` method returns `false`, inactivation and new path resolution is cancelled,
+   * If `inactivate` method returns `context.cancel()`, inactivation and new path resolution is cancelled,
    * router restores the state before new resolution.
    * Otherwise router updates the active routes and waits for the next resolution to happen.
    *

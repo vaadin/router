@@ -215,10 +215,10 @@
           expect(inactivateC).to.have.been.called.once;
         });
 
-        it('inactivate that returns false, changes render target and reverts active routes changes every time it is triggered', async() => {
+        it('inactivate that returns cancel, changes render target and reverts active routes changes every time it is triggered', async() => {
           router.setRoutes([
             {path: '/a', children: [
-              {path: '/b', inactivate: () => false, children: [
+              {path: '/b', inactivate: context => context.cancel(), children: [
                 {path: '/c', component: 'x-home-view'}
               ]},
             ]},
@@ -261,7 +261,7 @@
           expect(inactivate).to.have.been.called.once;
         });
 
-        it('inactivate that returns false, changes render target and reverts active routes changes ' +
+        it('inactivate that returns cancel, changes render target and reverts active routes changes ' +
           'when new activation path has no different routes but is shorter', async() => {
           const actionToEmulateShorterResolvePass = context => {
             if ((context.pathname.match(/\//g) || []).length < 2) {
@@ -270,7 +270,7 @@
           };
           router.setRoutes([
             {path: '/a', action: actionToEmulateShorterResolvePass, children: [
-              {path: '/b', component: 'x-users-view', inactivate: () => false},
+              {path: '/b', component: 'x-users-view', inactivate: context => context.cancel()},
             ]},
             {path: '/a', component: 'whatever'}
           ]);
