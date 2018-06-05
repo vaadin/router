@@ -1,5 +1,8 @@
 (() => {
-  class XUSerJsBundleView extends Polymer.Element {
+  class XUserJsBundleView extends Polymer.Element {
+    static get is() {
+      return 'x-user-js-bundle-view';
+    }
     static get template() {
       return Polymer.html`
         <h1>User Profile</h1>
@@ -8,5 +11,5 @@
     }
   }
 
-  customElements.define('x-user-js-bundle-view', XUSerJsBundleView);
+  customElements.define(XUserJsBundleView.is, XUserJsBundleView);
 })();

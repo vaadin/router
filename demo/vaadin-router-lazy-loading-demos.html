@@ -71,17 +71,16 @@
           const {Router} = window.Vaadin;
 
           const loadCustomBundle = (context) => {
-            return new Promise((resolve, reject) => {
-              // This is one way of loading a bundle lazily (works for Polymer apps).
-              // Other apps might use different ways.
-              Polymer.importHref(
-                `${window.Vaadin.demoComponentsRoot}/user.bundle.html`, () => {
-                  resolve(context.component(context.route.component));
-                },
-                reject,
-                true
-              );
-            });
+            // This is one way of loading a bundle lazily (works for Polymer apps).
+            // Other apps might use different ways.
+            Polymer.importHref(
+              `${window.Vaadin.demoComponentsRoot}/user.bundle.html`,
+              null,
+              function(err) {
+                throw new Error('bundle not found');
+              },
+              true
+            );
           };
 
           const router = new Router(document.getElementById('outlet'));
