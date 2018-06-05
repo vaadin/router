@@ -37,7 +37,23 @@
       see the <a href="#vaadin-router-route-parameters-demos">Route Parameters
       </a> demos.</p>
     <p>Route components can be any Web Components regardless of how they are
-      built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc</p>
+      built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc.
+      The only convention is that the <code>route</code> object property is set
+      by the router on the component when rendering:
+    </p>
+    <marked-element>
+      <script type="text/markdown">
+        ```js
+        {
+          route: {
+            pathname: '/',
+            params: {},
+            /* any other route-specific info */
+          }
+        }
+        ```
+      </script>
+    </marked-element>
     <vaadin-demo-snippet id="vaadin-router-basic-demo-1" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
@@ -121,7 +137,6 @@
         </script>
       </template>
     </vaadin-demo-snippet>
-
   </template>
   <script>
     class VaadinRouterBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
