@@ -144,6 +144,34 @@
       </template>
     </vaadin-demo-snippet>
 
+    <h3>Typed Route Parameters</h3>
+    <p>
+      The route can be configured so that only specific characters are accepted for a parameter value.
+      Other characters would not meet the check and the route resolution would continue to other routes.
+      You only can use unnamed parameters in this case, as it can only be achieved using the custom RegExp.
+      One possible alternative is to use <a href="#vaadin-router-route-actions-demos">Route Actions</a>
+      and check the <code>context.params</code>.</p>
+    <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-4" iframe-src="iframe.html">
+      <template preserve-content="">
+        <a href="/">Home</a>
+        <a href="/users/list">All Users</a>
+        <a href="/users/42">User 42</a>
+        <a href="/users/guest">Guest</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users/list', component: 'x-user-list'},
+            {path: '/users/([0-9]+)', component: 'x-user-numeric-view'},
+            {path: '/users/(.*)', component: 'x-user-not-found-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
   </template>
-  <script>var VaadinRouterRouteParametersDemos=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'vaadin-router-route-parameters-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterRouteParametersDemos.is,VaadinRouterRouteParametersDemos);</script>
+  <script>var VaadinRouterRouteParametersDemos=function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterRouteParametersDemos,_DemoReadyEventEmitte);function VaadinRouterRouteParametersDemos(){babelHelpers.classCallCheck(this,VaadinRouterRouteParametersDemos);return babelHelpers.possibleConstructorReturn(this,(VaadinRouterRouteParametersDemos.__proto__||Object.getPrototypeOf(VaadinRouterRouteParametersDemos)).apply(this,arguments))}babelHelpers.createClass(VaadinRouterRouteParametersDemos,null,[{key:"is",get:function get(){return"vaadin-router-route-parameters-demos"}}]);return VaadinRouterRouteParametersDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterRouteParametersDemos.is,VaadinRouterRouteParametersDemos);</script>
 </dom-module>

@@ -44,13 +44,21 @@
       <ul>
         <li>an instance of <code>HTMLElement</code></li>
         <li>a <em>redirect</em> object, i.e. an <code>object</code> with a
-          <code>redirect</code> property that looks like <code><pre>{
-  redirect: {
-    pathname: '/new/path/:param',
-    from: '/old/path/:param',
-    params: /* the parameters object (if any) */
-  }
-}</pre></code></li>
+          <code>redirect</code> property that looks like:
+          <marked-element>
+            <script type="text/markdown">
+              ```js
+              {
+                route: {
+                  pathname: '/new/path/:param',
+                  from: '/old/path/:param',
+                  params: /* the parameters object (if any) */
+                }
+              }
+              ```
+            </script>
+          </marked-element>
+        </li>
         <li><code>null</code> or <code>undefined</code></li>
       </ul>
     <p></p>
@@ -232,5 +240,5 @@
       </template>
     </vaadin-demo-snippet>
   </template>
-  <script>var VaadinRouterRouteActionsDemos=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'vaadin-router-route-actions-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterRouteActionsDemos.is,VaadinRouterRouteActionsDemos);</script>
+  <script>var VaadinRouterRouteActionsDemos=function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterRouteActionsDemos,_DemoReadyEventEmitte);function VaadinRouterRouteActionsDemos(){babelHelpers.classCallCheck(this,VaadinRouterRouteActionsDemos);return babelHelpers.possibleConstructorReturn(this,(VaadinRouterRouteActionsDemos.__proto__||Object.getPrototypeOf(VaadinRouterRouteActionsDemos)).apply(this,arguments))}babelHelpers.createClass(VaadinRouterRouteActionsDemos,null,[{key:"is",get:function get(){return"vaadin-router-route-actions-demos"}}]);return VaadinRouterRouteActionsDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterRouteActionsDemos.is,VaadinRouterRouteActionsDemos);</script>
 </dom-module>

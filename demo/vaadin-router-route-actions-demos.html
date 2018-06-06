@@ -44,13 +44,21 @@
       <ul>
         <li>an instance of <code>HTMLElement</code></li>
         <li>a <em>redirect</em> object, i.e. an <code>object</code> with a
-          <code>redirect</code> property that looks like <code><pre>{
-  redirect: {
-    pathname: '/new/path/:param',
-    from: '/old/path/:param',
-    params: /* the parameters object (if any) */
-  }
-}</pre></code></li>
+          <code>redirect</code> property that looks like:
+          <marked-element>
+            <script type="text/markdown">
+              ```js
+              {
+                route: {
+                  pathname: '/new/path/:param',
+                  from: '/old/path/:param',
+                  params: /* the parameters object (if any) */
+                }
+              }
+              ```
+            </script>
+          </marked-element>
+        </li>
         <li><code>null</code> or <code>undefined</code></li>
       </ul>
     </p>

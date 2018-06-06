@@ -1,0 +1,24 @@
+<dom-module id="x-user-html-bundle-view">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h1>User Profile</h1>
+    <p>User id: <b>[[route.params.id]]</b>. This view was loaded using HTML bundle.</p>
+  </template>
+</dom-module>
+
+<script>
+  (() => {
+    class XUserHtmlBundleView extends Polymer.Element {
+      static get is() {
+        return 'x-user-html-bundle-view';
+      }
+    }
+
+    customElements.define(XUserHtmlBundleView.is, XUserHtmlBundleView);
+  })();
+</script>

@@ -1,7 +1,7 @@
 import Resolver from './resolver/resolver.js';
 import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
-import {loadBundle} from './utils.js';
+import {log, loadBundle} from './utils.js';
 
 function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
@@ -27,93 +27,18 @@ function renderComponent(context, component) {
  * express-style middleware and has a first-class support for Web Components and
  * lazy-loading. Works great in Polymer and non-Polymer apps.
  *
- * ### Basic example
- * ```
- * import {Router} from '@vaadin/router';
+ * Use `new Router(outlet)` to create a new Router instance. The `outlet` parameter is a reference to the DOM node
+ * to render the content into. The Router instance is automatically subscribed to navigation events on `window`.
  *
- * const router = new Router(document.getElementById('outlet'));
- * router.setRoutes([
- *   {path: '/', component: 'x-home-view'},
- *   {path: '/users', component: 'x-user-list'}
- * ]);
- * ```
+ * See [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.
  *
- * ### Lazy-loading example
- * A bit more involved example with lazy-loading:
- * ```
- * import {Router} from '@vaadin/router';
+ * See also detailed API docs for the following methods, for the advanced usage:
  *
- * const routes = [
- *   {path: '/', component: 'x-home-view'},
- *   {
- *     path: '/users',
- *     bundle: 'bundles/user-bundle.html',
- *     children: [
- *       {path: '/', component: 'x-user-list'},
- *       {path: '/:user', component: 'x-user-profile'}
- *     ]
- *   }
- * ];
+ * * [setOutlet](#/classes/Vaadin.Router#method-setOutlet) – should be used to configure the outlet.
+ * * [setTriggers](#/classes/Vaadin.Router#method-setTriggers) – should be used to configure the navigation events.
+ * * [setRoutes](#/classes/Vaadin.Router#method-setRoutes) – should be used to configure the routes.
  *
- * const router = new Router(document.getElementById('outlet'));
- * router.setRoutes(routes);
- * ```
- *
- * ### Middleware example
- * A more complex example with custom route handlers and server-side rendered
- * content:
- * ```
- * import {Router} from '@vaadin/router';
- *
- * const routes = [
- *   {
- *     path: '/',
- *     action: async (context) => {
- *       // record the navigation completed event for analytics
- *       analytics.recordNavigationStart(context.path);
- *
- *       // let the navigation happen and wait for the result
- *       const result = await context.next();
- *
- *       // record the navigation completed event for analytics
- *       analytics.recordNavigationEnd(context.path, result.status);
- *
- *       // pass the result up the handlers chain
- *       return result;
- *     }
- *   },
- *   {
- *     path: '/',
- *     component: 'x-home-view'
- *   },
- *   {
- *     path: '/users',
- *     bundle: 'bundles/user-bundle.html',
- *     children: [
- *       {path: '/', component: 'x-user-list'},
- *       {path: '/:user', component: 'x-user-profile'}
- *     ]
- *   },
- *   {
- *     path: '/server',
- *     action: async (context) => {
- *       // fetch the server-side rendered content
- *       const result = await fetch(context.path, {...});
- *
- *       // modify the content if necessary
- *       result.body = result.body.replace(/bad/ig, 'good');
- *
- *       // create DOM objects out of the server-side result (string)
- *       return renderToDom(result);
- *     }
- *   }
- * ];
- *
- * const router = new Router(document.getElementById('outlet'));
- * router.setRoutes(routes);
- * ```
- *
- * For more detailed information on the route object properties, refer to 'setRoutes' method description.
+ * Only `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
  *
  * @memberof Vaadin
  * @extends Vaadin.Resolver
@@ -133,7 +58,6 @@ export class Router extends Resolver {
    * const router = new Vaadin.Router();
    * router.setOutlet(outlet);
    * ```
-   *
    * @param {?Node} outlet
    * @param {?RouterOptions} options
    */
@@ -190,7 +114,9 @@ export class Router extends Resolver {
     }
 
     if (route.bundle) {
-      return loadBundle(route.bundle).then(() => this.__processComponent(route, context));
+      return loadBundle(route.bundle)
+        .then(() => this.__processComponent(route, context))
+        .catch(e => new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`)));
     }
 
     return this.__processComponent(route, context);
@@ -229,6 +155,8 @@ export class Router extends Resolver {
    * route is inserted). Any content pre-existing in the router outlet is
    * removed at the end of each render pass.
    *
+   * NOTE: this method is automatically invoked first time when creating a new Router instance.
+   *
    * @param {?Node} outlet the DOM node where the content for the current route
    *     is inserted.
    */
@@ -254,28 +182,33 @@ export class Router extends Resolver {
    * current `window.location` and the new routing config.
    *
    * Each route object may have the following properties, listed here in the processing order:
-   * * {!string} path – the route path (relative to the parent route if any) in the
-   * <a href="https://expressjs.com/en/guide/routing.html#route-paths" target="_blank">express.js syntax</a>.
+   * * `path` – the route path (relative to the parent route if any) in the
+   * [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
    *
-   * * {?function(context)} action – the action that is executed before the route is resolved.
-   * If present, action property is always processed first, disregarding of the other properties' presence.
-   * If action returns a value, current route resolution is finished (i.e. other route properties are not processed).
-   * 'context' parameter can be used for asynchronously getting the resolved route contents via 'context.next()'
-   * and for getting route parameters via 'context.params'.
+   * * `action` – the action that is executed before the route is resolved.
+   * The value for this property should be a function, accepting a `context` parameter.
+   * If present, this function is always invoked first, disregarding of the other properties' presence.
+   * If the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.
+   * `context` parameter can be used for asynchronously getting the resolved route contents via `context.next()`
+   * and for getting route parameters via `context.params`.
+   * See also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
-   * * {?string} redirect – other route's path to redirect to. Passes all route parameters to the redirect target.
+   * * `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.
    * The target route should also be defined.
+   * See also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
-   * * {?string} bundle – '*.js' or '*.mjs' bundles to load before resolving the route. Each bundle is loaded only once.
-   * Is not triggered when either an 'action' returns the result or 'redirect' property is present.
+   * * `bundle` – `.js` or `.mjs` bundle to load before resolving the route. Each bundle is only loaded once.
+   * The property is ignored when either an `action` returns the result or `redirect` property is present.
+   * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
+   * See also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
-   * * {?string} component – the tag name of the Web Component to resolve the route to.
-   * Is not considered when either an 'action' returns the result or 'redirect' property is present.
+   * * `component` – the tag name of the Web Component to resolve the route to.
+   *The property is ignored when either an `action` returns the result or `redirect` property is present.
    *
-   * * {?Array<Object>} children – nested routes. Parent routes' properties are executed before resolving the children.
+   * * `children` – nested routes. Parent routes' properties are executed before resolving the children.
    * Children 'path' values are relative to the parent ones.
    *
-   * * {?function(context)} inactivate – after each resolution, router marks each route used in the resolution as an active route:
+   * * `inactivate` – after each resolution, router marks each route used in the resolution as an active route:
    * if a hierarchy of '/a', '/b' (child of '/a'), '/c' (child of '/b') routes was defined, and user visits '/a/b/c' path,
    * router will track ['/a', '/b', '/c'] routes as active ones, remembering their order also.
    * During the next resolution, router compares new routes used in the resolution and,
@@ -290,7 +223,7 @@ export class Router extends Resolver {
    * router restores the state before new resolution.
    * Otherwise router updates the active routes and waits for the next resolution to happen.
    *
-   * Note: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
+   * NOTE: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
    *
    * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */
@@ -322,18 +255,26 @@ export class Router extends Resolver {
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
       .then(context => {
-        if (context.result instanceof HTMLElement) {
+        const result = context.result;
+        if (result instanceof HTMLElement) {
           return context;
-        } else if (context.result.redirect) {
-          const redirect = context.result.redirect;
+        } else if (result.redirect) {
+          const redirect = result.redirect;
           return this.resolve({
             pathname: Router.pathToRegexp.compile(redirect.pathname)(redirect.params),
             from: redirect.from
           });
+        } else if (result instanceof Error) {
+          return Promise.reject(result);
         } else {
-          return Promise.reject(new Error(`Incorrect route resolution result for path '${pathnameOrContext}'. ` +
-            `Expected redirect object or HTML element, but got: '${context.result}'.` +
-            `Double check the action return value for the route.`));
+          return Promise.reject(
+            new Error(
+              log(
+                `Invalid route resolution result for path "${pathnameOrContext}". ` +
+                `Expected redirect object or HTML element, but got: "${result}". ` +
+                `Double check the action return value for the route.`
+              )
+            ));
         }
       })
       .then(context => {
@@ -361,7 +302,7 @@ export class Router extends Resolver {
 
   __ensureOutlet(outlet = this.__outlet) {
     if (!(outlet instanceof Node)) {
-      throw new TypeError(`expected router outlet to be a valid DOM Node (but got ${outlet})`);
+      throw new TypeError(log(`Expected router outlet to be a valid DOM Node (but got ${outlet})`));
     }
   }
 
@@ -419,25 +360,14 @@ export class Router extends Resolver {
    *  - `POPSTATE`: popstate events on the current `window`
    *  - `CLICK`: click events on `<a>` links leading to the current page
    *
-   * By default, both `POPSTATE` and `CLICK` are enabled.
-   * Below is an example of how to only use one of them:
+   * This method is invoked with the pre-configured values when creating a new Router instance.
+   * By default, both `POPSTATE` and `CLICK` are enabled. This setup is expected to cover most of the use cases.
    *
-   * ```
-   * import {Router} from '@vaadin/router';
-   * import CLICK from '@vaadin/router/triggers/click';
+   * See the `router-config.js` for the default navigation triggers config. Based on it, you can
+   * create the own one and only import the triggers you need, instead of pulling in all the code,
+   * e.g. if you want to handle `click` differently.
    *
-   * Router.setTriggers(POPSTATE);
-   * // or, if you only need click:
-   * // Router.setTriggers(CLICK);
-   * ```
-   *
-   * The `POPSTATE` and `CLICK` navigation triggers need to be imported
-   * separately to enable efficient tree shaking: if the app does not use `<a>`
-   * clicks as navigation triggers, you should be able to exclude the code
-   * needed to handle them from the bundle.
-   *
-   * See the `router-config.js` for the default navigation triggers config.
-   * Based on this file, you can create the own one and import it instead.
+   * See also **Navigation Triggers** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
    * @param {...NavigationTrigger} triggers
    */

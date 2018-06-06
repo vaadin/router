@@ -1,0 +1,31 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+
+<dom-module id="x-user-numeric-view">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h1>User Profile</h1>
+    <p>ID: [[route.params.0]]</p>
+  </template>
+  <script>
+    (() => {
+      class XUserNumericView extends Polymer.Element {
+        static get is() {
+          return 'x-user-numeric-view';
+        }
+
+        static get properties() {
+          return {
+            route: Object
+          };
+        }
+      }
+
+      customElements.define(XUserNumericView.is, XUserNumericView);
+    })();
+  </script>
+</dom-module>

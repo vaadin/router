@@ -65,6 +65,11 @@
             });
           });
 
+          it('route should throw when created with only path property', () => {
+            const router = new Vaadin.Router(outlet);
+            expect(() => router.setRoutes([{path: '/'}])).to.throw(Error);
+          });
+
           it('route should throw when created with unknown bundle type', () => {
             const router = new Vaadin.Router(outlet);
             expect(() => router.setRoutes([{path: '/', bundle: () => {}}])).to.throw(Error);
@@ -570,7 +575,7 @@
               {path: '/', component: 'x-home-view', bundle: nonExistingPath},
             ]);
 
-            await expectException(router.render('/'));
+            await expectException(router.render('/'), ['Bundle not found']);
             expect(getBundleScripts(nonExistingPath).length).to.equal(0);
           });
 
