@@ -115,7 +115,7 @@ export class Router extends Resolver {
     context.component = function(component) {
       return renderComponent(this, component);
     };
-      context.cancel = () => ({cancel: true});
+    context.cancel = () => ({cancel: true});
 
     const actionResult = runCallbackIfPossible(processAction, context, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
