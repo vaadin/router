@@ -167,9 +167,15 @@
         it('inactivate chain is called in reversed order, from last route to first', async() => {
           const deactivatedPaths = [];
           router.setRoutes([
-            {path: '/a', inactivate: context => deactivatedPaths.push(context.inactivatedRoute.path), children: [
-              {path: '/b', inactivate: context => deactivatedPaths.push(context.inactivatedRoute.path), children: [
-                {path: '/c', inactivate: context => deactivatedPaths.push(context.inactivatedRoute.path), component: 'x-users-view'},
+            {path: '/a', inactivate: function() {
+              deactivatedPaths.push(this.path);
+            }, children: [
+              {path: '/b', inactivate: function() {
+                deactivatedPaths.push(this.path);
+              }, children: [
+                {path: '/c', component: 'x-users-view', inactivate: function() {
+                  deactivatedPaths.push(this.path);
+                }},
               ]},
             ]},
             {path: '/', component: 'x-home-view'},
@@ -190,6 +196,9 @@
           ]);
 
           await router.render('/a');
+
+          expect(inactivateFunction).to.not.have.been.called;
+
           await router.render(lastResolvedRoute);
 
           expect(inactivateFunction).to.have.been.called.once;
@@ -198,8 +207,24 @@
           expect(contextParam.pathname).to.equal(lastResolvedRoute);
           expect(contextParam.route.path).to.equal(lastResolvedRoute);
           expect(contextParam.route.component).to.equal(lastComponentToRender);
-          expect(contextParam.inactivatedRoute.path).to.equal('/a');
-          expect(contextParam.inactivatedRoute.component).to.equal('x-home-view');
+        });
+
+        it('inactivate.this points to the route that defines action', async() => {
+          router.setRoutes([
+            {path: '/a', component: 'x-home-view', inactivate: function(context) {
+              expect(this.path).to.equal('/a');
+              expect(this.component).to.equal('x-home-view');
+              expect(this).not.to.be.equal(context.route);
+              expect(context.route.path).to.be.equal('/b');
+              expect(context.route.component).to.be.equal('x-users-view');
+            }},
+            {path: '/b', component: 'x-users-view'},
+          ]);
+
+          await router.render('/a');
+          await router.render('/b');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-view/i);
         });
 
         it('inactivate is not called for same routes in new resolve pass', async() => {
@@ -289,6 +314,61 @@
 
           expect(outlet.children[0].tagName).to.match(/x-users-view/i);
           verifyActiveRoutes(router, ['/a', '/b']);
+        });
+      });
+
+      describe('redirect.from and context.from values for dynamic redirects', () => {
+        let router;
+        beforeEach(() => {
+          router = new Vaadin.Router(outlet);
+        });
+
+        afterEach(() => {
+          router.unsubscribe();
+        });
+
+        const from = '/a/b/c';
+        const redirectFunction = context => {
+          const redirectObject = context.redirect('/d');
+          expect(redirectObject.redirect.from).to.be.equal(from);
+          return redirectObject;
+        };
+        const verificationAction = context => {
+          expect(context.from).to.be.equal(from);
+        };
+
+        it('action with redirect has its context.from and redirect.from populated correctly', async() => {
+          router.setRoutes([
+            {path: '/a', children: [
+              {path: '/b', children: [
+                {path: '/c', action: redirectFunction}
+              ]},
+            ]},
+            {path: '/d', component: 'x-home-view', action: verificationAction}
+          ]);
+
+          await router.render(from);
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        });
+
+        it('action with redirect gets double slashes removed from its context.from and redirect.from', async() => {
+          let from = '';
+          router.setRoutes([
+            {path: '/', children: [
+              {path: '', children: [
+                {path: '/c', action: context => context.redirect('/d')}
+              ]},
+            ]},
+            {path: '/d', component: 'x-home-view', action: context => {
+              from = context.from;
+            }}
+          ]);
+
+          await router.render('/c');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          expect(from).to.be.equal('/c');
         });
       });
     });

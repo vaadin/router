@@ -9,7 +9,21 @@ function isResultNotEmpty(result) {
 
 function redirect(context, path) {
   const params = Object.assign({}, context.params);
-  return {redirect: {pathname: path, from: context.pathname, params}};
+  return {redirect: {pathname: path, from: getInvocationPathName(context), params}};
+}
+
+function getInvocationPathName(context) {
+  if (!context.__invocationRoute) {
+    return context.pathname;
+  }
+
+  let currentPath = context.__invocationRoute;
+  let invocationPathName = '';
+  while (currentPath) {
+    invocationPathName = currentPath.path + invocationPathName;
+    currentPath = currentPath.parent;
+  }
+  return invocationPathName.replace(/(\/\/+)/g, '/');
 }
 
 function renderComponent(context, component) {
@@ -20,6 +34,18 @@ function renderComponent(context, component) {
     element.route.redirectFrom = context.from;
   }
   return element;
+}
+
+function runCallbackIfPossible(callback, context, invocationRoute) {
+  if (typeof callback === 'function') {
+    const updatedContext = Object.assign({}, context, {
+      __invocationRoute: invocationRoute,
+      redirect: path => redirect(updatedContext, path),
+      component: component => renderComponent(updatedContext, component),
+      cancel: () => ({cancel: true})
+    });
+    return callback.call(invocationRoute, updatedContext);
+  }
 }
 
 /**
@@ -88,17 +114,14 @@ export class Router extends Resolver {
 
   __resolveRoute(context) {
     const route = context.route;
-    context.redirect = path => redirect(context, path);
-    context.component = component => renderComponent(context, component);
-    context.cancel = () => ({cancel: true});
 
-    const actionResult = processAction(context);
+    const actionResult = runCallbackIfPossible(processAction, context, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
     }
 
     if (typeof route.redirect === 'string') {
-      return context.redirect(route.redirect);
+      return redirect(context, route.redirect);
     }
 
     if (route.path) {
@@ -132,20 +155,17 @@ export class Router extends Resolver {
           return inactivationResult;
         }
       }
-      return context.component(route.component);
+      return renderComponent(context, route.component);
     }
   }
 
   __runInactivationChain(divergedRouteIndex, context) {
     for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
       const routeToInactivate = this.__activeRoutes[i];
-      if (typeof routeToInactivate.inactivate === 'function') {
-        context.inactivatedRoute = routeToInactivate;
-        const inactivationResult = routeToInactivate.inactivate(context);
-        if ((inactivationResult || {}).cancel) {
-          context.__resolutionChain = this.__activeRoutes;
-          return this.__previousResolution;
-        }
+      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context, routeToInactivate);
+      if ((inactivationResult || {}).cancel) {
+        context.__resolutionChain = this.__activeRoutes;
+        return this.__previousResolution;
       }
     }
     this.__activeRoutes = [];
@@ -187,13 +207,9 @@ export class Router extends Resolver {
    * [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
    *
    * * `action` – the action that is executed before the route is resolved.
-   * The value for this property should be a function, accepting a `context` parameter.
+   * The value for this property should be a function, accepting a `context` parameter described below.
    * If present, this function is always invoked first, disregarding of the other properties' presence.
    * If the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.
-   * `context` parameter can be used for asynchronously getting the resolved route contents via `context.next()`
-   * and for getting route parameters via `context.params`. `context.cancel()` creates an object that can be returned
-   * during `inactivate` method execution (described below) to abort ongoing route resolution. If an `action` return
-   * `context.cancel()`, it will be considered as no return value.
    * See also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
    * * `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.
@@ -206,7 +222,7 @@ export class Router extends Resolver {
    * See also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
    * * `component` – the tag name of the Web Component to resolve the route to.
-   *The property is ignored when either an `action` returns the result or `redirect` property is present.
+   * The property is ignored when either an `action` returns the result or `redirect` property is present.
    *
    * * `children` – nested routes. Parent routes' properties are executed before resolving the children.
    * Children 'path' values are relative to the parent ones.
@@ -219,14 +235,33 @@ export class Router extends Resolver {
    * if, for previous example, user visits '/a/d' path and it's a valid path, routes '/c' and '/b' will be inactivated.
    * Inactivation always happens from the last active element to the first that is different from the new route,
    * if the method is not defined for any route, the route is skipped.
-   * Each `inactivate` call gets a `context` parameter, described above.
-   * In this case, context parameter contains an additional `inactivatedRoute` property,
-   * that holds an information on the currently inactivated route.
-   * If `inactivate` method returns `context.cancel()`, inactivation and new path resolution is cancelled,
-   * router restores the state before new resolution.
+   * Each `inactivate` call gets a `context` parameter, described below.
+   * If `inactivate` method returns `context.cancel()`, inactivation and new path resolution is cancelled and
+   * router restores the state before the new resolution.
    * Otherwise router updates the active routes and waits for the next resolution to happen.
-   *
    * NOTE: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
+   *
+   * `context` object that is passed to `route` functions holds the following parameters:
+   * * `context.pathname` – string with the pathname being resolved
+   *
+   * * `context.params` – object with route parameters
+   *
+   * * `context.route` – object that holds the route that is currently being rendered.
+   * The original `route` object that defined an `action` or `inactivate` callback is available inside the callback
+   * through the `this` reference. The current route object being currently resolved is available there as `context.route`.
+   * While for `action` callbacks these are always the same, for `inactivate` callbacks these objects would be different:
+   * the current route that is being rendered causes another route to inactivate.
+   * If you need to access the original route object, make sure you define the `inactivate` callback as a non-arrow
+   * function because arrow functions do not have their own `this` reference.
+   *
+   * * `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)
+   *
+   * * `context.redirect(path)` – function that creates a redirect data for the path specified.
+   *
+   * * `context.component(component)` – function that creates a new HTMLElement with current context
+   *
+   * * `context.cancel()` – function that creates an object that can be returned from `inactivate` function.
+   * If an `action` returns `context.cancel()`, it will be considered as no return value.
    *
    * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */

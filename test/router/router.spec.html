@@ -569,6 +569,36 @@
             expect(getBundleScripts(existingBundlePath).length).to.equal(1);
           });
 
+          it('action should be called with correct parameters', async() => {
+            const action = sinon.spy();
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', action: action}
+            ]);
+
+            await router.render('/');
+
+            expect(action).to.have.been.called.once;
+            expect(action.args[0].length).to.equal(1);
+            const contextParam = action.args[0][0];
+            expect(contextParam.pathname).to.equal('/');
+            expect(contextParam.route.path).to.equal('/');
+            expect(contextParam.route.component).to.equal('x-home-view');
+          });
+
+          it('action.this points to the route that defines action', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', action: function(context) {
+                expect(this.path).to.equal('/');
+                expect(this.component).to.equal('x-home-view');
+                expect(this).to.be.equal(context.route);
+              }}
+            ]);
+
+            await router.render('/');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
           it('should throw on incorrect bundle path', async() => {
             const nonExistingPath = 'does-not-exist.js';
             router.setRoutes([
@@ -740,6 +770,17 @@
             await router.render('/test');
 
             expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          });
+
+          it('context.redirect() should work when invoked without the `this` context', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/a', action: ({redirect}) => redirect('/')}
+            ]);
+
+            await router.render('/a');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
         });
       });
