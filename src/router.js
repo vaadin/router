@@ -114,11 +114,6 @@ export class Router extends Resolver {
 
   __resolveRoute(context) {
     const route = context.route;
-<<<<<<< HEAD
-
-    const actionResult = runCallbackIfPossible(processAction, context, route);
-    if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
-=======
     if (!route.path) {
       return;
     }
@@ -127,9 +122,8 @@ export class Router extends Resolver {
     context.component = component => renderComponent(context, component);
 
     (context.__resolutionChain || (context.__resolutionChain = [])).push(route);
-    const actionResult = processAction(context);
-    if (isResultNotEmpty(actionResult)) {
->>>>>>> Activate all routes.
+    const actionResult = runCallbackIfPossible(processAction, context, route);
+    if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
     }
 
