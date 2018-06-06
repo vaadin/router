@@ -167,9 +167,9 @@
         it('inactivate chain is called in reversed order, from last route to first', async() => {
           const deactivatedPaths = [];
           router.setRoutes([
-            {path: '/a', inactivate: context => deactivatedPaths.push(context.invocationPath.path), children: [
-              {path: '/b', inactivate: context => deactivatedPaths.push(context.invocationPath.path), children: [
-                {path: '/c', inactivate: context => deactivatedPaths.push(context.invocationPath.path), component: 'x-users-view'},
+            {path: '/a', inactivate: context => deactivatedPaths.push(context.invocationRoute.path), children: [
+              {path: '/b', inactivate: context => deactivatedPaths.push(context.invocationRoute.path), children: [
+                {path: '/c', inactivate: context => deactivatedPaths.push(context.invocationRoute.path), component: 'x-users-view'},
               ]},
             ]},
             {path: '/', component: 'x-home-view'},
@@ -201,8 +201,8 @@
           expect(contextParam.pathname).to.equal(lastResolvedRoute);
           expect(contextParam.route.path).to.equal(lastResolvedRoute);
           expect(contextParam.route.component).to.equal(lastComponentToRender);
-          expect(contextParam.invocationPath.path).to.equal('/a');
-          expect(contextParam.invocationPath.component).to.equal('x-home-view');
+          expect(contextParam.invocationRoute.path).to.equal('/a');
+          expect(contextParam.invocationRoute.component).to.equal('x-home-view');
         });
 
         it('inactivate is not called for same routes in new resolve pass', async() => {

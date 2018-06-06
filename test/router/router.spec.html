@@ -583,8 +583,8 @@
             expect(contextParam.pathname).to.equal('/');
             expect(contextParam.route.path).to.equal('/');
             expect(contextParam.route.component).to.equal('x-home-view');
-            expect(contextParam.invocationPath.path).to.equal('/');
-            expect(contextParam.invocationPath.component).to.equal('x-home-view');
+            expect(contextParam.invocationRoute.path).to.equal('/');
+            expect(contextParam.invocationRoute.component).to.equal('x-home-view');
           });
 
           it('should throw on incorrect bundle path', async() => {
