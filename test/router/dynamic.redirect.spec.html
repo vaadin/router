@@ -351,6 +351,25 @@
 
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
         });
+
+        it('action with redirect gets double slashes removed from its context.from and redirect.from', async() => {
+          let from = '';
+          router.setRoutes([
+            {path: '/', children: [
+              {path: '', children: [
+                {path: '/c', action: context => context.redirect('/d')}
+              ]},
+            ]},
+            {path: '/d', component: 'x-home-view', action: context => {
+              from = context.from;
+            }}
+          ]);
+
+          await router.render('/c');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          expect(from).to.be.equal('/c');
+        });
       });
     });
 

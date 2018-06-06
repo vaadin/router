@@ -771,6 +771,17 @@
 
             expect(outlet.children[0].tagName).to.match(/x-users-view/i);
           });
+
+          it('context.redirect() should work when invoked without the `this` context', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/a', action: ({redirect}) => redirect('/')}
+            ]);
+
+            await router.render('/a');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
         });
       });
     });

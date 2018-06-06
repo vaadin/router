@@ -23,7 +23,7 @@ function getInvocationPathName(context) {
     invocationPathName = currentPath.path + invocationPathName;
     currentPath = currentPath.parent;
   }
-  return invocationPathName;
+  return invocationPathName.replace(/(\/\/+)/g, '/');
 }
 
 function renderComponent(context, component) {
@@ -38,7 +38,13 @@ function renderComponent(context, component) {
 
 function runCallbackIfPossible(callback, context, invocationRoute) {
   if (typeof callback === 'function') {
-    return callback.call(invocationRoute, (Object.assign({}, context, {__invocationRoute: invocationRoute})));
+    const updatedContext = Object.assign({}, context, {
+      __invocationRoute: invocationRoute,
+      redirect: path => redirect(updatedContext, path),
+      component: component => renderComponent(updatedContext, component),
+      cancel: () => ({cancel: true})
+    });
+    return callback.call(invocationRoute, updatedContext);
   }
 }
 
@@ -109,21 +115,13 @@ export class Router extends Resolver {
   __resolveRoute(context) {
     const route = context.route;
 
-    context.redirect = function(path) {
-      return redirect(this, path);
-    };
-    context.component = function(component) {
-      return renderComponent(this, component);
-    };
-    context.cancel = () => ({cancel: true});
-
     const actionResult = runCallbackIfPossible(processAction, context, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
     }
 
     if (typeof route.redirect === 'string') {
-      return context.redirect(route.redirect);
+      return redirect(context, route.redirect);
     }
 
     if (route.path) {
@@ -157,7 +155,7 @@ export class Router extends Resolver {
           return inactivationResult;
         }
       }
-      return context.component(route.component);
+      return renderComponent(context, route.component);
     }
   }
 
