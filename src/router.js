@@ -9,15 +9,15 @@ function isResultNotEmpty(result) {
 
 function redirect(context, path) {
   const params = Object.assign({}, context.params);
-  return {redirect: {pathname: path, from: getInvocationPath(context), params}};
+  return {redirect: {pathname: path, from: getInvocationPathName(context), params}};
 }
 
-function getInvocationPath(context) {
-  if (!context.invocationPath) {
+function getInvocationPathName(context) {
+  if (!context.invocationRoute) {
     return context.pathname;
   }
 
-  let currentPath = context.invocationPath;
+  let currentPath = context.invocationRoute;
   let invocationPathName = '';
   while (currentPath) {
     invocationPathName = currentPath.path + invocationPathName;
@@ -36,9 +36,9 @@ function renderComponent(context, component) {
   return element;
 }
 
-function runCallbackIfPossible(callback, context, invocationPath) {
+function runCallbackIfPossible(callback, context, invocationRoute) {
   if (typeof callback === 'function') {
-    return callback(Object.assign({}, context, {invocationPath}));
+    return callback(Object.assign({}, context, {invocationRoute}));
   }
 }
 
@@ -245,10 +245,10 @@ export class Router extends Resolver {
    *  * `context.next()` for asynchronously getting the next route contents from the resolution chain (if any)
    *  * `context.params` with route parameters
    *  * `route` that holds the route that is currently being rendered
-   *  * `invocationPath` that holds the route that is causing the current function to be executed
-   * For `action`, `context.invocationPath === context.route`, since `action` is immediately executed when the route is being rendered.
-   * For `inactivate`, `context.invocationPath !== context.route`: current route that is being rendered causes the other route
-   * inactivation and the inactivated route would be the one that is contained in `context.invocationPath`
+   *  * `invocationRoute` that holds the route that is causing the current function to be executed
+   * For `action`, `context.invocationRoute === context.route`, since `action` is immediately executed when the route is being rendered.
+   * For `inactivate`, `context.invocationRoute !== context.route`: current route that is being rendered causes the other route
+   * inactivation and the inactivated route would be the one that is contained in `context.invocationRoute`
    *
    * NOTE: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
    *
