@@ -2,26 +2,55 @@ var argv = require('yargs').argv;
 
 module.exports = {
   registerHooks: function(context) {
-    var saucelabsPlatforms = [
-      'macOS 10.12/iphone@10.3',
-      'macOS 10.12/ipad@11.0',
-      'Windows 10/microsoftedge@15',
-      'Windows 10/internet explorer@11',
-      'macOS 10.12/safari@11.0',
-      'macOS 9.3.2/iphone@9.3'
-    ];
-
-    var cronPlatforms = [
-      'Android/chrome',
-      'Windows 10/chrome@59',
-      'Windows 10/firefox@54'
-    ];
-
     if (argv.env === 'saucelabs') {
-      context.options.plugins.sauce.browsers = saucelabsPlatforms;
+      // The list below is based on the browserslist config defined in package.json
+      context.options.plugins.sauce.browsers = [
+        // // last 2 Chrome major versions (desktop)
+        'Windows 10/chrome@66',
+        'Windows 10/chrome@67',
 
-    } else if (argv.env === 'saucelabs-cron') {
-      context.options.plugins.sauce.browsers = cronPlatforms;
+        // last 2 Android major versions (mobile Chrome)
+        {
+          deviceName: 'Android GoogleAPI Emulator',
+          platformName: 'Android',
+          platformVersion: '7.1',
+          browserName: 'chrome',
+          browserVersion: '67'
+        },
+        {
+          deviceName: 'Android Emulator',
+          platformName: 'Android',
+          platformVersion: '6.0',
+          browserName: 'chrome',
+          browserVersion: '66'
+        },
+
+        // last 2 Firefox major versions (desktop)
+        'Windows 10/firefox@59',
+        'Windows 10/firefox@60',
+
+        // last 2 Edge major versions (desktop)
+        'Windows 10/microsoftedge@16',
+        'Windows 10/microsoftedge@17',
+
+        // last 2 Safari major versions (desktop)
+        'macOS 10.13/safari@11.1',
+        'macOS 10.12/safari@10.1',
+
+        // last 2 iOS major versions (mobile Safari)
+        'iOS Simulator/iphone@11.0',
+        'iOS Simulator/iphone@10.0',
+
+        // Safari 9 on desktop and mobile
+        'OS X 10.11/safari@9.0',
+
+        // The mobile Safari 9 tests are disabled because they fail due to
+        // https://forums.developer.apple.com/thread/36650
+        // 'iOS Simulator/iphone@9.3',
+
+        // IE11
+        'Windows 7/internet explorer@11',
+      ];
     }
 
     if (argv.profile === 'coverage') {

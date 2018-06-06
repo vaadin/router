@@ -27,6 +27,11 @@ router.setRoutes([
 ]);
 ```
 
+## Browser support
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/vaadin-router.svg)](https://saucelabs.com/u/vaadin-router)
+
+Testing environments for Vaadin.Router are provided by [SauceLabs](https://saucelabs.com).
+
 
 ## Running demos and tests in the browser
 

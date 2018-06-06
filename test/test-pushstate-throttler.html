@@ -1,0 +1,100 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="test-pushstate-throttler">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      #safari-cooldown {
+        font-size: 18px;
+        max-width: 300px;
+      }
+
+      #safari-cooldown div {
+        margin-bottom: 20px;
+      }
+    </style>
+
+    <div id="safari-cooldown" hidden>
+      <div>Danger: URL overheating.</div>
+      <div>
+        Safari and Chrome require a cooldown period before we call pushState/replaceState any more.
+      </div>
+      <div>Testing will resume after 30 seconds.</div>
+      <div>
+        <a href="https://forums.developer.apple.com/thread/36650">More info Safari</a>
+        <a href="https://codereview.chromium.org/2972073002">Chrome</a>
+      </div>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+  // source: https://github.com/PolymerElements/iron-location/blob/cd8059fcdd37860c3e8d4f50fc667b7c48ea4846/test/replace-state-patch.html
+  (function() {
+    'use strict';
+
+    class TestPushstateThrottler extends Polymer.Element {
+      static get is() {
+        return 'test-pushstate-throttler';
+      }
+    }
+    customElements.define(TestPushstateThrottler.is, TestPushstateThrottler);
+
+    function getRunnerWindow() {
+      var lastWindow;
+      var newWindow = window;
+      while (lastWindow != newWindow) {
+        lastWindow = newWindow;
+        newWindow = newWindow.parent;
+      }
+      return newWindow;
+    }
+
+    var runnerWindow = getRunnerWindow();
+
+    /**
+     * Patches window.History.prototype.pushState to count the number of times
+     * it has been called in `runnerWindow.pushStateCount`
+     */
+    function patchPushState() {
+      if (typeof runnerWindow.pushStateCount !== 'number') {
+        runnerWindow.pushStateCount = 0;
+      }
+      var native = window.History.prototype.pushState;
+      function patch() {
+        runnerWindow.pushStateCount += 1;
+        return native.apply(window.history, arguments);
+      }
+      window.History.prototype.pushState = patch;
+    }
+
+    TestPushstateThrottler.prototype.throttle = () => Promise.resolve();
+
+    var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    var isSafari = /^Apple/.test(navigator.vendor);
+    if (isChrome || isSafari) {
+      TestPushstateThrottler.prototype.throttle = function(test, force) {
+        return new Promise((resolve, reject) => {
+          if (runnerWindow.pushStateCount > 85 || force) {
+            const cooldownPeriod = 30 * 1000;
+            test.timeout(cooldownPeriod + 5000);
+            const cooldownMessage = this.$['safari-cooldown'];
+            cooldownMessage.removeAttribute('hidden');
+            setTimeout(() => {
+              cooldownMessage.setAttribute('hidden', 'hidden');
+              runnerWindow.pushStateCount = 0;
+              resolve();
+            }, cooldownPeriod);
+          } else {
+            resolve();
+          }
+        });
+      };
+
+      patchPushState();
+    }
+  })();
+</script>

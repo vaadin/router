@@ -52,7 +52,9 @@ export function loadBundle(path) {
   return new Promise((resolve, reject) => {
     script = document.createElement('script');
     script.setAttribute('src', path);
-    script.setAttribute('type', 'module');
+    if (path.match(/\.mjs$/i)) {
+      script.setAttribute('type', 'module');
+    }
     script.async = true;
     script.onreadystatechange = script.onload = e => {
       script.__dynamicImportLoaded = true;
