@@ -19,5 +19,9 @@ branches:
 
 script:
   - yarn lint
-  - xvfb-run -s '-screen 0 1024x768x24' yarn test
+  - if [[ $TRAVIS_PULL_REQUEST == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
+      wct --env saucelabs;
+    else
+      xvfb-run -s '-screen 0 1024x768x24' yarn test;
+    fi
   - yarn size-control
