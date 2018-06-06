@@ -189,7 +189,7 @@ export class Router extends Resolver {
    * The value for this property should be a function, accepting a `context` parameter.
    * If present, this function is always invoked first, disregarding of the other properties' presence.
    * If the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.
-   * `context` parameter can be used for asynchronously getting the resolved route contents via `context.next()
+   * `context` parameter can be used for asynchronously getting the resolved route contents via `context.next()`
    * and for getting route parameters via `context.params`.
    * See also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
