@@ -241,22 +241,27 @@ export class Router extends Resolver {
    * If `inactivate` method returns `context.cancel()`, inactivation and new path resolution is cancelled and
    * router restores the state before the new resolution.
    * Otherwise router updates the active routes and waits for the next resolution to happen.
+   * NOTE: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
    *
-   * `context` objet that is passed to `route` functions holds the following parameters:
-   *  * `context.next()` for asynchronously getting the next route contents from the resolution chain (if any)
+   * `context` object that is passed to `route` functions holds the following parameters:
+   * * `context.pathname` – string with the pathname being resolved
    *
-   *  * `context.params` with route parameters
+   * * `context.params` – object with route parameters
    *
-   *  * `route` that holds the route that is currently being rendered.
+   * * `context.route` – object that holds the route that is currently being rendered.
    * If the function defined not as an arrow one but with the `function` keyword, its `this` property points to the route that had
    * defined the function.
    * This is important in `inactivate` case, where `this !== context.route`, since currently resolved route
    * is not the one that is being inactivated. For `action` is is true that `this === context.route`.
    *
-   * * `context.cancel()` that creates an object that can be returned from `inactivate` function.
-   * If an `action` returns `context.cancel()`, it will be considered as no return value.
+   * * `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)
    *
-   * NOTE: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
+   * * `context.redirect(path)` – function that creates a redirect data for the path specified.
+   *
+   * * `context.component(component)` – function that creates a new HTMLElement with current context
+   *
+   * * `context.cancel()` – function that creates an object that can be returned from `inactivate` function.
+   * If an `action` returns `context.cancel()`, it will be considered as no return value.
    *
    * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */
