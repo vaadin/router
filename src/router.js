@@ -88,14 +88,14 @@ export class Router extends Resolver {
 
   __resolveRoute(context) {
     const route = context.route;
-    if (!route.path) {
-      return;
-    }
 
     context.redirect = path => redirect(context, path);
     context.component = component => renderComponent(context, component);
 
-    (context.__resolutionChain || (context.__resolutionChain = [])).push(route);
+    if (route.path) {
+      (context.__resolutionChain || (context.__resolutionChain = [])).push(route);
+    }
+
     const actionResult = processAction(context);
     if (isResultNotEmpty(actionResult)) {
       return actionResult;
