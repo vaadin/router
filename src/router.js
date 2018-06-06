@@ -114,14 +114,11 @@ export class Router extends Resolver {
 
   __resolveRoute(context) {
     const route = context.route;
-    if (!route.path) {
-      return;
+
+    if (route.path) {
+      (context.__resolutionChain || (context.__resolutionChain = [])).push(route);
     }
 
-    context.redirect = path => redirect(context, path);
-    context.component = component => renderComponent(context, component);
-
-    (context.__resolutionChain || (context.__resolutionChain = [])).push(route);
     const actionResult = runCallbackIfPossible(processAction, context, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
