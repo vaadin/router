@@ -13,11 +13,11 @@ function redirect(context, path) {
 }
 
 function getInvocationPathName(context) {
-  if (!context.invocationRoute) {
+  if (!context.__invocationRoute) {
     return context.pathname;
   }
 
-  let currentPath = context.invocationRoute;
+  let currentPath = context.__invocationRoute;
   let invocationPathName = '';
   while (currentPath) {
     invocationPathName = currentPath.path + invocationPathName;
@@ -38,7 +38,7 @@ function renderComponent(context, component) {
 
 function runCallbackIfPossible(callback, context, invocationRoute) {
   if (typeof callback === 'function') {
-    return callback(Object.assign({}, context, {invocationRoute}));
+    return callback.call(invocationRoute, (Object.assign({}, context, {__invocationRoute: invocationRoute})));
   }
 }
 
@@ -245,7 +245,13 @@ export class Router extends Resolver {
    * `context` objet that is passed to `route` functions holds the following parameters:
    *  * `context.next()` for asynchronously getting the next route contents from the resolution chain (if any)
    *  * `context.params` with route parameters
-   *  * `route` that holds the route that is currently being rendered
+   *  * `route` that holds the route that is currently being rendered.
+   *
+   * If the function defined not as an arrow one but with the `function` keyword, its `this` property points to the route that had
+   * defined the function.
+   * This is important in `inactivate` case, where `this !== context.route`, since currently resolved route
+   * is not the one that is being inactivated. For `action` is is true that `this === context.route`.
+   *
    *  * `invocationRoute` that holds the route that is causing the current function to be executed
    * For `action`, `context.invocationRoute === context.route`, since `action` is immediately executed when the route is being rendered.
    * For `inactivate`, `context.invocationRoute !== context.route`: current route that is being rendered causes the other route

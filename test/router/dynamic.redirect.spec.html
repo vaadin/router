@@ -167,9 +167,15 @@
         it('inactivate chain is called in reversed order, from last route to first', async() => {
           const deactivatedPaths = [];
           router.setRoutes([
-            {path: '/a', inactivate: context => deactivatedPaths.push(context.invocationRoute.path), children: [
-              {path: '/b', inactivate: context => deactivatedPaths.push(context.invocationRoute.path), children: [
-                {path: '/c', inactivate: context => deactivatedPaths.push(context.invocationRoute.path), component: 'x-users-view'},
+            {path: '/a', inactivate: function() {
+              deactivatedPaths.push(this.path);
+            }, children: [
+              {path: '/b', inactivate: function() {
+                deactivatedPaths.push(this.path);
+              }, children: [
+                {path: '/c', component: 'x-users-view', inactivate: function() {
+                  deactivatedPaths.push(this.path);
+                }},
               ]},
             ]},
             {path: '/', component: 'x-home-view'},
@@ -201,8 +207,24 @@
           expect(contextParam.pathname).to.equal(lastResolvedRoute);
           expect(contextParam.route.path).to.equal(lastResolvedRoute);
           expect(contextParam.route.component).to.equal(lastComponentToRender);
-          expect(contextParam.invocationRoute.path).to.equal('/a');
-          expect(contextParam.invocationRoute.component).to.equal('x-home-view');
+        });
+
+        it('inactivate.this points to the route that defines action', async() => {
+          router.setRoutes([
+            {path: '/a', component: 'x-home-view', inactivate: function(context) {
+              expect(this.path).to.equal('/a');
+              expect(this.component).to.equal('x-home-view');
+              expect(this).not.to.be.equal(context.route);
+              expect(context.route.path).to.be.equal('/b');
+              expect(context.route.component).to.be.equal('x-users-view');
+            }},
+            {path: '/b', component: 'x-users-view'},
+          ]);
+
+          await router.render('/a');
+          await router.render('/b');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-view/i);
         });
 
         it('inactivate is not called for same routes in new resolve pass', async() => {

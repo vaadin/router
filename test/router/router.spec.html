@@ -583,8 +583,20 @@
             expect(contextParam.pathname).to.equal('/');
             expect(contextParam.route.path).to.equal('/');
             expect(contextParam.route.component).to.equal('x-home-view');
-            expect(contextParam.invocationRoute.path).to.equal('/');
-            expect(contextParam.invocationRoute.component).to.equal('x-home-view');
+          });
+
+          it('action.this points to the route that defines action', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', action: function(context) {
+                expect(this.path).to.equal('/');
+                expect(this.component).to.equal('x-home-view');
+                expect(this).to.be.equal(context.route);
+              }}
+            ]);
+
+            await router.render('/');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
 
           it('should throw on incorrect bundle path', async() => {
