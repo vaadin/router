@@ -38,7 +38,7 @@ function renderComponent(context, component) {
 
 function runCallbackIfPossible(callback, context, invocationPath) {
   if (typeof callback === 'function') {
-    return callback(Object.assign({}, context, {invocationPath: invocationPath}));
+    return callback(Object.assign({}, context, {invocationPath}));
   }
 }
 
