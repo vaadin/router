@@ -90,9 +90,7 @@ export class Router extends Resolver {
     const route = context.route;
     context.redirect = path => redirect(context, path);
     context.component = component => renderComponent(context, component);
-    context.cancel = () => {
-      return {cancel: true};
-    };
+    context.cancel = () => ({cancel: true});
 
     const actionResult = processAction(context);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
