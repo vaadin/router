@@ -27,7 +27,7 @@ function renderComponent(context, component) {
  * express-style middleware and has a first-class support for Web Components and
  * lazy-loading. Works great in Polymer and non-Polymer apps.
  *
- * Use the `new Router(outlet)` to create a new Router instance. The `outlet` parameter is a reference to the DOM node
+ * Use `new Router(outlet)` to create a new Router instance. The `outlet` parameter is a reference to the DOM node
  * to render the content into. The Router instance is automatically subscribed to navigation events on `window`.
  *
  * See [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.
@@ -38,7 +38,7 @@ function renderComponent(context, component) {
  * * [setTriggers](#/classes/Vaadin.Router#method-setTriggers) – should be used to configure the navigation events.
  * * [setRoutes](#/classes/Vaadin.Router#method-setRoutes) – should be used to configure the routes.
  *
- * Only the `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
+ * Only `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
  *
  * @memberof Vaadin
  * @extends Vaadin.Resolver
