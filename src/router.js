@@ -249,10 +249,12 @@ export class Router extends Resolver {
    * * `context.params` – object with route parameters
    *
    * * `context.route` – object that holds the route that is currently being rendered.
-   * If the function defined not as an arrow one but with the `function` keyword, its `this` property points to the route that had
-   * defined the function.
-   * This is important in `inactivate` case, where `this !== context.route`, since currently resolved route
-   * is not the one that is being inactivated. For `action` is is true that `this === context.route`.
+   * The original `route` object that defined an `action` or `inactivate` callback is available inside the callback
+   * through the `this` reference. The current route object being currently resolved is available there as `context.route`.
+   * While for `action` callbacks these are always the same, for `inactivate` callbacks these objects would be different:
+   * the current route that is being rendered causes another route to inactivate.
+   * If you need to access the original route object, make sure you define the `inactivate` callback as a non-arrow
+   * function because arrow functions do not have their own `this` reference.
    *
    * * `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)
    *
