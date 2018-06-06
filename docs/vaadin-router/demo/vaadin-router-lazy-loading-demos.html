@@ -20,15 +20,15 @@
       next demo if you need to load different types of the bundles.
     </p>
     <p>
-      This demo shows how to load the <code>component-definition.js</code>
-      script which defines the custom element for the <code>/lazy</code> route.
+      This demo shows how to load the <code>user.bundle.js</code>
+      script which defines the custom element for the <code>/user/:id</code> route.
       Check the network tab in the browser DevTools to see that the script is
-      loaded only after clicking at the <code>/lazy</code> route link.
+      loaded only after clicking the <code>/user/guest</code> link.
     </p>
     <vaadin-demo-snippet id="vaadin-router-lazy-loading-1" iframe-src="iframe.html">
       <template preserve-content="">
         <a href="/">Home</a>
-        <a href="/lazy">Lazy load bundle</a>
+        <a href="/user/guest">User Profile</a>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
@@ -38,16 +38,16 @@
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
             {
-              path: '/lazy',
-              bundle: `${window.Vaadin.demoComponentsRoot}/component-definition.js`,
-              component: 'x-bundle-test-view' // <-- defined in the bundle
+              path: '/user/:id',
+              bundle: `${window.Vaadin.demoComponentsRoot}/user.bundle.js`,
+              component: 'x-user-js-bundle-view' // <-- defined in the bundle
             },
           ]);
         </script>
       </template>
     </vaadin-demo-snippet>
 
-    <h3>Lazy Loading non-JS Bundles</h3>
+    <h3>Lazy Loading non-JS Bundles, e.g. HTML Imports</h3>
     <p>
       In cases when loading <code>.js</code> and <code>.mjs</code> is not
       enough—most notably, when using HTML imports in Polymer-based
@@ -56,38 +56,41 @@
       Route Actions</a>).
     </p>
     <p>
-      This demo shows a way to lazily add an HTML import. The <code>
-      component-definition.html</code> file contains entire Polymer 2 component
-      definition including a template, a class, and a script that defines a
-      custom element.
+      This demo shows a way to lazily add an HTML import. The <code>user.bundle.html</code>
+      file contains entire Polymer 2 component definition including a template, a class,
+      and a script that defines a custom element.
     </p>
     <vaadin-demo-snippet id="vaadin-router-lazy-loading-2" iframe-src="iframe.html">
       <template preserve-content="">
+        <link rel="import" href="../../polymer/lib/utils/import-href.html">
         <a href="/">Home</a>
-        <a href="/lazy">Lazy load custom bundle</a>
+        <a href="/user/admin">User Profile</a>
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
           const {Router} = window.Vaadin;
 
-          const loadCustomBundle = () => {
-            return new Promise((resolve, reject) => {
-              // This is one way of loading a bundle lazily (works for Polymer apps).
-              // Other apps might use different ways.
-              Polymer.importHref(
-                `${window.Vaadin.demoComponentsRoot}/component-definition.html`, () => resolve(), reject, true);
-            });
+          const loadCustomBundle = (context) => {
+            // This is one way of loading a bundle lazily (works for Polymer apps).
+            // Other apps might use different ways.
+            Polymer.importHref(
+              `${window.Vaadin.demoComponentsRoot}/user.bundle.html`,
+              null,
+              function(err) {
+                throw new Error('bundle not found');
+              },
+              true
+            );
           };
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
-            {path: '/lazy', action: loadCustomBundle},
-            {path: '/lazy', component: 'x-bundle-custom-test'},
+            {path: '/user/:id', action: loadCustomBundle, component: 'x-user-html-bundle-view'}
           ]);
         </script>
       </template>
     </vaadin-demo-snippet>
   </template>
-  <script>var VaadinRouterLazyLoadingDemos=function(a){function b(){return babelHelpers.classCallCheck(this,b),babelHelpers.possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).apply(this,arguments))}return babelHelpers.inherits(b,a),babelHelpers.createClass(b,null,[{key:'is',get:function(){return'vaadin-router-lazy-loading-demos'}}]),b}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterLazyLoadingDemos.is,VaadinRouterLazyLoadingDemos);</script>
+  <script>var VaadinRouterLazyLoadingDemos=function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterLazyLoadingDemos,_DemoReadyEventEmitte);function VaadinRouterLazyLoadingDemos(){babelHelpers.classCallCheck(this,VaadinRouterLazyLoadingDemos);return babelHelpers.possibleConstructorReturn(this,(VaadinRouterLazyLoadingDemos.__proto__||Object.getPrototypeOf(VaadinRouterLazyLoadingDemos)).apply(this,arguments))}babelHelpers.createClass(VaadinRouterLazyLoadingDemos,null,[{key:"is",get:function get(){return"vaadin-router-lazy-loading-demos"}}]);return VaadinRouterLazyLoadingDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterLazyLoadingDemos.is,VaadinRouterLazyLoadingDemos);</script>
 </dom-module>

@@ -1,1 +1,1 @@
-window.bundleScriptTestVariable='Hello from bundle script!';
+window.bundleScriptTestVariable="Hello from bundle script!";
