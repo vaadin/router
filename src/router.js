@@ -113,10 +113,11 @@ export class Router extends Resolver {
   }
 
   __resolveRoute(context) {
+    context.__resolutionChain = context.__resolutionChain || [];
     const route = context.route;
 
-    if (route.path) {
-      (context.__resolutionChain || (context.__resolutionChain = [])).push(route);
+    if (route !== this.root) {
+      context.__resolutionChain.push(route);
     }
 
     const actionResult = runCallbackIfPossible(processAction, context, route);
@@ -128,11 +129,11 @@ export class Router extends Resolver {
       return redirect(context, route.redirect);
     }
 
-    if (route.path) {
+    if (route !== this.root) {
       const newActiveRouteIndex = context.__resolutionChain.length - 1;
       if (this.__activeRoutes && this.__activeRoutes.length > newActiveRouteIndex) {
         const oldActiveRoute = this.__activeRoutes[newActiveRouteIndex];
-        if (oldActiveRoute.path !== context.__resolutionChain[newActiveRouteIndex].path) {
+        if (oldActiveRoute !== context.__resolutionChain[newActiveRouteIndex]) {
           const inactivationResult = this.__runInactivationChain(newActiveRouteIndex, context);
           if (isResultNotEmpty(inactivationResult)) {
             return inactivationResult;
@@ -292,7 +293,7 @@ export class Router extends Resolver {
       .then(context => {
         const result = context.result;
         if (result instanceof HTMLElement) {
-          const newActiveRoutesLength = (context.__resolutionChain || []).length;
+          const newActiveRoutesLength = context.__resolutionChain.length;
           if (newActiveRoutesLength < this.__activeRoutes.length) {
             const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
             if (isResultNotEmpty(inactivationResult)) {
