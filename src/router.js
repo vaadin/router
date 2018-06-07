@@ -36,7 +36,7 @@ function renderComponent(context, component) {
   return element;
 }
 
-function runCallbackIfPossible(callback, context, invocationRoute) {
+function runCallbackIfPossible(callback, context, invocationRoute, thisObject) {
   if (typeof callback === 'function') {
     const updatedContext = Object.assign({}, context, {
       __invocationRoute: invocationRoute,
@@ -44,7 +44,7 @@ function runCallbackIfPossible(callback, context, invocationRoute) {
       component: component => renderComponent(updatedContext, component),
       cancel: () => ({cancel: true})
     });
-    return callback.call(invocationRoute, updatedContext);
+    return callback.call(thisObject, updatedContext);
   }
 }
 
@@ -115,7 +115,7 @@ export class Router extends Resolver {
   __resolveRoute(context) {
     const route = context.route;
 
-    const actionResult = runCallbackIfPossible(processAction, context, route);
+    const actionResult = runCallbackIfPossible(processAction, context, route, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
     }
@@ -155,7 +155,7 @@ export class Router extends Resolver {
   __runInactivationChain(divergedRouteIndex, context) {
     for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
       const routeToInactivate = this.__activeRoutes[i];
-      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context, routeToInactivate);
+      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context, routeToInactivate, routeToInactivate);
       if ((inactivationResult || {}).cancel) {
         context.__resolutionChain = this.__previousContext.__resolutionChain;
         return this.__previousContext.result;
@@ -265,7 +265,8 @@ export class Router extends Resolver {
 
   __getResolutionContext(pathnameOrContext) {
     const beforeLeaveResult = this.__previousContext
-      ? runCallbackIfPossible(this.__previousContext.result.onBeforeLeave, this.__previousContext, this.__previousContext.route)
+      ? runCallbackIfPossible(this.__previousContext.result.onBeforeLeave, this.__previousContext,
+        this.__previousContext.route, this.__previousContext.result)
       : null;
     if (isResultNotEmpty(beforeLeaveResult)) {
       if (beforeLeaveResult.cancel) {
@@ -276,7 +277,7 @@ export class Router extends Resolver {
 
     return this.resolve(pathnameOrContext)
       .then(context => {
-        const beforeEnterResult = runCallbackIfPossible(context.result.onBeforeEnter, context, context.route);
+        const beforeEnterResult = runCallbackIfPossible(context.result.onBeforeEnter, context, context.route, context.result);
         if (isResultNotEmpty(beforeEnterResult)) {
           if (beforeEnterResult.cancel) {
             return this.__previousContext;
