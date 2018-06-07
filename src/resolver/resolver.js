@@ -45,7 +45,7 @@ class Resolver {
     this.errorHandler = options.errorHandler;
     this.resolveRoute = options.resolveRoute || resolveRoute;
     this.context = Object.assign({resolver: this}, options.context);
-    this.root = Array.isArray(routes) ? {path: '', children: routes, parent: null} : routes;
+    this.root = Array.isArray(routes) ? {path: '', children: routes, parent: null, __synthetic: true} : routes;
     this.root.parent = null;
   }
 
@@ -152,6 +152,12 @@ class Resolver {
 
     return Promise.resolve()
       .then(() => next(true, this.root))
+      .then(context => {
+        if (context.chain[0].__synthetic) {
+          context.chain.shift();
+        }
+        return context;
+      })
       .catch((error) => {
         const errorMessage = generateErrorMessage(currentContext);
         if (!error) {

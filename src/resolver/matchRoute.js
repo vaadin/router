@@ -14,23 +14,23 @@ import matchPath from './matchPath.js';
  * the root down to the leaves. Each match consumes a part of the pathname and
  * the matching process continues for as long as there is a matching child
  * route for the remaining part of the pathname.
- * 
+ *
  * The returned value is a lazily evaluated iterator.
- * 
+ *
  * The leading "/" in a route path matters only for the root of the routes
  * tree (or if all parent routes are ""). In all other cases a leading "/" in
  * a child route path has no significance.
- * 
+ *
  * The trailing "/" in a _route path_ matters only for the leaves of the
  * routes tree. A leaf route with a trailing "/" matches only a pathname that
  * also has a trailing "/".
- * 
+ *
  * The trailing "/" in a route path does not affect matching of child routes
  * in any way.
- * 
+ *
  * The trailing "/" in a _pathname_ generally does not matter (except for
  * the case of leaf nodes described above).
- * 
+ *
  * The "" and "/" routes have special treatment:
  *  1. as a single route
  *     the "" and "/" routes match only the "" and "/" pathnames respectively
@@ -46,15 +46,15 @@ import matchPath from './matchPath.js';
  *     - if there are only "" in the parent routes chain, no part of the
  *       pathname is consumed, and the leading "/" in the child routes' paths
  *       remains significant
- * 
+ *
  * Side effect:
  *   - the routes tree { path: '' } matches only the '' pathname
  *   - the routes tree { path: '', children: [ { path: '' } ] } matches any
  *     pathname (for the tree root)
- * 
+ *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParams) {
+function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParams, parentChain) {
   let match;
   let childMatches;
   let childIndex = 0;
@@ -64,7 +64,7 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
       routepath = routepath.substr(1);
     }
     ignoreLeadingSlash = true;
-  } 
+  }
 
   return {
     next(routeToSkip) {
@@ -76,18 +76,20 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
         match = matchPath(routepath, pathname, !route.children, parentKeys, parentParams);
 
         if (match) {
+          match.chain = (parentChain || []).concat(route);
           return {
             done: false,
             value: {
               route,
               keys: match.keys,
               params: match.params,
+              chain: match.chain,
             },
           };
         }
       }
 
-      if (match && route.children) {        
+      if (match && route.children) {
         while (childIndex < route.children.length) {
           if (!childMatches) {
             const childRoute = route.children[childIndex];
@@ -103,7 +105,8 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
               pathname.substr(matchedLength),
               ignoreLeadingSlash,
               match.keys,
-              match.params
+              match.params,
+              match.chain
             );
           }
 
