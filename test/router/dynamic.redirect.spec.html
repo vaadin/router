@@ -200,6 +200,36 @@
           expect(inactivations).to.deep.equal(['L3', 'L2', 'L1']);
         });
 
+        it('inactivate promises return result are supported', async() => {
+          const inactivations = [];
+          router.setRoutes([
+            {
+              path: '/a',
+              inactivate: context => new Promise(resolve => {
+                inactivations.push('L1');
+                resolve(context.cancel());
+              }),
+              children: [
+                {
+                  path: '/b',
+                  component: 'x-users-list',
+                  inactivate: () => new Promise(resolve => {
+                    inactivations.push('L2');
+                    resolve();
+                  }),
+                },
+              ]
+            },
+            {path: '/c', component: 'x-home-view'}
+          ]);
+
+          await router.render('/a/b');
+          await router.render('/c');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+          expect(inactivations).to.deep.equal(['L2', 'L1']);
+        });
+
         it('inactivate is called with correct context argument', async() => {
           const lastResolvedRoute = '/b';
           const lastComponentToRender = 'x-users-view';

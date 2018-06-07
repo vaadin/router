@@ -63,18 +63,18 @@ function tryAmendResolution(previousContext, newContext) {
     let callbacks = Promise.resolve();
     for (let i = previousChain.length - 1; i >= divergedChainIndex; i--) {
       const routeToInactivate = previousChain[i];
-      callbacks = callbacks.then(result => {
-        if (result) {
-          return result;
-        }
-        const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, newContext, routeToInactivate);
+      callbacks = callbacks.then(inactivationResult => {
         if ((inactivationResult || {}).cancel) {
-          return previousContext;
+          return inactivationResult;
         }
+        return runCallbackIfPossible(routeToInactivate.inactivate, newContext, routeToInactivate);
       });
     }
-    return callbacks.then(result => {
-      return result ? result : newContext;
+    return callbacks.then(inactivationResult => {
+      if ((inactivationResult || {}).cancel) {
+        return previousContext;
+      }
+      return newContext;
     });
   }
   return Promise.resolve(newContext);
