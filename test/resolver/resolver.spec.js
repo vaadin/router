@@ -179,14 +179,14 @@
       expect(context.result).to.be.true;
     });
 
-    it('the path to the route that produced the reusult is in the `context` (1))', async() => {
+    it('the path to the route that produced the result is in the `context` (1))', async() => {
       const resolver = new Resolver([{path: '/:one/:two', action: () => true}]);
       const context = await resolver.resolve({pathname: '/a/b'});
       expect(context.chain).to.be.an('array').lengthOf(1);
       expect(context.chain[0].path).to.equal('/:one/:two');
     });
 
-    it('the path to the route that produced the reusult is in the `context` (2)', async() => {
+    it('the path to the route that produced the result is in the `context` (2)', async() => {
       const resolver = new Resolver([
         {
           path: '/a',

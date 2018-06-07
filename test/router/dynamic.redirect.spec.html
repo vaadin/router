@@ -168,25 +168,39 @@
         });
 
         it('inactivate chain is called in reversed order, from last route to first', async() => {
-          const deactivatedPaths = [];
+          const inactivations = [];
           router.setRoutes([
-            {path: '/a', inactivate: function() {
-              deactivatedPaths.push(this.path);
-            }, children: [
-              {path: '/b', inactivate: function() {
-                deactivatedPaths.push(this.path);
-              }, children: [
-                {path: '/c', component: 'x-users-view', inactivate: function() {
-                  deactivatedPaths.push(this.path);
-                }},
-              ]},
-            ]},
-            {path: '/', component: 'x-home-view'},
+            {
+              path: '/',
+              inactivate: () => {
+                inactivations.push('L1');
+              },
+              children: [
+                {
+                  path: '',
+                  inactivate: () => {
+                    inactivations.push('L2');
+                  },
+                  children: [
+                    {
+                      path: 'a',
+                      inactivate: () => {
+                        inactivations.push('L3');
+                      },
+                      component: 'x-users-view'
+                    }
+                  ]
+                },
+              ]
+            },
+            {path: '/b', component: 'x-home-view'}
           ]);
 
-          await router.render('/a/b/c');
-          await router.render('/');
-          expect(deactivatedPaths).to.deep.equal(['/c', '/b', '/a']);
+          await router.render('/a');
+          await router.render('/b');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          expect(inactivations).to.deep.equal(['L3', 'L2', 'L1']);
         });
 
         it('inactivate is called with correct context argument', async() => {
@@ -374,7 +388,7 @@
     });
 
     function verifyActiveRoutes(router, expectedSegments) {
-      expect(router.__activeRoutes.map(route => route.path)).to.deep.equal(expectedSegments);
+      expect(router.__previousContext.chain.map(route => route.path)).to.deep.equal(expectedSegments);
     }
   </script>
 </body>

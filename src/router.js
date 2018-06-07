@@ -48,6 +48,38 @@ function runCallbackIfPossible(callback, context, invocationRoute) {
   }
 }
 
+function tryAmendResolution(previousContext, newContext) {
+  const previousChain = (previousContext || {}).chain;
+  const newChain = newContext.chain;
+
+  if (previousChain && previousChain.length) {
+    let divergedChainIndex = 0;
+    for (; divergedChainIndex < Math.min(previousChain.length, newChain.length); divergedChainIndex++) {
+      if (previousChain[divergedChainIndex] !== newChain[divergedChainIndex]) {
+        break;
+      }
+    }
+
+    let callbacks = Promise.resolve();
+    for (let i = previousChain.length - 1; i >= divergedChainIndex; i--) {
+      const routeToInactivate = previousChain[i];
+      callbacks = callbacks.then(result => {
+        if (result) {
+          return result;
+        }
+        const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, newContext, routeToInactivate);
+        if ((inactivationResult || {}).cancel) {
+          return previousContext;
+        }
+      });
+    }
+    return callbacks.then(result => {
+      return result ? result : newContext;
+    });
+  }
+  return Promise.resolve(newContext);
+}
+
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -107,18 +139,12 @@ export class Router extends Resolver {
 
     this.__lastStartedRenderId = 0;
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
-    this.__activeRoutes = [];
     this.setOutlet(outlet);
     this.subscribe();
   }
 
   __resolveRoute(context) {
-    context.__resolutionChain = context.__resolutionChain || [];
     const route = context.route;
-
-    if (route !== this.root) {
-      context.__resolutionChain.push(route);
-    }
 
     const actionResult = runCallbackIfPossible(processAction, context, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
@@ -127,19 +153,6 @@ export class Router extends Resolver {
 
     if (typeof route.redirect === 'string') {
       return redirect(context, route.redirect);
-    }
-
-    if (route !== this.root) {
-      const newActiveRouteIndex = context.__resolutionChain.length - 1;
-      if (this.__activeRoutes && this.__activeRoutes.length > newActiveRouteIndex) {
-        const oldActiveRoute = this.__activeRoutes[newActiveRouteIndex];
-        if (oldActiveRoute !== context.__resolutionChain[newActiveRouteIndex]) {
-          const inactivationResult = this.__runInactivationChain(newActiveRouteIndex, context);
-          if (isResultNotEmpty(inactivationResult)) {
-            return inactivationResult;
-          }
-        }
-      }
     }
 
     if (route.bundle) {
@@ -155,18 +168,6 @@ export class Router extends Resolver {
     if (typeof route.component === 'string') {
       return renderComponent(context, route.component);
     }
-  }
-
-  __runInactivationChain(divergedRouteIndex, context) {
-    for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
-      const routeToInactivate = this.__activeRoutes[i];
-      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context, routeToInactivate);
-      if ((inactivationResult || {}).cancel) {
-        context.__resolutionChain = this.__activeRoutes;
-        return this.__previousResolution;
-      }
-    }
-    this.__activeRoutes = [];
   }
 
   /**
@@ -290,17 +291,10 @@ export class Router extends Resolver {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
-      .then(context => {
-        const result = context.result;
+      .then(newContext => {
+        const result = newContext.result;
         if (result instanceof HTMLElement) {
-          const newActiveRoutesLength = context.__resolutionChain.length;
-          if (newActiveRoutesLength < this.__activeRoutes.length) {
-            const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
-            if (isResultNotEmpty(inactivationResult)) {
-              context.result = inactivationResult;
-            }
-          }
-          return context;
+          return tryAmendResolution(this.__previousContext, newContext);
         } else if (result.redirect) {
           const redirect = result.redirect;
           return this.resolve({
@@ -326,7 +320,7 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(context.result.route.pathname);
           }
           this.__setOutletContent(context.result);
-          this.__activeRoutes = context.__resolutionChain || [];
+          this.__previousContext = context;
           this.__previousResolution = context.result;
           return this.__outlet;
         }
