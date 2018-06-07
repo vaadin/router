@@ -179,6 +179,16 @@
       expect(context.result).to.be.true;
     });
 
+    it('resolver skips the path in chain when context.next() is called', async() => {
+      const resolver = new Resolver([
+        {path: '/a', action: context => context.next()},
+        {path: '/a', action: () => true},
+      ]);
+      const context = await resolver.resolve({pathname: '/a'});
+      expect(context.chain).to.be.an('array').lengthOf(1);
+      expect(context.chain[0].path).to.equal('/a');
+    });
+
     it('the path to the route that produced the result is in the `context` (1))', async() => {
       const resolver = new Resolver([{path: '/:one/:two', action: () => true}]);
       const context = await resolver.resolve({pathname: '/a/b'});

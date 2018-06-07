@@ -9,48 +9,31 @@ function isResultNotEmpty(result) {
 
 function redirect(context, path) {
   const params = Object.assign({}, context.params);
-  return {redirect: {pathname: path, from: getInvocationPathName(context), params}};
-}
-
-function getInvocationPathName(context) {
-  if (!context.__invocationRoute) {
-    return context.pathname;
-  }
-
-  let currentPath = context.__invocationRoute;
-  let invocationPathName = '';
-  while (currentPath) {
-    invocationPathName = currentPath.path + invocationPathName;
-    currentPath = currentPath.parent;
-  }
-  return invocationPathName.replace(/(\/\/+)/g, '/');
+  return {redirect: {pathname: path, from: context.pathname, params}};
 }
 
 function renderComponent(context, component) {
-  const element = document.createElement(component);
+  const element = context.route.__component || document.createElement(component);
   const params = Object.assign({}, context.params);
   element.route = {params, pathname: context.pathname};
   if (context.from) {
     element.route.redirectFrom = context.from;
   }
+  context.route.__component = element;
   return element;
 }
 
-function runCallbackIfPossible(callback, context, invocationRoute, thisObject) {
+function runCallbackIfPossible(callback, context, thisObject) {
   if (typeof callback === 'function') {
-    const updatedContext = Object.assign({}, context, {
-      __invocationRoute: invocationRoute,
-      redirect: path => redirect(updatedContext, path),
-      component: component => renderComponent(updatedContext, component),
-      cancel: () => ({cancel: true})
-    });
-    return callback.call(thisObject, updatedContext);
+    return callback.call(thisObject, context);
   }
 }
 
 function tryAmendResolution(previousContext, newContext) {
   const previousChain = (previousContext || {}).chain;
   const newChain = newContext.chain;
+
+  let callbacks = Promise.resolve();
 
   if (previousChain && previousChain.length) {
     let divergedChainIndex = 0;
@@ -60,24 +43,33 @@ function tryAmendResolution(previousContext, newContext) {
       }
     }
 
-    let callbacks = Promise.resolve();
     for (let i = previousChain.length - 1; i >= divergedChainIndex; i--) {
-      const routeToInactivate = previousChain[i];
-      callbacks = callbacks.then(inactivationResult => {
-        if ((inactivationResult || {}).cancel) {
-          return inactivationResult;
-        }
-        return runCallbackIfPossible(routeToInactivate.inactivate, newContext, routeToInactivate);
-      });
+      callbacks = callbacks.then(amend('onBeforeLeave', newContext, previousChain[i]));
     }
-    return callbacks.then(inactivationResult => {
-      if ((inactivationResult || {}).cancel) {
+  }
+
+  return callbacks
+    .then(amend('onBeforeEnter', newContext, newContext.route))
+    .then(amendmentResult => {
+      if ((amendmentResult || {}).cancel) {
         return previousContext;
       }
       return newContext;
     });
-  }
-  return Promise.resolve(newContext);
+}
+
+function amend(amendmentFunction, context, route) {
+  return amendmentResult => {
+    if ((amendmentResult || {}).cancel) {
+      return amendmentResult;
+    }
+
+    const component = route.__component;
+    if (component) {
+      return runCallbackIfPossible(component[amendmentFunction],
+        Object.assign({cancel: () => ({cancel: true})}, context), component);
+    }
+  };
 }
 
 /**
@@ -146,7 +138,11 @@ export class Router extends Resolver {
   __resolveRoute(context) {
     const route = context.route;
 
-    const actionResult = runCallbackIfPossible(processAction, context, route, route);
+    const updatedContext = Object.assign({
+      redirect: path => redirect(context, path),
+      component: component => renderComponent(context, component)
+    }, context);
+    const actionResult = runCallbackIfPossible(processAction, updatedContext, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
     }
@@ -158,7 +154,7 @@ export class Router extends Resolver {
     if (route.bundle) {
       return loadBundle(route.bundle)
         .then(() => this.__processComponent(route, context))
-        .catch(e => new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`)));
+        .catch(() => new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`)));
     }
 
     return this.__processComponent(route, context);
@@ -226,41 +222,18 @@ export class Router extends Resolver {
    * * `children` – nested routes. Parent routes' properties are executed before resolving the children.
    * Children 'path' values are relative to the parent ones.
    *
-   * * `inactivate` – after each resolution, router marks each route used in the resolution as an active route:
-   * if a hierarchy of '/a', '/b' (child of '/a'), '/c' (child of '/b') routes was defined, and user visits '/a/b/c' path,
-   * router will track ['/a', '/b', '/c'] routes as active ones, remembering their order also.
-   * During the next resolution, router compares new routes used in the resolution and,
-   * at the moment when they start to differ from the active ones, router calls 'inactivate' method on each route that is different:
-   * if, for previous example, user visits '/a/d' path and it's a valid path, routes '/c' and '/b' will be inactivated.
-   * Inactivation always happens from the last active element to the first that is different from the new route,
-   * if the method is not defined for any route, the route is skipped.
-   * Each `inactivate` call gets a `context` parameter, described below.
-   * If `inactivate` method returns `context.cancel()`, inactivation and new path resolution is cancelled and
-   * router restores the state before the new resolution.
-   * Otherwise router updates the active routes and waits for the next resolution to happen.
-   * NOTE: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.
-   *
    * `context` object that is passed to `route` functions holds the following parameters:
    * * `context.pathname` – string with the pathname being resolved
    *
    * * `context.params` – object with route parameters
    *
    * * `context.route` – object that holds the route that is currently being rendered.
-   * The original `route` object that defined an `action` or `inactivate` callback is available inside the callback
-   * through the `this` reference. The current route object being currently resolved is available there as `context.route`.
-   * While for `action` callbacks these are always the same, for `inactivate` callbacks these objects would be different:
-   * the current route that is being rendered causes another route to inactivate.
-   * If you need to access the original route object, make sure you define the `inactivate` callback as a non-arrow
-   * function because arrow functions do not have their own `this` reference.
    *
    * * `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)
    *
    * * `context.redirect(path)` – function that creates a redirect data for the path specified.
    *
    * * `context.component(component)` – function that creates a new HTMLElement with current context
-   *
-   * * `context.cancel()` – function that creates an object that can be returned from `inactivate` function.
-   * If an `action` returns `context.cancel()`, it will be considered as no return value.
    *
    * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */
@@ -320,7 +293,11 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(context.result.route.pathname);
           }
           this.__setOutletContent(context.result);
-          this.__previousContext = context;
+          if (context !== this.__previousContext) {
+            const currentComponent = context.route.__component || {};
+            runCallbackIfPossible(currentComponent.onAfterEnter, context, currentComponent);
+            this.__previousContext = context;
+          }
           return this.__outlet;
         }
       })
