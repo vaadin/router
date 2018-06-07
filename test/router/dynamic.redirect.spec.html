@@ -453,13 +453,17 @@
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
         });
 
-        it('onBeforeEnter.this points to the route that defines the component', async() => {
+        it('onBeforeEnter.this points to the component that has defines the property', async() => {
           router.setRoutes([
-            {path: '/', action: onBeforeEnterAction('x-home-view', function(context) {
+            {path: '/', action: onBeforeEnterAction('x-home-view', function() {
               // eslint-disable-next-line no-invalid-this
-              expect(this.path).to.equal('/');
+              expect(this).to.be.a('HTMLElement');
               // eslint-disable-next-line no-invalid-this
-              expect(this).to.be.equal(context.route);
+              expect(this.tagName.toLowerCase()).to.equal('x-home-view');
+              // eslint-disable-next-line no-invalid-this
+              expect(this.onBeforeEnter).not.to.be.a('null');
+              // eslint-disable-next-line no-invalid-this
+              expect(this.onBeforeLeave).to.be.an('undefined');
             })},
           ]);
 
@@ -489,13 +493,17 @@
           expect(outlet.children[0].tagName).to.match(/x-users-list/i);
         });
 
-        it('onBeforeLeave.this points to the route that defines the component', async() => {
+        it('onBeforeLeave.this points to the component that has defines the property', async() => {
           router.setRoutes([
-            {path: '/', action: onBeforeLeaveAction('x-home-view', function(context) {
+            {path: '/', action: onBeforeLeaveAction('x-home-view', function() {
               // eslint-disable-next-line no-invalid-this
-              expect(this.path).to.equal('/');
+              expect(this).to.be.a('HTMLElement');
               // eslint-disable-next-line no-invalid-this
-              expect(this).to.be.equal(context.route);
+              expect(this.tagName.toLowerCase()).to.equal('x-home-view');
+              // eslint-disable-next-line no-invalid-this
+              expect(this.onBeforeLeave).not.to.be.a('null');
+              // eslint-disable-next-line no-invalid-this
+              expect(this.onBeforeEnter).to.be.an('undefined');
             })},
             {path: '/users', component: 'x-users-list'},
           ]);

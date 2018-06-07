@@ -36,7 +36,7 @@ function renderComponent(context, component) {
   return element;
 }
 
-function runCallbackIfPossible(callback, context, invocationRoute) {
+function runCallbackIfPossible(callback, context, invocationRoute, thisObject) {
   if (typeof callback === 'function') {
     const updatedContext = Object.assign({}, context, {
       __invocationRoute: invocationRoute,
@@ -44,7 +44,7 @@ function runCallbackIfPossible(callback, context, invocationRoute) {
       component: component => renderComponent(updatedContext, component),
       cancel: () => ({cancel: true})
     });
-    return callback.call(invocationRoute, updatedContext);
+    return callback.call(thisObject, updatedContext);
   }
 }
 
@@ -146,7 +146,7 @@ export class Router extends Resolver {
   __resolveRoute(context) {
     const route = context.route;
 
-    const actionResult = runCallbackIfPossible(processAction, context, route);
+    const actionResult = runCallbackIfPossible(processAction, context, route, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
     }
