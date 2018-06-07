@@ -1,0 +1,254 @@
+<!doctype html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Vaadin.Router Livecycle Events spec</title>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../dist/vaadin-router.umd.js"></script>
+
+  <link rel="import" href="../test-pushstate-throttler.html">
+</head>
+
+<body>
+  <test-pushstate-throttler id="throttler"></test-pushstate-throttler>
+  <div id="outlet"></div>
+
+  <script>
+    const invocations = [];
+    class XSpyComponent extends HTMLElement {
+      constructor() {
+        super();
+      }
+      connectedCallback() {
+        this.log('connectedCallback')
+      }
+      disconnectedCallback() {
+        this.log('disconnectedCallback')
+      }
+      onBeforeEnter() {
+        this.log('onBeforeEnter')
+      }
+      onAfterEnter() {
+        this.log('onAfterEnter')
+      }
+      onBeforeLeave() {
+        this.log('onBeforeLeave')
+      }
+      onAfterLeave() {
+        this.log('onAfterLeave')
+      }
+
+      log(message) {
+        invocations.push(`${this.name}.${message}`);
+      }
+    }
+    customElements.define('x-spy-component', XSpyComponent);
+
+    function spyComponent(name) {
+      return (context) => {
+        invocations.push(`${name}.action`);
+        const component = context.component('x-spy-component');
+        component.name = name;
+        return component;
+      }
+    }
+
+    describe('Vaadin.Router lifecycle events', function() {
+      // eslint-disable-next-line no-invalid-this
+      const suite = this;
+      suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
+
+      const outlet = document.getElementById('outlet');
+      const throttler = document.getElementById('throttler');
+      let router;
+      beforeEach(async function() {
+        // eslint-disable-next-line no-invalid-this
+        const test = this;
+
+        // if necessary wait before it's OK to call history.pushState again
+        await throttler.throttle(test);
+
+        // reset the window URL
+        window.history.pushState(null, null, '/');
+
+        // create a new router instance
+        router = new Vaadin.Router(outlet);
+      });
+
+      afterEach(() => {
+        router.unsubscribe();
+      });
+
+      describe('lifecycle events order: no early returns', () => {
+        it('(initial) -> /a', async() => {
+          router.setRoutes([
+            {path: '/a', action: spyComponent('a')},
+          ]);
+
+          await router.render('/').catch(() => {});
+          invocations.length = 0;
+          await router.render('/a');
+
+          expect(invocations).to.deep.equal([
+            'a.action',
+            'a.onBeforeEnter',
+            'a.connectedCallback',
+            'a.onAfterEnter',
+          ]);
+        });
+
+        it('/a -> /b', async() => {
+          router.setRoutes([
+            {path: '/a', action: spyComponent('a')},
+            {path: '/b', action: spyComponent('b')},
+          ]);
+
+          await router.render('/a');
+          invocations.length = 0;
+          await router.render('/b');
+
+          expect(invocations).to.deep.equal([
+            'a.onBeforeLeave',
+            'b.action',
+            'b.onBeforeEnter',
+            'b.connectedCallback',
+            'b.onAfterEnter',
+            'a.disconnectedCallback',
+          ]);
+        });
+
+        it('(initial) -> /a/b', async() => {
+          router.setRoutes([
+            {
+              path: '/a',
+              action: () => { invocations.push('a.action') },
+              children: [
+                {path: '/b', action: spyComponent('b')},
+              ]
+            },
+          ]);
+
+          await router.render('/').catch(() => {});
+          invocations.length = 0;
+          await router.render('/a/b');
+
+          expect(invocations).to.deep.equal([
+            'a.action',
+            'b.action',
+            'b.onBeforeEnter',
+            'b.connectedCallback',
+            'b.onAfterEnter',
+          ]);
+        });
+
+        it('/a/b -> /a/c', async() => {
+          router.setRoutes([
+            {
+              path: '/a',
+              action: () => { invocations.push('a.action') },
+              children: [
+                {path: '/b', action: spyComponent('b')},
+                {path: '/c', action: spyComponent('c')},
+              ]
+            },
+          ]);
+
+          await router.render('/a/b');
+          invocations.length = 0;
+          await router.render('/a/c');
+
+          expect(invocations).to.deep.equal([
+            'a.action',
+            'b.onBeforeLeave',
+            'c.action',
+            'c.onBeforeEnter',
+            'c.connectedCallback',
+            'c.onAfterEnter',
+            'b.disconnectedCallback',
+          ]);
+        });
+
+        it('(initial) -> /a/non-existent-path', async() => {
+          router.setRoutes([
+            {
+              path: '/a',
+              action: () => { invocations.push('a.action') },
+              children: [
+                {path: '/b', action: spyComponent('b')},
+              ]
+            },
+            {path: '(.*)', action: spyComponent('*')},
+          ]);
+
+          await router.render('/').catch(() => {});
+          invocations.length = 0;
+          await router.render('/a/non-existent-path');
+
+          expect(invocations).to.deep.equal([
+            'a.action',
+            '*.action',
+            '*.onBeforeEnter',
+            '*.connectedCallback',
+            '*.onAfterEnter',
+          ]);
+        });
+
+        it('/a/b -> /a/non-existent-path', async() => {
+          router.setRoutes([
+            {
+              path: '/a',
+              action: () => { invocations.push('a.action') },
+              children: [
+                {path: '/b', action: spyComponent('b')},
+              ]
+            },
+            {path: '(.*)', action: spyComponent('*')},
+          ]);
+
+          await router.render('/a/b');
+          invocations.length = 0;
+          await router.render('/a/non-existent-path');
+
+          expect(invocations).to.deep.equal([
+            'a.action',
+            'b.onBeforeLeave',
+            '*.action',
+            '*.onBeforeEnter',
+            '*.connectedCallback',
+            '*.onAfterEnter',
+            'b.disconnectedCallback',
+          ]);
+        });
+
+        it('/a/c -> /a/d (/a gets visited, but does not get matched)', async() => {
+          router.setRoutes([
+            {
+              path: '/a',
+              action: () => { invocations.push('a.action') },
+              children: [
+                {path: '/b', action: spyComponent('b')},
+              ]
+            },
+            {path: '/a/c', action: spyComponent('ac')},
+            {path: '/a/d', action: spyComponent('ad')},
+          ]);
+
+          await router.render('/a/c');
+          invocations.length = 0;
+          await router.render('/a/d');
+
+          expect(invocations).to.deep.equal([
+            'a.action',
+            'ac.onBeforeLeave',
+            'ad.action',
+            'ad.onBeforeEnter',
+            'ad.connectedCallback',
+            'ad.onAfterEnter',
+            'ac.disconnectedCallback',
+          ]);
+        });
+      });
+    });
+  </script>
+</body>
