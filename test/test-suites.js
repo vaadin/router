@@ -3,6 +3,7 @@ window.VaadinRouterSuites = {
     'resolver/resolver.spec.js',
     'router/router.spec.html',
     'router/dynamic.redirect.spec.html',
+    'router/lifecycle-events.spec.html',
   ],
   coverage: [
     'resolver/matchPath.spec.js',
