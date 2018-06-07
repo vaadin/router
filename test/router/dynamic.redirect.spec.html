@@ -101,7 +101,7 @@
           verifyActiveRoutes(router, ['/a', '/b', '/c']);
         });
 
-        it('action that returns an element still adds an extra active route with the same path', async() => {
+        it('action that uses context.next() does not add an extra active route', async() => {
           router.setRoutes([
             {path: '/', action: context => context.next()},
             {path: '/', component: 'x-home-view'},
@@ -109,10 +109,10 @@
 
           await router.render('/');
 
-          verifyActiveRoutes(router, ['/', '/']);
+          verifyActiveRoutes(router, ['/']);
         });
 
-        it('action that returns an element does not override inactivate for the same route', async() => {
+        it('action that uses context.next() overrides inactivate for the same route', async() => {
           const inactivate = sinon.spy();
           router.setRoutes([
             {path: '/', action: context => context.next(), inactivate: inactivate},
@@ -121,12 +121,9 @@
           ]);
 
           await router.render('/');
-
-          expect(inactivate).to.not.have.been.called;
-
           await router.render('/b');
 
-          expect(inactivate).to.have.been.called.once;
+          expect(inactivate).to.not.have.been.called;
         });
 
         it('action that returns custom component activates route', async() => {
