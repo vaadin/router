@@ -321,7 +321,6 @@ export class Router extends Resolver {
           }
           this.__setOutletContent(context.result);
           this.__previousContext = context;
-          this.__previousResolution = context.result;
           return this.__outlet;
         }
       })
