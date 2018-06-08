@@ -154,10 +154,8 @@ class Resolver {
       .then(context => {
         let route = context.route;
         context.chain = [];
-        while (route) {
-          if (!route.__synthetic) {
-            context.chain.unshift(route);
-          }
+        while (route && !route.__synthetic) {
+          context.chain.unshift(route);
           route = route.parent;
         }
         return context;
