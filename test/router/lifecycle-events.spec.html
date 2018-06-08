@@ -15,10 +15,10 @@
   <div id="outlet"></div>
 
   <script>
-    const invocations = [];
-    class XSpyComponent extends HTMLElement {
+    class XSpy extends HTMLElement {
       constructor() {
         super();
+        this.name = `x-spy#${XSpy.__instanceCount++}`;
       }
       connectedCallback() {
         this.log('connectedCallback')
@@ -40,18 +40,21 @@
       }
 
       log(message) {
-        invocations.push(`${this.name}.${message}`);
+        XSpy.log(() => `${this.name}.${message}`);
       }
     }
-    customElements.define('x-spy-component', XSpyComponent);
+    customElements.define('x-spy', XSpy);
 
-    function spyComponent(name) {
-      return (context) => {
-        invocations.push(`${name}.action`);
-        const component = context.component('x-spy-component');
-        component.name = name;
-        return component;
-      }
+    XSpy.__instanceCount = 0;
+    XSpy.__log = [];
+    XSpy.log = (message) => {
+      XSpy.__log.push(message);
+    }
+    XSpy.getLog = () => {
+      return XSpy.__log.map(entry => `${typeof entry === 'function' ? entry() : entry}`);
+    }
+    XSpy.clearLog = () => {
+      XSpy.__log.length = [];
     }
 
     describe('Vaadin.Router lifecycle events', function() {
@@ -83,14 +86,14 @@
       describe('lifecycle events order: no early returns', () => {
         it('(initial) -> /a', async() => {
           router.setRoutes([
-            {path: '/a', action: spyComponent('a')},
+            {path: '/a', action: () => XSpy.log('a.action'), component: 'x-spy'},
           ]);
 
           await router.render('/').catch(() => {});
-          invocations.length = 0;
-          await router.render('/a');
+          XSpy.clearLog();
+          await router.render('/a').then(outlet => { outlet.children[0].name = 'a' });
 
-          expect(invocations).to.deep.equal([
+          expect(XSpy.getLog()).to.deep.equal([
             'a.action',
             'a.onBeforeEnter',
             'a.connectedCallback',
@@ -100,15 +103,15 @@
 
         it('/a -> /b', async() => {
           router.setRoutes([
-            {path: '/a', action: spyComponent('a')},
-            {path: '/b', action: spyComponent('b')},
+            {path: '/a', action: () => XSpy.log('a.action'), component: 'x-spy'},
+            {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
           ]);
 
-          await router.render('/a');
-          invocations.length = 0;
-          await router.render('/b');
+          await router.render('/a').then(outlet => { outlet.children[0].name = 'a' });
+          XSpy.clearLog();
+          await router.render('/b').then(outlet => { outlet.children[0].name = 'b' });
 
-          expect(invocations).to.deep.equal([
+          expect(XSpy.getLog()).to.deep.equal([
             'a.onBeforeLeave',
             'b.action',
             'b.onBeforeEnter',
@@ -122,18 +125,18 @@
           router.setRoutes([
             {
               path: '/a',
-              action: () => { invocations.push('a.action') },
+              action: () => XSpy.log('a.action'),
               children: [
-                {path: '/b', action: spyComponent('b')},
+                {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
               ]
             },
           ]);
 
           await router.render('/').catch(() => {});
-          invocations.length = 0;
-          await router.render('/a/b');
+          XSpy.clearLog();
+          await router.render('/a/b').then(outlet => { outlet.children[0].name = 'b' });
 
-          expect(invocations).to.deep.equal([
+          expect(XSpy.getLog()).to.deep.equal([
             'a.action',
             'b.action',
             'b.onBeforeEnter',
@@ -146,19 +149,19 @@
           router.setRoutes([
             {
               path: '/a',
-              action: () => { invocations.push('a.action') },
+              action: () => XSpy.log('a.action'),
               children: [
-                {path: '/b', action: spyComponent('b')},
-                {path: '/c', action: spyComponent('c')},
+                {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
+                {path: '/c', action: () => XSpy.log('c.action'), component: 'x-spy'},
               ]
             },
           ]);
 
-          await router.render('/a/b');
-          invocations.length = 0;
-          await router.render('/a/c');
+          await router.render('/a/b').then(outlet => { outlet.children[0].name = 'b' });
+          XSpy.clearLog();
+          await router.render('/a/c').then(outlet => { outlet.children[0].name = 'c' });
 
-          expect(invocations).to.deep.equal([
+          expect(XSpy.getLog()).to.deep.equal([
             'a.action',
             'b.onBeforeLeave',
             'c.action',
@@ -173,19 +176,19 @@
           router.setRoutes([
             {
               path: '/a',
-              action: () => { invocations.push('a.action') },
+              action: () => XSpy.log('a.action'),
               children: [
-                {path: '/b', action: spyComponent('b')},
+                {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
               ]
             },
-            {path: '(.*)', action: spyComponent('*')},
+            {path: '(.*)', action: () => XSpy.log('*.action'), component: 'x-spy'},
           ]);
 
           await router.render('/').catch(() => {});
-          invocations.length = 0;
-          await router.render('/a/non-existent-path');
+          XSpy.clearLog();
+          await router.render('/a/non-existent-path').then(outlet => { outlet.children[0].name = '*' });
 
-          expect(invocations).to.deep.equal([
+          expect(XSpy.getLog()).to.deep.equal([
             'a.action',
             '*.action',
             '*.onBeforeEnter',
@@ -198,19 +201,19 @@
           router.setRoutes([
             {
               path: '/a',
-              action: () => { invocations.push('a.action') },
+              action: () => XSpy.log('a.action'),
               children: [
-                {path: '/b', action: spyComponent('b')},
+                {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
               ]
             },
-            {path: '(.*)', action: spyComponent('*')},
+            {path: '(.*)', action: () => XSpy.log('*.action'), component: 'x-spy'},
           ]);
 
-          await router.render('/a/b');
-          invocations.length = 0;
-          await router.render('/a/non-existent-path');
+          await router.render('/a/b').then(outlet => { outlet.children[0].name = 'b' });
+          XSpy.clearLog();
+          await router.render('/a/non-existent-path').then(outlet => { outlet.children[0].name = '*' });
 
-          expect(invocations).to.deep.equal([
+          expect(XSpy.getLog()).to.deep.equal([
             'a.action',
             'b.onBeforeLeave',
             '*.action',
@@ -225,20 +228,20 @@
           router.setRoutes([
             {
               path: '/a',
-              action: () => { invocations.push('a.action') },
+              action: () => XSpy.log('a.action'),
               children: [
-                {path: '/b', action: spyComponent('b')},
+                {path: '/b', action: () => XSpy.log('a.action'), component: 'x-spy'},
               ]
             },
-            {path: '/a/c', action: spyComponent('ac')},
-            {path: '/a/d', action: spyComponent('ad')},
+            {path: '/a/c', action: () => XSpy.log('ac.action'), component: 'x-spy'},
+            {path: '/a/d', action: () => XSpy.log('ad.action'), component: 'x-spy'},
           ]);
 
-          await router.render('/a/c');
-          invocations.length = 0;
-          await router.render('/a/d');
+          await router.render('/a/c').then(outlet => { outlet.children[0].name = 'ac' });
+          XSpy.clearLog();
+          await router.render('/a/d').then(outlet => { outlet.children[0].name = 'ad' });
 
-          expect(invocations).to.deep.equal([
+          expect(XSpy.getLog()).to.deep.equal([
             'a.action',
             'ac.onBeforeLeave',
             'ad.action',
