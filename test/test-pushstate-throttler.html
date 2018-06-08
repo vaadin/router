@@ -72,6 +72,10 @@
     }
 
     TestPushstateThrottler.prototype.throttle = () => Promise.resolve();
+    if (runnerWindow.location.search.indexOf('no-throttle') >= 0) {
+      // skip throttling if the test is opened via test/index.html?no-throttle
+      return;
+    }
 
     var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     var isSafari = /^Apple/.test(navigator.vendor);
