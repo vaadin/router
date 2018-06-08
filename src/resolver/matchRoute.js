@@ -54,7 +54,7 @@ import matchPath from './matchPath.js';
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParams, parentChain) {
+function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParams) {
   let match;
   let childMatches;
   let childIndex = 0;
@@ -76,14 +76,12 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
         match = matchPath(routepath, pathname, !route.children, parentKeys, parentParams);
 
         if (match) {
-          match.chain = (parentChain || []).concat(route);
           return {
             done: false,
             value: {
               route,
               keys: match.keys,
               params: match.params,
-              chain: match.chain,
             },
           };
         }
@@ -105,8 +103,7 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
               pathname.substr(matchedLength),
               ignoreLeadingSlash,
               match.keys,
-              match.params,
-              match.chain
+              match.params
             );
           }
 

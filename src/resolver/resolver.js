@@ -152,8 +152,13 @@ class Resolver {
     return Promise.resolve()
       .then(() => next(true, this.root))
       .then(context => {
-        if (context.chain[0].__synthetic) {
-          context.chain.shift();
+        let route = context.route;
+        context.chain = [];
+        while (route) {
+          if (!route.__synthetic) {
+            context.chain.unshift(route);
+          }
+          route = route.parent;
         }
         return context;
       })
