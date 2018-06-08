@@ -48,14 +48,16 @@ function tryAmendResolution(previousContext, newContext) {
     }
   }
 
-  return callbacks
-    .then(amend('onBeforeEnter', newContext, newContext.route))
-    .then(amendmentResult => {
-      if ((amendmentResult || {}).cancel) {
-        return previousContext;
-      }
-      return newContext;
-    });
+  if (newContext.route !== (previousContext || {}).route) {
+    callbacks = callbacks.then(amend('onBeforeEnter', newContext, newContext.route));
+  }
+
+  return callbacks.then(amendmentResult => {
+    if ((amendmentResult || {}).cancel) {
+      return previousContext;
+    }
+    return newContext;
+  });
 }
 
 function amend(amendmentFunction, context, route) {
@@ -292,12 +294,13 @@ export class Router extends Resolver {
           if (shouldUpdateHistory) {
             this.__updateBrowserHistory(context.result.route.pathname);
           }
-          this.__setOutletContent(context.result);
-          if (context !== this.__previousContext) {
+
+          if (context.route !== (this.__previousContext || {}).route) {
+            this.__setOutletContent(context.result);
             const currentComponent = context.route.__component || {};
             runCallbackIfPossible(currentComponent.onAfterEnter, context, currentComponent);
-            this.__previousContext = context;
           }
+          this.__previousContext = context;
           return this.__outlet;
         }
       })

@@ -21,22 +21,22 @@
         this.name = `x-spy#${XSpy.__instanceCount++}`;
       }
       connectedCallback() {
-        this.log('connectedCallback')
+        this.log('connectedCallback');
       }
       disconnectedCallback() {
-        this.log('disconnectedCallback')
+        this.log('disconnectedCallback');
       }
       onBeforeEnter() {
-        this.log('onBeforeEnter')
+        this.log('onBeforeEnter');
       }
       onAfterEnter() {
-        this.log('onAfterEnter')
+        this.log('onAfterEnter');
       }
       onBeforeLeave() {
-        this.log('onBeforeLeave')
+        this.log('onBeforeLeave');
       }
       onAfterLeave() {
-        this.log('onAfterLeave')
+        this.log('onAfterLeave');
       }
 
       log(message) {
@@ -49,13 +49,13 @@
     XSpy.__log = [];
     XSpy.log = (message) => {
       XSpy.__log.push(message);
-    }
+    };
     XSpy.getLog = () => {
       return XSpy.__log.map(entry => `${typeof entry === 'function' ? entry() : entry}`);
-    }
+    };
     XSpy.clearLog = () => {
       XSpy.__log.length = [];
-    }
+    };
 
     describe('Vaadin.Router lifecycle events', function() {
       // eslint-disable-next-line no-invalid-this
@@ -91,7 +91,9 @@
 
           await router.render('/').catch(() => {});
           XSpy.clearLog();
-          await router.render('/a').then(outlet => { outlet.children[0].name = 'a' });
+          await router.render('/a').then(outlet => {
+            outlet.children[0].name = 'a';
+          });
 
           expect(XSpy.getLog()).to.deep.equal([
             'a.action',
@@ -107,17 +109,21 @@
             {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
           ]);
 
-          await router.render('/a').then(outlet => { outlet.children[0].name = 'a' });
+          await router.render('/a').then(outlet => {
+            outlet.children[0].name = 'a';
+          });
           XSpy.clearLog();
-          await router.render('/b').then(outlet => { outlet.children[0].name = 'b' });
+          await router.render('/b').then(outlet => {
+            outlet.children[0].name = 'b';
+          });
 
           expect(XSpy.getLog()).to.deep.equal([
-            'a.onBeforeLeave',
             'b.action',
+            'a.onBeforeLeave',
             'b.onBeforeEnter',
+            'a.disconnectedCallback',
             'b.connectedCallback',
             'b.onAfterEnter',
-            'a.disconnectedCallback',
           ]);
         });
 
@@ -134,7 +140,9 @@
 
           await router.render('/').catch(() => {});
           XSpy.clearLog();
-          await router.render('/a/b').then(outlet => { outlet.children[0].name = 'b' });
+          await router.render('/a/b').then(outlet => {
+            outlet.children[0].name = 'b';
+          });
 
           expect(XSpy.getLog()).to.deep.equal([
             'a.action',
@@ -157,18 +165,22 @@
             },
           ]);
 
-          await router.render('/a/b').then(outlet => { outlet.children[0].name = 'b' });
+          await router.render('/a/b').then(outlet => {
+            outlet.children[0].name = 'b';
+          });
           XSpy.clearLog();
-          await router.render('/a/c').then(outlet => { outlet.children[0].name = 'c' });
+          await router.render('/a/c').then(outlet => {
+            outlet.children[0].name = 'c';
+          });
 
           expect(XSpy.getLog()).to.deep.equal([
             'a.action',
-            'b.onBeforeLeave',
             'c.action',
+            'b.onBeforeLeave',
             'c.onBeforeEnter',
+            'b.disconnectedCallback',
             'c.connectedCallback',
             'c.onAfterEnter',
-            'b.disconnectedCallback',
           ]);
         });
 
@@ -186,15 +198,11 @@
 
           await router.render('/').catch(() => {});
           XSpy.clearLog();
-          await router.render('/a/non-existent-path').then(outlet => { outlet.children[0].name = '*' });
+          await router.render('/a/non-existent-path').then(outlet => {
+            outlet.children[0].name = '*';
+          });
 
-          expect(XSpy.getLog()).to.deep.equal([
-            'a.action',
-            '*.action',
-            '*.onBeforeEnter',
-            '*.connectedCallback',
-            '*.onAfterEnter',
-          ]);
+          expect(XSpy.getLog()).to.deep.equal(['a.action', '*.action']);
         });
 
         it('/a/b -> /a/non-existent-path', async() => {
@@ -209,18 +217,22 @@
             {path: '(.*)', action: () => XSpy.log('*.action'), component: 'x-spy'},
           ]);
 
-          await router.render('/a/b').then(outlet => { outlet.children[0].name = 'b' });
+          await router.render('/a/b').then(outlet => {
+            outlet.children[0].name = 'b';
+          });
           XSpy.clearLog();
-          await router.render('/a/non-existent-path').then(outlet => { outlet.children[0].name = '*' });
+          await router.render('/a/non-existent-path').then(outlet => {
+            outlet.children[0].name = '*';
+          });
 
           expect(XSpy.getLog()).to.deep.equal([
             'a.action',
-            'b.onBeforeLeave',
             '*.action',
+            'b.onBeforeLeave',
             '*.onBeforeEnter',
+            'b.disconnectedCallback',
             '*.connectedCallback',
             '*.onAfterEnter',
-            'b.disconnectedCallback',
           ]);
         });
 
@@ -237,19 +249,37 @@
             {path: '/a/d', action: () => XSpy.log('ad.action'), component: 'x-spy'},
           ]);
 
-          await router.render('/a/c').then(outlet => { outlet.children[0].name = 'ac' });
+          await router.render('/a/c').then(outlet => {
+            outlet.children[0].name = 'ac';
+          });
           XSpy.clearLog();
-          await router.render('/a/d').then(outlet => { outlet.children[0].name = 'ad' });
+          await router.render('/a/d').then(outlet => {
+            outlet.children[0].name = 'ad';
+          });
 
           expect(XSpy.getLog()).to.deep.equal([
             'a.action',
-            'ac.onBeforeLeave',
             'ad.action',
+            'ac.onBeforeLeave',
             'ad.onBeforeEnter',
+            'ac.disconnectedCallback',
             'ad.connectedCallback',
             'ad.onAfterEnter',
-            'ac.disconnectedCallback',
           ]);
+        });
+
+        it('/users/Jane -> /users/John (when parameters are changed, no extra callbacks are called)', async() => {
+          router.setRoutes([
+            {path: '/users/:user', action: () => XSpy.log('route.action'), component: 'x-spy'},
+          ]);
+
+          await router.render('/users/Jane');
+          XSpy.clearLog();
+          await router.render('/users/John').then(outlet => {
+            outlet.children[0].name = 'john';
+          });
+
+          expect(XSpy.getLog()).to.deep.equal(['route.action']);
         });
       });
     });
