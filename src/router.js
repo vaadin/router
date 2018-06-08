@@ -36,7 +36,7 @@ function renderComponent(context, component) {
   return element;
 }
 
-function runCallbackIfPossible(callback, context, invocationRoute) {
+function runCallbackIfPossible(callback, context, invocationRoute, thisObject) {
   if (typeof callback === 'function') {
     const updatedContext = Object.assign({}, context, {
       __invocationRoute: invocationRoute,
@@ -44,7 +44,7 @@ function runCallbackIfPossible(callback, context, invocationRoute) {
       component: component => renderComponent(updatedContext, component),
       cancel: () => ({cancel: true})
     });
-    return callback.call(invocationRoute, updatedContext);
+    return callback.call(thisObject, updatedContext);
   }
 }
 
@@ -115,7 +115,7 @@ export class Router extends Resolver {
   __resolveRoute(context) {
     const route = context.route;
 
-    const actionResult = runCallbackIfPossible(processAction, context, route);
+    const actionResult = runCallbackIfPossible(processAction, context, route, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
       return actionResult;
     }
@@ -125,7 +125,7 @@ export class Router extends Resolver {
     }
 
     if (route.path) {
-      const newActiveRouteIndex = (context.__resolutionChain || (context.__resolutionChain = [])).push(context.route) - 1;
+      const newActiveRouteIndex = (context.__resolutionChain || (context.__resolutionChain = [])).push(route) - 1;
       if (this.__activeRoutes && this.__activeRoutes.length > newActiveRouteIndex) {
         const oldActiveRoute = this.__activeRoutes[newActiveRouteIndex];
         if (oldActiveRoute.path !== context.__resolutionChain[newActiveRouteIndex].path) {
@@ -148,13 +148,6 @@ export class Router extends Resolver {
 
   __processComponent(route, context) {
     if (typeof route.component === 'string') {
-      const newActiveRoutesLength = (context.__resolutionChain || []).length;
-      if (newActiveRoutesLength < this.__activeRoutes.length) {
-        const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
-        if (isResultNotEmpty(inactivationResult)) {
-          return inactivationResult;
-        }
-      }
       return renderComponent(context, route.component);
     }
   }
@@ -162,10 +155,10 @@ export class Router extends Resolver {
   __runInactivationChain(divergedRouteIndex, context) {
     for (let i = this.__activeRoutes.length - 1; i >= divergedRouteIndex; i--) {
       const routeToInactivate = this.__activeRoutes[i];
-      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context, routeToInactivate);
+      const inactivationResult = runCallbackIfPossible(routeToInactivate.inactivate, context, routeToInactivate, routeToInactivate);
       if ((inactivationResult || {}).cancel) {
-        context.__resolutionChain = this.__activeRoutes;
-        return this.__previousResolution;
+        context.__resolutionChain = this.__previousContext.__resolutionChain;
+        return this.__previousContext.result;
       }
     }
     this.__activeRoutes = [];
@@ -270,6 +263,31 @@ export class Router extends Resolver {
     this.__onNavigationEvent();
   }
 
+  __getResolutionContext(pathnameOrContext) {
+    const beforeLeaveResult = this.__previousContext
+      ? runCallbackIfPossible(this.__previousContext.result.onBeforeLeave, this.__previousContext,
+        this.__previousContext.route, this.__previousContext.result)
+      : null;
+    if (isResultNotEmpty(beforeLeaveResult)) {
+      if (beforeLeaveResult.cancel) {
+        return Promise.resolve(this.__previousContext);
+      }
+      return Promise.resolve(Object.assign({}, this.__previousContext, {result: beforeLeaveResult}));
+    }
+
+    return this.resolve(pathnameOrContext)
+      .then(context => {
+        const beforeEnterResult = runCallbackIfPossible(context.result.onBeforeEnter, context, context.route, context.result);
+        if (isResultNotEmpty(beforeEnterResult)) {
+          if (beforeEnterResult.cancel) {
+            return this.__previousContext;
+          }
+          context.result = beforeEnterResult;
+        }
+        return context;
+      });
+  }
+
   /**
    * Asynchronously resolves the given pathname and renders the resolved route
    * component into the router outlet. If no router outlet is set at the time of
@@ -291,10 +309,20 @@ export class Router extends Resolver {
   render(pathnameOrContext, shouldUpdateHistory) {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
-    this.ready = this.resolve(pathnameOrContext)
+    this.ready = this.__getResolutionContext(pathnameOrContext)
       .then(context => {
+        if (!isResultNotEmpty(context)) {
+          return Promise.reject(new Error(`Got an empty resolution for '${pathnameOrContext}'.`));
+        }
         const result = context.result;
         if (result instanceof HTMLElement) {
+          const newActiveRoutesLength = (context.__resolutionChain || []).length;
+          if (newActiveRoutesLength < this.__activeRoutes.length) {
+            const inactivationResult = this.__runInactivationChain(newActiveRoutesLength - 1, context);
+            if (isResultNotEmpty(inactivationResult)) {
+              context.result = inactivationResult;
+            }
+          }
           return context;
         } else if (result.redirect) {
           const redirect = result.redirect;
@@ -322,7 +350,7 @@ export class Router extends Resolver {
           }
           this.__setOutletContent(context.result);
           this.__activeRoutes = context.__resolutionChain || [];
-          this.__previousResolution = context.result;
+          this.__previousContext = context;
           return this.__outlet;
         }
       })
