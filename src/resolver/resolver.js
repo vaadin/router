@@ -45,7 +45,7 @@ class Resolver {
     this.errorHandler = options.errorHandler;
     this.resolveRoute = options.resolveRoute || resolveRoute;
     this.context = Object.assign({resolver: this}, options.context);
-    this.root = Array.isArray(routes) ? {path: '', children: routes, parent: null} : routes;
+    this.root = Array.isArray(routes) ? {path: '', children: routes, parent: null, __synthetic: true} : routes;
     this.root.parent = null;
   }
 
@@ -139,7 +139,6 @@ class Resolver {
       currentContext = Object.assign({}, context, matches.value);
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {
-        context.__resolutionChain = currentContext.__resolutionChain;
         if (resolution !== null && resolution !== undefined) {
           currentContext.result = resolution.result || resolution;
           return currentContext;
@@ -152,6 +151,15 @@ class Resolver {
 
     return Promise.resolve()
       .then(() => next(true, this.root))
+      .then(context => {
+        let route = context.route;
+        context.chain = [];
+        while (route && !route.__synthetic) {
+          context.chain.unshift(route);
+          route = route.parent;
+        }
+        return context;
+      })
       .catch((error) => {
         const errorMessage = generateErrorMessage(currentContext);
         if (!error) {

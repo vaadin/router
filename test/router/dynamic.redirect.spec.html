@@ -101,7 +101,7 @@
           verifyActiveRoutes(router, ['/a', '/b', '/c']);
         });
 
-        it('action that returns an element does not add an extra active route', async() => {
+        it('action that uses context.next() does not add an extra active route', async() => {
           router.setRoutes([
             {path: '/', action: context => context.next()},
             {path: '/', component: 'x-home-view'},
@@ -112,7 +112,7 @@
           verifyActiveRoutes(router, ['/']);
         });
 
-        it('action that returns an element overrides inactivate for the same route', async() => {
+        it('action that uses context.next() overrides inactivate for the same route', async() => {
           const inactivate = sinon.spy();
           router.setRoutes([
             {path: '/', action: context => context.next(), inactivate: inactivate},
@@ -126,14 +126,14 @@
           expect(inactivate).to.not.have.been.called;
         });
 
-        it('action that returns custom component does not activate route', async() => {
+        it('action that returns custom component activates route', async() => {
           router.setRoutes([
             {path: '/', action: context => context.component('x-home-view')},
           ]);
 
           await router.render('/');
 
-          verifyActiveRoutes(router, []);
+          verifyActiveRoutes(router, ['/']);
         });
 
         it('action that returns redirect activates redirect route', async() => {
@@ -165,25 +165,69 @@
         });
 
         it('inactivate chain is called in reversed order, from last route to first', async() => {
-          const deactivatedPaths = [];
+          const inactivations = [];
           router.setRoutes([
-            {path: '/a', inactivate: function() {
-              deactivatedPaths.push(this.path);
-            }, children: [
-              {path: '/b', inactivate: function() {
-                deactivatedPaths.push(this.path);
-              }, children: [
-                {path: '/c', component: 'x-users-view', inactivate: function() {
-                  deactivatedPaths.push(this.path);
-                }},
-              ]},
-            ]},
-            {path: '/', component: 'x-home-view'},
+            {
+              path: '/',
+              inactivate: () => {
+                inactivations.push('L1');
+              },
+              children: [
+                {
+                  path: '',
+                  inactivate: () => {
+                    inactivations.push('L2');
+                  },
+                  children: [
+                    {
+                      path: 'a',
+                      inactivate: () => {
+                        inactivations.push('L3');
+                      },
+                      component: 'x-users-view'
+                    }
+                  ]
+                },
+              ]
+            },
+            {path: '/b', component: 'x-home-view'}
           ]);
 
-          await router.render('/a/b/c');
-          await router.render('/');
-          expect(deactivatedPaths).to.deep.equal(['/c', '/b', '/a']);
+          await router.render('/a');
+          await router.render('/b');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          expect(inactivations).to.deep.equal(['L3', 'L2', 'L1']);
+        });
+
+        it('inactivate promises return result are supported', async() => {
+          const inactivations = [];
+          router.setRoutes([
+            {
+              path: '/a',
+              inactivate: context => new Promise(resolve => {
+                inactivations.push('L1');
+                resolve(context.cancel());
+              }),
+              children: [
+                {
+                  path: '/b',
+                  component: 'x-users-list',
+                  inactivate: () => new Promise(resolve => {
+                    inactivations.push('L2');
+                    resolve();
+                  }),
+                },
+              ]
+            },
+            {path: '/c', component: 'x-home-view'}
+          ]);
+
+          await router.render('/a/b');
+          await router.render('/c');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+          expect(inactivations).to.deep.equal(['L2', 'L1']);
         });
 
         it('inactivate is called with correct context argument', async() => {
@@ -269,19 +313,17 @@
           verifyActiveRoutes(router, ['/a', '/b', '/c']);
         });
 
-
         it('inactivate is called when new activation path has no different routes but is shorter', async() => {
           const inactivate = sinon.spy();
           const actionToEmulateShorterResolvePass = context => {
             if ((context.pathname.match(/\//g) || []).length < 2) {
-              return context.next();
+              return context.component('x-home-view');
             }
           };
           router.setRoutes([
             {path: '/a', action: actionToEmulateShorterResolvePass, children: [
               {path: '/b', component: 'x-users-view', inactivate: inactivate},
             ]},
-            {path: '/a', component: 'x-home-view'}
           ]);
 
           await router.render('/a/b');
@@ -299,14 +341,13 @@
           'when new activation path has no different routes but is shorter', async() => {
           const actionToEmulateShorterResolvePass = context => {
             if ((context.pathname.match(/\//g) || []).length < 2) {
-              return context.next();
+              return context.component('x-home-view');
             }
           };
           router.setRoutes([
             {path: '/a', action: actionToEmulateShorterResolvePass, children: [
               {path: '/b', component: 'x-users-view', inactivate: context => context.cancel()},
             ]},
-            {path: '/a', component: 'whatever'}
           ]);
 
           await router.render('/a/b');
@@ -374,7 +415,7 @@
     });
 
     function verifyActiveRoutes(router, expectedSegments) {
-      expect(router.__activeRoutes.map(route => route.path)).to.deep.equal(expectedSegments);
+      expect(router.__previousContext.chain.map(route => route.path)).to.deep.equal(expectedSegments);
     }
   </script>
 </body>

@@ -179,6 +179,54 @@
       expect(context.result).to.be.true;
     });
 
+    it('the path to the route that produced the result is in the `context` (1))', async() => {
+      const resolver = new Resolver([{path: '/:one/:two', action: () => true}]);
+      const context = await resolver.resolve({pathname: '/a/b'});
+      expect(context.chain).to.be.an('array').lengthOf(1);
+      expect(context.chain[0].path).to.equal('/:one/:two');
+    });
+
+    it('the path to the route that produced the result is in the `context` (2)', async() => {
+      const resolver = new Resolver([
+        {
+          path: '/a',
+          children: [
+            {
+              path: '/b',
+              action: () => true,
+            },
+          ],
+        },
+      ]);
+      const context = await resolver.resolve({pathname: '/a/b'});
+      expect(context.chain).to.be.an('array').lengthOf(2);
+      expect(context.chain[0].path).to.equal('/a');
+      expect(context.chain[1].path).to.equal('/b');
+    });
+
+    it('the path to the route that produced the reusult is in the `context` (3)', async() => {
+      const resolver = new Resolver([
+        {
+          path: '/',
+          children: [
+            {
+              path: '',
+              children: [
+                {
+                  path: '/a',
+                  action: () => true,
+                },
+              ],
+            },
+          ],
+        },
+        {path: '/b', action: () => true},
+      ]);
+      const context = await resolver.resolve({pathname: '/b'});
+      expect(context.chain).to.be.an('array').lengthOf(1);
+      expect(context.chain[0].path).to.equal('/b');
+    });
+
     it('should provide all URL parameters to each route', async() => {
       const action1 = sinon.spy();
       const action2 = sinon.spy(() => true);
