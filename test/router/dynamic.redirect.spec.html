@@ -21,50 +21,31 @@
   <script>
     describe('Vaadin.Router', function() {
       // eslint-disable-next-line no-invalid-this
-      this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
+      const suite = this;
+      suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
-      var outlet;
-      beforeEach(() => {
-        // reset the URL
+      const outlet = document.getElementById('outlet');
+      const throttler = document.getElementById('throttler');
+      let router;
+      beforeEach(async function() {
+        // eslint-disable-next-line no-invalid-this
+        const test = this;
+
+        // if necessary wait before it's OK to call history.pushState again
+        await throttler.throttle(test);
+
+        // reset the window URL
         window.history.pushState(null, null, '/');
 
-        // stamp the test fixture DOM into the page
-        outlet = fixture('outlet');
+        // create a new router instance
+        router = new Vaadin.Router(outlet);
       });
 
-      const throttler = document.querySelector('#throttler');
-      afterEach(function() {
-        const test = this; // eslint-disable-line no-invalid-this
-        return throttler.throttle(test);
+      afterEach(() => {
+        router.unsubscribe();
       });
 
       describe('resolver chain and router features', () => {
-        let router;
-        beforeEach(() => {
-          router = new Vaadin.Router(outlet);
-        });
-
-        afterEach(() => {
-          router.unsubscribe();
-        });
-
-        it('paths with parameters should have each route activated without parameters replaced', async() => {
-          router.setRoutes([
-            {path: '/users/:user', component: 'x-user-profile'},
-            {path: '/image-:size(\\d+)px', component: 'x-image-view'},
-            {path: '/kb/:path+/:id', component: 'x-knowledge-base'},
-          ]);
-
-          await router.render('/users/1');
-          verifyActiveRoutes(router, ['/users/:user']);
-
-          await router.render('/image-15px');
-          verifyActiveRoutes(router, ['/image-:size(\\d+)px']);
-
-          await router.render('/kb/folder/nested/1');
-          verifyActiveRoutes(router, ['/kb/:path+/:id']);
-        });
-
         it('redirect overwrites activated routes', async() => {
           router.setRoutes([
             {path: '/a', children: [
@@ -78,17 +59,6 @@
           await router.render('/');
 
           verifyActiveRoutes(router, ['/a', '/b', '/c']);
-        });
-
-        it('action that uses context.next() does not add an extra active route', async() => {
-          router.setRoutes([
-            {path: '/', action: context => context.next()},
-            {path: '/', component: 'x-home-view'},
-          ]);
-
-          await router.render('/');
-
-          verifyActiveRoutes(router, ['/']);
         });
 
         it('action that returns custom component activates route', async() => {
@@ -113,285 +83,7 @@
           expect(outlet.children[0].tagName).to.match(/x-users-view/i);
         });
       });
-
-      describe('onBeforeEnter, onBeforeLeave and onAfterEnter', () => {
-        let router;
-        beforeEach(() => {
-          router = new Vaadin.Router(outlet);
-        });
-
-        afterEach(() => {
-          router.unsubscribe();
-        });
-
-        it('onBeforeEnter is called with correct parameters', async() => {
-          const onBeforeEnter = sinon.spy();
-          router.setRoutes([
-            {path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter)}
-          ]);
-
-          await router.render('/');
-
-          expect(onBeforeEnter).to.have.been.called.once;
-          expect(onBeforeEnter.args[0].length).to.equal(1);
-          const contextParam = onBeforeEnter.args[0][0];
-          expect(contextParam.pathname).to.equal('/');
-          expect(contextParam.route.path).to.equal('/');
-          expect(contextParam.cancel).to.be.a('function');
-          expect(contextParam.redirect).to.be.an('undefined');
-          expect(contextParam.component).to.be.an('undefined');
-
-          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-        });
-
-        it('onBeforeEnter.this points to the component that has defines the property', async() => {
-          router.setRoutes([
-            {path: '/', action: onBeforeEnterAction('x-home-view', function() {
-              // eslint-disable-next-line no-invalid-this
-              const current = this;
-              expect(current).to.be.a('HTMLElement');
-              expect(current.tagName.toLowerCase()).to.equal('x-home-view');
-              expect(current.onBeforeEnter).not.to.be.a('null');
-              expect(current.onBeforeLeave).to.be.an('undefined');
-            })},
-          ]);
-
-          await router.render('/');
-
-          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-        });
-
-        it('onBeforeLeave is called with correct parameters', async() => {
-          const onBeforeLeave = sinon.spy();
-          router.setRoutes([
-            {path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave)},
-            {path: '/users', component: 'x-users-list'},
-          ]);
-
-          await router.render('/');
-          expect(onBeforeLeave).to.not.have.been.called;
-
-          await router.render('/users');
-
-          expect(onBeforeLeave).to.have.been.called.once;
-          expect(onBeforeLeave.args[0].length).to.equal(1);
-          const contextParam = onBeforeLeave.args[0][0];
-          expect(contextParam.pathname).to.equal('/users');
-          expect(contextParam.route.path).to.equal('/users');
-          expect(contextParam.cancel).to.be.a('function');
-          expect(contextParam.redirect).to.be.an('undefined');
-          expect(contextParam.component).to.be.an('undefined');
-
-          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-        });
-
-        it('onBeforeLeave.this points to the component that has defines the property', async() => {
-          router.setRoutes([
-            {path: '/', action: onBeforeLeaveAction('x-home-view', function() {
-              // eslint-disable-next-line no-invalid-this
-              const current = this;
-              expect(current).to.be.a('HTMLElement');
-              expect(current.tagName.toLowerCase()).to.equal('x-home-view');
-              expect(current.onBeforeLeave).not.to.be.a('null');
-              expect(current.onBeforeEnter).to.be.an('undefined');
-            })},
-            {path: '/users', component: 'x-users-list'},
-          ]);
-
-          await router.render('/');
-          await router.render('/users');
-
-          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-        });
-
-        it('onAfterEnter is called with correct parameters', async() => {
-          const onBeforeEnter = sinon.spy();
-          router.setRoutes([
-            {path: '/', action: onAfterEnterAction('x-home-view', onBeforeEnter)}
-          ]);
-
-          await router.render('/');
-
-          expect(onBeforeEnter).to.have.been.called.once;
-          expect(onBeforeEnter.args[0].length).to.equal(1);
-          const contextParam = onBeforeEnter.args[0][0];
-          expect(contextParam.pathname).to.equal('/');
-          expect(contextParam.route.path).to.equal('/');
-          expect(contextParam.cancel).to.be.an('undefined');
-          expect(contextParam.redirect).to.be.an('undefined');
-          expect(contextParam.component).to.be.an('undefined');
-
-          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-        });
-
-        it('onAfterEnter.this points to the component that has defines the property', async() => {
-          router.setRoutes([
-            {path: '/', action: onAfterEnterAction('x-home-view', function() {
-              // eslint-disable-next-line no-invalid-this
-              const current = this;
-              expect(current).to.be.a('HTMLElement');
-              expect(current.tagName.toLowerCase()).to.equal('x-home-view');
-              expect(current.onBeforeEnter).not.to.be.a('null');
-              expect(current.onBeforeLeave).to.be.an('undefined');
-            })},
-          ]);
-
-          await router.render('/');
-
-          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-        });
-
-        it('action, onBeforeEnter, onBeforeLeave and onAfterEnter are called in correct order', async() => {
-          const invocations = [];
-          router.setRoutes([
-            {
-              path: '/a',
-              action: context => {
-                invocations.push('actionA');
-
-                const component = context.component('x-home-view');
-                component.onBeforeLeave = () => {
-                  invocations.push('onBeforeLeaveA');
-                };
-                component.onBeforeEnter = () => {
-                  invocations.push('onBeforeEnterA');
-                };
-                component.onAfterEnter = () => {
-                  invocations.push('onAfterEnterA');
-                };
-                return component;
-              },
-            },
-            {path: '/b', action: context => {
-              invocations.push('actionB');
-
-              const component = context.component('x-users-list');
-              component.onBeforeLeave = () => {
-                invocations.push('onBeforeLeaveB');
-              };
-              component.onBeforeEnter = () => {
-                invocations.push('onBeforeEnterB');
-              };
-              component.onAfterEnter = () => {
-                invocations.push('onAfterEnterB');
-              };
-              return component;
-            }},
-          ]);
-
-          await router.render('/a');
-          expect(invocations).to.deep.equal(['actionA', 'onBeforeEnterA', 'onAfterEnterA']);
-
-          await router.render('/b');
-          expect(invocations).to.deep.equal(
-            ['actionA', 'onBeforeEnterA', 'onAfterEnterA', 'actionB', 'onBeforeLeaveA', 'onBeforeEnterB', 'onAfterEnterB']);
-        });
-
-        it('when onBeforeEnter returns cancel, resolution is aborted and reverted to the previous state', async() => {
-          router.setRoutes([
-            {path: '/', action: onBeforeEnterAction('whatever', context => context.cancel())},
-            {path: '/users', component: 'x-users-list'}
-          ]);
-
-          await router.render('/users');
-          await router.render('/');
-
-          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-          verifyActiveRoutes(router, ['/users']);
-        });
-
-        it('when onBeforeLeave returns cancel, resolution is aborted and reverted to the previous state', async() => {
-          router.setRoutes([
-            {path: '/', action: onBeforeLeaveAction('x-home-view', context => context.cancel())},
-            {path: '/users', component: 'x-users-list'},
-          ]);
-
-          await router.render('/');
-          await router.render('/users');
-
-          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-          verifyActiveRoutes(router, ['/']);
-        });
-
-        it('when onBeforeEnter, onBeforeLeave and onAfterEnter return any non-cancel value, it is ignored', async() => {
-          router.setRoutes([
-            {
-              path: '/a',
-              action: context => {
-                const component = context.component('x-home-view');
-                component.onBeforeLeave = () => true;
-                component.onBeforeEnter = () => 42;
-                component.onAfterEnter = () => [];
-                return component;
-              },
-            },
-            {path: '/b', component: 'x-users-list'},
-          ]);
-
-          await router.render('/a');
-          await router.render('/b');
-          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-          verifyActiveRoutes(router, ['/b']);
-        });
-
-        it('promises are possible in onBeforeEnter, onBeforeLeave and onAfterEnter', async() => {
-          const invocations = [];
-          router.setRoutes([
-            {
-              path: '/a',
-              action: context => {
-                const component = context.component('x-home-view');
-                component.onBeforeLeave = context => new Promise(resolve => {
-                  invocations.push('onBeforeLeave');
-                  return resolve(context.cancel());
-                });
-                component.onBeforeEnter = () => new Promise(resolve => {
-                  invocations.push('onBeforeEnter');
-                  return resolve();
-                });
-                component.onAfterEnter = () => new Promise(resolve => {
-                  invocations.push('onAfterEnter');
-                  return resolve();
-                });
-                return component;
-              },
-            },
-            {path: '/b', component: 'x-users-list'},
-          ]);
-
-          await router.render('/a');
-          expect(invocations).to.deep.equal(['onBeforeEnter', 'onAfterEnter']);
-
-          await router.render('/b');
-          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-          expect(invocations).to.deep.equal(['onBeforeEnter', 'onAfterEnter', 'onBeforeLeave']);
-        });
-      });
     });
-
-    function onBeforeLeaveAction(componentName, callback) {
-      return context => {
-        const component = context.component(componentName);
-        component.onBeforeLeave = callback;
-        return component;
-      };
-    }
-
-    function onBeforeEnterAction(componentName, callback) {
-      return context => {
-        const component = context.component(componentName);
-        component.onBeforeEnter = callback;
-        return component;
-      };
-    }
-
-    function onAfterEnterAction(componentName, callback) {
-      return context => {
-        const component = context.component(componentName);
-        component.onAfterEnter = callback;
-        return component;
-      };
-    }
 
     function verifyActiveRoutes(router, expectedSegments) {
       expect(router.__previousContext.chain.map(route => route.path)).to.deep.equal(expectedSegments);
