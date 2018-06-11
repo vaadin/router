@@ -18,6 +18,8 @@ branches:
    - master
 
 script:
+  - yarn install:dependencies
+  - yarn build
   - yarn lint
   - if [[ $TRAVIS_PULL_REQUEST == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
       wct --env saucelabs;
