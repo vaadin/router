@@ -49,7 +49,7 @@ export class WebComponentInterface {
    * Method that gets executed when user navigates away from the component that had defined the method.
    * This effectively means that the corresponding component should be resolved by the router before the method can be executed.
    * If the router navigates to the same path, the method is not called.
-   * WebComponent that defines a callback is available inside the callback through the `this` reference.
+   * WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
    *
    * @param context parameter, has the following properties:
    * * `context.pathname` – string with the pathname being resolved.
@@ -78,7 +78,7 @@ export class WebComponentInterface {
   /**
    * Method that gets executed before the outlet contents is updated with the new element.
    * If the router navigates to the same path, the method is not called.
-   * WebComponent that defines a callback is available inside the callback through the `this` reference.
+   * WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
    *
    * @param context parameter, has the following properties:
    * * `context.pathname` – string with the pathname being resolved.
@@ -112,7 +112,7 @@ export class WebComponentInterface {
   /**
    * Method that gets executed after the outlet contents is updated with the new element.
    * If the router navigates to the same path, the method is not called.
-   * WebComponent that defines a callback is available inside the callback through the `this` reference.
+   * WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
    *
    * @param context parameter, has the following properties:
    * * `context.pathname` – string with the pathname being resolved.
