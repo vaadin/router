@@ -126,6 +126,7 @@ export class WebComponentInterface {
   onAfterEnter(context) {
     // user implementation example:
     return new Promise(resolve => {
+      // eslint-disable-next-line no-undef
       sendBackendStatistics();
       resolve();
     });
