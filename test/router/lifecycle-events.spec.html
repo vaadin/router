@@ -204,6 +204,26 @@
             'a.onAfterEnter',
           ]);
         });
+
+        it('should not re-render the same component if `onBeforeLeave` prevented navigation', async() => {
+          let counter = 0;
+          customElements.define('x-persistent-view', class extends HTMLElement {
+            connectedCallback() {
+              counter++;
+            }
+            onBeforeLeave() {
+              return {cancel: true};
+            }
+          });
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-persistent-view'},
+          ]);
+          await router.render('/users');
+          await router.render('/');
+          expect(outlet.children[0].tagName).to.match(/x-persistent-view/i);
+          expect(counter).to.equal(1);
+        });
       });
 
       describe('onBeforeLeave', () => {
@@ -328,6 +348,28 @@
             'b.connectedCallback',
             'b.onAfterEnter',
           ]);
+        });
+
+        it('should not re-render the same component if `onBeforeEnter` prevented navigation', async() => {
+          let counter = 0;
+          customElements.define('x-root-view', class extends HTMLElement {
+            connectedCallback() {
+              counter++;
+            }
+          });
+          customElements.define('x-disallowed-view', class extends HTMLElement {
+            onBeforeEnter() {
+              return {cancel: true};
+            }
+          });
+          router.setRoutes([
+            {path: '/', component: 'x-root-view'},
+            {path: '/users', component: 'x-disallowed-view'},
+          ]);
+          await router.render('/');
+          await router.render('/users');
+          expect(outlet.children[0].tagName).to.match(/x-root-view/i);
+          expect(counter).to.equal(1);
         });
       });
 
