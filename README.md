@@ -17,6 +17,10 @@ Vaadin.Router is a small yet powerfull client-side router JS library. It uses th
 
 Vaadin.Router is a good fit for developers that do not want to go all-in with one framework, and prefer to have freedom in picking the components that work best for their specific needs.
 
+```
+npm install --save @vaadin/router
+```
+
 ```javascript
 import {Router} from '@vaadin/router';
 
@@ -39,7 +43,7 @@ Testing environments for Vaadin.Router are provided by [SauceLabs](https://sauce
 
 1. Make sure you have [npm](https://www.npmjs.com/) installed.
 
-1. When in the `vaadin-router` directory, run `npm install` to install dependencies.
+1. When in the `vaadin-router` directory, run `npm install` and then `npm run install:dependencies` to install dependencies.
 
 1. Run `npm start`, and open [http://127.0.0.1:8000/components/vaadin-router](http://127.0.0.1:8000/components/vaadin-router) in your browser to see the component API documentation.
 
