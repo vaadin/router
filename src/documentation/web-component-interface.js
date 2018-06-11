@@ -51,21 +51,18 @@ export class WebComponentInterface {
    * If the router navigates to the same path, the method is not called.
    * WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
    *
-   * @param context parameter, has the following properties:
-   * * `context.pathname` – string with the pathname being resolved.
+   * @param context the context object with the following properties:
    *
-   * * `context.params` – object with route parameters.
+   * | Property           | Description
+   * | -------------------|-------------
+   * | `context.pathname` | string with the pathname being resolved.
+   * | `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
+   * | `context.route`    | object that holds the route that is currently being rendered.
+   * | `context.cancel()` | function that creates a special object that can be returned to abort the current resolution and fall back to the existing one. If there is no existing one, an exception is thrown.
    *
-   * * `context.route` – object that holds the route that is currently being rendered.
+   * Return values:
    *
-   * * `context.cancel()` – function that creates a special object that can be returned to abort the current resolution
-   * and fall back to the existing one. If there is no existing one, an exception is thrown.
-   *
-   * @return
-   *
-   * * if `context.cancel()` is returned (or a Promise that results in this value),
-   * the route resolution is aborted and the outlet contents is not updated by the router.
-   *
+   * * if `context.cancel()` is returned (or a Promise that results in this value), the route resolution is aborted and the outlet contents is not updated by the router.
    * * any other return value is ignored and the resolution process is continued.
    */
   onBeforeLeave(context) {
@@ -80,26 +77,20 @@ export class WebComponentInterface {
    * If the router navigates to the same path, the method is not called.
    * WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
    *
-   * @param context parameter, has the following properties:
-   * * `context.pathname` – string with the pathname being resolved.
+   * @param context the context object with the following properties:
    *
-   * * `context.params` – object with route parameters.
+   * | Property                 | Description
+   * | -------------------------|-------------
+   * | `context.pathname`       | string with the pathname being resolved.
+   * | `context.params`         | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
+   * | `context.route`          | object that holds the route that is currently being rendered.
+   * | `context.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.
+   * | `context.cancel()`       | function that creates a special object that can be returned to abort the current resolution and fall back to the existing one. If there is no existing one, an exception is thrown.
    *
-   * * `context.route` – object that holds the route that is currently being rendered.
+   * Return values:
    *
-   * * `context.cancel()` – function that creates a special object that can be returned to abort the current resolution
-   * and fall back to the existing one. If there is no existing one, an exception is thrown.
-   *
-   * * `context.redirect(path)` – function that creates a redirect data for the path specified.
-   *
-   * @return
-   *
-   * * if `context.cancel()` is returned (or a Promise that results in this value), the route resolution is aborted
-   * the route resolution is aborted and the outlet contents is not updated by the router.
-   *
-   * * if `context.redirect(path)` is returned (or a Promise that results in this value), the corresponding path
-   * is attempted to be resolved during the next resolution steps.
-   *
+   * * if `context.cancel()` is returned (or a Promise that results in this value), the route resolution is aborted and the outlet contents is not updated by the router.
+   * * if `context.redirect(path)` is returned (or a Promise that results in this value), the corresponding path is attempted to be resolved during the next resolution steps.
    * * any other return value is ignored and the resolution process is continued.
    */
   onBeforeEnter(context) {
@@ -114,19 +105,19 @@ export class WebComponentInterface {
    * If the router navigates to the same path, the method is not called.
    * WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
    *
-   * @param context parameter, has the following properties:
-   * * `context.pathname` – string with the pathname being resolved.
+   * @param context the context object with the following properties:
    *
-   * * `context.params` – object with route parameters.
+   * | Property           | Description
+   * | ------------------ |-------------
+   * | `context.pathname` | string with the pathname being resolved.
+   * | `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
+   * | `context.route`    | object that holds the route that is currently being rendered.
    *
-   * * `context.route` – object that holds the route that is currently being rendered.
-   *
-   * @return any return value is ignored and the resolution process is continued.
+   * Return values: any return value is ignored and the resolution process is continued.
    */
   onAfterEnter(context) {
     // user implementation example:
     return new Promise(resolve => {
-      // eslint-disable-next-line no-undef
       sendBackendStatistics();
       resolve();
     });
