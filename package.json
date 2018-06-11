@@ -1,6 +1,6 @@
 {
   "name": "@vaadin/router",
-  "version": "1.0.0-alpha.0",
+  "version": "0.1.2",
   "description": "Small and powerful client-side router for Web Components. Framework-agnostic.",
   "main": "dist/vaadin-router.umd.js",
   "browser": "dist/vaadin-router.mjs",
@@ -18,8 +18,13 @@
     "url": "https://github.com/vaadin/vaadin-router/issues"
   },
   "homepage": "https://vaadin.com",
+  "files": [
+    "index.js",
+    "src",
+    "dist/vaadin-router.*"
+  ],
   "scripts": {
-    "install": "bower install && npm run build",
+    "install:dependencies": "bower install",
     "lint": "npm-run-all --parallel lint:*",
     "lint:js": "eslint --ext .html,.js src test demo *.js *.html",
     "lint:css": "stylelint demo/**/*.html",
@@ -27,7 +32,7 @@
     "build:minify.module": "uglifyjs dist/vaadin-router.umd.js -c -m --mangle-props regex=/^__/ --source-map --output dist/vaadin-router.umd.min.js",
     "build:minify.browser": "uglifyjs dist/vaadin-router.mjs -c -m --mangle-props regex=/^__/ --toplevel --source-map --output dist/vaadin-router.min.mjs",
     "build:watch": "rollup -c -w",
-    "start": "polyserve --port 8000",
+    "start": "npm run build && polyserve --port 8000",
     "start:browser-sync": "browser-sync start --config bs-config.js",
     "start:watch": "npm-run-all --parallel build:watch start start:browser-sync",
     "test": "wct && npm run test:coverage",
