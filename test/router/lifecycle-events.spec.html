@@ -54,7 +54,7 @@
       return XSpy.__log.map(entry => `${typeof entry === 'function' ? entry() : entry}`);
     };
     XSpy.clearLog = () => {
-      XSpy.__log.length = [];
+      XSpy.__log.length = 0;
     };
 
     describe('Vaadin.Router lifecycle events', function() {
@@ -83,7 +83,358 @@
         router.unsubscribe();
       });
 
-      describe('lifecycle events order: no early returns', () => {
+      describe('onBeforeEnter', () => {
+        it('should be called with the router context as the only argument', async() => {
+          const onBeforeEnter = sinon.spy();
+          router.setRoutes([
+            {path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter)}
+          ]);
+
+          await router.render('/');
+
+          expect(onBeforeEnter).to.have.been.called.once;
+          expect(onBeforeEnter.args[0].length).to.equal(1);
+
+          const context = onBeforeEnter.args[0][0];
+          expect(context.pathname).to.equal('/');
+          expect(context.route.path).to.equal('/');
+          expect(context.cancel).to.be.a('function');
+          expect(context.redirect).to.be.a('function');
+          expect(context.component).to.be.an('undefined');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        });
+
+        it('should be called on the route web component instance (as `this`)', async() => {
+          const onBeforeEnter = sinon.spy();
+          router.setRoutes([
+            {path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter)},
+          ]);
+
+          await router.render('/');
+
+          expect(onBeforeEnter).to.have.been.calledOn(outlet.children[0]);
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        });
+
+        it('should be able to return a `cancel` result to prevent navigation', async() => {
+          router.setRoutes([
+            {path: '/', action: onBeforeEnterAction('whatever', context => context.cancel())},
+            {path: '/users', component: 'x-users-list'}
+          ]);
+
+          await router.render('/users');
+          await router.render('/');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+          verifyActiveRoutes(router, ['/users']);
+        });
+
+        it('should be able to return a `redirect` result to redirect navigation', async() => {
+          router.setRoutes([
+            {path: '/', action: onBeforeEnterAction('whatever', context => context.redirect('/users'))},
+            {path: '/users', component: 'x-users-list'}
+          ]);
+
+          await router.render('/');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+          verifyActiveRoutes(router, ['/users']);
+        });
+
+        it('should ignore any other return value than `cancel` or `redirect`', async() => {
+          const values = [
+            true,
+            false,
+            0,
+            42,
+            [],
+            {not_a_redirect: true},
+            null,
+            undefined,
+            () => true,
+            'random-tag-name',
+            document.createElement('div'),
+          ];
+
+          for (let i = 0; i < values.length; i += 1) {
+            const onBeforeEnter = sinon.stub().returns(values[i]);
+            router.setRoutes([
+              {path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter)},
+              {path: '/users', component: 'x-users-list'},
+            ]);
+
+            await router.render('/');
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+            verifyActiveRoutes(router, ['/']);
+          }
+        });
+
+        it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
+          router.setRoutes([
+            {
+              path: '/a',
+              action: onBeforeEnterAction('x-spy', function (context) {
+                // eslint-disable-next-line no-invalid-this
+                const self = this;
+                self.log('onBeforeEnter');
+                return new Promise(resolve => {
+                  setTimeout(() => {
+                    self.log('onBeforeEnter.promise');
+                    resolve();
+                  }, 100);
+                });
+              })
+            },
+            {path: '/b', component: 'x-spy'},
+          ]);
+
+          await router.render('/').catch(() => {});
+          XSpy.clearLog();
+
+          await router.render('/a').then((outlet) => {
+            outlet.children[0].name = 'a';
+          });
+
+          expect(XSpy.getLog()).to.deep.equal([
+            'a.onBeforeEnter',
+            'a.onBeforeEnter.promise',
+            'a.connectedCallback',
+            'a.onAfterEnter',
+          ]);
+        });
+      });
+
+      describe('onBeforeLeave', () => {
+        it('should be called with the router context as the only argument', async() => {
+          const onBeforeLeave = sinon.spy();
+          router.setRoutes([
+            {path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave)},
+            {path: '/users', component: 'x-users-list'},
+          ]);
+
+          await router.render('/');
+          expect(onBeforeLeave).to.not.have.been.called;
+
+          await router.render('/users');
+
+          expect(onBeforeLeave).to.have.been.called.once;
+          expect(onBeforeLeave.args[0].length).to.equal(1);
+
+          const context = onBeforeLeave.args[0][0];
+          expect(context.pathname).to.equal('/users');
+          expect(context.route.path).to.equal('/users');
+          expect(context.cancel).to.be.a('function');
+          expect(context.redirect).to.be.an('undefined');
+          expect(context.component).to.be.an('undefined');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+        });
+
+        it('should be called on the route web component instance (as `this`)', async() => {
+          const onBeforeLeave = sinon.spy();
+          router.setRoutes([
+            {path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave)},
+            {path: '/users', component: 'x-users-list'},
+          ]);
+
+          await router.render('/');
+          const homeViewElement = outlet.children[0];
+
+          await router.render('/users');
+
+          expect(onBeforeLeave).to.have.been.calledOn(homeViewElement);
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+        });
+
+        it('should be able to return a `cancel` result to prevent navigation', async() => {
+          router.setRoutes([
+            {path: '/', action: onBeforeLeaveAction('x-home-view', context => context.cancel())},
+            {path: '/users', component: 'x-users-list'},
+          ]);
+
+          await router.render('/');
+          await router.render('/users');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          verifyActiveRoutes(router, ['/']);
+        });
+
+        it('should ignore any other return value than `cancel`', async() => {
+          const values = [
+            true,
+            false,
+            0,
+            42,
+            [],
+            {not_a_redirect: true},
+            {redirect: {pathname: '/'}},
+            null,
+            undefined,
+            () => true,
+            'random-tag-name',
+            document.createElement('div'),
+          ];
+
+          for (let i = 0; i < values.length; i += 1) {
+            const onBeforeLeave = sinon.stub().returns(values[i]);
+            router.setRoutes([
+              {path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave)},
+              {path: '/users', component: 'x-users-list'},
+            ]);
+
+            await router.render('/');
+            await router.render('/users');
+            expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+            verifyActiveRoutes(router, ['/users']);
+          }
+        });
+
+        it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
+          router.setRoutes([
+            {
+              path: '/a',
+              action: onBeforeLeaveAction('x-spy', function (context) {
+                // eslint-disable-next-line no-invalid-this
+                const self = this;
+                self.log('onBeforeLeave');
+                return new Promise(resolve => {
+                  setTimeout(() => {
+                    self.log('onBeforeLeave.promise');
+                    resolve();
+                  }, 100);
+                });
+              })
+            },
+            {path: '/b', component: 'x-spy'},
+          ]);
+
+          await router.render('/').catch(() => {});
+          await router.render('/a').then((outlet) => {
+            outlet.children[0].name = 'a';
+          });
+          XSpy.clearLog();
+          await router.render('/b').then((outlet) => {
+            outlet.children[0].name = 'b';
+          });
+
+          expect(XSpy.getLog()).to.deep.equal([
+            'a.onBeforeLeave',
+            'a.onBeforeLeave.promise',
+            'b.onBeforeEnter',
+            'a.disconnectedCallback',
+            'b.connectedCallback',
+            'b.onAfterEnter',
+          ]);
+        });
+      });
+
+      describe('onAfterEnter', () => {
+        it('should be called with the router context as the only argument', async() => {
+          const onAfterEnter = sinon.spy();
+          router.setRoutes([
+            {path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter)}
+          ]);
+
+          await router.render('/');
+
+          expect(onAfterEnter).to.have.been.called.once;
+          expect(onAfterEnter.args[0].length).to.equal(1);
+
+          const context = onAfterEnter.args[0][0];
+          expect(context.pathname).to.equal('/');
+          expect(context.route.path).to.equal('/');
+          expect(context.cancel).to.be.an('undefined');
+          expect(context.redirect).to.be.an('undefined');
+          expect(context.component).to.be.an('undefined');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        });
+
+        it('should be called on the route web component instance (as `this`)', async() => {
+          const onAfterEnter = sinon.spy();
+          router.setRoutes([
+            {path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter)},
+          ]);
+
+          await router.render('/');
+
+          expect(onAfterEnter).to.have.been.calledOn(outlet.children[0]);
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        });
+
+        it('should ignore all return values', async() => {
+          const values = [
+            true,
+            false,
+            0,
+            42,
+            [],
+            {not_a_redirect: true},
+            {redirect: {pathname: '/'}},
+            {cancel: true},
+            null,
+            undefined,
+            () => true,
+            'random-tag-name',
+            document.createElement('div'),
+          ];
+
+          for (let i = 0; i < values.length; i += 1) {
+            const onAfterEnter = sinon.stub().returns(values[i]);
+            router.setRoutes([
+              {path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter)},
+              {path: '/users', component: 'x-users-list'},
+            ]);
+
+            await router.render('/');
+            await router.render('/users');
+            expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+            verifyActiveRoutes(router, ['/users']);
+          }
+        });
+
+        it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
+          router.setRoutes([
+            {
+              path: '/a',
+              action: onAfterEnterAction('x-spy', function (context) {
+                // eslint-disable-next-line no-invalid-this
+                const self = this;
+                self.log('onAfterEnter');
+                return new Promise(resolve => {
+                  setTimeout(() => {
+                    self.log('onAfterEnter.promise');
+                    resolve();
+                  }, 100);
+                });
+              })
+            },
+            {path: '/b', component: 'x-spy'},
+          ]);
+
+          await router.render('/').catch(() => {});
+          await router.render('/a').then((outlet) => {
+            outlet.children[0].name = 'a';
+          });
+          XSpy.clearLog();
+          await router.render('/b').then((outlet) => {
+            outlet.children[0].name = 'b';
+          });
+
+          console.table(XSpy.getLog());
+          expect(XSpy.getLog()).to.deep.equal([
+            'a.onBeforeLeave',
+            'b.onBeforeEnter',
+            'a.disconnectedCallback',
+            'b.connectedCallback',
+            'b.onAfterEnter',
+            'b.onAfterEnter.promise',
+          ]);
+        });
+      });
+
+      describe('the order of lifecycle events (without early returns)', () => {
         it('(initial) -> /a', async() => {
           router.setRoutes([
             {path: '/a', action: () => XSpy.log('a.action'), component: 'x-spy'},
@@ -185,7 +536,11 @@
         });
 
         it('(initial) -> /a/non-existent-path', async() => {
-          router.setRoutes([
+          await router.render('/').catch(() => {});
+          XSpy.clearLog();
+
+          // call 'setRoutes' without triggering a navigation event
+          Vaadin.Resolver.prototype.setRoutes.call(router, [
             {
               path: '/a',
               action: () => XSpy.log('a.action'),
@@ -195,14 +550,17 @@
             },
             {path: '(.*)', action: () => XSpy.log('*.action'), component: 'x-spy'},
           ]);
-
-          await router.render('/').catch(() => {});
-          XSpy.clearLog();
           await router.render('/a/non-existent-path').then(outlet => {
             outlet.children[0].name = '*';
           });
 
-          expect(XSpy.getLog()).to.deep.equal(['a.action', '*.action']);
+          expect(XSpy.getLog()).to.deep.equal([
+            'a.action',
+            '*.action',
+            '*.onBeforeEnter',
+            '*.connectedCallback',
+            '*.onAfterEnter',
+          ]);
         });
 
         it('/a/b -> /a/non-existent-path', async() => {
@@ -283,5 +641,33 @@
         });
       });
     });
+
+    function onBeforeLeaveAction(componentName, callback) {
+      return context => {
+        const component = context.component(componentName);
+        component.onBeforeLeave = callback;
+        return component;
+      };
+    }
+
+    function onBeforeEnterAction(componentName, callback) {
+      return context => {
+        const component = context.component(componentName);
+        component.onBeforeEnter = callback;
+        return component;
+      };
+    }
+
+    function onAfterEnterAction(componentName, callback) {
+      return context => {
+        const component = context.component(componentName);
+        component.onAfterEnter = callback;
+        return component;
+      };
+    }
+
+    function verifyActiveRoutes(router, expectedSegments) {
+      expect(router.__previousContext.chain.map(route => route.path)).to.deep.equal(expectedSegments);
+    }
   </script>
 </body>
