@@ -89,7 +89,7 @@
               "column": 2
             },
             "end": {
-              "line": 1008,
+              "line": 1016,
               "column": 3
             }
           },
@@ -115,7 +115,7 @@
           "column": 0
         },
         "end": {
-          "line": 1009,
+          "line": 1017,
           "column": 1
         }
       },
@@ -134,11 +134,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1104,
+              "line": 1133,
               "column": 4
             },
             "end": {
-              "line": 1104,
+              "line": 1133,
               "column": 15
             }
           },
@@ -169,15 +169,15 @@
         },
         {
           "name": "setRoutes",
-          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting a `context` parameter.\nIf present, this function is always invoked first, disregarding of the other properties' presence.\nIf the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.\n`context` parameter can be used for asynchronously getting the resolved route contents via `context.next()`\nand for getting route parameters via `context.params`.\nSee also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `bundle` – `.js` or `.mjs` bundle to load before resolving the route. Each bundle is only loaded once.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\n\n* `children` – nested routes. Parent routes' properties are executed before resolving the children.\nChildren 'path' values are relative to the parent ones.\n\n* `inactivate` – after each resolution, router marks each route used in the resolution as an active route:\nif a hierarchy of '/a', '/b' (child of '/a'), '/c' (child of '/b') routes was defined, and user visits '/a/b/c' path,\nrouter will track ['/a', '/b', '/c'] routes as active ones, remembering their order also.\nDuring the next resolution, router compares new routes used in the resolution and,\nat the moment when they start to differ from the active ones, router calls 'inactivate' method on each route that is different:\nif, for previous example, user visits '/a/d' path and it's a valid path, routes '/c' and '/b' will be inactivated.\nInactivation always happens from the last active element to the first that is different from the new route,\nif the method is not defined for any route, the route is skipped.\nEach `inactivate` call gets a `context` parameter, described above.\nIn this case, context parameter contains an additional `inactivatedRoute` property,\nthat holds an information on the currently inactivated route.\nIf `inactivate` method returns `false`, inactivation and new path resolution is cancelled,\nrouter restores the state before new resolution.\nOtherwise router updates the active routes and waits for the next resolution to happen.\n\nNOTE: `inactivate` is considered to be an internal router feature, for the examples, refer to the router tests.",
+          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting a `context` parameter described below.\nIf present, this function is always invoked first, disregarding of the other properties' presence.\nIf the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.\nSee also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `bundle` – `.js` or `.mjs` bundle to load before resolving the route. Each bundle is only loaded once.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\n\n* `children` – nested routes. Parent routes' properties are executed before resolving the children.\nChildren 'path' values are relative to the parent ones.\n\n`context` object that is passed to `route` functions holds the following parameters:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)\n\n* `context.redirect(path)` – function that creates a redirect data for the path specified.\n\n* `context.component(component)` – function that creates a new HTMLElement with current context",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1255,
+              "line": 1244,
               "column": 2
             },
             "end": {
-              "line": 1258,
+              "line": 1247,
               "column": 3
             }
           },
@@ -230,7 +230,7 @@
               "column": 2
             },
             "end": {
-              "line": 1008,
+              "line": 1016,
               "column": 3
             }
           },
@@ -253,11 +253,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1114,
+              "line": 1142,
               "column": 2
             },
             "end": {
-              "line": 1148,
+              "line": 1165,
               "column": 3
             }
           },
@@ -274,11 +274,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1150,
+              "line": 1167,
               "column": 2
             },
             "end": {
-              "line": 1161,
+              "line": 1171,
               "column": 3
             }
           },
@@ -293,40 +293,16 @@
           ]
         },
         {
-          "name": "__runInactivationChain",
-          "description": "",
-          "privacy": "private",
-          "sourceRange": {
-            "start": {
-              "line": 1163,
-              "column": 2
-            },
-            "end": {
-              "line": 1176,
-              "column": 3
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "divergedRouteIndex"
-            },
-            {
-              "name": "context"
-            }
-          ]
-        },
-        {
           "name": "setOutlet",
           "description": "Sets the router outlet (the DOM node where the content for the current\nroute is inserted). Any content pre-existing in the router outlet is\nremoved at the end of each render pass.\n\nNOTE: this method is automatically invoked first time when creating a new Router instance.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1188,
+              "line": 1183,
               "column": 2
             },
             "end": {
-              "line": 1193,
+              "line": 1188,
               "column": 3
             }
           },
@@ -348,11 +324,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1200,
+              "line": 1195,
               "column": 2
             },
             "end": {
-              "line": 1202,
+              "line": 1197,
               "column": 3
             }
           },
@@ -369,11 +345,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1278,
+              "line": 1267,
               "column": 2
             },
             "end": {
-              "line": 1326,
+              "line": 1320,
               "column": 3
             }
           },
@@ -393,16 +369,61 @@
           }
         },
         {
+          "name": "__tryAmendResolution",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1322,
+              "column": 2
+            },
+            "end": {
+              "line": 1357,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "previousContext"
+            },
+            {
+              "name": "newContext"
+            }
+          ]
+        },
+        {
+          "name": "__redirect",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1359,
+              "column": 2
+            },
+            "end": {
+              "line": 1364,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "redirectData"
+            }
+          ]
+        },
+        {
           "name": "__ensureOutlet",
           "description": "",
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1328,
+              "line": 1366,
               "column": 2
             },
             "end": {
-              "line": 1332,
+              "line": 1370,
               "column": 3
             }
           },
@@ -423,11 +444,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1334,
+              "line": 1372,
               "column": 2
             },
             "end": {
-              "line": 1340,
+              "line": 1378,
               "column": 3
             }
           },
@@ -447,11 +468,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1342,
+              "line": 1380,
               "column": 2
             },
             "end": {
-              "line": 1354,
+              "line": 1392,
               "column": 3
             }
           },
@@ -471,11 +492,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1362,
+              "line": 1400,
               "column": 2
             },
             "end": {
-              "line": 1365,
+              "line": 1403,
               "column": 3
             }
           },
@@ -491,11 +512,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1371,
+              "line": 1409,
               "column": 2
             },
             "end": {
-              "line": 1374,
+              "line": 1412,
               "column": 3
             }
           },
@@ -511,11 +532,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1376,
+              "line": 1414,
               "column": 2
             },
             "end": {
-              "line": 1381,
+              "line": 1419,
               "column": 3
             }
           },
@@ -537,11 +558,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1399,
+              "line": 1437,
               "column": 2
             },
             "end": {
-              "line": 1401,
+              "line": 1439,
               "column": 3
             }
           },
@@ -571,17 +592,106 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1075,
+          "line": 1104,
           "column": 0
         },
         "end": {
-          "line": 1402,
+          "line": 1440,
           "column": 1
         }
       },
       "privacy": "public",
       "superclass": "Vaadin.Resolver",
       "name": "Vaadin.Router"
+    },
+    {
+      "description": "This interface describes the lifecycle callbacks supported by `Vaadin.Router`\non view Web Components. It exists only for documentation purposes, i.e.\nyou _do not need_ to extend it in your code&mdash;defining a method with a\nmatching name is enough (this class does not exist at the run time).\n\nIf any of the methods described below are defined in a view Web Component,\n`Vaadin.Router` calls them at the corresponding points of the view\nlifecycle. Each method can either be synchronous or asynchronous (i.e. return\na Promise). In the latter case `Vaadin.Router` waits until the promise is\nresolved and continues the navigation after that.\n\nCheck the [documentation on the Vaadin.Router class](#/classes/Vaadin.Router)\nto learn more.\n\nLifecycle callbacks are executed after the new path is resolved and after all\n`action` callbacks of the routes in the new path are executed.\n\nExample:\n\nFor the following routes definition,\n```\n// router and action declarations are omitted for brevity\nrouter.setRoutes([\n {path: '/a', action: actionA, children: [\n   {path: '/b', action: actionB, component: 'component-b'},\n   {path: '/c', action: actionC, component: 'component-c'}\n ]}\n]);\n```\nif the router first navigates to `/a/b` path and there was no view rendered\nbefore, the following events happen:\n* actionA\n* actionB\n* onBeforeEnterB (if defined in component-b)\n* outlet contents updated with component-b\n* onAfterEnterB (if defined in component-b)\n\nthen, if the router navigates to `/a/c`, the following events take place:\n* actionA\n* actionC\n* onBeforeLeaveB  (if defined in component-b)\n* onBeforeEnterC (if defined in component-c)\n* outlet contents updated with component-c\n* onAfterEnterC (if defined in component-c)\n\nAny of the callbacks happening before the outlet contents update have a\npossibility to cancel the navigation and fall back to the previous navigation\nresult (if there is no result and this is the first resolution, an exception\nis thrown).\n\nOther examples can be found in the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.",
+      "summary": "",
+      "path": "src/documentation/web-component-interface.js",
+      "properties": [],
+      "methods": [
+        {
+          "name": "onBeforeLeave",
+          "description": "Method that gets executed when user navigates away from the component that had defined the method.\nThis effectively means that the corresponding component should be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 77,
+              "column": 2
+            },
+            "end": {
+              "line": 82,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context",
+              "description": "the context object with the following properties:\n\n| Property           | Description\n| -------------------|-------------\n| `context.pathname` | string with the pathname being rendered.\n| `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`    | object that holds the route being rendered.\n| `context.cancel()` | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.\n\nReturn values:\n\n* if `context.cancel()` is returned (immediately or as a Promise), the navigation is aborted and the outlet contents is not updated.\n* any other return value is ignored and Vaadin.Router proceeds with the navigation."
+            }
+          ]
+        },
+        {
+          "name": "onBeforeEnter",
+          "description": "Method that gets executed before the outlet contents is updated with the new element.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nthe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 105,
+              "column": 2
+            },
+            "end": {
+              "line": 110,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context",
+              "description": "the context object with the following properties:\n\n| Property                 | Description\n| -------------------------|-------------\n| `context.pathname`       | string with the pathname being rendered.\n| `context.params`         | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`          | object that holds the route being rendered.\n| `context.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.\n| `context.cancel()`       | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.\n\nReturn values:\n\n* if a `context.cancel()` object is returned (immediately or as a Promise), the navigation is aborted and the outlet contents is not updated.\n* if a `context.redirect(path)` object is returned (immediately or as a Promise), Vaadin.Router ends navigation to the current path, and starts a new navigation cycle to the new path.\n* any other return value is ignored and Vaadin.Router proceeds with the navigation."
+            }
+          ]
+        },
+        {
+          "name": "onAfterEnter",
+          "description": "Method that gets executed after the outlet contents is updated with the new element.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 127,
+              "column": 2
+            },
+            "end": {
+              "line": 133,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context",
+              "description": "the context object with the following properties:\n\n| Property           | Description\n| ------------------ |-------------\n| `context.pathname` | string with the pathname being rendered.\n| `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`    | object that holds the route being rendered.\n\nReturn values: any return value is ignored and Vaadin.Router proceeds with the navigation."
+            }
+          ]
+        }
+      ],
+      "staticMethods": [],
+      "demos": [],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 56,
+          "column": 7
+        },
+        "end": {
+          "line": 134,
+          "column": 1
+        }
+      },
+      "privacy": "public",
+      "name": "Vaadin.WebComponentInterface"
     }
   ]
 }

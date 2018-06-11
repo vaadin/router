@@ -31,7 +31,7 @@ export function ensureRoute(route) {
   }
 
   if (route.redirect) {
-    ['bundle', 'component', 'inactivate'].forEach(overriddenProp => {
+    ['bundle', 'component'].forEach(overriddenProp => {
       if (overriddenProp in route) {
         console.warn(
           log(

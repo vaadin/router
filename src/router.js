@@ -38,7 +38,7 @@ function amend(amendmentFunction, context, route) {
     const component = route.__component;
     if (component) {
       return runCallbackIfPossible(component[amendmentFunction],
-        Object.assign({cancel: () => ({cancel: true})}, context), component);
+        Object.assign({cancel: () => ({cancel: true})}, context, {next: undefined}), component);
     }
   };
 }
@@ -263,7 +263,8 @@ export class Router extends Resolver {
           if (context.route !== (this.__previousContext || {}).route) {
             this.__setOutletContent(context.result);
             const currentComponent = context.route.__component || {};
-            return Promise.resolve(runCallbackIfPossible(currentComponent.onAfterEnter, context, currentComponent))
+            return Promise.resolve(runCallbackIfPossible(currentComponent.onAfterEnter,
+              Object.assign({}, context, {next: undefined}), currentComponent))
               .then(() => context);
           }
           return Promise.resolve(context);
