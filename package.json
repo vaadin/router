@@ -1,6 +1,6 @@
 {
   "name": "@vaadin/router",
-  "version": "1.0.0-alpha.0",
+  "version": "0.1.0",
   "description": "Small and powerful client-side router for Web Components. Framework-agnostic.",
   "main": "dist/vaadin-router.umd.js",
   "browser": "dist/vaadin-router.mjs",
@@ -18,6 +18,11 @@
     "url": "https://github.com/vaadin/vaadin-router/issues"
   },
   "homepage": "https://vaadin.com",
+  "files": [
+    "index.js",
+    "src",
+    "dist/vaadin-router.*"
+  ],
   "scripts": {
     "install": "bower install && npm run build",
     "lint": "npm-run-all --parallel lint:*",
