@@ -33,12 +33,14 @@
         <li><code>context.pathname</code> [string] the pathname being resolved
           </li>
         <li><code>context.params</code> [object] the route parameters</li>
-        <li><code>context.next</code> [function] proceed to resolving the next
-          matching route (if any)</li>
+        <li><code>context.route</code> [object] the route that is currently being rendered</li>
+        <li><code>context.next()</code> [function] function for asynchronously getting the next route contents from the resolution chain (if any)</li>
         <li><code>context.redirect(path)</code> [function] that creates a redirect data for the path specified.
         This data can be returned from <code>action</code> to perform an actual redirect</li>
         <li><code>context.component(component)</code> [function] that creates a new <code>HTMLElement</code>
           with current context</li>
+        <li><code>context.cancel()</code> [function] that creates an object that can be returned from `inactivate` function.
+          If an `action` returns `context.cancel()`, it will be considered as no return value.</li>
       </ul>
       The supported return values are
       <ul>

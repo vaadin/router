@@ -101,6 +101,7 @@
           expect(context.cancel).to.be.a('function');
           expect(context.redirect).to.be.a('function');
           expect(context.component).to.be.an('undefined');
+          expect(context.next).to.be.an('undefined');
 
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
         });
@@ -227,6 +228,7 @@
           expect(context.cancel).to.be.a('function');
           expect(context.redirect).to.be.an('undefined');
           expect(context.component).to.be.an('undefined');
+          expect(context.next).to.be.an('undefined');
 
           expect(outlet.children[0].tagName).to.match(/x-users-list/i);
         });
@@ -347,6 +349,7 @@
           expect(context.cancel).to.be.an('undefined');
           expect(context.redirect).to.be.an('undefined');
           expect(context.component).to.be.an('undefined');
+          expect(context.next).to.be.an('undefined');
 
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
         });
