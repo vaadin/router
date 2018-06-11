@@ -583,6 +583,9 @@
             expect(contextParam.pathname).to.equal('/');
             expect(contextParam.route.path).to.equal('/');
             expect(contextParam.route.component).to.equal('x-home-view');
+            expect(contextParam.cancel).to.be.an('undefined');
+            expect(contextParam.redirect).to.be.a('function');
+            expect(contextParam.component).to.be.a('function');
           });
 
           it('action.this points to the route that defines action', async() => {
@@ -751,16 +754,6 @@
             expect(elem.route.params.id).to.equal('1');
           });
 
-          it('context.cancel() return value is ignored for action', async() => {
-            router.setRoutes([
-              {path: '/', action: context => context.cancel(), component: 'x-home-view'}
-            ]);
-
-            await router.render('/');
-
-            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-          });
-
           it('redirect should be executed before bundle and stop it from loading', async() => {
             router.setRoutes([
               {path: '/test', redirect: '/users', component: 'x-home-view'},
@@ -781,6 +774,48 @@
             await router.render('/a');
 
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
+          it('action with redirect has its context.from and redirect.from populated correctly', async() => {
+            const from = '/a/b/c';
+
+            router.setRoutes([
+              {path: '/a', children: [
+                {path: '/b', children: [
+                  {path: '/c', action: context => {
+                    const redirectObject = context.redirect('/d');
+                    expect(redirectObject.redirect.from).to.be.equal(from);
+                    return redirectObject;
+                  }}
+                ]},
+              ]},
+              {path: '/d', component: 'x-home-view', action: context => {
+                expect(context.from).to.be.equal(from);
+              }}
+            ]);
+
+            await router.render(from);
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
+          it('action with redirect gets double slashes removed from its context.from and redirect.from', async() => {
+            let from = '';
+            router.setRoutes([
+              {path: '/', children: [
+                {path: '', children: [
+                  {path: '/c', action: context => context.redirect('/d')}
+                ]},
+              ]},
+              {path: '/d', component: 'x-home-view', action: context => {
+                from = context.from;
+              }}
+            ]);
+
+            await router.render('/c');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+            expect(from).to.be.equal('/c');
           });
         });
       });
