@@ -174,7 +174,7 @@
           router.setRoutes([
             {
               path: '/a',
-              action: onBeforeEnterAction('x-spy', function (context) {
+              action: onBeforeEnterAction('x-spy', function() {
                 // eslint-disable-next-line no-invalid-this
                 const self = this;
                 self.log('onBeforeEnter');
@@ -294,7 +294,7 @@
           router.setRoutes([
             {
               path: '/a',
-              action: onBeforeLeaveAction('x-spy', function (context) {
+              action: onBeforeLeaveAction('x-spy', function() {
                 // eslint-disable-next-line no-invalid-this
                 const self = this;
                 self.log('onBeforeLeave');
@@ -396,21 +396,18 @@
 
         it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
           router.setRoutes([
-            {
-              path: '/a',
-              action: onAfterEnterAction('x-spy', function (context) {
-                // eslint-disable-next-line no-invalid-this
-                const self = this;
-                self.log('onAfterEnter');
-                return new Promise(resolve => {
-                  setTimeout(() => {
-                    self.log('onAfterEnter.promise');
-                    resolve();
-                  }, 100);
-                });
-              })
-            },
-            {path: '/b', component: 'x-spy'},
+            {path: '/a', component: 'x-spy'},
+            {path: '/b', action: onAfterEnterAction('x-spy', function() {
+              // eslint-disable-next-line no-invalid-this
+              const self = this;
+              self.log('onAfterEnter');
+              return new Promise(resolve => {
+                setTimeout(() => {
+                  self.log('onAfterEnter.promise');
+                  resolve(22);
+                }, 100);
+              });
+            })},
           ]);
 
           await router.render('/').catch(() => {});
@@ -422,7 +419,6 @@
             outlet.children[0].name = 'b';
           });
 
-          console.table(XSpy.getLog());
           expect(XSpy.getLog()).to.deep.equal([
             'a.onBeforeLeave',
             'b.onBeforeEnter',

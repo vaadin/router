@@ -29,37 +29,6 @@ function runCallbackIfPossible(callback, context, thisObject) {
   }
 }
 
-function tryAmendResolution(previousContext, newContext) {
-  const previousChain = (previousContext || {}).chain;
-  const newChain = newContext.chain;
-
-  let callbacks = Promise.resolve();
-
-  if (previousChain && previousChain.length) {
-    let divergedChainIndex = 0;
-    for (; divergedChainIndex < Math.min(previousChain.length, newChain.length); divergedChainIndex++) {
-      if (previousChain[divergedChainIndex] !== newChain[divergedChainIndex]) {
-        break;
-      }
-    }
-
-    for (let i = previousChain.length - 1; i >= divergedChainIndex; i--) {
-      callbacks = callbacks.then(amend('onBeforeLeave', newContext, previousChain[i]));
-    }
-  }
-
-  if (newContext.route !== (previousContext || {}).route) {
-    callbacks = callbacks.then(amend('onBeforeEnter', newContext, newContext.route));
-  }
-
-  return callbacks.then(amendmentResult => {
-    if ((amendmentResult || {}).cancel) {
-      return previousContext;
-    }
-    return newContext;
-  });
-}
-
 function amend(amendmentFunction, context, route) {
   return amendmentResult => {
     if ((amendmentResult || {}).cancel) {
@@ -269,13 +238,9 @@ export class Router extends Resolver {
       .then(newContext => {
         const result = newContext.result;
         if (result instanceof HTMLElement) {
-          return tryAmendResolution(this.__previousContext, newContext);
+          return this.__tryAmendResolution(this.__previousContext, newContext);
         } else if (result.redirect) {
-          const redirect = result.redirect;
-          return this.resolve({
-            pathname: Router.pathToRegexp.compile(redirect.pathname)(redirect.params),
-            from: redirect.from
-          });
+          return this.__redirect(result.redirect);
         } else if (result instanceof Error) {
           return Promise.reject(result);
         } else {
@@ -298,11 +263,15 @@ export class Router extends Resolver {
           if (context.route !== (this.__previousContext || {}).route) {
             this.__setOutletContent(context.result);
             const currentComponent = context.route.__component || {};
-            runCallbackIfPossible(currentComponent.onAfterEnter, context, currentComponent);
+            return Promise.resolve(runCallbackIfPossible(currentComponent.onAfterEnter, context, currentComponent))
+              .then(() => context);
           }
-          this.__previousContext = context;
-          return this.__outlet;
+          return Promise.resolve(context);
         }
+      })
+      .then(context => {
+        this.__previousContext = context;
+        return this.__outlet;
       })
       .catch(error => {
         if (renderId === this.__lastStartedRenderId) {
@@ -314,6 +283,50 @@ export class Router extends Resolver {
         }
       });
     return this.ready;
+  }
+
+  __tryAmendResolution(previousContext, newContext) {
+    const previousChain = (previousContext || {}).chain;
+    const newChain = newContext.chain;
+
+    let callbacks = Promise.resolve();
+
+    if (previousChain && previousChain.length) {
+      let divergedChainIndex = 0;
+      for (; divergedChainIndex < Math.min(previousChain.length, newChain.length); divergedChainIndex++) {
+        if (previousChain[divergedChainIndex] !== newChain[divergedChainIndex]) {
+          break;
+        }
+      }
+
+      for (let i = previousChain.length - 1; i >= divergedChainIndex; i--) {
+        callbacks = callbacks.then(amend('onBeforeLeave', newContext, previousChain[i]));
+      }
+    }
+
+    if (newContext.route !== (previousContext || {}).route) {
+      callbacks = callbacks.then(amend('onBeforeEnter',
+        Object.assign({redirect: path => redirect(newContext, path)}, newContext), newContext.route));
+    }
+
+    return callbacks.then(amendmentResult => {
+      if (amendmentResult) {
+        if (amendmentResult.cancel) {
+          return previousContext;
+        }
+        if (amendmentResult.redirect) {
+          return this.__redirect(amendmentResult.redirect);
+        }
+      }
+      return newContext;
+    });
+  }
+
+  __redirect(redirectData) {
+    return this.resolve({
+      pathname: Router.pathToRegexp.compile(redirectData.pathname)(redirectData.params),
+      from: redirectData.from
+    });
   }
 
   __ensureOutlet(outlet = this.__outlet) {
