@@ -605,22 +605,22 @@
       "name": "Vaadin.Router"
     },
     {
-      "description": "A WebComponent interface created for documentation purposes.\nDescribes lifecycle callback methods supported by `Vaadin.Router`.\n\nDefine any of the methods described below in the WebComponent declaration to get the lifecycle callbacks support.\nEach method can either be asynchronous or synchronous – in any case, the resolution won't finish until the\nmethod result is retrieved.\n\nThis documentation assumes that the reader is familiar with `Vaadin.Router` documentation.\n\nLifecycle callbacks are executed during the resolution path and after all each route `action` callbacks are executed.\nExample:\n\nFor the following routes definition,\n```\n// router and action declarations are omitted for brevity\nrouter.setRoutes([\n {path: '/a', action: actionA, children: [\n   {path: '/b', action: actionB, component: 'component-b'},\n   {path: '/c', action: actionC, component: 'component-c'}\n ]}\n]);\n```\nif the router first navigates to `/a/b` path and there were no paths resolved before, the following resolution chain happens:\n* actionA\n* actionB\n* onBeforeEnterB (if defined in component-b)\n* outlet contents updated with component-b\n* onAfterEnterB (if defined in component-b)\n\nthen, if router navigates to `/a/c`, the following resolution chain takes place:\n* actionA\n* actionC\n* onBeforeLeaveB  (if defined in component-b)\n* onBeforeEnterC (if defined in component-c)\n* outlet contents updated with component-c\n* onAfterEnterC (if defined in component-c)\n\nAny of the callbacks happening before the outlet contents update have the possibility to cancel the resolution chain\nand fall back to the previous resolution result (if there is no result and this is the first resolution, an exception will be thrown).\n\nOther examples can be found in demos and tests.",
-      "summary": "documentation on `Vaadin.Router` lifecycle callbacks",
+      "description": "This interface describes the lifecycle callbacks supported by `Vaadin.Router`\non view Web Components. It exists only for documentation purposes, i.e.\nyou _do not need_ to extend it in your code&mdash;defining a method with a\nmatching name is enough (this class does not exist at the run time).\n\nIf any of the methods described below are defined in a view Web Component,\n`Vaadin.Router` calls them at the corresponding points of the view\nlifecycle. Each method can either be synchronous or asynchronous (i.e. return\na Promise). In the latter case `Vaadin.Router` waits until the promise is\nresolved and continues the navigation after that.\n\nCheck the [documentation on the Vaadin.Router class](#/classes/Vaadin.Router)\nto learn more.\n\nLifecycle callbacks are executed after the new path is resolved and after all\n`action` callbacks of the routes in the new path are executed.\n\nExample:\n\nFor the following routes definition,\n```\n// router and action declarations are omitted for brevity\nrouter.setRoutes([\n {path: '/a', action: actionA, children: [\n   {path: '/b', action: actionB, component: 'component-b'},\n   {path: '/c', action: actionC, component: 'component-c'}\n ]}\n]);\n```\nif the router first navigates to `/a/b` path and there was no view rendered\nbefore, the following events happen:\n* actionA\n* actionB\n* onBeforeEnterB (if defined in component-b)\n* outlet contents updated with component-b\n* onAfterEnterB (if defined in component-b)\n\nthen, if the router navigates to `/a/c`, the following events take place:\n* actionA\n* actionC\n* onBeforeLeaveB  (if defined in component-b)\n* onBeforeEnterC (if defined in component-c)\n* outlet contents updated with component-c\n* onAfterEnterC (if defined in component-c)\n\nAny of the callbacks happening before the outlet contents update have a\npossibility to cancel the navigation and fall back to the previous navigation\nresult (if there is no result and this is the first resolution, an exception\nis thrown).\n\nOther examples can be found in the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.",
+      "summary": "",
       "path": "src/documentation/web-component-interface.js",
       "properties": [],
       "methods": [
         {
           "name": "onBeforeLeave",
-          "description": "Method that gets executed when user navigates away from the component that had defined the method.\nThis effectively means that the corresponding component should be resolved by the router before the method can be executed.\nIf the router navigates to the same path, the method is not called.\nWebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
+          "description": "Method that gets executed when user navigates away from the component that had defined the method.\nThis effectively means that the corresponding component should be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 67,
+              "line": 77,
               "column": 2
             },
             "end": {
-              "line": 72,
+              "line": 82,
               "column": 3
             }
           },
@@ -628,21 +628,21 @@
           "params": [
             {
               "name": "context",
-              "description": "the context object with the following properties:\n\n| Property           | Description\n| -------------------|-------------\n| `context.pathname` | string with the pathname being resolved.\n| `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`    | object that holds the route that is currently being rendered.\n| `context.cancel()` | function that creates a special object that can be returned to abort the current resolution and fall back to the existing one. If there is no existing one, an exception is thrown.\n\nReturn values:\n\n* if `context.cancel()` is returned (or a Promise that results in this value), the route resolution is aborted and the outlet contents is not updated by the router.\n* any other return value is ignored and the resolution process is continued."
+              "description": "the context object with the following properties:\n\n| Property           | Description\n| -------------------|-------------\n| `context.pathname` | string with the pathname being rendered.\n| `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`    | object that holds the route being rendered.\n| `context.cancel()` | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.\n\nReturn values:\n\n* if `context.cancel()` is returned (immediately or as a Promise), the navigation is aborted and the outlet contents is not updated.\n* any other return value is ignored and Vaadin.Router proceeds with the navigation."
             }
           ]
         },
         {
           "name": "onBeforeEnter",
-          "description": "Method that gets executed before the outlet contents is updated with the new element.\nIf the router navigates to the same path, the method is not called.\nWebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
+          "description": "Method that gets executed before the outlet contents is updated with the new element.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nthe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 95,
+              "line": 105,
               "column": 2
             },
             "end": {
-              "line": 100,
+              "line": 110,
               "column": 3
             }
           },
@@ -650,21 +650,21 @@
           "params": [
             {
               "name": "context",
-              "description": "the context object with the following properties:\n\n| Property                 | Description\n| -------------------------|-------------\n| `context.pathname`       | string with the pathname being resolved.\n| `context.params`         | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`          | object that holds the route that is currently being rendered.\n| `context.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.\n| `context.cancel()`       | function that creates a special object that can be returned to abort the current resolution and fall back to the existing one. If there is no existing one, an exception is thrown.\n\nReturn values:\n\n* if `context.cancel()` is returned (or a Promise that results in this value), the route resolution is aborted and the outlet contents is not updated by the router.\n* if `context.redirect(path)` is returned (or a Promise that results in this value), the corresponding path is attempted to be resolved during the next resolution steps.\n* any other return value is ignored and the resolution process is continued."
+              "description": "the context object with the following properties:\n\n| Property                 | Description\n| -------------------------|-------------\n| `context.pathname`       | string with the pathname being rendered.\n| `context.params`         | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`          | object that holds the route being rendered.\n| `context.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.\n| `context.cancel()`       | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.\n\nReturn values:\n\n* if a `context.cancel()` object is returned (immediately or as a Promise), the navigation is aborted and the outlet contents is not updated.\n* if a `context.redirect(path)` object is returned (immediately or as a Promise), Vaadin.Router ends navigation to the current path, and starts a new navigation cycle to the new path.\n* any other return value is ignored and Vaadin.Router proceeds with the navigation."
             }
           ]
         },
         {
           "name": "onAfterEnter",
-          "description": "Method that gets executed after the outlet contents is updated with the new element.\nIf the router navigates to the same path, the method is not called.\nWebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
+          "description": "Method that gets executed after the outlet contents is updated with the new element.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 117,
+              "line": 127,
               "column": 2
             },
             "end": {
-              "line": 123,
+              "line": 133,
               "column": 3
             }
           },
@@ -672,7 +672,7 @@
           "params": [
             {
               "name": "context",
-              "description": "the context object with the following properties:\n\n| Property           | Description\n| ------------------ |-------------\n| `context.pathname` | string with the pathname being resolved.\n| `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`    | object that holds the route that is currently being rendered.\n\nReturn values: any return value is ignored and the resolution process is continued."
+              "description": "the context object with the following properties:\n\n| Property           | Description\n| ------------------ |-------------\n| `context.pathname` | string with the pathname being rendered.\n| `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`    | object that holds the route being rendered.\n\nReturn values: any return value is ignored and Vaadin.Router proceeds with the navigation."
             }
           ]
         }
@@ -682,11 +682,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 46,
+          "line": 56,
           "column": 7
         },
         "end": {
-          "line": 124,
+          "line": 134,
           "column": 1
         }
       },
