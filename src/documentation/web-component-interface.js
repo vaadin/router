@@ -52,9 +52,9 @@ export class WebComponentInterface {
    * WebComponent that defines a callback is available inside the callback through the `this` reference.
    *
    * @param context parameter, has the following properties:
-   * * `context.pathname` – string with the pathname being resolved
+   * * `context.pathname` – string with the pathname being resolved.
    *
-   * * `context.params` – object with route parameters
+   * * `context.params` – object with route parameters.
    *
    * * `context.route` – object that holds the route that is currently being rendered.
    *
@@ -81,9 +81,9 @@ export class WebComponentInterface {
    * WebComponent that defines a callback is available inside the callback through the `this` reference.
    *
    * @param context parameter, has the following properties:
-   * * `context.pathname` – string with the pathname being resolved
+   * * `context.pathname` – string with the pathname being resolved.
    *
-   * * `context.params` – object with route parameters
+   * * `context.params` – object with route parameters.
    *
    * * `context.route` – object that holds the route that is currently being rendered.
    *
@@ -115,9 +115,9 @@ export class WebComponentInterface {
    * WebComponent that defines a callback is available inside the callback through the `this` reference.
    *
    * @param context parameter, has the following properties:
-   * * `context.pathname` – string with the pathname being resolved
+   * * `context.pathname` – string with the pathname being resolved.
    *
-   * * `context.params` – object with route parameters
+   * * `context.params` – object with route parameters.
    *
    * * `context.route` – object that holds the route that is currently being rendered.
    *
