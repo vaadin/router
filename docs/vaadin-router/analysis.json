@@ -612,15 +612,15 @@
       "methods": [
         {
           "name": "onBeforeLeave",
-          "description": "Method that gets executed when user navigates away from the component that had defined the method.\nThis effectively means that the corresponding component should be resolved by the router before the method can be executed.\nIf the router navigates to the same path, the method is not called.\nWebComponent that defines a callback is available inside the callback through the `this` reference.",
+          "description": "Method that gets executed when user navigates away from the component that had defined the method.\nThis effectively means that the corresponding component should be resolved by the router before the method can be executed.\nIf the router navigates to the same path, the method is not called.\nWebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 70,
+              "line": 67,
               "column": 2
             },
             "end": {
-              "line": 75,
+              "line": 72,
               "column": 3
             }
           },
@@ -628,24 +628,21 @@
           "params": [
             {
               "name": "context",
-              "description": "parameter, has the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.cancel()` – function that creates a special object that can be returned to abort the current resolution\nand fall back to the existing one. If there is no existing one, an exception is thrown."
+              "description": "the context object with the following properties:\n\n| Property           | Description\n| -------------------|-------------\n| `context.pathname` | string with the pathname being resolved.\n| `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`    | object that holds the route that is currently being rendered.\n| `context.cancel()` | function that creates a special object that can be returned to abort the current resolution and fall back to the existing one. If there is no existing one, an exception is thrown.\n\nReturn values:\n\n* if `context.cancel()` is returned (or a Promise that results in this value), the route resolution is aborted and the outlet contents is not updated by the router.\n* any other return value is ignored and the resolution process is continued."
             }
-          ],
-          "return": {
-            "desc": "* if `context.cancel()` is returned (or a Promise that results in this value),\nthe route resolution is aborted and the outlet contents is not updated by the router.\n\n* any other return value is ignored and the resolution process is continued."
-          }
+          ]
         },
         {
           "name": "onBeforeEnter",
-          "description": "Method that gets executed before the outlet contents is updated with the new element.\nIf the router navigates to the same path, the method is not called.\nWebComponent that defines a callback is available inside the callback through the `this` reference.",
+          "description": "Method that gets executed before the outlet contents is updated with the new element.\nIf the router navigates to the same path, the method is not called.\nWebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 104,
+              "line": 95,
               "column": 2
             },
             "end": {
-              "line": 109,
+              "line": 100,
               "column": 3
             }
           },
@@ -653,24 +650,21 @@
           "params": [
             {
               "name": "context",
-              "description": "parameter, has the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.cancel()` – function that creates a special object that can be returned to abort the current resolution\nand fall back to the existing one. If there is no existing one, an exception is thrown.\n\n* `context.redirect(path)` – function that creates a redirect data for the path specified."
+              "description": "the context object with the following properties:\n\n| Property                 | Description\n| -------------------------|-------------\n| `context.pathname`       | string with the pathname being resolved.\n| `context.params`         | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`          | object that holds the route that is currently being rendered.\n| `context.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.\n| `context.cancel()`       | function that creates a special object that can be returned to abort the current resolution and fall back to the existing one. If there is no existing one, an exception is thrown.\n\nReturn values:\n\n* if `context.cancel()` is returned (or a Promise that results in this value), the route resolution is aborted and the outlet contents is not updated by the router.\n* if `context.redirect(path)` is returned (or a Promise that results in this value), the corresponding path is attempted to be resolved during the next resolution steps.\n* any other return value is ignored and the resolution process is continued."
             }
-          ],
-          "return": {
-            "desc": "* if `context.cancel()` is returned (or a Promise that results in this value), the route resolution is aborted\nthe route resolution is aborted and the outlet contents is not updated by the router.\n\n* if `context.redirect(path)` is returned (or a Promise that results in this value), the corresponding path\nis attempted to be resolved during the next resolution steps.\n\n* any other return value is ignored and the resolution process is continued."
-          }
+          ]
         },
         {
           "name": "onAfterEnter",
-          "description": "Method that gets executed after the outlet contents is updated with the new element.\nIf the router navigates to the same path, the method is not called.\nWebComponent that defines a callback is available inside the callback through the `this` reference.",
+          "description": "Method that gets executed after the outlet contents is updated with the new element.\nIf the router navigates to the same path, the method is not called.\nWebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 125,
+              "line": 117,
               "column": 2
             },
             "end": {
-              "line": 131,
+              "line": 123,
               "column": 3
             }
           },
@@ -678,12 +672,9 @@
           "params": [
             {
               "name": "context",
-              "description": "parameter, has the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered."
+              "description": "the context object with the following properties:\n\n| Property           | Description\n| ------------------ |-------------\n| `context.pathname` | string with the pathname being resolved.\n| `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`    | object that holds the route that is currently being rendered.\n\nReturn values: any return value is ignored and the resolution process is continued."
             }
-          ],
-          "return": {
-            "desc": "any return value is ignored and the resolution process is continued."
-          }
+          ]
         }
       ],
       "staticMethods": [],
@@ -695,7 +686,7 @@
           "column": 7
         },
         "end": {
-          "line": 132,
+          "line": 124,
           "column": 1
         }
       },
