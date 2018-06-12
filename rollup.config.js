@@ -42,19 +42,6 @@ const config = [
     plugins
   },
 
-  // ES module bundle, not transpiled (for the API docs generation)
-  // FIXME: remove once polymer-cli adds `.mjs` file extension support
-  // See https://github.com/Polymer/tools/issues/415
-  {
-    input: 'index.js',
-    output: {
-      format: 'es',
-      file: pkg.browser.replace('.mjs', '.js'),
-      sourcemap: true,
-    },
-    plugins
-  },
-
   // UMD bundle, transpiled (for the browsers that do not support ES modules).
   // Also works in Node.
   {
