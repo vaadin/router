@@ -9,6 +9,7 @@
   <script src="test-utils.js"></script>
 
   <link rel="import" href="../test-pushstate-throttler.html">
+  <script src="../utils/register-element.js"></script>
 </head>
 
 <body>
@@ -351,6 +352,48 @@
             'b.connectedCallback',
             'b.onAfterEnter',
           ]);
+        });
+
+        it('should wait until the animation on the component is executed', async() => {
+          const element = 'x-leaving-animation-view';
+
+          registerElement(
+            element,
+            `
+              <style>
+                @keyframes fadeOut {
+                  from {
+                    opacity: 1;
+                  }
+                  to {
+                    opacity: 0;
+                  }
+                }
+                :host([animating]) {
+                  animation: 50ms fadeOut;
+                }
+              </style>
+            `,
+            {
+              onBeforeLeave: function() {
+                return Vaadin.Router.Transitions.animate(this);
+              }
+            }
+          );
+
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/animate', component: element}
+          ]);
+
+          await router.render('/animate');
+
+          const spy = sinon.spy();
+          outlet.children[0].addEventListener('animationend', spy);
+
+          await router.render('/');
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          expect(spy).to.be.calledOnce;
         });
 
         it('should not re-render the same component if `onBeforeEnter` prevented navigation', async() => {

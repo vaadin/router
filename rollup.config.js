@@ -90,7 +90,7 @@ const sourceFiles = new Map([
   ['src/triggers/click.js', 'CLICK'],
   ['src/triggers/popstate.js', 'POPSTATE'],
   ['src/triggers/setNavigationTriggers.js', 'setNavigationTriggers'],
-  ['src/triggers/triggerNavigation.js', 'triggerNavigation'],
+  ['src/transitions/animate.js', 'animate'],
 ]);
 const coverageBundles = Array.from(sourceFiles.entries()).map(([file, name]) => {
   return {

@@ -11,6 +11,7 @@
     "expect": false,
     "gemini": false,
     "sinon": false,
+    "registerElement": false,
     "VaadinTestNamespace": false
   },
   "parserOptions": {
