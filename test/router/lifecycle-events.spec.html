@@ -211,8 +211,8 @@
             connectedCallback() {
               counter++;
             }
-            onBeforeLeave() {
-              return {cancel: true};
+            onBeforeLeave(context) {
+              return context.cancel();
             }
           });
           router.setRoutes([
@@ -358,8 +358,8 @@
             }
           });
           customElements.define('x-disallowed-view', class extends HTMLElement {
-            onBeforeEnter() {
-              return {cancel: true};
+            onBeforeEnter(context) {
+              return context.cancel();
             }
           });
           router.setRoutes([
