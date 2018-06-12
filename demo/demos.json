@@ -32,6 +32,16 @@
       }
     },
     {
+      "name": "Prevent Navigation",
+      "url": "vaadin-router-prevent-navigation-demos",
+      "src": "vaadin-router-prevent-navigation-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Prevent Navigation Examples",
+        "description": "",
+        "image": ""
+      }
+    },
+    {
       "name": "Lazy Loading",
       "url": "vaadin-router-lazy-loading-demos",
       "src": "vaadin-router-lazy-loading-demos.html",
@@ -57,16 +67,6 @@
       "src": "vaadin-router-navigation-trigger-demos.html",
       "meta": {
         "title": "Vaadin.Router Navigation Trigger Examples",
-        "description": "",
-        "image": ""
-      }
-    },
-    {
-      "name": "Prevent Navigation",
-      "url": "vaadin-router-prevent-navigation-demos",
-      "src": "vaadin-router-prevent-navigation-demos.html",
-      "meta": {
-        "title": "Vaadin.Router Prevent Navigation Examples",
         "description": "",
         "image": ""
       }
