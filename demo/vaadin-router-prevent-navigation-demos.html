@@ -9,10 +9,13 @@
     <h3>Prevent Navigation Using <code>onBeforeLeave</code> Lifecycle Callback</h3>
     <p>
       The <code>onBeforeLeave</code> lifecycle callback on the component can be used to prevent navigation
-      from it. In order to do this, the callback must return an object with the <code>cancel</code> property set to
-      <code>true</code>. This is intended to protect the user from switching to the different route without performing
-      some needed actions while staying within current view. Note that the user is still able to copy the URL
-      of the anchor element, which it has been prevented to navigate to, and open it manually in the browser.
+      from it. In order to do this, the callback must return the <code>context.cancel()</code> result from the
+      <code>context</code> parameter passed to the callback by Router.
+    </p>
+    <p>
+      This feature is intended to protect the user from switching to the different URL without performing
+      some needed actions while staying within current view. Note that the user is still able to copy and
+      open that URL manually in the browser.
     </p>
     <vaadin-demo-snippet id="vaadin-router-prevent-navigation-demos-1" iframe-src="iframe.html">
       <template preserve-content>
@@ -55,10 +58,9 @@
 
     <h3>Prevent Navigation Using <code>onBeforeEnter</code> Lifecycle Callback</h3>
     <p>
-      The <code>onBeforeEnter</code> lifecycle callback on the component can be used to prevent navigation
-      to it. In order to do this, the callback must return an object with the <code>cancel</code> property set to
-      <code>true</code>. To allow entering, no return result should be returned. Note that <code>true</code> or
-      <code>false</code> are not considered as a valid results, and only the explicit cancelling is supported.
+      The <code>onBeforeEnter</code> lifecycle callback on the component can also return
+      the <code>context.cancel()</code> result, which will prevent navigation to it. Another option is to
+      redirect the user from this callback, see <a href="#vaadin-router-redirect-demos">Redirect</a> section for examples.
     </p>
     <vaadin-demo-snippet id="vaadin-router-prevent-navigation-demos-2" iframe-src="iframe.html">
       <template preserve-content>
