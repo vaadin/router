@@ -3,10 +3,10 @@
   "pages": [
     {
       "name": "Getting Started",
-      "url": "vaadin-router-basic-demos",
-      "src": "vaadin-router-basic-demos.html",
+      "url": "vaadin-router-getting-started-demos",
+      "src": "vaadin-router-getting-started-demos.html",
       "meta": {
-        "title": "Vaadin.Router Basic Examples",
+        "title": "Vaadin.Router Getting Started Examples",
         "description": "",
         "image": ""
       }
