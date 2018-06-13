@@ -60,8 +60,11 @@
       at the corresponding points in the view lifecycle.
     </p>
     <p>
-      See the API docs for <code>WebComponentInterface</code> for all the details
-      about the lifecycle callbacks, their parameters and return values.
+      <strong>NOTE: Every callback may return a Promise.</strong> In this case
+      Vaadin.Router waits until the promise is resolved before continuing the
+      navigation.  See the API docs for <code>WebComponentInterface</code> for
+      all the details about the lifecycle callbacks, their parameters and return
+      values.
     </p>
 
     <h3>Prevent Navigation Using the <code>onBeforeLeave()</code> Callback</h3>
