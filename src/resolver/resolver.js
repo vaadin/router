@@ -32,6 +32,20 @@ function generateErrorMessage(currentContext) {
   return errorMessage;
 }
 
+function addRouteToChain(context, newRoute) {
+  function shouldDiscardOldChain(oldChain, newRoute) {
+    return !newRoute.parent || !oldChain || !oldChain.length || oldChain[oldChain.length - 1] !== newRoute.parent;
+  }
+
+  if (newRoute && !newRoute.__synthetic) {
+    if (shouldDiscardOldChain(context.chain, newRoute)) {
+      context.chain = [newRoute];
+    } else {
+      context.chain.push(newRoute);
+    }
+  }
+}
+
 /**
  * @memberof Vaadin
  */
@@ -136,6 +150,7 @@ class Resolver {
         return Promise.reject(error);
       }
 
+      addRouteToChain(context, matches.value.route);
       currentContext = Object.assign({}, context, matches.value);
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {
@@ -151,15 +166,6 @@ class Resolver {
 
     return Promise.resolve()
       .then(() => next(true, this.root))
-      .then(context => {
-        let route = context.route;
-        context.chain = [];
-        while (route && !route.__synthetic) {
-          context.chain.unshift(route);
-          route = route.parent;
-        }
-        return context;
-      })
       .catch((error) => {
         const errorMessage = generateErrorMessage(currentContext);
         if (!error) {
