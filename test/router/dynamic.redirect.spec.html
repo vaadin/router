@@ -20,6 +20,8 @@
   </test-fixture>
 
   <script>
+    const {verifyActiveRoutes} = VaadinTestNamespace;
+
     describe('Vaadin.Router', function() {
       // eslint-disable-next-line no-invalid-this
       const suite = this;
@@ -59,7 +61,7 @@
 
           await router.render('/');
 
-          window.VaadinTestNamespace.verifyActiveRoutes(router, ['/a', '/b', '/c']);
+          verifyActiveRoutes(router, ['/a', '/b', '/c']);
         });
 
         it('action that returns custom component activates route', async() => {
@@ -69,7 +71,7 @@
 
           await router.render('/');
 
-          window.VaadinTestNamespace.verifyActiveRoutes(router, ['/']);
+          verifyActiveRoutes(router, ['/']);
         });
 
         it('action that returns redirect activates redirect route', async() => {
@@ -80,7 +82,7 @@
 
           await router.render('/');
 
-          window.VaadinTestNamespace.verifyActiveRoutes(router, ['/a']);
+          verifyActiveRoutes(router, ['/a']);
           expect(outlet.children[0].tagName).to.match(/x-users-view/i);
         });
       });
