@@ -6,6 +6,7 @@
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../dist/vaadin-router.umd.js"></script>
+  <script src="test-utils.js"></script>
 
   <link rel="import" href="../test-pushstate-throttler.html">
 </head>
@@ -58,6 +59,8 @@
     };
 
     describe('Vaadin.Router lifecycle events', function() {
+      const {verifyActiveRoutes} = VaadinTestNamespace;
+
       // eslint-disable-next-line no-invalid-this
       const suite = this;
       suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
@@ -705,10 +708,6 @@
         component.onAfterEnter = callback;
         return component;
       };
-    }
-
-    function verifyActiveRoutes(router, expectedSegments) {
-      expect(router.__previousContext.chain.map(route => route.path)).to.deep.equal(expectedSegments);
     }
   </script>
 </body>
