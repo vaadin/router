@@ -20,9 +20,9 @@
   </test-fixture>
 
   <script>
-    const {verifyActiveRoutes} = VaadinTestNamespace;
-
     describe('Vaadin.Router', function() {
+      const {verifyActiveRoutes} = VaadinTestNamespace;
+
       // eslint-disable-next-line no-invalid-this
       const suite = this;
       suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');

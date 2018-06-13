@@ -16,8 +16,6 @@
   <div id="outlet"></div>
 
   <script>
-    const {verifyActiveRoutes} = VaadinTestNamespace;
-
     class XSpy extends HTMLElement {
       constructor() {
         super();
@@ -61,6 +59,8 @@
     };
 
     describe('Vaadin.Router lifecycle events', function() {
+      const {verifyActiveRoutes} = VaadinTestNamespace;
+
       // eslint-disable-next-line no-invalid-this
       const suite = this;
       suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
