@@ -29,7 +29,7 @@
     "lint:js": "eslint --ext .html,.js src test demo *.js *.html",
     "lint:css": "stylelint demo/**/*.html",
     "build": "rollup -c && npm-run-all --parallel build:minify.*",
-    "build:minify.module": "uglifyjs dist/vaadin-router.umd.js -c -m --mangle-props regex=/^__/ --source-map --output dist/vaadin-router.umd.min.js",
+    "build:minify.module": "uglifyjs dist/vaadin-router.umd.js -c -m --source-map --output dist/vaadin-router.umd.min.js",
     "build:minify.browser": "uglifyjs dist/vaadin-router.js -c -m --mangle-props regex=/^__/ --toplevel --source-map --output dist/vaadin-router.min.js",
     "build:watch": "rollup -c -w",
     "start": "npm run build && polyserve --port 8000",
