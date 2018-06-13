@@ -22,8 +22,9 @@
       <p></p>
       <dt><code>connectedCallback()</code></dt>
       <dd>
-        The element is inserted into the page DOM (this is a standard custom
-        element callback)
+        The element is inserted into the page DOM (this is a
+        <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions"
+        target="_blank" rel="noopener">native</a> Custom Element callback).
       </dd>
       <p><em>the Web Component is visible to the user</em></p>
       <dt><code>onAfterEnter(context)</code></dt>
@@ -39,7 +40,7 @@
       </p>
       <dt><code>onBeforeLeave(context)</code></dt>
       <dd>
-        <em>(may prevent navigation)</em><br/>.
+        <em>(may prevent navigation)</em><br/>
         The element does not match the current path anymore and is about to be
         removed. Even if this callback does not prevent the navigation, at
         this point there is no guarantee that the navigation away from the
@@ -48,8 +49,9 @@
       <p></p>
       <dt><code>disconnectedCallback()</code></dt>
       <dd>
-        The element is removed from the page DOM (this is a standard custom
-        element callback)
+        The element is removed from the page DOM (this is a
+        <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions"
+        target="_blank" rel="noopener">native</a> Custom Element callback).
       </dd>
     </dl>
     <p>
@@ -60,11 +62,13 @@
       at the corresponding points in the view lifecycle.
     </p>
     <p>
-      <strong>NOTE: Every callback may return a Promise.</strong> In this case
-      Vaadin.Router waits until the promise is resolved before continuing the
-      navigation.  See the API docs for <code>WebComponentInterface</code> for
-      all the details about the lifecycle callbacks, their parameters and return
-      values.
+      <strong>NOTE: The Vaadin.Router callbacks (<code>onBeforeLeave()</code>,
+      <code>onBeforeEnter()</code>, and <code>onAfterEnter()</code>) may return
+      a Promise.</strong> In this case Vaadin.Router waits until the promise is
+      resolved before continuing the navigation. See the API docs for
+      <a href="../#/classes/Vaadin.WebComponentInterface" target="_blank"><code>
+      WebComponentInterface</code></a> for all the details about the lifecycle
+      callbacks, their parameters and return values.
     </p>
 
     <h3>Prevent Navigation Using the <code>onBeforeLeave()</code> Callback</h3>
