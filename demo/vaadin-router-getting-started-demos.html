@@ -1,4 +1,4 @@
-<dom-module id="vaadin-router-basic-demos">
+<dom-module id="vaadin-router-getting-started-demos">
   <template>
     <style include="vaadin-component-demo-shared-styles">
       :host {
@@ -44,7 +44,7 @@
       see the <a href="#vaadin-router-route-parameters-demos">Route Parameters
       </a> demos.
     </p>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-1" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-gettings-started-demo-1" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">Users</a>
@@ -93,7 +93,7 @@
       should always be <strong>after</strong> other alternatives.</p>
     <p>The path that leads to the fallback route is available to the route
       component via the <code>route.pathname</code> property.</p>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-2" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-gettings-started-demo-2" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">All Users</a>
@@ -123,7 +123,7 @@
       the "Getting Started" example above.</p>
     <p>The leading <code>'/'</code> in child route paths is optional&mdash;they
       are always relative to the path of the parent route.</p>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-gettings-started-demo-3" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">All Users</a>
@@ -148,11 +148,11 @@
     </vaadin-demo-snippet>
   </template>
   <script>
-    class VaadinRouterBasicDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+    class VaadinRouterGettingStartedDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
       static get is() {
-        return 'vaadin-router-basic-demos';
+        return 'vaadin-router-getting-started-demos';
       }
     }
-    customElements.define(VaadinRouterBasicDemos.is, VaadinRouterBasicDemos);
+    customElements.define(VaadinRouterGettingStartedDemos.is, VaadinRouterGettingStartedDemos);
   </script>
 </dom-module>
