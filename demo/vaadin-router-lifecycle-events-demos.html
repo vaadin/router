@@ -6,11 +6,69 @@
       }
     </style>
 
-    <h3>Prevent Navigation Using <code>onBeforeLeave</code> Lifecycle Callback</h3>
+    <h3>Lifecycle Events</h3>
     <p>
-      The <code>onBeforeLeave</code> lifecycle callback on the component can be used to prevent navigation
-      from it. In order to do this, the callback must return the <code>context.cancel()</code> result from the
-      <code>context</code> parameter passed to the callback by Router.
+      All Web Components used to render routes with Vaadin.Router follow the
+      same lifecycle:
+    </p>
+    <dl>
+      <dt><code>onBeforeEnter(context)</code></dt>
+      <dd>
+        <em>(may prevent or redirect navigation)</em><br/>
+        The element has matched the current path and is about to be rendered.
+        At this point there is no guarantee that the navigation into the view
+        will actually happen (because another callback may interfere).
+      </dd>
+      <p></p>
+      <dt><code>connectedCallback()</code></dt>
+      <dd>
+        The element is inserted into the page DOM (this is a standard custom
+        element callback)
+      </dd>
+      <p><em>the Web Component is visible to the user</em></p>
+      <dt><code>onAfterEnter(context)</code></dt>
+      <dd>
+        <em>(may not prevent nor redirect navigation)</em><br/>
+        The element has matched the current path and has been rendered. At
+        this point it is certain that navigation won't be prevented or
+        redirected.
+      </dd>
+      <p>
+        <em>the user interacts with the view and eventually navigates to
+        another one</em>
+      </p>
+      <dt><code>onBeforeLeave(context)</code></dt>
+      <dd>
+        <em>(may prevent navigation)</em><br/>.
+        The element does not match the current path anymore and is about to be
+        removed. Even if this callback does not prevent the navigation, at
+        this point there is no guarantee that the navigation away from the
+        view will actually happen (because another callback may also interfere).
+      </dd>
+      <p></p>
+      <dt><code>disconnectedCallback()</code></dt>
+      <dd>
+        The element is removed from the page DOM (this is a standard custom
+        element callback)
+      </dd>
+    </dl>
+    <p>
+      In order to add your custom logic to any of these points in the view
+      lifecycle, you need to define a corresponding method on the view Web
+      Component (similar to defining a <code>connectedCallback()</code> method).
+      Vaadin.Router checks which lifecycle callbacks are defined and calls them
+      at the corresponding points in the view lifecycle.
+    </p>
+    <p>
+      See the API docs for <code>WebComponentInterface</code> for all the details
+      about the lifecycle callbacks, their parameters and return values.
+    </p>
+
+    <h3>Prevent Navigation Using the <code>onBeforeLeave()</code> Callback</h3>
+    <p>
+      The <code>onBeforeLeave()</code> lifecycle callback on a route component
+      can be used to prevent navigation from that route. In order to do this,
+      use <code>return context.cancel()</code> from that callback.
     </p>
     <p>
       This feature is intended to protect the user from switching to the different URL without performing
@@ -56,11 +114,14 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3>Prevent Navigation Using <code>onBeforeEnter</code> Lifecycle Callback</h3>
+    <h3>Prevent Navigation Using the <code>onBeforeEnter()</code> Callback</h3>
     <p>
-      The <code>onBeforeEnter</code> lifecycle callback on the component can also return
-      the <code>context.cancel()</code> result, which will prevent navigation to it. Another option is to
-      redirect the user from this callback, see <a href="#vaadin-router-redirect-demos">Redirect</a> section for examples.
+      The <code>onBeforeEnter()</code> lifecycle callback on a route component
+      can also do <code>return context.cancel()</code>, which will prevent
+      navigation to that route. Another option is to redirect the user from this
+      callback by <code>return context.redirect('/new/path')</code>. See
+      the <a href="#vaadin-router-redirect-demos">Redirect</a> section for more
+      detailed examples.
     </p>
     <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-2" iframe-src="iframe.html">
       <template preserve-content>
