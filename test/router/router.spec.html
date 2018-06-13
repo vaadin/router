@@ -818,6 +818,44 @@
             expect(from).to.be.equal('/c');
           });
         });
+
+        describe('animated transitions', () => {
+          let router;
+
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
+          });
+
+          afterEach(() => {
+            router.unsubscribe();
+          });
+
+          it('should invoke `animate` function, with the old and new outlet content as parameters', async() => {
+            let oldView;
+            let newView;
+
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {
+                path: '/animate',
+                component: 'x-animate-view',
+                animate: function(from, to) {
+                  return new Promise(resolve => {
+                    oldView = from.tagName;
+                    newView = to.tagName;
+                    resolve();
+                  });
+                }
+              }
+            ]);
+
+            await router.render('/');
+            await router.render('/animate');
+
+            expect(oldView).to.match(/x-home-view/i);
+            expect(newView).to.match(/x-animate-view/i);
+          });
+        });
       });
     });
 
