@@ -69,7 +69,7 @@
 
           await router.render('/');
 
-          verifyActiveRoutes(router, ['/']);
+          window.VaadinTestNamespace.verifyActiveRoutes(router, ['/']);
         });
 
         it('action that returns redirect activates redirect route', async() => {
