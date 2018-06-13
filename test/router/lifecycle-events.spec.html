@@ -6,6 +6,7 @@
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../dist/vaadin-router.umd.js"></script>
+  <script src="test-utils.js"></script>
 
   <link rel="import" href="../test-pushstate-throttler.html">
 </head>
@@ -128,7 +129,7 @@
           await router.render('/');
 
           expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-          verifyActiveRoutes(router, ['/users']);
+          window.VaadinTestNamespace.verifyActiveRoutes(router, ['/users']);
         });
 
         it('should be able to return a `redirect` result to redirect navigation', async() => {
@@ -140,7 +141,7 @@
           await router.render('/');
 
           expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-          verifyActiveRoutes(router, ['/users']);
+          window.VaadinTestNamespace.verifyActiveRoutes(router, ['/users']);
         });
 
         it('should ignore any other return value than `cancel` or `redirect`', async() => {
@@ -167,7 +168,7 @@
 
             await router.render('/');
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-            verifyActiveRoutes(router, ['/']);
+            window.VaadinTestNamespace.verifyActiveRoutes(router, ['/']);
           }
         });
 
@@ -279,7 +280,7 @@
           await router.render('/users');
 
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-          verifyActiveRoutes(router, ['/']);
+          window.VaadinTestNamespace.verifyActiveRoutes(router, ['/']);
         });
 
         it('should ignore any other return value than `cancel`', async() => {
@@ -308,7 +309,7 @@
             await router.render('/');
             await router.render('/users');
             expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-            verifyActiveRoutes(router, ['/users']);
+            window.VaadinTestNamespace.verifyActiveRoutes(router, ['/users']);
           }
         });
 
@@ -435,7 +436,7 @@
             await router.render('/');
             await router.render('/users');
             expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-            verifyActiveRoutes(router, ['/users']);
+            window.VaadinTestNamespace.verifyActiveRoutes(router, ['/users']);
           }
         });
 
@@ -705,10 +706,6 @@
         component.onAfterEnter = callback;
         return component;
       };
-    }
-
-    function verifyActiveRoutes(router, expectedSegments) {
-      expect(router.__previousContext.chain.map(route => route.path)).to.deep.equal(expectedSegments);
     }
   </script>
 </body>
