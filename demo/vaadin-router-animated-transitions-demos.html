@@ -1,0 +1,161 @@
+<dom-module id="vaadin-router-animated-transitions-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>Animating View Component</h3>
+    <p>
+      The <code>Router.Transitions</code> module can be used to animate views using lifecycle callbacks.
+      It exposes the <code>animate()</code> helper, which accepts a reference to the DOM node to animate
+      as a first required parameter. The helper sets the <code>animating</code> attribute on the given node
+      and returns a Promise, which you should return from a lifecycle callback.
+    </p>
+    <p>
+      For the animation itself, use CSS <code>@keyframes</code> animation and the apply the selector to the
+      <code>animating</code> attribute for given node, either in the  <code>&lt;style&gt;</code> tag inside
+      of the view Web Component Shadow DOM, or in the outer style scope (if you animate the view component itself).
+      Promise waits until <code>animationend</code> event and then resolves. If no CSS keyframe animation applies,
+      it will resolve immediately.
+    </p>
+    <p>
+      The demo below shows how to add leaving animation for the view Web Component using
+      <code>onBeforeLeave</code> lifecycle callback.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-redirect-demos-1" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/animated">Animated</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          Polymer({
+            is: 'x-fade-out-view',
+            onBeforeLeave: function() {
+              return Router.Transitions.animate(this);
+            }
+          });
+
+          const router = new Router(document.getElementById('outlet'));
+
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/animated', component: 'x-fade-out-view'}
+          ]);
+        </script>
+        <dom-module id="x-fade-out-view">
+          <template>
+            <style>
+              :host {
+                display: block;
+              }
+            </style>
+            <h1>Look ma, I do leaving animation!</h1>
+          </template>
+        </dom-module>
+        <style>
+          :host {
+            display: block;
+          }
+
+          @keyframes fadeOut {
+            from {
+              opacity: 1;
+            }
+
+            to {
+              opacity: 0;
+              transform: translate3d(0, -100%, 0);
+            }
+          }
+
+          #outlet > [animating] {
+            animation: 1s fadeOut;
+          }
+        </style>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Animating Element in the Shadow DOM</h3>
+    <p>
+      The <code>animate()</code> helper can be also used to animate the element in a view component Shadow DOM.
+      This requires to apply the CSS for this node in the proper scope. By the time of invocation for both
+      <code>onBeforeLeave</code> and <code>onAfterEnter</code> lifecycle callback the Shadow DOM exists and
+      you can access it. Note that <code>onAfterEnter</code> does not guarantee the initial light DOM distribution,
+      so if you want to animate the element passed to <code>&lt;slot&gt;</code>, make sure it is already in the DOM.
+    </p>
+    <p>
+      The second optional parameter of the <code>animate()</code> method is a configuration object, which allows
+      to customize the attribute being used for animations. This way you can use different entering and leaving
+      animations on the same DOM element.
+    </p>
+    <p>
+      The demo below shows how to animate the
+      <code>&lt;h1&gt;</code> element in the Shadow DOM using <code>onAfterEnter</code> lifecycle callback.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-redirect-demos-2" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/animated">Animated</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          Polymer({
+            is: 'x-fade-in-view',
+            onAfterEnter: function() {
+              const title = this.shadowRoot.querySelector('h1');
+              return Router.Transitions.animate(title, {attribute: 'entering'});
+            }
+          });
+
+          const router = new Router(document.getElementById('outlet'));
+
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/animated', component: 'x-fade-in-view'}
+          ]);
+        </script>
+        <dom-module id="x-fade-in-view">
+          <template>
+            <style>
+              :host {
+                display: block;
+              }
+
+              @keyframes fadeIn {
+                from {
+                  opacity: 0;
+                  transform: translate3d(0, -100%, 0);
+                }
+
+                to {
+                  opacity: 1;
+                  transform: translate3d(0, 0, 0);
+                }
+              }
+
+              h1[entering] {
+                animation: 1s fadeIn;
+              }
+            </style>
+            <h1>Look ma, I do entering animation!</h1>
+          </template>
+        </dom-module>
+      </template>
+    </vaadin-demo-snippet>
+  </template>
+  <script>
+    class VaadinRouterAnimatedTransitionsDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'vaadin-router-animated-transitions-demos';
+      }
+    }
+    customElements.define(VaadinRouterAnimatedTransitionsDemos.is, VaadinRouterAnimatedTransitionsDemos);
+  </script>
+</dom-module>
