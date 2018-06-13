@@ -7,17 +7,25 @@
     </style>
 
     <h3>The <code>Router</code> class</h3>
-    <p>The <code>Router</code> class can be imported from the <code>@vaadin/router</code>
-      module in the browsers that support ES modules:
+    <p>The <code>Router</code> class is the only thing you need to get started
+      with Vaadin.Router. Depending on your project setup, there are several
+      ways to access it.
+    </p>
+    <p><strong>In modern browsers that support ES modules</strong> the <code>
+      Router</code> class can be imported directly into a script tag on a page:
     </p>
     <pre><code>&lt;script type="module"&gt;
-  import {Router} from '@vaadin/router';
+  import {Router} from 'https://unpkg.com/@vaadin/router';
 &lt;/script&gt;</code></pre>
-    <p>For the browsers that do not support ES modules, the  <code>Router</code>
-      class is exposed as a member of the <code>Vaadin</code> namespace after
-      the vaadin-router UMD bundle is loaded:
+    <p><strong>In Webpack projects</strong> the <code>Router</code> class can
+      be imported from the <code>@vaadin/router</code> npm package:
     </p>
-    <pre><code>&lt;script src="bower_components/vaadin-router/vaadin-router.min.js"&gt;&lt;/script&gt;
+    <code>import {Router} from '@vaadin/router';</code>
+    <p><strong>In older browsers without the ES modules support</strong> the
+      <code>Router</code> class is exposed as a member of the <code>Vaadin</code>
+      namespace after the vaadin-router UMD bundle is loaded:
+    </p>
+    <pre><code>&lt;script src="https://unpkg.com/@vaadin/router/dist/vaadin-router.umd.js"&gt;&lt;/script&gt;
 &lt;script&gt;
   var Router = Vaadin.Router;
 &lt;/script&gt;</code></pre>
@@ -28,39 +36,21 @@
       (a.k.a. the router <em>outlet</em>). By default, navigation events are
       triggered by <code>popstate</code> events on the <code>window</code>, and
       by <code>click</code> events on <code>&lt;a&gt;</code> elements on the
-      page (see <a href="#vaadin-router-navigation-trigger-demos">Navigation
-      Triggers</a> for details).</p>
+      page.</p>
     <p>The routes config maps URL paths to Web Components. Vaadin.Router goes
       through the routes until it finds the first match, creates an instance
       of the route component, and inserts it into the router outlet (replacing
       any pre-existing outlet content). For details on the route path syntax
       see the <a href="#vaadin-router-route-parameters-demos">Route Parameters
-      </a> demos.</p>
-    <p>Route components can be any Web Components regardless of how they are
-      built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc.
-      The only convention is that the <code>route</code> object property is set
-      by the router on the component when rendering:
+      </a> demos.
     </p>
-    <marked-element>
-      <script type="text/markdown">
-        ```js
-        {
-          route: {
-            pathname: '/',
-            params: {},
-            /* any other route-specific info */
-          }
-        }
-        ```
-      </script>
-    </marked-element>
     <vaadin-demo-snippet id="vaadin-router-basic-demo-1" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">Users</a>
-        <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
+        <main id="outlet"></main>
+
+        <script>
           const {Router} = window.Vaadin;
 
           const router = new Router(document.getElementById('outlet'));
@@ -72,6 +62,25 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+    <p>
+      Route components can be any Web Components regardless of how they are
+      built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc.
+      The only convention is that the <code>route</code> object property is set
+      by the router on the component when rendering:
+      <marked-element>
+        <script type="text/markdown">
+          ```js
+          {
+            route: {
+              pathname: '/',
+              params: {},
+              /* any other route-specific info */
+            }
+          }
+          ```
+        </script>
+      </marked-element>
+    </p>
 
     <h3>Fallback Routes (404)</h3>
     <p>If Vaadin.Router does not find a matching route, the promise returned
