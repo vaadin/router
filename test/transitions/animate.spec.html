@@ -6,6 +6,7 @@
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../dist/test-iife/transitions/animate.js"></script>
+  <script src="../../dist/test-iife/transitions/batch.js"></script>
   <script src="../utils/register-element.js"></script>
 </head>
 
@@ -54,6 +55,73 @@
 
           await animate(target);
           expect(spy).to.be.calledOnce;
+        });
+      });
+    })(window.VaadinTestNamespace);
+
+    (({batch}) => {
+
+      describe('batch animations', function() {
+        // eslint-disable-next-line no-invalid-this
+        this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');;
+
+        function attach(element) {
+          const target = document.createElement(element);
+          document.body.appendChild(target);
+          target.classList.add('test');
+          return target;
+        }
+
+        afterEach(() => {
+          Array.from(document.querySelectorAll('.test')).forEach(el => document.body.removeChild(el));
+        });
+
+        it('should wait for all animations to complete when running a batch', async() => {
+          const elemFoo = 'x-slide-in';
+          const elemBar = 'x-slide-out';
+          const duration = '50ms';
+
+          const slideIn = [{
+            from: {
+              transform: 'translate3d(0, -100%, 0)',
+              visibility: 'visible'
+            }
+          }, {
+            to: {
+              transform: 'translate3d(0, 0, 0)'
+            }
+          }];
+
+          const slideOut = [{
+            from: {
+              transform: 'translate3d(0, 0, 0)'
+            }
+          }, {
+            to: {
+              transform: 'translate3d(0, -100%, 0)',
+              visibility: 'hidden'
+            }
+          }];
+
+          const block = `<style>:host { display: block }</style>`;
+          registerElement(elemFoo, block);
+          registerElement(elemBar, block);
+
+          const foo = attach(elemFoo);
+          const bar = attach(elemBar);
+
+          const spyFoo = sinon.spy();
+          const spyBar = sinon.spy();
+          foo.addEventListener('animationend', spyFoo);
+          bar.addEventListener('animationend', spyBar);
+
+          await batch([
+            {elem: foo, keyFrames: slideIn, duration},
+            {elem: bar, keyFrames: slideOut, duration}
+          ]);
+
+          expect(spyFoo).to.be.calledOnce;
+          expect(spyBar).to.be.calledOnce;
         });
       });
     })(window.VaadinTestNamespace);

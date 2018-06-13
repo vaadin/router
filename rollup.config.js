@@ -15,6 +15,30 @@ const plugins = [
   commonjs(),
 ];
 
+const babelConfig = () => babel({
+  // The 'external-helpers' Babel plugin allows Rollup to include every
+  // used babel helper just once per bundle, rather than including them in
+  // every module that uses them (which is the default behaviour).
+  plugins: ['external-helpers'],
+  presets: [
+    ['env', {
+      // Run `npm run browserslist` to see the percent of users covered
+      // by this browsers selection
+      targets: {
+        browsers: pkg.browserslist
+      },
+
+      // Instructs Babel to not convert ES modules to CommonJS--that's a
+      // job for Rollup.
+      modules: false,
+
+      // To see which browsers are targeted, and which JS features are
+      // polyfilled, uncomment the next line and run `npm run build`
+      // debug: true,
+    }]
+  ],
+});
+
 const config = [
   // ES module bundle, not transpiled (for the browsers that support ES modules)
   // ---
@@ -42,6 +66,16 @@ const config = [
     plugins
   },
 
+  {
+    input: 'index-transitions.js',
+    output: {
+      format: 'es',
+      file: 'dist/transitions.js',
+      sourcemap: true,
+    },
+    plugins
+  },
+
   // UMD bundle, transpiled (for the browsers that do not support ES modules).
   // Also works in Node.
   {
@@ -55,29 +89,23 @@ const config = [
     },
     plugins: [
       ...plugins,
-      babel({
-        // The 'external-helpers' Babel plugin allows Rollup to include every
-        // used babel helper just once per bundle, rather than including them in
-        // every module that uses them (which is the default behaviour).
-        plugins: ['external-helpers'],
-        presets: [
-          ['env', {
-            // Run `npm run browserslist` to see the percent of users covered
-            // by this browsers selection
-            targets: {
-              browsers: pkg.browserslist
-            },
+      babelConfig()
+    ]
+  },
 
-            // Instructs Babel to not convert ES modules to CommonJS--that's a
-            // job for Rollup.
-            modules: false,
-
-            // To see which browsers are targeted, and which JS features are
-            // polyfilled, uncomment the next line and run `npm run build`
-            // debug: true,
-          }]
-        ],
-      })]
+  {
+    input: 'index-transitions.js',
+    output: {
+      format: 'umd',
+      file: 'dist/transitions.umd.js',
+      sourcemap: true,
+      name: 'Vaadin',
+      extend: true,
+    },
+    plugins: [
+      ...plugins,
+      babelConfig()
+    ]
   },
 ];
 
@@ -90,7 +118,9 @@ const sourceFiles = new Map([
   ['src/triggers/click.js', 'CLICK'],
   ['src/triggers/popstate.js', 'POPSTATE'],
   ['src/triggers/setNavigationTriggers.js', 'setNavigationTriggers'],
+  ['src/triggers/triggerNavigation.js', 'triggerNavigation'],
   ['src/transitions/animate.js', 'animate'],
+  ['src/transitions/batch.js', 'batch'],
 ]);
 const coverageBundles = Array.from(sourceFiles.entries()).map(([file, name]) => {
   return {

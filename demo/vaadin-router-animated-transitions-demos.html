@@ -8,7 +8,7 @@
 
     <h3>Animating View Component</h3>
     <p>
-      The <code>Router.Transitions</code> module can be used to animate views using lifecycle callbacks.
+      The <code>RouterTransitions</code> module can be used to animate views using lifecycle callbacks.
       It exposes the <code>animate()</code> helper, which accepts a reference to the DOM node to animate
       as a first required parameter. The helper sets the <code>animating</code> attribute on the given node
       and returns a Promise, which you should return from a lifecycle callback.
@@ -31,12 +31,13 @@
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {RouterTransitions} from '@vaadin/router/transitions';
+          const {Router, RouterTransitions} = window.Vaadin;
 
           Polymer({
             is: 'x-fade-out-view',
             onBeforeLeave: function() {
-              return Router.Transitions.animate(this);
+              return RouterTransitions.animate(this);
             }
           });
 
@@ -104,13 +105,14 @@
         <div id="outlet"></div>
         <script type="module">
           // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {RouterTransitions} from '@vaadin/router/transitions';
+          const {Router, RouterTransitions} = window.Vaadin;
 
           Polymer({
             is: 'x-fade-in-view',
             onAfterEnter: function() {
               const title = this.shadowRoot.querySelector('h1');
-              return Router.Transitions.animate(title, {attribute: 'entering'});
+              return RouterTransitions.animate(title, {attribute: 'entering'});
             }
           });
 
@@ -147,6 +149,51 @@
             <h1>Look ma, I do entering animation!</h1>
           </template>
         </dom-module>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Using Route Transition</h3>
+    <p>
+      The <code>animate</code> property on the route config can be used to establish animated transitions
+      for two Web Components. The value of the property should be a method returning a Promise. It accept
+      two arguments, first is a reference to the old view component (still present in the DOM at that point),
+      and the second one is a reference to the view component which has just been added to the DOM.
+    </p>
+    <p>
+      There are several helpers in the <code>RouterTransitions</code> module:
+      <ul>
+        <li><code>RouterTransitions.fade()</code> for the animated fade transition</li>
+        <li><code>RouterTransitions.slideDown()</code> for the animated slide down transition</li>
+      </ul>
+      Each helper accepts four parameters: first two are the references to the view elements (described above),
+      and the last two are optional and used as values for the <code>animation-duration</code> and
+      <code>animation-timing-function</code> CSS properties, respectively.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/image-125px">Image</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          // import {RouterTransitions} from '@vaadin/router/transitions';
+          const {Router, RouterTransitions} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {
+              path: '/',
+              component: 'x-home-view',
+              animate: (old, now) => RouterTransitions.slideDown(old, now, '0.5s', 'linear')
+            },
+            {
+              path: '/image-:size(\\d+)px',
+              component: 'x-image-view',
+              animate: (old, now) => RouterTransitions.fade(old, now, '1s', 'ease-out')
+            },
+            {path: '/users/:user', component: 'x-user-profile'},
+          ]);
+        </script>
       </template>
     </vaadin-demo-snippet>
   </template>
