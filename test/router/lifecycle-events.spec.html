@@ -59,7 +59,7 @@
     };
 
     describe('Vaadin.Router lifecycle events', function() {
-      const {verifyActiveRoutes} = VaadinTestNamespace;
+      const {verifyActiveRoutes, onAfterEnterAction, onBeforeEnterAction, onBeforeLeaveAction} = VaadinTestNamespace;
 
       // eslint-disable-next-line no-invalid-this
       const suite = this;
@@ -684,30 +684,269 @@
           expect(XSpy.getLog()).to.deep.equal(['route.action']);
         });
       });
+
+      describe('lifecycle events for nested routes', () => {
+        class XZSpy extends HTMLElement {
+          connectedCallback() {
+            callbacksLog.push(`${this.name}.connectedCallback`);
+          }
+          disconnectedCallback() {
+            callbacksLog.push(`${this.name}.disconnectedCallback`);
+          }
+          onBeforeEnter() {
+            callbacksLog.push(`${this.name}.onBeforeEnter`);
+          }
+          onAfterEnter() {
+            callbacksLog.push(`${this.name}.onAfterEnter`);
+          }
+          onBeforeLeave() {
+            callbacksLog.push(`${this.name}.onBeforeLeave`);
+          }
+          onAfterLeave() {
+            callbacksLog.push(`${this.name}.onAfterLeave`);
+          }
+        }
+        customElements.define('x-zspy', XZSpy);
+
+        let callbacksLog = [];
+
+        const elementWithAllLifecycleCallbacks = elementName => context => {
+          callbacksLog.push(`${elementName}.action`);
+          const component = context.component('x-zspy');
+          component.name = elementName;
+          return component;
+        };
+
+        beforeEach(async function() {
+          router.setRoutes([
+            {path: '/a', action: elementWithAllLifecycleCallbacks('x-a'), children: [
+              {path: '/b', action: elementWithAllLifecycleCallbacks('x-b'), children: [
+                {path: '/e', action: elementWithAllLifecycleCallbacks('x-e')}
+              ]},
+              {path: '/d', action: elementWithAllLifecycleCallbacks('x-d')}
+            ]},
+            {path: '/c', action: elementWithAllLifecycleCallbacks('x-c')}
+          ]);
+          router.__setOutletContent();
+          callbacksLog = [];
+        });
+
+        it('/a/b -> /c', async() => {
+          await router.render('/a/b');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-a.onBeforeEnter',
+            'x-b.onBeforeEnter',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-a.onAfterEnter',
+            'x-b.onAfterEnter',
+          ]);
+
+          callbacksLog = [];
+          await router.render('/c');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-c.action',
+            'x-b.onBeforeLeave',
+            'x-a.onBeforeLeave',
+            'x-c.onBeforeEnter',
+            'x-a.disconnectedCallback',
+            'x-b.disconnectedCallback',
+            'x-c.connectedCallback',
+            'x-c.onAfterEnter',
+          ]);
+        });
+
+        it('/a/b -> /a/d', async() => {
+          await router.render('/a/b');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-a.onBeforeEnter',
+            'x-b.onBeforeEnter',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-a.onAfterEnter',
+            'x-b.onAfterEnter',
+          ]);
+
+          callbacksLog = [];
+          await router.render('/a/d');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-d.action',
+            'x-b.onBeforeLeave',
+            'x-d.onBeforeEnter',
+            'x-a.disconnectedCallback',
+            'x-b.disconnectedCallback',
+            'x-a.connectedCallback',
+            'x-d.connectedCallback',
+            'x-d.onAfterEnter',
+          ]);
+        });
+
+        it('/a/b -> /a/b/e', async() => {
+          await router.render('/a/b');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-a.onBeforeEnter',
+            'x-b.onBeforeEnter',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-a.onAfterEnter',
+            'x-b.onAfterEnter',
+          ]);
+
+          callbacksLog = [];
+          await router.render('/a/b/e');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-e.action',
+            'x-e.onBeforeEnter',
+            'x-a.disconnectedCallback',
+            'x-b.disconnectedCallback',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-e.connectedCallback',
+            'x-e.onAfterEnter',
+          ]);
+        });
+
+        it('/a/b -> /a/b/e with extra root path', async() => {
+          router.setRoutes([
+            {path: '/a', action: elementWithAllLifecycleCallbacks('x-a'), children: [
+              {path: '/b', action: elementWithAllLifecycleCallbacks('x-b'), children: [
+                {path: '/', action: elementWithAllLifecycleCallbacks('x-b-root')},
+                {path: '/e', action: elementWithAllLifecycleCallbacks('x-e')}
+              ]},
+              {path: '/d', action: elementWithAllLifecycleCallbacks('x-d')}
+            ]},
+            {path: '/c', action: elementWithAllLifecycleCallbacks('x-c')}
+          ]);
+
+          callbacksLog = [];
+          await router.render('/a/b');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-b-root.action',
+            'x-a.onBeforeEnter',
+            'x-b.onBeforeEnter',
+            'x-b-root.onBeforeEnter',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-b-root.connectedCallback',
+            'x-a.onAfterEnter',
+            'x-b.onAfterEnter',
+            'x-b-root.onAfterEnter',
+          ]);
+
+          callbacksLog = [];
+          await router.render('/a/b/e');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-e.action',
+            'x-b-root.onBeforeLeave',
+            'x-e.onBeforeEnter',
+            'x-a.disconnectedCallback',
+            'x-b.disconnectedCallback',
+            'x-b-root.disconnectedCallback',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-e.connectedCallback',
+            'x-e.onAfterEnter',
+          ]);
+        });
+
+        it('/a/b/e -> /a/b', async() => {
+          await router.render('/a/b/e');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-e.action',
+            'x-a.onBeforeEnter',
+            'x-b.onBeforeEnter',
+            'x-e.onBeforeEnter',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-e.connectedCallback',
+            'x-a.onAfterEnter',
+            'x-b.onAfterEnter',
+            'x-e.onAfterEnter',
+          ]);
+
+          callbacksLog = [];
+          await router.render('/a/b');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-e.onBeforeLeave',
+          ]);
+        });
+
+        it('/a/b/e -> /a/b with extra root path', async() => {
+          router.setRoutes([
+            {path: '/a', action: elementWithAllLifecycleCallbacks('x-a'), children: [
+              {path: '/b', action: elementWithAllLifecycleCallbacks('x-b'), children: [
+                {path: '/', action: elementWithAllLifecycleCallbacks('x-b-root')},
+                {path: '/e', action: elementWithAllLifecycleCallbacks('x-e')}
+              ]},
+              {path: '/d', action: elementWithAllLifecycleCallbacks('x-d')}
+            ]},
+            {path: '/c', action: elementWithAllLifecycleCallbacks('x-c')}
+          ]);
+
+          callbacksLog = [];
+          await router.render('/a/b/e');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-e.action',
+            'x-a.onBeforeEnter',
+            'x-b.onBeforeEnter',
+            'x-e.onBeforeEnter',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-e.connectedCallback',
+            'x-a.onAfterEnter',
+            'x-b.onAfterEnter',
+            'x-e.onAfterEnter',
+          ]);
+
+          callbacksLog = [];
+          await router.render('/a/b');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-b-root.action',
+            'x-e.onBeforeLeave',
+            'x-b-root.onBeforeEnter',
+            'x-a.disconnectedCallback',
+            'x-b.disconnectedCallback',
+            'x-e.disconnectedCallback',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-b-root.connectedCallback',
+            'x-b-root.onAfterEnter',
+          ]);
+        });
+      });
     });
-
-    function onBeforeLeaveAction(componentName, callback) {
-      return context => {
-        const component = context.component(componentName);
-        component.onBeforeLeave = callback;
-        return component;
-      };
-    }
-
-    function onBeforeEnterAction(componentName, callback) {
-      return context => {
-        const component = context.component(componentName);
-        component.onBeforeEnter = callback;
-        return component;
-      };
-    }
-
-    function onAfterEnterAction(componentName, callback) {
-      return context => {
-        const component = context.component(componentName);
-        component.onAfterEnter = callback;
-        return component;
-      };
-    }
   </script>
 </body>

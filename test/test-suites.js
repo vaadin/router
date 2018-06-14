@@ -4,6 +4,7 @@ window.VaadinRouterSuites = {
     'router/router.spec.html',
     'router/dynamic-redirect.spec.html',
     'router/lifecycle-events.spec.html',
+    'router/parent-layouts.spec.html',
   ],
   coverage: [
     'resolver/matchPath.spec.js',
