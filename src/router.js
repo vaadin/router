@@ -380,8 +380,8 @@ export class Router extends Resolver {
 
   __setOutletContent(context) {
     function containsElement(htmlElements, elementToSearch) {
-      for (let j = 0; j < htmlElements.length; j++) {
-        if (htmlElements[j] === elementToSearch) {
+      for (let i = 0; i < htmlElements.length; i++) {
+        if (htmlElements[i] === elementToSearch) {
           return true;
         }
       }
