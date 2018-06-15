@@ -347,8 +347,8 @@
             'a.onBeforeLeave',
             'a.onBeforeLeave.promise',
             'b.onBeforeEnter',
-            'a.disconnectedCallback',
             'b.connectedCallback',
+            'a.disconnectedCallback',
             'b.onAfterEnter',
           ]);
         });
@@ -470,8 +470,8 @@
           expect(XSpy.getLog()).to.deep.equal([
             'a.onBeforeLeave',
             'b.onBeforeEnter',
-            'a.disconnectedCallback',
             'b.connectedCallback',
+            'a.disconnectedCallback',
             'b.onAfterEnter',
             'b.onAfterEnter.promise',
           ]);
@@ -516,8 +516,8 @@
             'b.action',
             'a.onBeforeLeave',
             'b.onBeforeEnter',
-            'a.disconnectedCallback',
             'b.connectedCallback',
+            'a.disconnectedCallback',
             'b.onAfterEnter',
           ]);
         });
@@ -573,8 +573,8 @@
             'c.action',
             'b.onBeforeLeave',
             'c.onBeforeEnter',
-            'b.disconnectedCallback',
             'c.connectedCallback',
+            'b.disconnectedCallback',
             'c.onAfterEnter',
           ]);
         });
@@ -632,8 +632,8 @@
             '*.action',
             'b.onBeforeLeave',
             '*.onBeforeEnter',
-            'b.disconnectedCallback',
             '*.connectedCallback',
+            'b.disconnectedCallback',
             '*.onAfterEnter',
           ]);
         });
@@ -664,8 +664,8 @@
             'ad.action',
             'ac.onBeforeLeave',
             'ad.onBeforeEnter',
-            'ac.disconnectedCallback',
             'ad.connectedCallback',
+            'ac.disconnectedCallback',
             'ad.onAfterEnter',
           ]);
         });

@@ -52,6 +52,16 @@
       }
     },
     {
+      "name": "Animations",
+      "url": "vaadin-router-animated-transitions-demos",
+      "src": "vaadin-router-animated-transitions-demos.html",
+      "meta": {
+        "title": "Vaadin.Router Transitions Examples",
+        "description": "",
+        "image": ""
+      }
+    },
+    {
       "name": "Route Actions",
       "url": "vaadin-router-route-actions-demos",
       "src": "vaadin-router-route-actions-demos.html",

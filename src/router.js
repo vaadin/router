@@ -1,6 +1,7 @@
 import Resolver from './resolver/resolver.js';
 import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
+import animate from './transitions/animate.js';
 import {log, loadBundle} from './utils.js';
 
 function isResultNotEmpty(result) {
@@ -261,14 +262,31 @@ export class Router extends Resolver {
           }
 
           if (context.route !== (this.__previousContext || {}).route) {
+            this.__saveOldOutletContent();
             this.__setOutletContent(context.result);
-            const currentComponent = context.route.__component || {};
-            return Promise.resolve(runCallbackIfPossible(currentComponent.onAfterEnter,
-              Object.assign({}, context, {next: undefined}), currentComponent))
-              .then(() => context);
           }
           return Promise.resolve(context);
         }
+      })
+      .then(context => {
+        return new Promise(resolve => {
+          this.__animateIfNeeded(context.route.animate).then(() => {
+            this.__removeOldOutletContent();
+            resolve(context);
+          });
+        });
+      })
+      .then((context) => {
+        if (this.__newContent) {
+          const currentComponent = context.route.__component || {};
+          return Promise.resolve(runCallbackIfPossible(currentComponent.onAfterEnter,
+            Object.assign({}, context, {next: undefined}), currentComponent))
+            .then(() => {
+              this.__newContent = null;
+              return context;
+            });
+        }
+        return Promise.resolve(context);
       })
       .then(context => {
         this.__previousContext = context;
@@ -279,7 +297,7 @@ export class Router extends Resolver {
           if (shouldUpdateHistory) {
             this.__updateBrowserHistory(pathnameOrContext);
           }
-          this.__setOutletContent();
+          this.__removeOutletContent();
           throw error;
         }
       });
@@ -344,18 +362,49 @@ export class Router extends Resolver {
     }
   }
 
+  __saveOldOutletContent() {
+    this.__ensureOutlet();
+    this.__oldContent = Array.from(this.__outlet.children);
+  }
+
   __setOutletContent(element) {
     this.__ensureOutlet();
-    const children = this.__outlet.children;
-    if (children && children.length) {
-      const parent = children[0].parentNode;
-      for (let i = 0; i < children.length; i += 1) {
-        parent.removeChild(children[i]);
-      }
-    }
     if (element) {
       this.__outlet.appendChild(element);
+      this.__newContent = element;
     }
+  }
+
+  __removeOldOutletContent() {
+    if (this.__oldContent) {
+      this.__removeOutletContent(this.__oldContent);
+      this.__oldContent = null;
+    }
+  }
+
+  __removeOutletContent(content) {
+    this.__ensureOutlet();
+    content = content || this.__outlet.children;
+    if (content && content.length) {
+      const parent = content[0].parentNode;
+      for (let i = 0; i < content.length; i += 1) {
+        parent.removeChild(content[i]);
+      }
+    }
+  }
+
+  __animateIfNeeded(config) {
+    const from = this.__oldContent && this.__oldContent[0];
+    const to = this.__newContent;
+    const promises = [Promise.resolve()];
+    if (from && to && config) {
+      const isObj = typeof config === 'object';
+      const leave = isObj && config.leave || 'leaving';
+      const enter = isObj && config.enter || 'entering';
+      promises.push(animate(from, leave));
+      promises.push(animate(to, enter));
+    }
+    return Promise.all(promises);
   }
 
   /**
