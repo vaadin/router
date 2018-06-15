@@ -1,0 +1,267 @@
+<dom-module id="vaadin-router-lifecycle-callbacks-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>Lifecycle Callbacks</h3>
+    <p>
+      All Web Components used to render routes with Vaadin.Router follow the
+      same lifecycle:
+      <ul>
+        <li><b><code>onBeforeEnter(context)</code></b></li>
+        <li><b><code>onAfterEnter(context)</code></b></li>
+        <li><b><code>onBeforeLeave(context)</code></b></li>
+      </ul>
+      These callbacks should be defined as methods on the Web Component
+      <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-definition"
+      target="_blank" rel="noopener">class definition</a>, and get called by the Vaadin.Router
+      on the instance of the corresponding component, so that <code>this</code> reference
+      inside the callback points to that instance.
+    </p>
+    <h3><code>onBeforeEnter(context)</code></h3>
+    <p>
+      The component has matched the current path, the instance has been created and is about
+      to be rendered to the DOM. At this point there is no guarantee that the navigation
+      into the view will actually happen (because another callback may interfere).
+    </p>
+    <p>
+      This callback may return special values to produce following effects:
+    </p>
+    <ul>
+      <li>prevent navigation to the view: <b><code>return context.cancel()</code></b></li>
+      <li>redirect to the different path: <b><code>return context.redirect('/new/path')</code></b></li>
+      <li>delay navigation and rendering: <b><code>return new Promise(...)</code></b></li>
+      <li>any other return value is ignored, and the navigation continues.</li>
+    </ul>
+    <p>
+      See <a href="../#/classes/Vaadin.WebComponentInterface#method-onBeforeEnter" target="_blank">
+      API documentation</a> for the available <code>context</code> object properties.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-1" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/go">Are you ready?</a>
+        <div id="outlet"></div>
+        <script type="module">
+          Polymer({
+            is: 'x-countdown',
+
+            onBeforeEnter: function(context) {
+              this.count = 3;
+              this.tick();
+              return new Promise(resolve => {
+                this.timer = setInterval(() => {
+                  if (this.count < 0) {
+                    this.clear();
+                    resolve();
+                  } else {
+                    this.tick();
+                  }
+                }, 500);
+              });
+            },
+
+            tick: function() {
+              let h2 = document.body.querySelector('h2');
+              if (!h2) {
+                h2 = document.createElement('h2');
+                h2.setAttribute('style', 'position: absolute; top: 80px');
+                document.body.appendChild(h2);
+              }
+              h2.textContent = this.count--;
+            },
+
+            clear: function() {
+              const h2 = document.body.querySelector('h2');
+              h2 && document.body.removeChild(h2);
+              clearInterval(this.timer);
+            }
+          });
+
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/go', component: 'x-countdown'}
+          ]);
+        </script>
+        <dom-module id="x-countdown">
+          <template>
+            <h1>Go-go-go!</h1>
+          </template>
+        </dom-module>
+      </template>
+    </vaadin-demo-snippet>
+    <h3><code>onAfterEnter(context)</code></h3>
+    <p>
+      The element has matched the current path and has been rendered. At
+      this point it is certain that navigation won't be prevented or redirected.
+      This callback is called asynchronously after the native
+      <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions"
+      target="_blank" rel="noopener"><b><code>connectedCallback()</code></b></a> defined by the Custom Elements spec.
+    </p>
+    <p>
+      This callback has the following restrictions:
+    </p>
+    <ul>
+      <li>may not prevent nor redirect navigation,</li>
+      <li>can return a <b>Promise</b>, but it won't delay the rendering.</li>
+    </ul>
+    <p>
+      See <a href="../#/classes/Vaadin.WebComponentInterface#method-onAfterEnter" target="_blank">
+      API documentation</a> for the available <code>context</code> object properties.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-2" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/friend">Meet a friend</a>
+        <div id="outlet"></div>
+        <script type="module">
+          Polymer({
+            is: 'x-friend',
+
+            onAfterEnter: function(context) {
+              Array.from(this.querySelectorAll('h2')).forEach(h2 => h2.setAttribute('style', 'color: red'));
+            },
+
+            attached: function() {
+              const h2 = document.createElement('h2');
+              h2.textContent = 'I am here!';
+              this.appendChild(h2);
+            }
+          });
+
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/friend', component: 'x-friend'}
+          ]);
+        </script>
+        <dom-module id="x-friend">
+          <template>
+            <div>
+              <slot></slot>
+            </div>
+          </template>
+        </dom-module>
+      </template>
+    </vaadin-demo-snippet>
+    <h3><code>onBeforeLeave(context)</code></h3>
+    <p>
+      The element does not match the current path anymore and is about to be
+      removed from the DOM. Even if this callback does not prevent the navigation, at
+      this point there is no guarantee that the navigation away from the
+      view will actually happen (because another callback may also interfere).
+    </p>
+    <p>
+      This callback may return special values to produce following effects:
+    </p>
+    <ul>
+      <li>prevent navigation to the view: <code>return context.cancel()</code></li>
+      <li>delay the component removal: <code>return new Promise(...)</code></li>
+      <li>any other return value is ignored, and the navigation continues.</li>
+    </ul>
+    <p>
+      See <a href="../#/classes/Vaadin.WebComponentInterface#method-onBeforeLeave" target="_blank">
+      API documentation</a> for the available <code>context</code> object properties.
+    </p>
+    <p>
+      The demo below illustrates how to protect the user from switching to the different URL
+      without performing some needed actions while staying within current view. Note that
+      the user is still able to copy and open that URL manually in the browser.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <dom-module id="x-user-manage">
+          <template>
+            <h1>Manage user</h1>
+            <p>User name: [[route.params.user]]</p>
+            <a href="/user/delete">Delete user</a>
+          </template>
+        </dom-module>
+        <div id="outlet"></div>
+        <script type="module">
+          Polymer({
+            is: 'x-user-manage',
+            onBeforeLeave: function(context) {
+              if (context.pathname.indexOf('user/delete') > 0) {
+                return confirm('Are you sure you want to delete this user?') || context.cancel();
+              }
+            }
+          });
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', redirect: '/user/guest/manage'},
+            {path: '/user/:user/manage', component: 'x-user-manage'},
+            {path: '/user/delete', component: 'x-user-deleted'}
+          ]);
+
+          Polymer({
+            is: 'x-user-deleted',
+            ready: function() {
+              this.innerHTML = 'User has been deleted.';
+            }
+          });
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Prevent Navigation Using <code>onBeforeEnter(context)</code></h3>
+    <p>
+      The navigation can also be prevented by returning the same result from <code>onBeforeEnter()</code> callback.
+      Another option is to redirect the user from this callback: <code>return context.redirect('/new/path')</code>.
+      See the <a href="#vaadin-router-redirect-demos">Redirect</a> section for detailed example.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-4" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/danger">Danger</a>
+        <div id="outlet"></div>
+        <script type="module">
+          Polymer({
+            is: 'x-dangerous',
+            onBeforeEnter: function(context) {
+              if (!confirm('Do you really want to know it?')) {
+                return context.cancel();
+              }
+            }
+          });
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/danger', component: 'x-dangerous'}
+          ]);
+        </script>
+        <dom-module id="x-dangerous">
+          <template>
+            <h1>Santa Claus Doesn't Exist</h1>
+            <p>Sorry.</p>
+          </template>
+        </dom-module>
+      </template>
+    </vaadin-demo-snippet>
+
+  </template>
+  <script>
+    class VaadinRouterLifecycleCallbacksDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'vaadin-router-lifecycle-callbacks-demos';
+      }
+    }
+    customElements.define(VaadinRouterLifecycleCallbacksDemos.is, VaadinRouterLifecycleCallbacksDemos);
+  </script>
+</dom-module>
