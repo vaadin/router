@@ -59,7 +59,7 @@
     };
 
     describe('Vaadin.Router lifecycle events', function() {
-      const {verifyActiveRoutes, onAfterEnterAction, onBeforeEnterAction, onBeforeLeaveAction} = VaadinTestNamespace;
+      const {verifyActiveRoutes, onAfterEnterAction, onBeforeEnterAction, onBeforeLeaveAction, checkOutletContents} = VaadinTestNamespace;
 
       // eslint-disable-next-line no-invalid-this
       const suite = this;
@@ -686,6 +686,9 @@
       });
 
       describe('lifecycle events for nested routes', () => {
+        const {checkOutletContents} = VaadinTestNamespace;
+        const checkOutlet = values => checkOutletContents(outlet.children[0], 'name', values);
+
         class XZSpy extends HTMLElement {
           connectedCallback() {
             callbacksLog.push(`${this.name}.connectedCallback`);
@@ -731,6 +734,31 @@
           callbacksLog = [];
         });
 
+        it('/a/b -> /a/b', async() => {
+          await router.render('/a/b');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+            'x-a.onBeforeEnter',
+            'x-b.onBeforeEnter',
+            'x-a.connectedCallback',
+            'x-b.connectedCallback',
+            'x-a.onAfterEnter',
+            'x-b.onAfterEnter',
+          ]);
+          checkOutlet(['x-a', 'x-b']);
+
+          callbacksLog = [];
+          await router.render('/a/b');
+
+          expect(callbacksLog).to.deep.equal([
+            'x-a.action',
+            'x-b.action',
+          ]);
+          checkOutlet(['x-a', 'x-b']);
+        });
+
         it('/a/b -> /c', async() => {
           await router.render('/a/b');
 
@@ -744,6 +772,7 @@
             'x-a.onAfterEnter',
             'x-b.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-b']);
 
           callbacksLog = [];
           await router.render('/c');
@@ -753,11 +782,12 @@
             'x-b.onBeforeLeave',
             'x-a.onBeforeLeave',
             'x-c.onBeforeEnter',
-            'x-a.disconnectedCallback',
             'x-b.disconnectedCallback',
+            'x-a.disconnectedCallback',
             'x-c.connectedCallback',
             'x-c.onAfterEnter',
           ]);
+          checkOutlet(['x-c']);
         });
 
         it('/a/b -> /a/d', async() => {
@@ -773,6 +803,7 @@
             'x-a.onAfterEnter',
             'x-b.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-b']);
 
           callbacksLog = [];
           await router.render('/a/d');
@@ -782,12 +813,11 @@
             'x-d.action',
             'x-b.onBeforeLeave',
             'x-d.onBeforeEnter',
-            'x-a.disconnectedCallback',
             'x-b.disconnectedCallback',
-            'x-a.connectedCallback',
             'x-d.connectedCallback',
             'x-d.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-d']);
         });
 
         it('/a/b -> /a/b/e', async() => {
@@ -803,6 +833,7 @@
             'x-a.onAfterEnter',
             'x-b.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-b']);
 
           callbacksLog = [];
           await router.render('/a/b/e');
@@ -812,13 +843,10 @@
             'x-b.action',
             'x-e.action',
             'x-e.onBeforeEnter',
-            'x-a.disconnectedCallback',
-            'x-b.disconnectedCallback',
-            'x-a.connectedCallback',
-            'x-b.connectedCallback',
             'x-e.connectedCallback',
             'x-e.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-b', 'x-e']);
         });
 
         it('/a/b -> /a/b/e with extra root path', async() => {
@@ -850,6 +878,7 @@
             'x-b.onAfterEnter',
             'x-b-root.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-b', 'x-b-root']);
 
           callbacksLog = [];
           await router.render('/a/b/e');
@@ -860,14 +889,11 @@
             'x-e.action',
             'x-b-root.onBeforeLeave',
             'x-e.onBeforeEnter',
-            'x-a.disconnectedCallback',
-            'x-b.disconnectedCallback',
             'x-b-root.disconnectedCallback',
-            'x-a.connectedCallback',
-            'x-b.connectedCallback',
             'x-e.connectedCallback',
             'x-e.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-b', 'x-e']);
         });
 
         it('/a/b/e -> /a/b', async() => {
@@ -887,6 +913,7 @@
             'x-b.onAfterEnter',
             'x-e.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-b', 'x-e']);
 
           callbacksLog = [];
           await router.render('/a/b');
@@ -895,7 +922,9 @@
             'x-a.action',
             'x-b.action',
             'x-e.onBeforeLeave',
+            'x-e.disconnectedCallback',
           ]);
+          checkOutlet(['x-a', 'x-b']);
         });
 
         it('/a/b/e -> /a/b with extra root path', async() => {
@@ -927,6 +956,7 @@
             'x-b.onAfterEnter',
             'x-e.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-b', 'x-e']);
 
           callbacksLog = [];
           await router.render('/a/b');
@@ -937,14 +967,11 @@
             'x-b-root.action',
             'x-e.onBeforeLeave',
             'x-b-root.onBeforeEnter',
-            'x-a.disconnectedCallback',
-            'x-b.disconnectedCallback',
             'x-e.disconnectedCallback',
-            'x-a.connectedCallback',
-            'x-b.connectedCallback',
             'x-b-root.connectedCallback',
             'x-b-root.onAfterEnter',
           ]);
+          checkOutlet(['x-a', 'x-b', 'x-b-root']);
         });
       });
     });

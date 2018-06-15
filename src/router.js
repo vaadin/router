@@ -43,6 +43,13 @@ function amend(amendmentFunction, context, route) {
   };
 }
 
+function removeFromDomRecursively(node) {
+  while (node.hasChildNodes()) {
+    removeFromDomRecursively(node.firstChild);
+  }
+  node.parentNode.removeChild(node);
+}
+
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -242,7 +249,7 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(context.result.route.pathname);
           }
 
-          if (context.__divergedChainIndex < context.chain.length) {
+          if (context !== this.__previousContext) {
             this.__setOutletContent(context);
             return this.__onAfterEnter(context);
           }
@@ -250,7 +257,6 @@ export class Router extends Resolver {
         }
       })
       .then(context => {
-        context.__divergedChainIndex = context.chain.length;
         this.__previousContext = context;
         return this.__outlet;
       })
@@ -373,22 +379,43 @@ export class Router extends Resolver {
   }
 
   __setOutletContent(context) {
+    function containsElement(htmlElements, elementToSearch) {
+      for (let j = 0; j < htmlElements.length; j++) {
+        if (htmlElements[j] === elementToSearch) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     this.__ensureOutlet();
-    const children = this.__outlet.children;
-    if (children && children.length) {
-      const parent = children[0].parentNode;
-      for (let i = 0; i < children.length; i += 1) {
-        parent.removeChild(children[i]);
+
+    let lastUnchangedComponent = this.__outlet;
+
+    if (context) {
+      for (let i = 0; i < context.__divergedChainIndex; i++) {
+        const unchangedComponent = context.chain[i].__component;
+        if (unchangedComponent) {
+          if (containsElement(lastUnchangedComponent.children || [], unchangedComponent)) {
+            lastUnchangedComponent = unchangedComponent;
+          } else {
+            break;
+          }
+        }
       }
     }
 
+    while (lastUnchangedComponent.hasChildNodes()) {
+      removeFromDomRecursively(lastUnchangedComponent.firstChild);
+    }
+
     if (context) {
-      let parentElement = this.__outlet;
-      for (let i = 0; i < context.chain.length; i++) {
-        const chainRoute = context.chain[i];
-        if (chainRoute && chainRoute.__component) {
-          parentElement.appendChild(chainRoute.__component);
-          parentElement = chainRoute.__component;
+      let parentElement = lastUnchangedComponent;
+      for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
+        const componentToAdd = context.chain[i].__component;
+        if (componentToAdd) {
+          parentElement.appendChild(componentToAdd);
+          parentElement = componentToAdd;
         }
       }
     }

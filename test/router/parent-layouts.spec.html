@@ -47,7 +47,8 @@
     });
 
     describe('parent layouts rendering', () => {
-      const {verifyActiveRoutes, onBeforeEnterAction, onBeforeLeaveAction, onAfterEnterAction} = VaadinTestNamespace;
+      const {verifyActiveRoutes, onBeforeEnterAction, onBeforeLeaveAction, checkOutletContents} = VaadinTestNamespace;
+      const checkOutlet = values => checkOutletContents(outlet.children[0], 'tagName', values);
 
       it('each of the nested route components are rendered as children to each other in the same hierarchy', async() => {
         router.setRoutes([
@@ -61,7 +62,7 @@
         await router.render('/a/b/c');
 
         verifyActiveRoutes(router, ['/a', '/b', '/c']);
-        checkAllViews(outlet.children[0], ['x-a', 'x-b', 'x-c']);
+        checkOutlet(['x-a', 'x-b', 'x-c']);
       });
 
       it('when action returns a component result, it is rendered the same way as if it was a component property', async() => {
@@ -76,7 +77,7 @@
         await router.render('/a/b/c');
 
         verifyActiveRoutes(router, ['/a', '/b', '/c']);
-        checkAllViews(outlet.children[0], ['x-a', 'x-b', 'x-c']);
+        checkOutlet(['x-a', 'x-b', 'x-c']);
       });
 
       it('extra child view in route chain is not rendered, if path does not match', async() => {
@@ -93,7 +94,7 @@
         await router.render('/a/b/c');
 
         verifyActiveRoutes(router, ['/a', '/b', '/c']);
-        checkAllViews(outlet.children[0], ['x-a', 'x-b', 'x-c']);
+        checkOutlet(['x-a', 'x-b', 'x-c']);
       });
 
       it('when not all nested views have components, all present components are rendered as children ' +
@@ -111,7 +112,7 @@
         await router.render('/a/b/c/d');
 
         verifyActiveRoutes(router, ['/a', '/b', '/c', '/d']);
-        checkAllViews(outlet.children[0], ['x-a', 'x-d']);
+        checkOutlet(['x-a', 'x-d']);
       });
 
       it('redirect property amends previous path', async() => {
@@ -129,7 +130,7 @@
         await router.render('/a/b/c');
 
         verifyActiveRoutes(router, ['/d']);
-        checkAllViews(outlet.children[0], ['x-d']);
+        checkOutlet(['x-d']);
       });
 
       it('action with redirect result amends previous path', async() => {
@@ -147,7 +148,7 @@
         await router.render('/a/b/c');
 
         verifyActiveRoutes(router, ['/d', '/e']);
-        checkAllViews(outlet.children[0], ['x-d', 'x-e']);
+        checkOutlet(['x-d', 'x-e']);
       });
 
       it('child layout: onBeforeEnter with redirect result amends previous path', async() => {
@@ -165,7 +166,7 @@
         await router.render('/a/b/c');
 
         verifyActiveRoutes(router, ['/d', '/e']);
-        checkAllViews(outlet.children[0], ['x-d', 'x-e']);
+        checkOutlet(['x-d', 'x-e']);
       });
 
       it('child layout: onBeforeEnter with cancel result aborts current resolution', async() => {
@@ -184,7 +185,7 @@
         await router.render('/d/e');
 
         verifyActiveRoutes(router, ['/a', '/b', '/c']);
-        checkAllViews(outlet.children[0], ['x-a', 'x-b', 'x-c']);
+        checkOutlet(['x-a', 'x-b', 'x-c']);
       });
 
       it('child layout: onBeforeLeave with cancel result aborts current resolution', async() => {
@@ -203,21 +204,9 @@
         await router.render('/d/e');
 
         verifyActiveRoutes(router, ['/a', '/b', '/c']);
-        checkAllViews(outlet.children[0], ['x-a', 'x-b', 'x-c']);
+        checkOutlet(['x-a', 'x-b', 'x-c']);
       });
     });
-
-    function checkAllViews(root, expectedTagNames) {
-      let currentElementToCheck = root;
-      for (let i = 0; i < expectedTagNames.length; i++) {
-        const expectedTag = expectedTagNames[i];
-        expect(currentElementToCheck, `Failed to find a child for tag '${expectedTag}'`).to.be.an('HTMLElement');
-        expect(currentElementToCheck.tagName).to.match(new RegExp(expectedTag, 'i'));
-        currentElementToCheck = currentElementToCheck.children[0];
-      }
-      expect(currentElementToCheck,
-        `Got '${expectedTagNames.length}' tags to check but got at least one more child in outlet`).to.be.an('undefined');
-    }
   });
 </script>
 </body>
