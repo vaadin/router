@@ -196,6 +196,9 @@ export class Router extends Resolver {
    *
    * * `component` – the tag name of the Web Component to resolve the route to.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
+   * If route contains the `component` property (or an action that return a component)
+   * and its child route also contains the `component` property, child route's component
+   * will be rendered as a light dom child of a parent component.
    *
    * * `children` – nested routes. Parent routes' properties are executed before resolving the children.
    * Children 'path' values are relative to the parent ones.
