@@ -818,6 +818,49 @@
             expect(from).to.be.equal('/c');
           });
         });
+
+        describe('animated transitions', () => {
+          let router;
+
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
+          });
+
+          afterEach(() => {
+            router.unsubscribe();
+          });
+
+          it('should set and then remove the CSS classes, if `animate` is set to true', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/animate', component: 'x-animate-view', animate: true}
+            ]);
+
+            await router.render('/');
+
+            let data;
+            const observer = new window.MutationObserver(mutations => {
+              data = mutations;
+            });
+
+            observer.observe(outlet, {
+              subtree: true,
+              attributes: true,
+              attributeOldValue: true,
+              attributeFilter: ['class']
+            });
+
+            await router.render('/animate');
+
+            expect(data.length).to.equal(4);
+            expect(data[0].target.tagName).to.match(/x-home-view/i);
+            expect(data[1].target.tagName).to.match(/x-home-view/i);
+            expect(data[1].oldValue).to.equal('leaving');
+            expect(data[2].target.tagName).to.match(/x-animate-view/i);
+            expect(data[3].target.tagName).to.match(/x-animate-view/i);
+            expect(data[3].oldValue).to.equal('entering');
+          });
+        });
       });
     });
 
