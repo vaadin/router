@@ -1,5 +1,5 @@
 [![NPM version](https://img.shields.io/npm/v/@vaadin/router.svg)](https://www.npmjs.com/package/@vaadin/router)
-[![Bundle size](http://img.badgesize.io/vaadin/vaadin-router/dist/vaadin-router.min.js.svg?compression=gzip)](https://bundlephobia.com/result?p=@vaadin/router)
+[![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@vaadin/router.svg)](https://bundlephobia.com/result?p=@vaadin/router)
 [![Build Status](https://travis-ci.org/vaadin/vaadin-router.svg?branch=master)](https://travis-ci.org/vaadin/vaadin-router)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vaadin/web-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
