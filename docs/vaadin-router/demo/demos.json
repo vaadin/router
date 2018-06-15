@@ -32,11 +32,11 @@
       }
     },
     {
-      "name": "Lifecycle Events",
-      "url": "vaadin-router-lifecycle-events-demos",
-      "src": "vaadin-router-lifecycle-events-demos.html",
+      "name": "Lifecycle Callbacks",
+      "url": "vaadin-router-lifecycle-callbacks-demos",
+      "src": "vaadin-router-lifecycle-callbacks-demos.html",
       "meta": {
-        "title": "Vaadin.Router Lifecycle Events Examples",
+        "title": "Vaadin.Router Lifecycle Callbacks Examples",
         "description": "",
         "image": ""
       }
