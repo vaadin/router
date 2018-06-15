@@ -17,49 +17,38 @@
 
   <script>
     class XSpy extends HTMLElement {
-      constructor() {
-        super();
-        this.name = `x-spy#${XSpy.__instanceCount++}`;
-      }
       connectedCallback() {
-        this.log('connectedCallback');
+        callbacksLog.push(`${this.name}.connectedCallback`);
       }
       disconnectedCallback() {
-        this.log('disconnectedCallback');
+        callbacksLog.push(`${this.name}.disconnectedCallback`);
       }
       onBeforeEnter() {
-        this.log('onBeforeEnter');
+        callbacksLog.push(`${this.name}.onBeforeEnter`);
       }
       onAfterEnter() {
-        this.log('onAfterEnter');
+        callbacksLog.push(`${this.name}.onAfterEnter`);
       }
       onBeforeLeave() {
-        this.log('onBeforeLeave');
+        callbacksLog.push(`${this.name}.onBeforeLeave`);
       }
       onAfterLeave() {
-        this.log('onAfterLeave');
-      }
-
-      log(message) {
-        XSpy.log(() => `${this.name}.${message}`);
+        callbacksLog.push(`${this.name}.onAfterLeave`);
       }
     }
     customElements.define('x-spy', XSpy);
 
-    XSpy.__instanceCount = 0;
-    XSpy.__log = [];
-    XSpy.log = (message) => {
-      XSpy.__log.push(message);
-    };
-    XSpy.getLog = () => {
-      return XSpy.__log.map(entry => `${typeof entry === 'function' ? entry() : entry}`);
-    };
-    XSpy.clearLog = () => {
-      XSpy.__log.length = 0;
+    let callbacksLog = [];
+
+    const elementWithAllLifecycleCallbacks = elementName => context => {
+      callbacksLog.push(`${elementName}.action`);
+      const component = context.component('x-spy');
+      component.name = elementName;
+      return component;
     };
 
     describe('Vaadin.Router lifecycle events', function() {
-      const {verifyActiveRoutes, onAfterEnterAction, onBeforeEnterAction, onBeforeLeaveAction, checkOutletContents} = VaadinTestNamespace;
+      const {verifyActiveRoutes, onAfterEnterAction, onBeforeEnterAction, onBeforeLeaveAction} = VaadinTestNamespace;
 
       // eslint-disable-next-line no-invalid-this
       const suite = this;
@@ -178,29 +167,28 @@
           router.setRoutes([
             {
               path: '/a',
-              action: onBeforeEnterAction('x-spy', function() {
-                // eslint-disable-next-line no-invalid-this
-                const self = this;
-                self.log('onBeforeEnter');
-                return new Promise(resolve => {
-                  setTimeout(() => {
-                    self.log('onBeforeEnter.promise');
-                    resolve();
-                  }, 100);
-                });
-              })
+              action: onBeforeEnterAction(
+                'x-spy',
+                function() {
+                  callbacksLog.push('a.onBeforeEnter');
+                  return new Promise(resolve => {
+                    setTimeout(() => {
+                      callbacksLog.push('a.onBeforeEnter.promise');
+                      resolve();
+                    }, 100);
+                  });
+                },
+                'a')
             },
             {path: '/b', component: 'x-spy'},
           ]);
 
           await router.render('/').catch(() => {});
-          XSpy.clearLog();
+          callbacksLog = [];
 
-          await router.render('/a').then((outlet) => {
-            outlet.children[0].name = 'a';
-          });
+          await router.render('/a');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
             'a.onBeforeEnter',
             'a.onBeforeEnter.promise',
             'a.connectedCallback',
@@ -319,31 +307,29 @@
           router.setRoutes([
             {
               path: '/a',
-              action: onBeforeLeaveAction('x-spy', function() {
-                // eslint-disable-next-line no-invalid-this
-                const self = this;
-                self.log('onBeforeLeave');
-                return new Promise(resolve => {
-                  setTimeout(() => {
-                    self.log('onBeforeLeave.promise');
-                    resolve();
-                  }, 100);
-                });
-              })
+              action: onBeforeLeaveAction(
+                'x-spy',
+                function() {
+                  callbacksLog.push('a.onBeforeLeave');
+                  return new Promise(resolve => {
+                    setTimeout(() => {
+                      callbacksLog.push('a.onBeforeLeave.promise');
+                      resolve();
+                    }, 100);
+                  });
+                },
+                'a'),
             },
-            {path: '/b', component: 'x-spy'},
+            {path: '/b', action: elementWithAllLifecycleCallbacks('b')},
           ]);
 
           await router.render('/').catch(() => {});
-          await router.render('/a').then((outlet) => {
-            outlet.children[0].name = 'a';
-          });
-          XSpy.clearLog();
-          await router.render('/b').then((outlet) => {
-            outlet.children[0].name = 'b';
-          });
+          await router.render('/a');
+          callbacksLog = [];
+          await router.render('/b');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
+            'b.action',
             'a.onBeforeLeave',
             'a.onBeforeLeave.promise',
             'b.onBeforeEnter',
@@ -444,30 +430,27 @@
 
         it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
           router.setRoutes([
-            {path: '/a', component: 'x-spy'},
-            {path: '/b', action: onAfterEnterAction('x-spy', function() {
-              // eslint-disable-next-line no-invalid-this
-              const self = this;
-              self.log('onAfterEnter');
-              return new Promise(resolve => {
-                setTimeout(() => {
-                  self.log('onAfterEnter.promise');
-                  resolve();
-                }, 100);
-              });
-            })},
+            {path: '/a', action: elementWithAllLifecycleCallbacks('a')},
+            {path: '/b', action: onAfterEnterAction(
+              'x-spy',
+              function() {
+                callbacksLog.push('b.onAfterEnter');
+                return new Promise(resolve => {
+                  setTimeout(() => {
+                    callbacksLog.push('b.onAfterEnter.promise');
+                    resolve();
+                  }, 100);
+                });
+              },
+              'b')},
           ]);
 
           await router.render('/').catch(() => {});
-          await router.render('/a').then((outlet) => {
-            outlet.children[0].name = 'a';
-          });
-          XSpy.clearLog();
-          await router.render('/b').then((outlet) => {
-            outlet.children[0].name = 'b';
-          });
+          await router.render('/a');
+          callbacksLog = [];
+          await router.render('/b');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
             'a.onBeforeLeave',
             'b.onBeforeEnter',
             'a.disconnectedCallback',
@@ -481,16 +464,14 @@
       describe('the order of lifecycle events (without early returns)', () => {
         it('(initial) -> /a', async() => {
           router.setRoutes([
-            {path: '/a', action: () => XSpy.log('a.action'), component: 'x-spy'},
+            {path: '/a', action: elementWithAllLifecycleCallbacks('a')},
           ]);
 
           await router.render('/').catch(() => {});
-          XSpy.clearLog();
-          await router.render('/a').then(outlet => {
-            outlet.children[0].name = 'a';
-          });
+          callbacksLog = [];
+          await router.render('/a');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
             'a.action',
             'a.onBeforeEnter',
             'a.connectedCallback',
@@ -500,19 +481,15 @@
 
         it('/a -> /b', async() => {
           router.setRoutes([
-            {path: '/a', action: () => XSpy.log('a.action'), component: 'x-spy'},
-            {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
+            {path: '/a', action: elementWithAllLifecycleCallbacks('a')},
+            {path: '/b', action: elementWithAllLifecycleCallbacks('b')},
           ]);
 
-          await router.render('/a').then(outlet => {
-            outlet.children[0].name = 'a';
-          });
-          XSpy.clearLog();
-          await router.render('/b').then(outlet => {
-            outlet.children[0].name = 'b';
-          });
+          await router.render('/a');
+          callbacksLog = [];
+          await router.render('/b');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
             'b.action',
             'a.onBeforeLeave',
             'b.onBeforeEnter',
@@ -526,20 +503,20 @@
           router.setRoutes([
             {
               path: '/a',
-              action: () => XSpy.log('a.action'),
+              action: () => {
+                callbacksLog.push('a.action');
+              },
               children: [
-                {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
+                {path: '/b', action: elementWithAllLifecycleCallbacks('b')},
               ]
             },
           ]);
 
           await router.render('/').catch(() => {});
-          XSpy.clearLog();
-          await router.render('/a/b').then(outlet => {
-            outlet.children[0].name = 'b';
-          });
+          callbacksLog = [];
+          await router.render('/a/b');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
             'a.action',
             'b.action',
             'b.onBeforeEnter',
@@ -552,23 +529,21 @@
           router.setRoutes([
             {
               path: '/a',
-              action: () => XSpy.log('a.action'),
+              action: () => {
+                callbacksLog.push('a.action');
+              },
               children: [
-                {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
-                {path: '/c', action: () => XSpy.log('c.action'), component: 'x-spy'},
+                {path: '/b', action: elementWithAllLifecycleCallbacks('b')},
+                {path: '/c', action: elementWithAllLifecycleCallbacks('c')},
               ]
             },
           ]);
 
-          await router.render('/a/b').then(outlet => {
-            outlet.children[0].name = 'b';
-          });
-          XSpy.clearLog();
-          await router.render('/a/c').then(outlet => {
-            outlet.children[0].name = 'c';
-          });
+          await router.render('/a/b');
+          callbacksLog = [];
+          await router.render('/a/c');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
             'a.action',
             'c.action',
             'b.onBeforeLeave',
@@ -581,29 +556,29 @@
 
         it('(initial) -> /a/non-existent-path', async() => {
           await router.render('/').catch(() => {});
-          XSpy.clearLog();
+          callbacksLog = [];
 
           // call 'setRoutes' without triggering a navigation event
           Vaadin.Resolver.prototype.setRoutes.call(router, [
             {
               path: '/a',
-              action: () => XSpy.log('a.action'),
+              action: () => {
+                callbacksLog.push('a.action');
+              },
               children: [
-                {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
+                {path: '/b', action: elementWithAllLifecycleCallbacks('b')},
               ]
             },
-            {path: '(.*)', action: () => XSpy.log('*.action'), component: 'x-spy'},
+            {path: '(.*)', action: elementWithAllLifecycleCallbacks('asterisk')},
           ]);
-          await router.render('/a/non-existent-path').then(outlet => {
-            outlet.children[0].name = '*';
-          });
+          await router.render('/a/non-existent-path');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
             'a.action',
-            '*.action',
-            '*.onBeforeEnter',
-            '*.connectedCallback',
-            '*.onAfterEnter',
+            'asterisk.action',
+            'asterisk.onBeforeEnter',
+            'asterisk.connectedCallback',
+            'asterisk.onAfterEnter',
           ]);
         });
 
@@ -611,30 +586,28 @@
           router.setRoutes([
             {
               path: '/a',
-              action: () => XSpy.log('a.action'),
+              action: () => {
+                callbacksLog.push('a.action');
+              },
               children: [
-                {path: '/b', action: () => XSpy.log('b.action'), component: 'x-spy'},
+                {path: '/b', action: elementWithAllLifecycleCallbacks('b')},
               ]
             },
-            {path: '(.*)', action: () => XSpy.log('*.action'), component: 'x-spy'},
+            {path: '(.*)', action: elementWithAllLifecycleCallbacks('asterisk')},
           ]);
 
-          await router.render('/a/b').then(outlet => {
-            outlet.children[0].name = 'b';
-          });
-          XSpy.clearLog();
-          await router.render('/a/non-existent-path').then(outlet => {
-            outlet.children[0].name = '*';
-          });
+          await router.render('/a/b');
+          callbacksLog = [];
+          await router.render('/a/non-existent-path');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
             'a.action',
-            '*.action',
+            'asterisk.action',
             'b.onBeforeLeave',
-            '*.onBeforeEnter',
+            'asterisk.onBeforeEnter',
             'b.disconnectedCallback',
-            '*.connectedCallback',
-            '*.onAfterEnter',
+            'asterisk.connectedCallback',
+            'asterisk.onAfterEnter',
           ]);
         });
 
@@ -642,24 +615,27 @@
           router.setRoutes([
             {
               path: '/a',
-              action: () => XSpy.log('a.action'),
+              action: () => {
+                callbacksLog.push('a.action');
+              },
               children: [
-                {path: '/b', action: () => XSpy.log('a.action'), component: 'x-spy'},
+                {
+                  path: '/b',
+                  action: () => {
+                    callbacksLog.push('b.action');
+                  },
+                  component: 'x-spy'},
               ]
             },
-            {path: '/a/c', action: () => XSpy.log('ac.action'), component: 'x-spy'},
-            {path: '/a/d', action: () => XSpy.log('ad.action'), component: 'x-spy'},
+            {path: '/a/c', action: elementWithAllLifecycleCallbacks('ac')},
+            {path: '/a/d', action: elementWithAllLifecycleCallbacks('ad')},
           ]);
 
-          await router.render('/a/c').then(outlet => {
-            outlet.children[0].name = 'ac';
-          });
-          XSpy.clearLog();
-          await router.render('/a/d').then(outlet => {
-            outlet.children[0].name = 'ad';
-          });
+          await router.render('/a/c');
+          callbacksLog = [];
+          await router.render('/a/d');
 
-          expect(XSpy.getLog()).to.deep.equal([
+          expect(callbacksLog).to.deep.equal([
             'a.action',
             'ad.action',
             'ac.onBeforeLeave',
@@ -672,53 +648,20 @@
 
         it('/users/Jane -> /users/John (when parameters are changed, no extra callbacks are called)', async() => {
           router.setRoutes([
-            {path: '/users/:user', action: () => XSpy.log('route.action'), component: 'x-spy'},
+            {path: '/users/:user', action: elementWithAllLifecycleCallbacks('x-user')},
           ]);
 
           await router.render('/users/Jane');
-          XSpy.clearLog();
-          await router.render('/users/John').then(outlet => {
-            outlet.children[0].name = 'john';
-          });
+          callbacksLog = [];
+          await router.render('/users/John');
 
-          expect(XSpy.getLog()).to.deep.equal(['route.action']);
+          expect(callbacksLog).to.deep.equal(['x-user.action']);
         });
       });
 
       describe('lifecycle events for nested routes', () => {
         const {checkOutletContents} = VaadinTestNamespace;
         const checkOutlet = values => checkOutletContents(outlet.children[0], 'name', values);
-
-        class XZSpy extends HTMLElement {
-          connectedCallback() {
-            callbacksLog.push(`${this.name}.connectedCallback`);
-          }
-          disconnectedCallback() {
-            callbacksLog.push(`${this.name}.disconnectedCallback`);
-          }
-          onBeforeEnter() {
-            callbacksLog.push(`${this.name}.onBeforeEnter`);
-          }
-          onAfterEnter() {
-            callbacksLog.push(`${this.name}.onAfterEnter`);
-          }
-          onBeforeLeave() {
-            callbacksLog.push(`${this.name}.onBeforeLeave`);
-          }
-          onAfterLeave() {
-            callbacksLog.push(`${this.name}.onAfterLeave`);
-          }
-        }
-        customElements.define('x-zspy', XZSpy);
-
-        let callbacksLog = [];
-
-        const elementWithAllLifecycleCallbacks = elementName => context => {
-          callbacksLog.push(`${elementName}.action`);
-          const component = context.component('x-zspy');
-          component.name = elementName;
-          return component;
-        };
 
         beforeEach(async function() {
           router.setRoutes([

@@ -2,25 +2,28 @@ function verifyActiveRoutes(router, expectedSegments) {
   expect(router.__previousContext.chain.map(route => route.path)).to.deep.equal(expectedSegments);
 }
 
-function onBeforeLeaveAction(componentName, callback) {
+function onBeforeLeaveAction(componentName, callback, name) {
   return context => {
     const component = context.component(componentName);
+    component.name = name;
     component.onBeforeLeave = callback;
     return component;
   };
 }
 
-function onBeforeEnterAction(componentName, callback) {
+function onBeforeEnterAction(componentName, callback, name) {
   return context => {
     const component = context.component(componentName);
+    component.name = name;
     component.onBeforeEnter = callback;
     return component;
   };
 }
 
-function onAfterEnterAction(componentName, callback) {
+function onAfterEnterAction(componentName, callback, name) {
   return context => {
     const component = context.component(componentName);
+    component.name = name;
     component.onAfterEnter = callback;
     return component;
   };
