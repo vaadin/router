@@ -44,7 +44,7 @@
       see the <a href="#vaadin-router-route-parameters-demos">Route Parameters
       </a> demos.
     </p>
-    <vaadin-demo-snippet id="vaadin-router-gettings-started-demo-1" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-1" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">Users</a>
@@ -93,7 +93,7 @@
       should always be <strong>after</strong> other alternatives.</p>
     <p>The path that leads to the fallback route is available to the route
       component via the <code>route.pathname</code> property.</p>
-    <vaadin-demo-snippet id="vaadin-router-gettings-started-demo-2" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-2" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">All Users</a>
@@ -123,7 +123,7 @@
       the "Getting Started" example above.</p>
     <p>The leading <code>'/'</code> in child route paths is optional&mdash;they
       are always relative to the path of the parent route.</p>
-    <vaadin-demo-snippet id="vaadin-router-gettings-started-demo-3" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-3" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">All Users</a>
@@ -139,6 +139,62 @@
             {path: '/users',
               children: [
                 {path: '/', component: 'x-user-list'},
+                {path: '/:user', component: 'x-user-profile'}
+              ]
+            },
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <p>If both route and its child route have a <code>component</code> property, child route's component will be
+      rendered as a light dom child of parent route's component.</p>
+    <p>It might not be clear from the previous demos, since none of the Web Components used contain
+       <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot">slot tag</a>.
+      This demo shows the nested components.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-4" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+        <script type="module">
+          class XSlottedUsers extends Polymer.Element {
+            static get is() {
+              return 'x-slotted-users';
+            }
+
+            static get template() {
+              return `
+                <style>
+                  :host {
+                   display: block;
+                  }
+
+                  .menu {
+                    display: inline;
+                    padding: 0;
+                  }
+                </style>
+
+                Show user profile:
+                <ul class='menu'>
+                  <li class='menu'><a href="/Kim">Kim</a></li>
+                  <li class='menu'><a href="/Jane">Jane</a></li>
+                  <li class='menu'><a href="/Sam">Sam</a></li>
+                </ul>
+                <slot></slot>
+                `;
+            }
+          }
+
+          customElements.define(XSlottedUsers.is, XSlottedUsers);
+
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-slotted-users',
+              children: [
                 {path: '/:user', component: 'x-user-profile'}
               ]
             },
