@@ -8,18 +8,17 @@
 
     <h3>Lifecycle Callbacks</h3>
     <p>
-      All Web Components used to render routes with Vaadin.Router follow the
-      same lifecycle:
+      All Web Components in Vaadin.Router follow the same lifecycle. <em>Lifecycle
+      callbacks</em> allow adding custom logic to any point of it:
       <ul>
         <li><b><code>onBeforeEnter(context)</code></b></li>
         <li><b><code>onAfterEnter(context)</code></b></li>
         <li><b><code>onBeforeLeave(context)</code></b></li>
       </ul>
-      These callbacks should be defined as methods on the Web Component
+      Vaadin.Router lifecycle callbacks can be defined as methods on the Web Component
       <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-definition"
-      target="_blank" rel="noopener">class definition</a>, and get called by the Vaadin.Router
-      on the instance of the corresponding component, so that <code>this</code> reference
-      inside the callback points to that instance.
+      target="_blank" rel="noopener">class definition</a> in a similar way as
+      native custom element callbacks (like <code>disconnectedCallback()</code>).
     </p>
     <h3><code>onBeforeEnter(context)</code></h3>
     <p>
