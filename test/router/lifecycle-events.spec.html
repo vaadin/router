@@ -358,9 +358,9 @@
             'a.onBeforeLeave.promise',
             'b.onBeforeEnter',
             'a.onAfterLeave',
-            'a.disconnectedCallback',
             'b.connectedCallback',
             'b.onAfterEnter',
+            'a.disconnectedCallback',
           ]);
         });
 
@@ -490,9 +490,9 @@
             'b.onBeforeEnter',
             'a.onAfterLeave',
             'a.onAfterLeave.promise',
-            'a.disconnectedCallback',
             'b.connectedCallback',
             'b.onAfterEnter',
+            'a.disconnectedCallback',
           ]);
         });
       });
@@ -589,10 +589,10 @@
             'a.onBeforeLeave',
             'b.onBeforeEnter',
             'a.onAfterLeave',
-            'a.disconnectedCallback',
             'b.connectedCallback',
             'b.onAfterEnter',
             'b.onAfterEnter.promise',
+            'a.disconnectedCallback',
           ]);
         });
       });
@@ -630,9 +630,9 @@
             'a.onBeforeLeave',
             'b.onBeforeEnter',
             'a.onAfterLeave',
-            'a.disconnectedCallback',
             'b.connectedCallback',
             'b.onAfterEnter',
+            'a.disconnectedCallback',
           ]);
         });
 
@@ -686,9 +686,9 @@
             'b.onBeforeLeave',
             'c.onBeforeEnter',
             'b.onAfterLeave',
-            'b.disconnectedCallback',
             'c.connectedCallback',
             'c.onAfterEnter',
+            'b.disconnectedCallback',
           ]);
         });
 
@@ -744,9 +744,9 @@
             'b.onBeforeLeave',
             'asterisk.onBeforeEnter',
             'b.onAfterLeave',
-            'b.disconnectedCallback',
             'asterisk.connectedCallback',
             'asterisk.onAfterEnter',
+            'b.disconnectedCallback',
           ]);
         });
 
@@ -780,9 +780,9 @@
             'ac.onBeforeLeave',
             'ad.onBeforeEnter',
             'ac.onAfterLeave',
-            'ac.disconnectedCallback',
             'ad.connectedCallback',
             'ad.onAfterEnter',
+            'ac.disconnectedCallback',
           ]);
         });
 
@@ -813,7 +813,7 @@
             ]},
             {path: '/c', action: elementWithAllLifecycleCallbacks('x-c')}
           ]);
-          router.__setOutletContent();
+          router.__removeOutletContent();
           callbacksLog = [];
         });
 
@@ -867,10 +867,10 @@
             'x-c.onBeforeEnter',
             'x-a.onAfterLeave',
             'x-b.onAfterLeave',
-            'x-a.disconnectedCallback',
-            'x-b.disconnectedCallback',
             'x-c.connectedCallback',
             'x-c.onAfterEnter',
+            'x-a.disconnectedCallback',
+            'x-b.disconnectedCallback',
           ]);
           checkOutlet(['x-c']);
         });
@@ -899,9 +899,9 @@
             'x-b.onBeforeLeave',
             'x-d.onBeforeEnter',
             'x-b.onAfterLeave',
-            'x-b.disconnectedCallback',
             'x-d.connectedCallback',
             'x-d.onAfterEnter',
+            'x-b.disconnectedCallback',
           ]);
           checkOutlet(['x-a', 'x-d']);
         });
@@ -976,9 +976,9 @@
             'x-b-root.onBeforeLeave',
             'x-e.onBeforeEnter',
             'x-b-root.onAfterLeave',
-            'x-b-root.disconnectedCallback',
             'x-e.connectedCallback',
             'x-e.onAfterEnter',
+            'x-b-root.disconnectedCallback',
           ]);
           checkOutlet(['x-a', 'x-b', 'x-e']);
         });
@@ -1056,9 +1056,9 @@
             'x-e.onBeforeLeave',
             'x-b-root.onBeforeEnter',
             'x-e.onAfterLeave',
-            'x-e.disconnectedCallback',
             'x-b-root.connectedCallback',
             'x-b-root.onAfterEnter',
+            'x-e.disconnectedCallback',
           ]);
           checkOutlet(['x-a', 'x-b', 'x-b-root']);
         });

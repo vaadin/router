@@ -1,6 +1,7 @@
 import Resolver from './resolver/resolver.js';
 import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
+import animate from './transitions/animate.js';
 import {log, loadBundle} from './utils.js';
 
 function isResultNotEmpty(result) {
@@ -255,6 +256,14 @@ export class Router extends Resolver {
         }
       })
       .then(context => {
+        if (renderId === this.__lastStartedRenderId) {
+          return this.__animateIfNeeded(context);
+        }
+      })
+      .then(context => {
+        if (renderId === this.__lastStartedRenderId) {
+          this.__removeOldOutletContent();
+        }
         this.__previousContext = context;
         return this.__outlet;
       })
@@ -263,7 +272,7 @@ export class Router extends Resolver {
           if (shouldUpdateHistory) {
             this.__updateBrowserHistory(pathnameOrContext);
           }
-          this.__setOutletContent();
+          this.__removeOutletContent();
           throw error;
         }
       });
@@ -377,6 +386,8 @@ export class Router extends Resolver {
   }
 
   __setOutletContent(context) {
+    this.__removePendingContent();
+
     function containsElement(htmlElements, elementToSearch) {
       for (let i = 0; i < htmlElements.length; i++) {
         if (htmlElements[i] === elementToSearch) {
@@ -403,9 +414,8 @@ export class Router extends Resolver {
       }
     }
 
-    while (lastUnchangedComponent.hasChildNodes()) {
-      lastUnchangedComponent.removeChild(lastUnchangedComponent.firstChild);
-    }
+    this.__oldContent = Array.from(lastUnchangedComponent.childNodes);
+    this.__newContent = [];
 
     if (context) {
       let parentElement = lastUnchangedComponent;
@@ -414,7 +424,36 @@ export class Router extends Resolver {
         if (componentToAdd) {
           parentElement.appendChild(componentToAdd);
           parentElement = componentToAdd;
+          this.__newContent.push(componentToAdd);
         }
+      }
+    }
+  }
+
+  __removeOldOutletContent() {
+    if (this.__oldContent && this.__oldContent.length) {
+      console.log('remove old content');
+      this.__removeOutletContent(this.__oldContent);
+    }
+    this.__oldContent = null;
+    this.__newContent = null;
+  }
+
+  __removePendingContent() {
+    if (this.__oldContent && this.__newContent) {
+      this.__oldContent = this.__newContent;
+      console.log('remove pending content');
+      this.__removeOldOutletContent();
+    }
+  }
+
+  __removeOutletContent(content) {
+    content = content || this.__outlet.children;
+    if (content && content.length) {
+      const parent = content[0].parentNode;
+      for (let i = 0; i < content.length; i += 1) {
+        console.log('remove ' + content[i].name);
+        parent.removeChild(content[i]);
       }
     }
   }
@@ -430,6 +469,37 @@ export class Router extends Resolver {
       }
     }
     return promises;
+  }
+
+  __animateIfNeeded(context) {
+    const from = this.__oldContent && this.__oldContent[0];
+    const to = this.__newContent && this.__newContent[0];
+    const promises = [];
+
+    const chain = context.chain;
+    let config;
+    for (let i = chain.length; i > 0; i--) {
+      if (chain[i - 1].animate) {
+        config = chain[i - 1].animate;
+        break;
+      }
+    }
+
+    if (from && to && config) {
+      const isObj = typeof config === 'object';
+      const leave = isObj && config.leave || 'leaving';
+      const enter = isObj && config.enter || 'entering';
+      promises.push(animate(from, leave));
+      promises.push(animate(to, enter));
+    }
+
+    if (promises.length) {
+      return new Promise(resolve => {
+        Promise.all(promises).then(() => resolve(context));
+      });
+    }
+
+    return context;
   }
 
   /**

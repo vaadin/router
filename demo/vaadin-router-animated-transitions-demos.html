@@ -1,0 +1,85 @@
+<dom-module id="vaadin-router-animated-transitions-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>Animated Route Transition</h3>
+    <p>
+      The <code>animate</code> property on the route config can be used to establish animated transitions
+      for two Web Components. When the value of the property is set <code>true</code>, the Vaadin.Router
+      will take following steps to perform animated transition:
+    </p>
+    <ol>
+      <li>render the new view component to the outlet content</li>
+      <li>set the <code>entering</code> CSS class on the new view component</li>
+      <li>set the <code>leaving</code> CSS class on the old view component, if any</li>
+      <li>check if some <code>@keyframes</code> animation applies, and wait for it to complete</li>
+      <li>remove the old view component from the outlet content</li>
+      <li>continue the remaining navigation steps as usual</li>
+    </ol>
+    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/image-125px">Image</a>
+        <a href="/users">Users</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([{
+            path: '/',
+            animate: true,
+            children: [
+              {path: '', component: 'x-home-view'},
+              {path: '/image-:size(\\d+)px', component: 'x-image-view'},
+              {path: '/users', component: 'x-user-list'},
+              {path: '/users/:user', component: 'x-user-profile'},
+            ]
+          }]);
+        </script>
+        <style>
+          #outlet > .leaving {
+            animation: 1s fadeOut ease-in-out;
+          }
+
+          #outlet > .entering {
+            animation: 1s fadeIn linear;
+          }
+
+          @keyframes fadeOut {
+            from {
+              opacity: 1;
+            }
+
+            to {
+              opacity: 0;
+            }
+          }
+
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+            }
+
+            to {
+              opacity: 1;
+            }
+          }
+        </style>
+      </template>
+    </vaadin-demo-snippet>
+  </template>
+  <script>
+    class VaadinRouterAnimatedTransitionsDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'vaadin-router-animated-transitions-demos';
+      }
+    }
+    customElements.define(VaadinRouterAnimatedTransitionsDemos.is, VaadinRouterAnimatedTransitionsDemos);
+  </script>
+</dom-module>

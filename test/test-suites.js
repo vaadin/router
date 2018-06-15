@@ -15,5 +15,6 @@ window.VaadinRouterSuites = {
     'triggers/setNavigationTriggers.spec.js',
     'triggers/popstate.spec.js',
     'triggers/click.spec.html',
+    'transitions/animate.spec.html',
   ],
 };
