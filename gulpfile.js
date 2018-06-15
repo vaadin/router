@@ -72,7 +72,7 @@ gulp.task('docs', ['docs:clean', 'build:copy-sources'], async() => {
     path.join(__dirname, 'build', 'build', 'es5-bundled', 'bower_components', 'vaadin-router', 'demo', 'iframe.html'),
     path.join(__dirname, 'docs', 'vaadin-router', 'demo', 'iframe.html'));
 
-  // HTML imports for lazy loading demo
+  // HTML imports for the code splitting demos
   await fs.copy(
     path.join(__dirname, 'bower_components', 'polymer', 'lib', 'utils', 'import-href.html'),
     path.join(__dirname, 'docs', 'polymer', 'lib', 'utils', 'import-href.html'));
