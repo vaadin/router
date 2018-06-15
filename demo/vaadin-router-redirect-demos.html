@@ -86,36 +86,19 @@
         <a href="/admin">Admin</a>
         <a href="/login">Login</a>
         <a href="/logout">Logout</a>
-        <div id="outlet"></div>
-        <script type="module">
-          let authorized = false;
-          customElements.define('x-admin-view', class extends HTMLElement {
+        <main id="outlet"></main>
+
+        <script>
+          const {Router} = window.Vaadin;
+          window.authorized = false;
+
+          class XAdminView extends HTMLElement {
             onBeforeEnter(context) {
-              if (!authorized) {
+              if (!window.authorized) {
                 return context.redirect('/login/' + encodeURIComponent(context.pathname));
               }
             }
-
-            connectedCallback() {
-              const root = this.shadowRoot || this.attachShadow({mode: 'open'});
-              root.innerHTML = 'Secret admin stuff';
-            }
-          });
-
-          customElements.define('x-login-view', class extends HTMLElement {
-            connectedCallback() {
-              const root = this.shadowRoot || this.attachShadow({mode: 'open'});
-              root.innerHTML =
-                '<h1>Login Form</h1>' +
-                '<button id="login">Login with OAuth</button>';
-              root.querySelector('#login').addEventListener('click', () => {
-                authorized = true;
-                router.render(this.route.params.to || '/', true);
-              });
-            }
-          });
-
-          const {Router} = window.Vaadin;
+          }
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -123,10 +106,16 @@
             {path: '/admin', component: 'x-admin-view'},
             {path: '/login/:to?', component: 'x-login-view'},
             {path: '/logout', action: (context) => {
-              authorized = false;
+              window.authorized = false;
               return context.redirect('/');
             }},
           ]);
+
+          XAdminView.prototype.connectedCallback = function () {
+            const root = this.shadowRoot || this.attachShadow({mode: 'open'});
+            root.innerHTML = 'Secret admin stuff';
+          };
+          customElements.define('x-admin-view', XAdminView);
         </script>
       </template>
     </vaadin-demo-snippet>

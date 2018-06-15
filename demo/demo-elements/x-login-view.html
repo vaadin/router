@@ -1,0 +1,32 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+
+<dom-module id="x-login-view">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h1>Login Form</h1>
+    <button on-click="login">Login with OAuth</button>
+  </template>
+  <script>
+    (() => {
+      class XHomeView extends Polymer.Element {
+        static get is() {
+          return 'x-login-view';
+        }
+
+        login() {
+          window.authorized = true;
+          window.dispatchEvent(
+            new CustomEvent('vaadin-router:navigate',
+              {detail: {pathname: this.route.params.to || '/'}}));
+        }
+      }
+
+      customElements.define(XHomeView.is, XHomeView);
+    })();
+  </script>
+</dom-module>
