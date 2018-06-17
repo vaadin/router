@@ -111,7 +111,7 @@
             }},
           ]);
 
-          XAdminView.prototype.connectedCallback = function () {
+          XAdminView.prototype.connectedCallback = function() {
             const root = this.shadowRoot || this.attachShadow({mode: 'open'});
             root.innerHTML = 'Secret admin stuff';
           };
