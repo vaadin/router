@@ -42,11 +42,11 @@
       }
     },
     {
-      "name": "Lazy Loading",
-      "url": "vaadin-router-lazy-loading-demos",
-      "src": "vaadin-router-lazy-loading-demos.html",
+      "name": "Code Splitting",
+      "url": "vaadin-router-code-splitting-demos",
+      "src": "vaadin-router-code-splitting-demos.html",
       "meta": {
-        "title": "Vaadin.Router Lazy Loading Examples",
+        "title": "Vaadin.Router Code Splitting Examples",
         "description": "",
         "image": ""
       }

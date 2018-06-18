@@ -53,7 +53,9 @@
         <script>
           const {Router} = window.Vaadin;
 
-          const router = new Router(document.getElementById('outlet'));
+          // select the DOM node where the router inserts route Web Components
+          const outlet = document.getElementById('outlet');
+          const router = new Router(outlet);
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
             {path: '/users', component: 'x-user-list'},

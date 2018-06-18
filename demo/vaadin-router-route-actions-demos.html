@@ -1,12 +1,16 @@
 <dom-module id="vaadin-router-route-actions-demos">
   <template>
-    <style include="vaadin-component-demo-shared-styles">
+    <style include="vaadin-component-demo-shared-styles vaadin-router-demo-shared-styles">
       :host {
         display: block;
       }
     </style>
 
     <h3>Custom Route Actions</h3>
+    <p class="note">
+      This feature is for advanced use cases. Please make sure to read the
+      documentation carefully.
+    </p>
     <p>
       Route resolution is an async operation started by a navigation event, or
       by an explicit <code>render()</code> method call. In that process

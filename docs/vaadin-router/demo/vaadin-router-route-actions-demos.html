@@ -1,12 +1,16 @@
 <dom-module id="vaadin-router-route-actions-demos">
   <template>
-    <style include="vaadin-component-demo-shared-styles">
+    <style include="vaadin-component-demo-shared-styles vaadin-router-demo-shared-styles">
       :host {
         display: block;
       }
     </style>
 
     <h3>Custom Route Actions</h3>
+    <p class="note">
+      This feature is for advanced use cases. Please make sure to read the
+      documentation carefully.
+    </p>
     <p>
       Route resolution is an async operation started by a navigation event, or
       by an explicit <code>render()</code> method call. In that process
@@ -38,7 +42,10 @@
         <li><code>context.redirect(path)</code> [function] that creates a redirect data for the path specified.
         This data can be returned from <code>action</code> to perform an actual redirect</li>
         <li><code>context.component(component)</code> [function] that creates a new <code>HTMLElement</code>
-          with current context</li>
+          with current context. If an action returns this element, the behavior is the same as for <code>component</code> route property:
+          the action result will be rendered, if the action is in a child route,
+          the result will be rendered as light dom child of the component from a parent route.
+        </li>
       </ul>
       The supported return values are
       <ul>

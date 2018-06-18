@@ -1,4 +1,4 @@
-<dom-module id="vaadin-router-lazy-loading-demos">
+<dom-module id="vaadin-router-code-splitting-demos">
   <template>
     <style include="vaadin-component-demo-shared-styles">
       :host {
@@ -8,16 +8,18 @@
 
     <h3>Lazy Loading JS Bundles</h3>
     <p>
-      Vaadin.Router has a special support for lazy loading <code>.js</code> and
-      <code>.mjs</code> scripts just-in-time before rendering a route Web
-      Component. In order to use this feature, specify the script URL in a
-      <code>bundle</code> property of the route object.
+      Vaadin.Router works great with code splitting. If your build tool allows
+      you to split your code into various bundles which can then be loaded on
+      demand, Vaadin.Router can load these bundled lazily just-in-time before
+      rendering a route.
+      In order to use this feature specify a bundle URL in the <code>bundle
+      </code> property of the route object.
     </p>
     <p>
       Note: If the bundle URL does not end with <code>.js</code> nor with <code>
       .mjs</code>, Vaadin.Router throws an <code>Error</code> and does not
-      attempt to load the bundle. Use a custom route action as shown in the
-      next demo if you need to load different types of the bundles.
+      attempt to load it. Use a custom route action as shown in the next demo if
+      you need to load non-js bundles.
     </p>
     <p>
       This demo shows how to load the <code>user.bundle.js</code>
@@ -25,8 +27,8 @@
       Check the network tab in the browser DevTools to see that the script is
       loaded only after clicking the <code>/user/guest</code> link.
     </p>
-    <vaadin-demo-snippet id="vaadin-router-lazy-loading-1" iframe-src="iframe.html">
-      <template preserve-content="">
+    <vaadin-demo-snippet id="vaadin-router-code-splitting-1" iframe-src="iframe.html">
+      <template preserve-content>
         <a href="/">Home</a>
         <a href="/user/guest">User Profile</a>
         <div id="outlet"></div>
@@ -50,8 +52,8 @@
     <h3>Lazy Loading non-JS Bundles, e.g. HTML Imports</h3>
     <p>
       In cases when loading <code>.js</code> and <code>.mjs</code> is not
-      enough—most notably, when using HTML imports in Polymer-based
-      apps—the lazy loading feature can be implemented with a custom route
+      enough&mdash;most notably, when using HTML imports in Polymer-based
+      apps&mdash;the lazy loading feature can be implemented with a custom route
       action (for more details see <a href="#vaadin-router-route-actions-demos">
       Route Actions</a>).
     </p>
@@ -60,8 +62,8 @@
       file contains entire Polymer 2 component definition including a template, a class,
       and a script that defines a custom element.
     </p>
-    <vaadin-demo-snippet id="vaadin-router-lazy-loading-2" iframe-src="iframe.html">
-      <template preserve-content="">
+    <vaadin-demo-snippet id="vaadin-router-code-splitting-2" iframe-src="iframe.html">
+      <template preserve-content>
         <link rel="import" href="../../polymer/lib/utils/import-href.html">
         <a href="/">Home</a>
         <a href="/user/admin">User Profile</a>
@@ -92,5 +94,13 @@
       </template>
     </vaadin-demo-snippet>
   </template>
-  <script>var VaadinRouterLazyLoadingDemos=function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterLazyLoadingDemos,_DemoReadyEventEmitte);function VaadinRouterLazyLoadingDemos(){babelHelpers.classCallCheck(this,VaadinRouterLazyLoadingDemos);return babelHelpers.possibleConstructorReturn(this,(VaadinRouterLazyLoadingDemos.__proto__||Object.getPrototypeOf(VaadinRouterLazyLoadingDemos)).apply(this,arguments))}babelHelpers.createClass(VaadinRouterLazyLoadingDemos,null,[{key:"is",get:function get(){return"vaadin-router-lazy-loading-demos"}}]);return VaadinRouterLazyLoadingDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterLazyLoadingDemos.is,VaadinRouterLazyLoadingDemos);</script>
+  <script>
+    class VaadinRouterCodeSplittingDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'vaadin-router-code-splitting-demos';
+      }
+    }
+
+    customElements.define(VaadinRouterCodeSplittingDemos.is, VaadinRouterCodeSplittingDemos);
+  </script>
 </dom-module>

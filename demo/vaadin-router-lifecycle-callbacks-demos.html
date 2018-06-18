@@ -11,9 +11,9 @@
       All Web Components in Vaadin.Router follow the same lifecycle. <em>Lifecycle
       callbacks</em> allow adding custom logic to any point of it:
       <ul>
-        <li><b><code>onBeforeEnter(context)</code></b></li>
-        <li><b><code>onAfterEnter(context)</code></b></li>
-        <li><b><code>onBeforeLeave(context)</code></b></li>
+        <li><b><code>onBeforeEnter(context): Promise | Cancel | Redirect | void</code></b></li>
+        <li><b><code>onAfterEnter(context): Promise | void</code></b></li>
+        <li><b><code>onBeforeLeave(context): Promise | Cancel | void</code></b></li>
       </ul>
       Vaadin.Router lifecycle callbacks can be defined as methods on the Web Component
       <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-definition"
@@ -192,7 +192,9 @@
             is: 'x-user-manage',
             onBeforeLeave: function(context) {
               if (context.pathname.indexOf('user/delete') > 0) {
-                return confirm('Are you sure you want to delete this user?') || context.cancel();
+                if (!window.confirm('Are you sure you want to delete this user?')) {
+                  return context.cancel();
+                }
               }
             }
           });
