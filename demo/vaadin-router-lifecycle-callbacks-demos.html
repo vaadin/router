@@ -247,7 +247,7 @@
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
             {path: '/', component: 'x-main-page'},
-            {path: '/editText', component: 'x-autosave-view'},
+            {path: '/edittext', component: 'x-autosave-view'},
           ]);
 
           let savedText = 'This text is automatically saved when router navigates away.';
@@ -255,11 +255,11 @@
           Polymer({is: 'x-main-page'});
           Polymer({
             is: 'x-autosave-view',
-            onBeforeEnter: function() {
-              this.text = savedText;
+            onAfterEnter: function() {
+              this.shadowRoot.querySelector('textarea').value = savedText;
             },
             onAfterLeave: function() {
-              savedText = this.text;
+              savedText = this.shadowRoot.querySelector('textarea').value;
             }
           });
         </script>
@@ -271,7 +271,7 @@
         </dom-module>
         <dom-module id="x-autosave-view">
           <template>
-            <div><textarea rows=5 cols=30>{{text}}</textarea></div>
+            <div><textarea rows="5" cols="30">{{text}}</textarea></div>
             <a href="/">Stop editing</a>
           </template>
         </dom-module>

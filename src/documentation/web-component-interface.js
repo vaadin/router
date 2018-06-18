@@ -48,7 +48,7 @@
  * If a `Promise` is returned by any of the callbacks, it is resolved before proceeding further.
  * Any of the `onBefore...` callbacks have a possibility to cancel the navigation and fall back
  * to the previous navigation result (if there is no result and this is the first resolution, an exception is thrown).
- * Any of the `onAfter...` value is ignored.
+ * `onAfter...` callbacks are considered as non-cancellable, and their return value is ignored.
  *
  * Other examples can be found in the
  * [live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.
