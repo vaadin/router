@@ -409,6 +409,9 @@ export class Router extends Resolver {
     }
 
     while (lastUnchangedComponent.hasChildNodes()) {
+      // remove from the bottom most node to ensure that
+      // `disconnectedCallback` is called in the same order as `onBeforeLeave` callback:
+      // the most nested element should be disconnected first.
       removeFromDomRecursively(lastUnchangedComponent.firstChild);
     }
 

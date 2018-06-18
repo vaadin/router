@@ -147,17 +147,17 @@
       </template>
     </vaadin-demo-snippet>
 
-    <p>If both route and its child route have a <code>component</code> property, child route's component will be
-      rendered as a light dom child of parent route's component.</p>
-    <p>It might not be clear from the previous demos, since none of the Web Components used contain
+    <h3>Nested Components</h3>
+    <p>In certain cases, for instance when creating a navigation bar shown on certain application pages, it is useful to define a common layout for the pages.
+    With Vaadin.Router it is done by specifying a <code>component</code> property both in parent and child route objects.</p>
+    <p>In this case child route's component will be rendered as a light dom child of parent route's component.</p>
+    <p>When using Web Components, in order to have the children displayed, the parent Web Component should contain
        <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot">slot tag</a>.
-      This demo shows the nested components.
-    </p>
+      This demo shows the nested components, note that the parent layout is the same even when you switch between the different child routes.</p>
     <vaadin-demo-snippet id="vaadin-router-getting-started-demo-4" iframe-src="iframe.html">
       <template preserve-content>
-        <div id="outlet"></div>
         <script type="module">
-          class XSlottedUsers extends Polymer.Element {
+          class XUsersLayout extends Polymer.Element {
             static get is() {
               return 'x-slotted-users';
             }
@@ -175,18 +175,23 @@
                   }
                 </style>
 
-                Show user profile:
-                <ul class='menu'>
-                  <li class='menu'><a href="/Kim">Kim</a></li>
-                  <li class='menu'><a href="/Jane">Jane</a></li>
-                  <li class='menu'><a href="/Sam">Sam</a></li>
-                </ul>
+                <div>
+                  Show user profile:
+                  <ul class="menu">
+                    <li class="menu"><a href="/Kim">Kim</a></li>
+                    <li class="menu"><a href="/Jane">Jane</a></li>
+                    <li class="menu"><a href="/Sam">Sam</a></li>
+                  </ul>
+                </div>
+                <div>
+                  Show not found view: <a href="/404">404</a>
+                </div>
                 <slot></slot>
                 `;
             }
           }
 
-          customElements.define(XSlottedUsers.is, XSlottedUsers);
+          customElements.define(XUsersLayout.is, XUsersLayout);
 
           // import {Router} from '@vaadin/router';
           const {Router} = window.Vaadin;
@@ -195,11 +200,13 @@
           router.setRoutes([
             {path: '/', component: 'x-slotted-users',
               children: [
+                {path: '/([0-9]+)', component: 'x-not-found-view'},
                 {path: '/:user', component: 'x-user-profile'}
               ]
             },
           ]);
         </script>
+        <div id="outlet"></div>
       </template>
     </vaadin-demo-snippet>
   </template>
