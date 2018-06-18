@@ -33,7 +33,7 @@ function checkOutletContents(root, valueGetter, expectedValues) {
   let currentElementToCheck = root;
   for (let i = 0; i < expectedValues.length; i++) {
     const expectedValue = expectedValues[i];
-    expect(currentElementToCheck, `Failed to find a child '${expectedValue}'`).to.be.an('HTMLElement');
+    expect(currentElementToCheck, `Failed to find a child '${expectedValue}'`).to.be.not.null;
     expect(currentElementToCheck[valueGetter]).to.match(new RegExp(expectedValue, 'i'));
     expect(currentElementToCheck.children.length, `Expect each outlet element to have no more than 1 child`).to.be.below(2);
     currentElementToCheck = currentElementToCheck.children[0];
