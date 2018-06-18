@@ -235,7 +235,7 @@
       expect(context.chain[1].path).to.equal('/b');
     });
 
-    it('the path to the route that produced the reusult is in the `context` (3)', async() => {
+    it('the path to the route that produced the result is in the `context` (3)', async() => {
       const resolver = new Resolver([
         {
           path: '/',
