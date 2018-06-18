@@ -50,6 +50,26 @@
     describe('Vaadin.Router lifecycle events', function() {
       const {verifyActiveRoutes, onAfterEnterAction, onBeforeEnterAction, onBeforeLeaveAction} = VaadinTestNamespace;
 
+      const verifyCallbacks = expectedCallbacks => {
+        expect(callbacksLog).to.be.an('array');
+        expect(expectedCallbacks).to.be.an('array');
+
+        try {
+          expect(callbacksLog).to.deep.equal(expectedCallbacks);
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          if (console.table) {
+            const comparisonTable = [['expected', 'actual']];
+            for (let i = 0; i < Math.max(expectedCallbacks.length, callbacksLog.length); i++) {
+              comparisonTable.push([expectedCallbacks[i], callbacksLog[i]]);
+            }
+            // eslint-disable-next-line no-console
+            console.table(comparisonTable);
+          }
+          throw e;
+        }
+      };
+
       // eslint-disable-next-line no-invalid-this
       const suite = this;
       suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
@@ -188,7 +208,7 @@
 
           await router.render('/a');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'a.onBeforeEnter',
             'a.onBeforeEnter.promise',
             'a.connectedCallback',
@@ -328,7 +348,7 @@
           callbacksLog = [];
           await router.render('/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'b.action',
             'a.onBeforeLeave',
             'a.onBeforeLeave.promise',
@@ -450,7 +470,7 @@
           callbacksLog = [];
           await router.render('/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'a.onBeforeLeave',
             'b.onBeforeEnter',
             'a.disconnectedCallback',
@@ -471,7 +491,7 @@
           callbacksLog = [];
           await router.render('/a');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'a.action',
             'a.onBeforeEnter',
             'a.connectedCallback',
@@ -489,7 +509,7 @@
           callbacksLog = [];
           await router.render('/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'b.action',
             'a.onBeforeLeave',
             'b.onBeforeEnter',
@@ -516,7 +536,7 @@
           callbacksLog = [];
           await router.render('/a/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'a.action',
             'b.action',
             'b.onBeforeEnter',
@@ -543,7 +563,7 @@
           callbacksLog = [];
           await router.render('/a/c');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'a.action',
             'c.action',
             'b.onBeforeLeave',
@@ -553,6 +573,7 @@
             'c.onAfterEnter',
           ]);
         });
+
 
         it('(initial) -> /a/non-existent-path', async() => {
           await router.render('/').catch(() => {});
@@ -573,7 +594,7 @@
           ]);
           await router.render('/a/non-existent-path');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'a.action',
             'asterisk.action',
             'asterisk.onBeforeEnter',
@@ -600,7 +621,7 @@
           callbacksLog = [];
           await router.render('/a/non-existent-path');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'a.action',
             'asterisk.action',
             'b.onBeforeLeave',
@@ -635,7 +656,7 @@
           callbacksLog = [];
           await router.render('/a/d');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'a.action',
             'ad.action',
             'ac.onBeforeLeave',
@@ -655,7 +676,7 @@
           callbacksLog = [];
           await router.render('/users/John');
 
-          expect(callbacksLog).to.deep.equal(['x-user.action']);
+          verifyCallbacks(['x-user.action']);
         });
       });
 
@@ -680,7 +701,7 @@
         it('/a/b -> /a/b', async() => {
           await router.render('/a/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-a.onBeforeEnter',
@@ -695,7 +716,7 @@
           callbacksLog = [];
           await router.render('/a/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
           ]);
@@ -705,7 +726,7 @@
         it('/a/b -> /c', async() => {
           await router.render('/a/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-a.onBeforeEnter',
@@ -720,7 +741,7 @@
           callbacksLog = [];
           await router.render('/c');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-c.action',
             'x-b.onBeforeLeave',
             'x-a.onBeforeLeave',
@@ -736,7 +757,7 @@
         it('/a/b -> /a/d', async() => {
           await router.render('/a/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-a.onBeforeEnter',
@@ -751,7 +772,7 @@
           callbacksLog = [];
           await router.render('/a/d');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-d.action',
             'x-b.onBeforeLeave',
@@ -766,7 +787,7 @@
         it('/a/b -> /a/b/e', async() => {
           await router.render('/a/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-a.onBeforeEnter',
@@ -781,7 +802,7 @@
           callbacksLog = [];
           await router.render('/a/b/e');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-e.action',
@@ -807,7 +828,7 @@
           callbacksLog = [];
           await router.render('/a/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-b-root.action',
@@ -826,7 +847,7 @@
           callbacksLog = [];
           await router.render('/a/b/e');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-e.action',
@@ -842,7 +863,7 @@
         it('/a/b/e -> /a/b', async() => {
           await router.render('/a/b/e');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-e.action',
@@ -861,7 +882,7 @@
           callbacksLog = [];
           await router.render('/a/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-e.onBeforeLeave',
@@ -885,7 +906,7 @@
           callbacksLog = [];
           await router.render('/a/b/e');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-e.action',
@@ -904,7 +925,7 @@
           callbacksLog = [];
           await router.render('/a/b');
 
-          expect(callbacksLog).to.deep.equal([
+          verifyCallbacks([
             'x-a.action',
             'x-b.action',
             'x-b-root.action',
