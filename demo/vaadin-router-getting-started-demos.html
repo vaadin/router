@@ -156,43 +156,9 @@
       This demo shows the nested components, note that the parent layout is the same even when you switch between the different child routes.</p>
     <vaadin-demo-snippet id="vaadin-router-getting-started-demo-4" iframe-src="iframe.html">
       <template preserve-content>
+        <div id="outlet"></div>
+
         <script type="module">
-          class XUsersLayout extends Polymer.Element {
-            static get is() {
-              return 'x-slotted-users';
-            }
-
-            static get template() {
-              return `
-                <style>
-                  :host {
-                   display: block;
-                  }
-
-                  .menu {
-                    display: inline;
-                    padding: 0;
-                  }
-                </style>
-
-                <div>
-                  Show user profile:
-                  <ul class="menu">
-                    <li class="menu"><a href="/Kim">Kim</a></li>
-                    <li class="menu"><a href="/Jane">Jane</a></li>
-                    <li class="menu"><a href="/Sam">Sam</a></li>
-                  </ul>
-                </div>
-                <div>
-                  Show not found view: <a href="/404">404</a>
-                </div>
-                <slot></slot>
-                `;
-            }
-          }
-
-          customElements.define(XUsersLayout.is, XUsersLayout);
-
           // import {Router} from '@vaadin/router';
           const {Router} = window.Vaadin;
 
@@ -205,8 +171,34 @@
               ]
             },
           ]);
+
+          Polymer({is: 'x-slotted-users'});
         </script>
-        <div id="outlet"></div>
+
+        <dom-module id="x-slotted-users">
+          <template>
+            <style>
+              .menu {
+                display: inline;
+                padding: 0;
+              }
+            </style>
+
+            <div>
+              Show user profile:
+              <ul class="menu">
+                <li class="menu"><a href="/Kim">Kim</a></li>
+                <li class="menu"><a href="/Jane">Jane</a></li>
+                <li class="menu"><a href="/Sam">Sam</a></li>
+              </ul>
+            </div>
+            <div>
+              Show not found view: <a href="/404">404</a>
+            </div>
+            <slot></slot>
+          </template>
+        </dom-module>
+
       </template>
     </vaadin-demo-snippet>
   </template>
