@@ -29,6 +29,15 @@ function onAfterEnterAction(componentName, callback, name) {
   };
 }
 
+function onAfterLeaveAction(componentName, callback, name) {
+  return context => {
+    const component = context.component(componentName);
+    component.name = name;
+    component.onAfterLeave = callback;
+    return component;
+  };
+}
+
 function checkOutletContents(root, valueGetter, expectedValues) {
   let currentElementToCheck = root;
   for (let i = 0; i < expectedValues.length; i++) {
@@ -49,4 +58,5 @@ vaadinTestNamespace.verifyActiveRoutes = verifyActiveRoutes;
 vaadinTestNamespace.onBeforeLeaveAction = onBeforeLeaveAction;
 vaadinTestNamespace.onBeforeEnterAction = onBeforeEnterAction;
 vaadinTestNamespace.onAfterEnterAction = onAfterEnterAction;
+vaadinTestNamespace.onAfterLeaveAction = onAfterLeaveAction;
 vaadinTestNamespace.checkOutletContents = checkOutletContents;
