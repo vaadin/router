@@ -31,7 +31,7 @@ function runCallbackIfPossible(callback, context, thisObject) {
 
 function amend(amendmentFunction, context, route) {
   return amendmentResult => {
-    if ((amendmentResult || {}).cancel) {
+    if (amendmentResult && (amendmentResult.cancel || amendmentResult.redirect)) {
       return amendmentResult;
     }
 
@@ -189,6 +189,9 @@ export class Router extends Resolver {
    *
    * * `component` – the tag name of the Web Component to resolve the route to.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
+   * If route contains the `component` property (or an action that return a component)
+   * and its child route also contains the `component` property, child route's component
+   * will be rendered as a light dom child of a parent component.
    *
    * * `children` – nested routes. Parent routes' properties are executed before resolving the children.
    * Children 'path' values are relative to the parent ones.
@@ -235,37 +238,16 @@ export class Router extends Resolver {
     this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
-      .then(newContext => {
-        const result = newContext.result;
-        if (result instanceof HTMLElement) {
-          return this.__tryAmendResolution(this.__previousContext, newContext);
-        } else if (result.redirect) {
-          return this.__redirect(result.redirect);
-        } else if (result instanceof Error) {
-          return Promise.reject(result);
-        } else {
-          return Promise.reject(
-            new Error(
-              log(
-                `Invalid route resolution result for path "${pathnameOrContext}". ` +
-                `Expected redirect object or HTML element, but got: "${result}". ` +
-                `Double check the action return value for the route.`
-              )
-            ));
-        }
-      })
+      .then(originalContext => this.__fullyResolveChain(originalContext, originalContext))
       .then(context => {
         if (renderId === this.__lastStartedRenderId) {
           if (shouldUpdateHistory) {
             this.__updateBrowserHistory(context.result.route.pathname);
           }
 
-          if (context.route !== (this.__previousContext || {}).route) {
-            this.__setOutletContent(context.result);
-            const currentComponent = context.route.__component || {};
-            return Promise.resolve(runCallbackIfPossible(currentComponent.onAfterEnter,
-              Object.assign({}, context, {next: undefined}), currentComponent))
-              .then(() => context);
+          if (context !== this.__previousContext) {
+            this.__setOutletContent(context);
+            return this.__onAfterEnter(context);
           }
           return Promise.resolve(context);
         }
@@ -286,34 +268,82 @@ export class Router extends Resolver {
     return this.ready;
   }
 
-  __tryAmendResolution(previousContext, newContext) {
-    const previousChain = (previousContext || {}).chain;
+  __fullyResolveChain(originalContext, currentContext) {
+    return this.__amendWithResolutionResult(currentContext)
+      .then(amendedContext => {
+        const initialContext = amendedContext !== currentContext ? amendedContext : originalContext;
+        return amendedContext.next()
+          .then(nextContext => {
+            return nextContext
+              ? this.__fullyResolveChain(initialContext, nextContext)
+              : this.__amendWithLifecycleCallbacks(initialContext);
+          });
+      });
+  }
+
+  __amendWithResolutionResult(context) {
+    const result = context.result;
+    if (result instanceof HTMLElement) {
+      return Promise.resolve(context);
+    } else if (result.redirect) {
+      return this.__redirect(result.redirect);
+    } else if (result instanceof Error) {
+      return Promise.reject(result);
+    } else {
+      return Promise.reject(
+        new Error(
+          log(
+            `Invalid route resolution result for path "${context.pathname}". ` +
+            `Expected redirect object or HTML element, but got: "${result}". ` +
+            `Double check the action return value for the route.`
+          )
+        ));
+    }
+  }
+
+  __amendWithLifecycleCallbacks(contextWithFullChain) {
+    return this.__runLifecycleCallbacks(contextWithFullChain).then(amendedContext => {
+      if (amendedContext === this.__previousContext || amendedContext === contextWithFullChain) {
+        return amendedContext;
+      }
+      return this.__fullyResolveChain(amendedContext, amendedContext);
+    });
+  }
+
+  __runLifecycleCallbacks(newContext) {
+    const previousChain = (this.__previousContext || {}).chain;
     const newChain = newContext.chain;
 
     let callbacks = Promise.resolve();
 
+    newContext.__divergedChainIndex = 0;
     if (previousChain && previousChain.length) {
-      let divergedChainIndex = 0;
-      for (; divergedChainIndex < Math.min(previousChain.length, newChain.length); divergedChainIndex++) {
-        if (previousChain[divergedChainIndex] !== newChain[divergedChainIndex]) {
+      for (; newContext.__divergedChainIndex < Math.min(previousChain.length, newChain.length); newContext.__divergedChainIndex++) {
+        if (previousChain[newContext.__divergedChainIndex] !== newChain[newContext.__divergedChainIndex]) {
           break;
         }
       }
 
-      for (let i = previousChain.length - 1; i >= divergedChainIndex; i--) {
-        callbacks = callbacks.then(amend('onBeforeLeave', newContext, previousChain[i]));
+      for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
+        callbacks = callbacks
+          .then(amend('onBeforeLeave', newContext, previousChain[i]))
+          .then(result => {
+            if (!(result || {}).redirect) {
+              return result;
+            }
+          });
       }
     }
 
-    if (newContext.route !== (previousContext || {}).route) {
-      callbacks = callbacks.then(amend('onBeforeEnter',
-        Object.assign({redirect: path => redirect(newContext, path)}, newContext), newContext.route));
+    const onBeforeEnterContext = Object.assign({redirect: path => redirect(newContext, path)}, newContext);
+    for (let i = newContext.__divergedChainIndex; i < newChain.length; i++) {
+      callbacks = callbacks.then(amend('onBeforeEnter', onBeforeEnterContext, newChain[i]));
     }
 
     return callbacks.then(amendmentResult => {
       if (amendmentResult) {
         if (amendmentResult.cancel) {
-          return previousContext;
+          return this.__previousContext;
         }
         if (amendmentResult.redirect) {
           return this.__redirect(amendmentResult.redirect);
@@ -344,18 +374,58 @@ export class Router extends Resolver {
     }
   }
 
-  __setOutletContent(element) {
+  __setOutletContent(context) {
+    function containsElement(htmlElements, elementToSearch) {
+      for (let i = 0; i < htmlElements.length; i++) {
+        if (htmlElements[i] === elementToSearch) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     this.__ensureOutlet();
-    const children = this.__outlet.children;
-    if (children && children.length) {
-      const parent = children[0].parentNode;
-      for (let i = 0; i < children.length; i += 1) {
-        parent.removeChild(children[i]);
+
+    let lastUnchangedComponent = this.__outlet;
+
+    if (context) {
+      for (let i = 0; i < context.__divergedChainIndex; i++) {
+        const unchangedComponent = context.chain[i].__component;
+        if (unchangedComponent) {
+          if (containsElement(lastUnchangedComponent.children || [], unchangedComponent)) {
+            lastUnchangedComponent = unchangedComponent;
+          } else {
+            break;
+          }
+        }
       }
     }
-    if (element) {
-      this.__outlet.appendChild(element);
+
+    while (lastUnchangedComponent.hasChildNodes()) {
+      lastUnchangedComponent.removeChild(lastUnchangedComponent.firstChild);
     }
+
+    if (context) {
+      let parentElement = lastUnchangedComponent;
+      for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
+        const componentToAdd = context.chain[i].__component;
+        if (componentToAdd) {
+          parentElement.appendChild(componentToAdd);
+          parentElement = componentToAdd;
+        }
+      }
+    }
+  }
+
+  __onAfterEnter(context) {
+    const callbackContext = Object.assign({}, context, {next: undefined});
+    let promises = Promise.resolve();
+
+    for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
+      const currentComponent = context.chain[i].__component || {};
+      promises = promises.then(() => runCallbackIfPossible(currentComponent.onAfterEnter, callbackContext, currentComponent));
+    }
+    return promises.then(() => context);
   }
 
   /**

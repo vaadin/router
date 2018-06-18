@@ -44,7 +44,7 @@
       see the <a href="#vaadin-router-route-parameters-demos">Route Parameters
       </a> demos.
     </p>
-    <vaadin-demo-snippet id="vaadin-router-gettings-started-demo-1" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-1" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">Users</a>
@@ -93,7 +93,7 @@
       should always be <strong>after</strong> other alternatives.</p>
     <p>The path that leads to the fallback route is available to the route
       component via the <code>route.pathname</code> property.</p>
-    <vaadin-demo-snippet id="vaadin-router-gettings-started-demo-2" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-2" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">All Users</a>
@@ -123,7 +123,7 @@
       the "Getting Started" example above.</p>
     <p>The leading <code>'/'</code> in child route paths is optional&mdash;they
       are always relative to the path of the parent route.</p>
-    <vaadin-demo-snippet id="vaadin-router-gettings-started-demo-3" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-3" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users">All Users</a>
@@ -144,6 +144,47 @@
             },
           ]);
         </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Nested Components</h3>
+    <p>In certain cases, for instance when creating a navigation bar shown on certain application pages, it is useful to define a common layout for the pages.
+    With Vaadin.Router it is done by specifying a <code>component</code> property both in parent and child route objects.</p>
+    <p>In this case child route's component will be rendered as a light dom child of parent route's component.</p>
+    <p>When using Web Components, in order to have the children displayed, the parent Web Component should contain
+       <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot">slot tag</a>.
+      This demo shows the nested components, note that the parent layout is the same even when you switch between the different child routes.</p>
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-4" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/',
+              component: 'x-navigation-layout',
+              children: [
+                {path: '/', component: 'x-home-view'},
+                {path: '/users', component: 'x-user-list'},
+                {path: '/users/:user', component: 'x-user-profile'},
+              ]
+            }
+          ]);
+
+          Polymer({is: 'x-navigation-layout'});
+        </script>
+
+        <dom-module id="x-navigation-layout">
+          <template>
+            <a href="/">Home</a>
+            <a href="/users">Users</a>
+            <slot></slot>
+          </template>
+        </dom-module>
+
       </template>
     </vaadin-demo-snippet>
   </template>
