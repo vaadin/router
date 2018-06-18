@@ -247,7 +247,7 @@
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
             {path: '/', component: 'x-main-page'},
-            {path: '/edittext', component: 'x-autosave-view'},
+            {path: '/edit', component: 'x-autosave-view'},
           ]);
 
           let savedText = 'This text is automatically saved when router navigates away.';
@@ -266,7 +266,7 @@
 
         <dom-module id="x-main-page">
           <template>
-            <a href="/editText">Edit the text</a>
+            <a href="/edit">Edit the text</a>
           </template>
         </dom-module>
         <dom-module id="x-autosave-view">
