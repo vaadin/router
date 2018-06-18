@@ -164,37 +164,23 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', component: 'x-slotted-users',
+            {path: '/',
+              component: 'x-navigation-layout',
               children: [
-                {path: '/([0-9]+)', component: 'x-not-found-view'},
-                {path: '/:user', component: 'x-user-profile'}
+                {path: '/', component: 'x-home-view'},
+                {path: '/users', component: 'x-user-list'},
+                {path: '/users/:user', component: 'x-user-profile'},
               ]
-            },
+            }
           ]);
 
-          Polymer({is: 'x-slotted-users'});
+          Polymer({is: 'x-navigation-layout'});
         </script>
 
-        <dom-module id="x-slotted-users">
+        <dom-module id="x-navigation-layout">
           <template>
-            <style>
-              .menu {
-                display: inline;
-                padding: 0;
-              }
-            </style>
-
-            <div>
-              Show user profile:
-              <ul class="menu">
-                <li class="menu"><a href="/Kim">Kim</a></li>
-                <li class="menu"><a href="/Jane">Jane</a></li>
-                <li class="menu"><a href="/Sam">Sam</a></li>
-              </ul>
-            </div>
-            <div>
-              Show not found view: <a href="/404">404</a>
-            </div>
+            <a href="/">Home</a>
+            <a href="/users">Users</a>
             <slot></slot>
           </template>
         </dom-module>

@@ -43,13 +43,6 @@ function amend(amendmentFunction, context, route) {
   };
 }
 
-function removeFromDomRecursively(node) {
-  while (node.hasChildNodes()) {
-    removeFromDomRecursively(node.firstChild);
-  }
-  node.parentNode.removeChild(node);
-}
-
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -409,10 +402,7 @@ export class Router extends Resolver {
     }
 
     while (lastUnchangedComponent.hasChildNodes()) {
-      // remove from the bottom most node to ensure that
-      // `disconnectedCallback` is called in the same order as `onBeforeLeave` callback:
-      // the most nested element should be disconnected first.
-      removeFromDomRecursively(lastUnchangedComponent.firstChild);
+      lastUnchangedComponent.removeChild(lastUnchangedComponent.firstChild);
     }
 
     if (context) {
