@@ -118,7 +118,8 @@ export class Router extends Resolver {
 
     const updatedContext = Object.assign({
       redirect: path => redirect(context, path),
-      component: component => renderComponent(context, component)
+      component: component => renderComponent(context, component),
+      addRoutes: routes => this.addRoutes(routes),
     }, context);
     const actionResult = runCallbackIfPossible(processAction, updatedContext, route);
     if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
