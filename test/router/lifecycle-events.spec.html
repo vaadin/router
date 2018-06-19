@@ -63,13 +63,11 @@
         try {
           expect(callbacksLog).to.deep.equal(expectedCallbacks);
         } catch (e) {
-          // eslint-disable-next-line no-console
           if (console.table) {
             const comparisonTable = [['expected', 'actual']];
             for (let i = 0; i < Math.max(expectedCallbacks.length, callbacksLog.length); i++) {
               comparisonTable.push([expectedCallbacks[i], callbacksLog[i]]);
             }
-            // eslint-disable-next-line no-console
             console.table(comparisonTable);
           }
           throw e;
@@ -693,7 +691,6 @@
             'c.onAfterEnter',
           ]);
         });
-
 
         it('(initial) -> /a/non-existent-path', async() => {
           await router.render('/').catch(() => {});

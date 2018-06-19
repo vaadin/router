@@ -71,7 +71,7 @@
     "browserslist": "^3.2.8",
     "bundlesize": "^0.17.0",
     "eslint": "^4.19.0",
-    "eslint-config-vaadin": "latest",
+    "eslint-config-vaadin": "^0.2.6",
     "eslint-plugin-html": "^4.0.0",
     "fs-extra": "^6.0.0",
     "gulp": "^3.9.0",
