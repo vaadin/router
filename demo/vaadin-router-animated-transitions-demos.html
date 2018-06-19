@@ -8,19 +8,19 @@
 
     <h3>Animated Route Transition</h3>
     <p>
-      The <code>animate</code> property on the route config can be used to establish animated transitions
-      for two Web Components. When the value of the property is set <code>true</code>, the Vaadin.Router
-      will take following steps to perform animated transition:
+      Vaadin.Router allows you to animate transitions between routes. In order to add an animation, do the next steps:
     </p>
     <ol>
-      <li>render the new view component to the outlet content</li>
-      <li>set the <code>entering</code> CSS class on the new view component</li>
-      <li>set the <code>leaving</code> CSS class on the old view component, if any</li>
-      <li>check if some <code>@keyframes</code> animation applies, and wait for it to complete</li>
-      <li>remove the old view component from the outlet content</li>
-      <li>continue the remaining navigation steps as usual</li>
+      <li>update the router config: add the <code>animate</code> property set to <code>true</code></li>
+      <li>add <code>@keyframes</code> animations, either in the view Web Component styles or in outside CSS</li>
+      <li>apply CSS for <code>.leaving</code> and <code>.entering</code> classes to use the animations</li>
     </ol>
-    <vaadin-demo-snippet id="vaadin-router-basic-demo-3" iframe-src="iframe.html">
+    <p>
+      The demo below illustrates how to add the transition between all the routes in the same group.
+      You might also add the transition for the specific routes only, by setting the <code>animate</code>
+      property on the corresponding route config objects.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-animated-transitions-demos-1" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/image-125px">Image</a>
@@ -68,6 +68,131 @@
 
             to {
               opacity: 1;
+            }
+          }
+        </style>
+      </template>
+    </vaadin-demo-snippet>
+    <p>
+      To run the animated transition, Vaadin.Router performs the actions in the following order:
+    </p>
+    <ol>
+      <li>render the new view component to the outlet content</li>
+      <li>set the <code>entering</code> CSS class on the new view component</li>
+      <li>set the <code>leaving</code> CSS class on the old view component, if any</li>
+      <li>check if some <code>@keyframes</code> animation applies, and wait for it to complete</li>
+      <li>remove the old view component from the outlet content</li>
+      <li>continue the remaining navigation steps as usual</li>
+    </ol>
+    <h3>Customize CSS Classes</h3>
+    <p>
+      In the basic use case, using single type of the animated transition could be enough to make the web app
+      looking great, but often we need to configure it depending on the route. Vaadin.Router supports this feature
+      by setting object value to <code>animate</code> property, with the <code>enter</code> and
+      <code>leave</code> string keys. Their values are used for setting CSS classes to be set on the views.
+    </p>
+    <p>
+      Note that you can first configure animated transition for the group of routes, and then override it for
+      the single route. In particular, you can switch back to using default CSS classes, as shown in the demo below.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-animated-transitions-demos-2" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/',
+              component: 'x-wrapper',
+              children: [
+                {path: '/', component: 'x-home-view'},
+                {
+                  path: '/users',
+                  animate: {
+                    enter: 'users-entering',
+                    leave: 'users-leaving'
+                  },
+                  children: [
+                    {path: '', component: 'x-user-list'},
+                    {
+                      path: '/:user',
+                      component: 'x-user-profile',
+                      animate: true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]);
+
+          Polymer({is: 'x-wrapper'});
+        </script>
+
+        <dom-module id="x-wrapper">
+          <template>
+            <a href="/">Home</a>
+            <a href="/users">Users</a>
+            <slot></slot>
+          </template>
+        </dom-module>
+        <style>
+          .leaving {
+            animation: 1s fadeOut ease-in-out;
+          }
+
+          .entering {
+            animation: 1s fadeIn linear;
+          }
+
+          .users-entering {
+            animation: 0.5s slideInDown ease-in;
+          }
+
+          .users-leaving {
+            animation: 0.5s slideOutDown linear;
+          }
+
+          @keyframes fadeOut {
+            from {
+              opacity: 1;
+            }
+
+            to {
+              opacity: 0;
+            }
+          }
+
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+            }
+
+            to {
+              opacity: 1;
+            }
+          }
+
+          @keyframes slideInDown {
+            from {
+              transform: translate3d(0, -100%, 0);
+              visibility: visible;
+            }
+
+            to {
+              transform: translate3d(0, 0, 0);
+            }
+          }
+
+          @keyframes slideOutDown {
+            from {
+              transform: translate3d(0, 0, 0);
+            }
+
+            to {
+              visibility: hidden;
+              transform: translate3d(0, 100%, 0);
             }
           }
         </style>
