@@ -29,13 +29,13 @@
         .and.not.be.null;
       expect(result).to.have.property('next')
         .that.is.a('function');
-    
+
       const item = result.next();
       expect(item).to.have.property('done', false);
       expect(item).to.have.property('value')
         .that.is.an('object')
         .and.is.not.null;
-    
+
       const item2 = result.next();
       expect(item2).to.have.property('done', true);
     });
@@ -181,7 +181,7 @@
         expect(result[0]).to.have.deep.property('route.path', '/a');
         expect(result[1]).to.have.deep.property('route.path', '/b');
       });
-  
+
       it('should match both the parent and one child route (parent first) - several children', () => {
         const route = {
           path: '/a',
