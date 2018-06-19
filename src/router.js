@@ -2,7 +2,7 @@ import Resolver from './resolver/resolver.js';
 import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
-import {log, loadBundle} from './utils.js';
+import {log, loadBundle, fireRouterEvent} from './utils.js';
 
 function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
@@ -265,6 +265,7 @@ export class Router extends Resolver {
           this.__removeOldOutletContent();
         }
         this.__previousContext = context;
+        fireRouterEvent('route-changed', {pathname: context.pathname});
         return this.__outlet;
       })
       .catch(error => {
@@ -273,6 +274,7 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(pathnameOrContext);
           }
           this.__removeOutletContent();
+          fireRouterEvent('error', {error});
           throw error;
         }
       });
@@ -506,8 +508,7 @@ export class Router extends Resolver {
    * subscribed to navigation events, it won't be garbage collected.
    */
   subscribe() {
-    window.addEventListener('vaadin-router:navigate',
-      this.__navigationEventHandler);
+    window.addEventListener('vaadin-router:go', this.__navigationEventHandler);
   }
 
   /**
@@ -515,8 +516,7 @@ export class Router extends Resolver {
    * method.
    */
   unsubscribe() {
-    window.removeEventListener('vaadin-router:navigate',
-      this.__navigationEventHandler);
+    window.removeEventListener('vaadin-router:go', this.__navigationEventHandler);
   }
 
   __onNavigationEvent(event) {
@@ -544,5 +544,15 @@ export class Router extends Resolver {
    */
   static setTriggers(...triggers) {
     setNavigationTriggers(triggers);
+  }
+
+  /**
+   * Triggers navigation to a new path and returns without waiting until the
+   * navigation is complete.
+   *
+   * @param {!string} pathname a new in-app path
+   */
+  static go(pathname) {
+    fireRouterEvent('go', {pathname});
   }
 }

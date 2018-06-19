@@ -1,4 +1,4 @@
-import triggerNavigation from './triggerNavigation.js';
+import {fireRouterEvent} from '../utils.js';
 
 // PopStateEvent constructor shim
 const isIE = /Trident/.test(navigator.userAgent);
@@ -19,7 +19,7 @@ function vaadinRouterGlobalPopstateHandler(event) {
   if (event.state === 'vaadin-router:ignore') {
     return;
   }
-  triggerNavigation(window.location.pathname);
+  fireRouterEvent('go', {pathname: window.location.pathname});
 }
 
 /**

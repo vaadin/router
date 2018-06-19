@@ -90,3 +90,9 @@ export function loadBundle(path) {
     document.head.appendChild(script);
   });
 }
+
+export function fireRouterEvent(type, detail) {
+  window.dispatchEvent(
+    new CustomEvent(
+      `vaadin-router:${type}`, {detail}));
+}

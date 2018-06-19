@@ -119,6 +119,47 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Navigation from JavaScript</h3>
+    <p>
+      If you want to redirect users to another route in response to a user
+      action (outside of a lifecycle callback), you can do that by using the
+      static <code>Router.go('/to/path')</code> method on the Vaadin.Router
+      class.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-redirect-demos-3" iframe-src="iframe.html">
+      <template preserve-content="">
+        <button id="trigger">Open <code>/user/you-know-who</code></button>
+        <main id="outlet"></main>
+
+        <script>
+          const {Router} = window.Vaadin;
+
+          document.querySelector('#trigger').addEventListener('click', () => {
+            Router.go('/user/you-know-who');
+          });
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/user/:user', component: 'x-user-profile'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+    <p>
+      NOTE: the same effect can be achieved by dispatching a <code>
+      vaadin-router:go</code> custom event on the <code>window</code>. The
+      target path should be provided as <code>event.detail.pathname</code>.
+    </p>
+    <marked-element>
+      <script type="text/markdown">
+        ```js
+        window.dispatchEvent(
+          new CustomEvent('vaadin-router:go', {detail: {pathname: '/to/path'}}));
+        ```
+      </script>
+    </marked-element>
   </template>
   <script>var VaadinRouterRedirectDemos=function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterRedirectDemos,_DemoReadyEventEmitte);function VaadinRouterRedirectDemos(){babelHelpers.classCallCheck(this,VaadinRouterRedirectDemos);return babelHelpers.possibleConstructorReturn(this,(VaadinRouterRedirectDemos.__proto__||Object.getPrototypeOf(VaadinRouterRedirectDemos)).apply(this,arguments))}babelHelpers.createClass(VaadinRouterRedirectDemos,null,[{key:"is",get:function get(){return"vaadin-router-redirect-demos"}}]);return VaadinRouterRedirectDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterRedirectDemos.is,VaadinRouterRedirectDemos);</script>
 </dom-module>
