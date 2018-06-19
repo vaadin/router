@@ -14,6 +14,7 @@
         <li><b><code>onBeforeEnter(context): Promise | Cancel | Redirect | void</code></b></li>
         <li><b><code>onAfterEnter(context): Promise | void</code></b></li>
         <li><b><code>onBeforeLeave(context): Promise | Cancel | void</code></b></li>
+        <li><b><code>onAfterLeave(context): Promise | void</code></b></li>
       </ul>
       Vaadin.Router lifecycle callbacks can be defined as methods on the Web Component
       <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-definition" target="_blank" rel="noopener">class definition</a> in a similar way as
@@ -215,6 +216,65 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+    <h3><code>onAfterLeave(context)</code></h3>
+    <p>
+      The element does not match the current path anymore and is about to be
+      removed from the DOM. When this callback is executed, the navigation cannot be interrupted anymore.
+    </p>
+    <p>
+      This callback may return special values to produce following effects:
+    </p>
+    <ul>
+      <li>delay the component removal: <code>return new Promise(...)</code></li>
+      <li>any other return value is ignored, and the navigation continues.</li>
+    </ul>
+    <p>
+      See <a href="../#/classes/Vaadin.WebComponentInterface#method-onAfterLeave" target="_blank">
+      API documentation</a> for the available <code>context</code> object properties.
+    </p>
+    <p>
+      The demo below illustrates how is it possible to autosave changes when navigating away from the view.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-4" iframe-src="iframe.html">
+      <template preserve-content="">
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-main-page'},
+            {path: '/edit', component: 'x-autosave-view'},
+          ]);
+
+          let savedText = 'This text is automatically saved when router navigates away.';
+
+          Polymer({is: 'x-main-page'});
+          Polymer({
+            is: 'x-autosave-view',
+            onAfterEnter: function() {
+              this.shadowRoot.querySelector('textarea').value = savedText;
+            },
+            onAfterLeave: function() {
+              savedText = this.shadowRoot.querySelector('textarea').value;
+            }
+          });
+        </script>
+
+        <dom-module id="x-main-page">
+          <template>
+            <a href="/edit">Edit the text</a>
+          </template>
+        </dom-module>
+        <dom-module id="x-autosave-view">
+          <template>
+            <div><textarea rows="5" cols="30">{{text}}</textarea></div>
+            <a href="/">Stop editing</a>
+          </template>
+        </dom-module>
+      </template>
+    </vaadin-demo-snippet>
 
     <h3>Prevent Navigation Using <code>onBeforeEnter(context)</code></h3>
     <p>
@@ -222,7 +282,7 @@
       Another option is to redirect the user from this callback: <code>return context.redirect('/new/path')</code>.
       See the <a href="#vaadin-router-redirect-demos">Redirect</a> section for detailed example.
     </p>
-    <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-4" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-5" iframe-src="iframe.html">
       <template preserve-content="">
         <a href="/">Home</a>
         <a href="/danger">Danger</a>

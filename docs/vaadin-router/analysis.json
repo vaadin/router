@@ -134,11 +134,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1139,
+              "line": 1172,
               "column": 4
             },
             "end": {
-              "line": 1139,
+              "line": 1172,
               "column": 15
             }
           },
@@ -173,11 +173,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1253,
+              "line": 1286,
               "column": 2
             },
             "end": {
-              "line": 1256,
+              "line": 1289,
               "column": 3
             }
           },
@@ -253,11 +253,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1148,
+              "line": 1181,
               "column": 2
             },
             "end": {
-              "line": 1171,
+              "line": 1204,
               "column": 3
             }
           },
@@ -274,11 +274,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1173,
+              "line": 1206,
               "column": 2
             },
             "end": {
-              "line": 1177,
+              "line": 1210,
               "column": 3
             }
           },
@@ -298,11 +298,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1189,
+              "line": 1222,
               "column": 2
             },
             "end": {
-              "line": 1194,
+              "line": 1227,
               "column": 3
             }
           },
@@ -324,11 +324,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1201,
+              "line": 1234,
               "column": 2
             },
             "end": {
-              "line": 1203,
+              "line": 1236,
               "column": 3
             }
           },
@@ -345,11 +345,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1276,
+              "line": 1309,
               "column": 2
             },
             "end": {
-              "line": 1308,
+              "line": 1351,
               "column": 3
             }
           },
@@ -374,11 +374,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1310,
+              "line": 1353,
               "column": 2
             },
             "end": {
-              "line": 1321,
+              "line": 1364,
               "column": 3
             }
           },
@@ -398,11 +398,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1323,
+              "line": 1366,
               "column": 2
             },
             "end": {
-              "line": 1341,
+              "line": 1384,
               "column": 3
             }
           },
@@ -419,11 +419,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1343,
+              "line": 1386,
               "column": 2
             },
             "end": {
-              "line": 1350,
+              "line": 1393,
               "column": 3
             }
           },
@@ -440,11 +440,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1352,
+              "line": 1395,
               "column": 2
             },
             "end": {
-              "line": 1393,
+              "line": 1436,
               "column": 3
             }
           },
@@ -461,11 +461,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1395,
+              "line": 1438,
               "column": 2
             },
             "end": {
-              "line": 1400,
+              "line": 1443,
               "column": 3
             }
           },
@@ -482,11 +482,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1402,
+              "line": 1445,
               "column": 2
             },
             "end": {
-              "line": 1406,
+              "line": 1449,
               "column": 3
             }
           },
@@ -507,11 +507,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1408,
+              "line": 1451,
               "column": 2
             },
             "end": {
-              "line": 1414,
+              "line": 1457,
               "column": 3
             }
           },
@@ -531,11 +531,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1416,
+              "line": 1459,
               "column": 2
             },
             "end": {
-              "line": 1457,
+              "line": 1502,
               "column": 3
             }
           },
@@ -550,16 +550,107 @@
           }
         },
         {
-          "name": "__onAfterEnter",
+          "name": "__removeOldOutletContent",
           "description": "",
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1459,
+              "line": 1504,
               "column": 2
             },
             "end": {
-              "line": 1468,
+              "line": 1510,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__removePendingContent",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1512,
+              "column": 2
+            },
+            "end": {
+              "line": 1517,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__removeOutletContent",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1519,
+              "column": 2
+            },
+            "end": {
+              "line": 1527,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "content"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__runOnAfterCallbacks",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1529,
+              "column": 2
+            },
+            "end": {
+              "line": 1540,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "currentContext"
+            },
+            {
+              "name": "targetContext"
+            },
+            {
+              "name": "callbackName"
+            }
+          ]
+        },
+        {
+          "name": "__animateIfNeeded",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1542,
+              "column": 2
+            },
+            "end": {
+              "line": 1571,
               "column": 3
             }
           },
@@ -576,11 +667,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1476,
+              "line": 1579,
               "column": 2
             },
             "end": {
-              "line": 1479,
+              "line": 1582,
               "column": 3
             }
           },
@@ -596,11 +687,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1485,
+              "line": 1588,
               "column": 2
             },
             "end": {
-              "line": 1488,
+              "line": 1591,
               "column": 3
             }
           },
@@ -616,11 +707,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1490,
+              "line": 1593,
               "column": 2
             },
             "end": {
-              "line": 1495,
+              "line": 1598,
               "column": 3
             }
           },
@@ -642,11 +733,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1513,
+              "line": 1616,
               "column": 2
             },
             "end": {
-              "line": 1515,
+              "line": 1618,
               "column": 3
             }
           },
@@ -676,11 +767,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1110,
+          "line": 1143,
           "column": 0
         },
         "end": {
-          "line": 1516,
+          "line": 1619,
           "column": 1
         }
       },
@@ -689,22 +780,22 @@
       "name": "Vaadin.Router"
     },
     {
-      "description": "This interface describes the lifecycle callbacks supported by `Vaadin.Router`\non view Web Components. It exists only for documentation purposes, i.e.\nyou _do not need_ to extend it in your code&mdash;defining a method with a\nmatching name is enough (this class does not exist at the run time).\n\nIf any of the methods described below are defined in a view Web Component,\n`Vaadin.Router` calls them at the corresponding points of the view\nlifecycle. Each method can either be synchronous or asynchronous (i.e. return\na Promise). In the latter case `Vaadin.Router` waits until the promise is\nresolved and continues the navigation after that.\n\nCheck the [documentation on the Vaadin.Router class](#/classes/Vaadin.Router)\nto learn more.\n\nLifecycle callbacks are executed after the new path is resolved and after all\n`action` callbacks of the routes in the new path are executed.\n\nExample:\n\nFor the following routes definition,\n```\n// router and action declarations are omitted for brevity\nrouter.setRoutes([\n {path: '/a', action: actionA, children: [\n   {path: '/b', action: actionB, component: 'component-b'},\n   {path: '/c', action: actionC, component: 'component-c'}\n ]}\n]);\n```\nif the router first navigates to `/a/b` path and there was no view rendered\nbefore, the following events happen:\n* actionA\n* actionB\n* onBeforeEnterB (if defined in component-b)\n* outlet contents updated with component-b\n* onAfterEnterB (if defined in component-b)\n\nthen, if the router navigates to `/a/c`, the following events take place:\n* actionA\n* actionC\n* onBeforeLeaveB  (if defined in component-b)\n* onBeforeEnterC (if defined in component-c)\n* outlet contents updated with component-c\n* onAfterEnterC (if defined in component-c)\n\nAny of the callbacks happening before the outlet contents update have a\npossibility to cancel the navigation and fall back to the previous navigation\nresult (if there is no result and this is the first resolution, an exception\nis thrown).\n\nOther examples can be found in the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.",
+      "description": "This interface describes the lifecycle callbacks supported by `Vaadin.Router`\non view Web Components. It exists only for documentation purposes, i.e.\nyou _do not need_ to extend it in your code&mdash;defining a method with a\nmatching name is enough (this class does not exist at the run time).\n\nIf any of the methods described below are defined in a view Web Component,\n`Vaadin.Router` calls them at the corresponding points of the view\nlifecycle. Each method can either be synchronous or asynchronous (i.e. return\na Promise). In the latter case `Vaadin.Router` waits until the promise is\nresolved and continues the navigation after that.\n\nCheck the [documentation on the Vaadin.Router class](#/classes/Vaadin.Router)\nto learn more.\n\nLifecycle callbacks are executed after the new path is resolved and after all\n`action` callbacks of the routes in the new path are executed.\n\nExample:\n\nFor the following routes definition,\n```\n// router and action declarations are omitted for brevity\nrouter.setRoutes([\n {path: '/a', action: actionA, children: [\n   {path: '/b', action: actionB, component: 'component-b'},\n   {path: '/c', action: actionC, component: 'component-c'}\n ]}\n]);\n```\nif the router first navigates to `/a/b` path and there was no view rendered\nbefore, the following events happen:\n* actionA\n* actionB\n* onBeforeEnterB (if defined in component-b)\n* outlet contents updated with component-b\n* onAfterEnterB (if defined in component-b)\n\nthen, if the router navigates to `/a/c`, the following events take place:\n* actionA\n* actionC\n* onBeforeLeaveB  (if defined in component-b)\n* onBeforeEnterC (if defined in component-c)\n* onAfterLeaveB  (if defined in component-b)\n* outlet contents updated with component-c\n* onAfterEnterC (if defined in component-c)\n\nIf a `Promise` is returned by any of the callbacks, it is resolved before proceeding further.\nAny of the `onBefore...` callbacks have a possibility to cancel the navigation and fall back\nto the previous navigation result (if there is no result and this is the first resolution, an exception is thrown).\n`onAfter...` callbacks are considered as non-cancellable, and their return value is ignored.\n\nOther examples can be found in the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.",
       "summary": "",
       "path": "src/documentation/web-component-interface.js",
       "properties": [],
       "methods": [
         {
           "name": "onBeforeLeave",
-          "description": "Method that gets executed when user navigates away from the component that had defined the method.\nThis effectively means that the corresponding component should be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
+          "description": "Method that gets executed when user navigates away from the component that had defined the method.\nThe user can prevent the navigation by returning `context.cancel()` from the method or same value wrapped in `Promise`.\nThis effectively means that the corresponding component should be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 77,
+              "line": 79,
               "column": 2
             },
             "end": {
-              "line": 82,
+              "line": 84,
               "column": 3
             }
           },
@@ -718,15 +809,15 @@
         },
         {
           "name": "onBeforeEnter",
-          "description": "Method that gets executed before the outlet contents is updated with the new element.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nthe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
+          "description": "Method that gets executed before the outlet contents is updated with the new element.\nThe user can prevent the navigation by returning `context.cancel()` from the method or same value wrapped in `Promise`.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nthe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 105,
+              "line": 108,
               "column": 2
             },
             "end": {
-              "line": 110,
+              "line": 113,
               "column": 3
             }
           },
@@ -739,16 +830,41 @@
           ]
         },
         {
+          "name": "onAfterLeave",
+          "description": "Method that gets executed when user navigates away from the component that had defined the method, just before the element is to be removed from the DOM.\nThe difference between this method and `onBeforeLeave` is that when this method is executed, there is no way to abort the navigation.\nThis effectively means that the corresponding component should be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 132,
+              "column": 2
+            },
+            "end": {
+              "line": 135,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context",
+              "description": "the context object with the following properties:\n\n| Property           | Description\n| ------------------ |-------------\n| `context.pathname` | string with the pathname being rendered.\n| `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.\n| `context.route`    | object that holds the route being rendered.\n\nReturn values: any return value is ignored and Vaadin.Router proceeds with the navigation."
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
           "name": "onAfterEnter",
           "description": "Method that gets executed after the outlet contents is updated with the new element.\nIf the router navigates to the same path twice in a row, in the second time the method is not called.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 127,
+              "line": 152,
               "column": 2
             },
             "end": {
-              "line": 133,
+              "line": 158,
               "column": 3
             }
           },
@@ -766,11 +882,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 56,
+          "line": 57,
           "column": 7
         },
         "end": {
-          "line": 134,
+          "line": 159,
           "column": 1
         }
       },
