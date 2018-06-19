@@ -611,6 +611,24 @@
             expect(contextParam.cancel).to.be.an('undefined');
             expect(contextParam.redirect).to.be.a('function');
             expect(contextParam.component).to.be.a('function');
+            expect(contextParam.addRoutes).to.be.a('function');
+          });
+
+          it('action should be able to add routes to the router', async() => {
+            const newRoute = {path: '/users/:user', component: 'x-user-profile'};
+            const oldRoute = {path: '/users', component: 'x-home-view', action: context => {
+              context.addRoutes(newRoute);
+            }};
+
+            router.setRoutes([oldRoute]);
+
+            await router.render('/users');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+            const newRoutes = router.getRoutes();
+            expect(newRoutes).to.be.an('array').that.has.lengthOf(2);
+            expect(newRoutes[0]).to.be.equal(oldRoute);
+            expect(newRoutes[1]).to.be.equal(newRoute);
           });
 
           it('action.this points to the route that defines action', async() => {
