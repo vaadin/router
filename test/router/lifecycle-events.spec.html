@@ -1063,6 +1063,72 @@
           checkOutlet(['x-a', 'x-b', 'x-b-root']);
         });
       });
+
+      describe('the global `vaadin-router:route-changed` event', () => {
+        it('should be triggered after a completed navigation', async() => {
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+          ]);
+
+          const onRouteChanged = sinon.spy();
+          window.addEventListener('vaadin-router:route-changed', onRouteChanged);
+          await router.render('/');
+          window.removeEventListener('vaadin-router:route-changed', onRouteChanged);
+
+          expect(onRouteChanged).to.have.been.called.once;
+        });
+
+        it('should NOT be triggered after an abandoned navigation', async() => {
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/admin', component: 'x-admin-view'},
+          ]);
+
+          const onRouteChanged = sinon.spy();
+          window.addEventListener('vaadin-router:route-changed', onRouteChanged);
+          await Promise.all([
+            router.render('/'),
+            router.render('/admin')
+          ]);
+          window.removeEventListener('vaadin-router:route-changed', onRouteChanged);
+
+          expect(onRouteChanged).to.have.been.called.once;
+        });
+
+        it('should contain the new path as `event.detail.pathname`', async() => {
+          router.setRoutes([
+            {path: '/admin', component: 'x-admin-view'},
+          ]);
+
+          const onRouteChanged = sinon.spy();
+          window.addEventListener('vaadin-router:route-changed', onRouteChanged);
+          await router.render('/admin');
+          window.removeEventListener('vaadin-router:route-changed', onRouteChanged);
+
+          expect(onRouteChanged).to.have.been.called.once;
+          expect(onRouteChanged.args[0].length).to.equal(1);
+
+          const event = onRouteChanged.args[0][0];
+          expect(event.detail.pathname).to.equal('/admin');
+        });
+
+        it('should contain the new path as `event.detail.pathname` even if no route matches', async() => {
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+          ]);
+
+          const onRouteChanged = sinon.spy();
+          window.addEventListener('vaadin-router:route-changed', onRouteChanged);
+          await router.render('/admin').catch(() => {});
+          window.removeEventListener('vaadin-router:route-changed', onRouteChanged);
+
+          expect(onRouteChanged).to.have.been.called.once;
+          expect(onRouteChanged.args[0].length).to.equal(1);
+
+          const event = onRouteChanged.args[0][0];
+          expect(event.detail.pathname).to.equal('/admin');
+        });
+      });
     });
   </script>
 </body>

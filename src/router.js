@@ -266,6 +266,7 @@ export class Router extends Resolver {
           this.__removeOldOutletContent();
         }
         this.__previousContext = context;
+        this.__fireRouteChangedEvent(context.pathname);
         return this.__outlet;
       })
       .catch(error => {
@@ -274,6 +275,7 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(pathnameOrContext);
           }
           this.__removeOutletContent();
+          this.__fireRouteChangedEvent(pathnameOrContext.pathname || pathnameOrContext);
           throw error;
         }
       });
@@ -498,6 +500,18 @@ export class Router extends Resolver {
     }
 
     return context;
+  }
+
+  __fireRouteChangedEvent(pathname) {
+    window.dispatchEvent(
+      new CustomEvent(
+        'vaadin-router:route-changed',
+        {
+          detail: {
+            pathname: pathname
+          }
+        }
+      ));
   }
 
   /**
