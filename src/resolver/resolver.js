@@ -97,6 +97,14 @@ class Resolver {
   addRoutes(routes) {
     ensureRoutes(routes);
     this.root.children.push(...toArray(routes));
+    return this.getRoutes();
+  }
+
+  /**
+   * Removes all existing routes from the routing config.
+   */
+  removeRoutes() {
+    this.setRoutes([]);
   }
 
   /**

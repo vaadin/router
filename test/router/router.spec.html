@@ -6,6 +6,7 @@
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../dist/vaadin-router.umd.js"></script>
+  <script src="test-utils.js"></script>
 
   <link rel="import" href="../test-pushstate-throttler.html">
 </head>
@@ -24,7 +25,10 @@
       // eslint-disable-next-line no-invalid-this
       this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
-      var outlet;
+      const {checkOutletContents} = VaadinTestNamespace;
+      const checkOutlet = values => checkOutletContents(outlet.children[0], 'tagName', values);
+
+      let outlet;
       beforeEach(() => {
         // reset the URL
         window.history.pushState(null, null, '/');
@@ -534,6 +538,14 @@
 
         describe('route parameters', () => {
           const existingBundlePath = 'components/vaadin-router/demo/demo-elements/bundle-script.js';
+          const removeBundle = () => {
+            const bundleScript = document.head.querySelector('script[src="' + existingBundlePath + '"][async]');
+            if (bundleScript) {
+              bundleScript.parentNode.removeChild(bundleScript);
+            }
+            expect(getBundleScripts(existingBundlePath).length).to.equal(0);
+          };
+
           // variable name and value that is set in global context in the bundle above
           const bundleVariableName = 'bundleScriptTestVariable';
           const bundleVariableValue = 'Hello from bundle script!';
@@ -681,16 +693,11 @@
 
           it('action without return should be executed before bundle but allow the bundle to be loaded', async() => {
             let actionExecuted = false;
-            const removeBundle = () => {
-              const bundleScript = document.head.querySelector('script[src="' + existingBundlePath + '"][async]');
-              if (bundleScript) {
-                bundleScript.parentNode.removeChild(bundleScript);
-              }
-              actionExecuted = true;
-              expect(getBundleScripts(existingBundlePath).length).to.equal(0);
-            };
             router.setRoutes([
-              {path: '/', component: 'x-home-view', bundle: existingBundlePath, action: removeBundle},
+              {path: '/', component: 'x-home-view', bundle: existingBundlePath, action: () => {
+                removeBundle();
+                actionExecuted = true;
+              }},
             ]);
 
             await router.render('/');
@@ -742,7 +749,7 @@
             let actionExecuted = false;
 
             router.setRoutes([
-              {path: '/home', redirect: '/users', action: (context) => {
+              {path: '/home', redirect: '/users', action: context => {
                 actionExecuted = true;
                 return context.next();
               }},
@@ -754,6 +761,25 @@
 
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
             expect(actionExecuted).to.equal(true);
+          });
+
+          it('action with return should be executed before children function and stop it from being executed', async() => {
+            let actionExecuted = false;
+            const children = sinon.spy();
+
+            router.setRoutes([
+              {path: '/home', children, action: context => {
+                actionExecuted = true;
+                return context.redirect('/users');
+              }},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+
+            await router.render('/home');
+
+            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+            expect(actionExecuted).to.equal(true);
+            expect(children).to.not.have.been.called;
           });
 
           it('action with incorrect return throws before redirect', async() => {
@@ -821,7 +847,7 @@
             expect(elem.route.params.id).to.equal('1');
           });
 
-          it('redirect should be executed before bundle and stop it from loading', async() => {
+          it('redirect should be executed before component and stop it from loading', async() => {
             router.setRoutes([
               {path: '/test', redirect: '/users', component: 'x-home-view'},
               {path: '/users', component: 'x-users-view'},
@@ -830,6 +856,50 @@
             await router.render('/test');
 
             expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          });
+
+          it('redirect should be executed before bundle and stop it from loading', async() => {
+            removeBundle();
+
+            router.setRoutes([
+              {path: '/test', redirect: '/users', bundle: existingBundlePath},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+
+            await router.render('/test');
+
+            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+            expect(getBundleScripts(existingBundlePath).length).to.equal(0);
+          });
+
+          it('redirect should be executed before children function', async() => {
+            const children = sinon.spy();
+
+            router.setRoutes([
+              {path: '/home', children, redirect: '/users'},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+
+            await router.render('/home/1');
+
+            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+            expect(children).to.not.have.been.called;
+          });
+
+          it('bundle should be executed before children function', async() => {
+            removeBundle();
+
+            router.setRoutes([
+              {path: '/test', bundle: existingBundlePath, children: () => {
+                expect(getBundleScripts(existingBundlePath).length).to.equal(1);
+                return {path: '/child', component: 'x-test-child-view'};
+              }},
+            ]);
+
+            await router.render('/test/child');
+
+            expect(outlet.children[0].tagName).to.match(/x-test-child-view/i);
+            expect(getBundleScripts(existingBundlePath).length).to.equal(1);
           });
 
           it('context.redirect() should work when invoked without the `this` context', async() => {
@@ -883,6 +953,177 @@
 
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
             expect(from).to.be.equal('/c');
+          });
+
+          it('children function result should be added to the route as children and navigated to', async() => {
+            const newRoute = {path: '/:user', component: 'x-user-profile'};
+            const originalRoute = {path: '/users', children: () => newRoute};
+            router.setRoutes(originalRoute);
+
+            await router.render('/users/2');
+
+            const elem = outlet.children[0];
+            expect(elem.tagName).to.match(/x-user-profile/i);
+            expect(elem.route.params).to.be.object;
+            expect(elem.route.params.user).to.equal('2');
+
+            expect(originalRoute.children).to.be.an('array').lengthOf(1);
+            expect(originalRoute.children[0]).to.equal(newRoute);
+          });
+
+          it('when children function result is not needed, router renders everything correctly still', async() => {
+            router.setRoutes({path: '/a', component: 'x-a', children: () => ({path: '/b', component: 'x-b'})});
+
+            await router.render('/a');
+
+            expect(outlet.children[0].tagName).to.match(/x-a/i);
+          });
+
+          it('children function should be called with correct parameters', async() => {
+            const children = sinon.spy();
+            router.setRoutes({path: '/a', children});
+
+            await router.render('/a').catch(() => {});
+
+            expect(children).to.have.been.called.once;
+            expect(children.args[0].length).to.equal(1);
+            const contextParam = children.args[0][0];
+            expect(contextParam.pathname).to.equal('/a');
+            expect(contextParam.route.path).to.equal('/a');
+            expect(contextParam.cancel).to.be.an('undefined');
+            expect(contextParam.redirect).to.be.an('undefined');
+            expect(contextParam.component).to.be.an('undefined');
+            expect(contextParam.next).to.be.an('undefined');
+          });
+
+          it('children function should throw on incorrect routes', async() => {
+            const incorrectRoutes = [
+              {},
+              true,
+              {redirect: {pathname: '/'}},
+              () => false,
+              new Promise(resolve => resolve(222)),
+              2,
+              'whatever',
+              {component: 'i-have-no-path-property'},
+            ];
+
+            for (let i = 0; i < incorrectRoutes.length; i++) {
+              router.setRoutes({path: '/a', children: () => incorrectRoutes[i]});
+
+              let exceptionThrown = false;
+              await router.render('/a').catch(() => {
+                exceptionThrown = true;
+              });
+
+              expect(exceptionThrown, `No exception thrown for 'children' function incorrect return value '${incorrectRoutes[i]}'`)
+                .to.equal(true);
+            }
+          });
+
+          it('when children function returns promise, its result gets cached in the same route as children', async() => {
+            let numberOfExecutions = 0;
+
+            const newChildren = [
+              {path: '/b', component: 'x-b'},
+              {path: '/d', action: context => context.component('x-d')}
+            ];
+
+            const originalRoute = {path: '/a', children: () => new Promise(resolve => {
+              numberOfExecutions++;
+              resolve(newChildren);
+            })};
+
+            router.setRoutes(originalRoute);
+
+            await router.render('/a/b');
+
+            expect(numberOfExecutions).to.equal(1);
+            const firstElement = outlet.children[0];
+            expect(firstElement.tagName).to.match(/x-b/i);
+
+            await router.render('/a/d');
+
+            expect(numberOfExecutions).to.equal(1);
+            expect(outlet.children[0].tagName).to.match(/x-d/i);
+
+            expect(originalRoute.children).to.be.an('array').lengthOf(2);
+            expect(originalRoute.children[0]).to.equal(newChildren[0]);
+            expect(originalRoute.children[1]).to.equal(newChildren[1]);
+          });
+
+          it('when children function returns null or undefined, its result is ignored and cached', async() => {
+            const returnValues = [null, undefined];
+
+            for (let i = 0; i < returnValues.length; i++) {
+              let numberOfExecutions = 0;
+
+              router.setRoutes(
+                {path: '/a', component: 'x-a', children: () => {
+                  numberOfExecutions++;
+                  return returnValues[i];
+                }}
+              );
+
+              await router.render('/a');
+
+              expect(numberOfExecutions).to.equal(1);
+              expect(outlet.children[0].tagName).to.match(/x-a/i);
+
+              await router.render('/a');
+
+              expect(numberOfExecutions).to.equal(1);
+              expect(outlet.children[0].tagName).to.match(/x-a/i);
+            }
+          });
+
+          it('when children function returns nested child routes, they are resolved correctly', async() => {
+            router.setRoutes([
+              {
+                path: '/',
+                component: 'x-root',
+                children: [{
+                  path: '/a',
+                  children: () => (
+                    {
+                      path: '/b',
+                      children: () => new Promise(resolve => resolve(
+                        {
+                          path: '/c',
+                          component: 'x-c',
+                          children: [
+                            {
+                              path: '/d',
+                              component: 'x-d'
+                            }
+                          ]
+                        }
+                      ))
+                    }
+                  )
+                }]
+              },
+            ]);
+
+            await router.render('/a/b/c/d');
+
+            checkOutlet(['x-root', 'x-c', 'x-d']);
+          });
+
+          it('when children function returns child route with redirect, it is resolved correctly', async() => {
+            router.setRoutes(
+              {
+                path: '/a',
+                children: () => [
+                  {path: '/b', redirect: '/a/c', component: 'x-b'},
+                  {path: '/c', component: 'x-c'}
+                ]
+              }
+            );
+
+            await router.render('/a/b');
+
+            expect(outlet.children[0].tagName).to.match(/x-c/i);
           });
         });
 
