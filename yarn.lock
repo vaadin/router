@@ -3607,9 +3607,9 @@ escodegen@1.8.x:
   optionalDependencies:
     source-map "~0.2.0"
 
-eslint-config-vaadin@latest:
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/eslint-config-vaadin/-/eslint-config-vaadin-0.2.5.tgz#78e416300d0c45c157a8af29e69b78d06217a02a"
+eslint-config-vaadin@^0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/eslint-config-vaadin/-/eslint-config-vaadin-0.2.6.tgz#004fddf79f512958ba8338f1c4f76cc85d81504b"
 
 eslint-plugin-html@^4.0.0:
   version "4.0.3"
