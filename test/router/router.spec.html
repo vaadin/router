@@ -820,13 +820,14 @@
         });
 
         describe('animated transitions', () => {
-          let router;
+          let router, observer;
 
           beforeEach(() => {
             router = new Vaadin.Router(outlet);
           });
 
           afterEach(() => {
+            observer.disconnect();
             router.unsubscribe();
           });
 
@@ -838,10 +839,7 @@
 
             await router.render('/');
 
-            let data;
-            const observer = new window.MutationObserver(mutations => {
-              data = mutations;
-            });
+            observer = new window.MutationObserver(() => {});
 
             observer.observe(outlet, {
               subtree: true,
@@ -851,6 +849,8 @@
             });
 
             await router.render('/animate');
+
+            const data = observer.takeRecords();
 
             expect(data.length).to.equal(4);
             expect(data[0].target.tagName).to.match(/x-home-view/i);
