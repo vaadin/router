@@ -48,7 +48,13 @@
     };
 
     describe('Vaadin.Router lifecycle events', function() {
-      const {verifyActiveRoutes, onAfterEnterAction, onBeforeEnterAction, onBeforeLeaveAction} = VaadinTestNamespace;
+      const {
+        verifyActiveRoutes,
+        onAfterEnterAction,
+        onAfterLeaveAction,
+        onBeforeEnterAction,
+        onBeforeLeaveAction
+      } = VaadinTestNamespace;
 
       const verifyCallbacks = expectedCallbacks => {
         expect(callbacksLog).to.be.an('array');
@@ -353,6 +359,7 @@
             'a.onBeforeLeave',
             'a.onBeforeLeave.promise',
             'b.onBeforeEnter',
+            'a.onAfterLeave',
             'a.disconnectedCallback',
             'b.connectedCallback',
             'b.onAfterEnter',
@@ -379,6 +386,116 @@
           await router.render('/users');
           expect(outlet.children[0].tagName).to.match(/x-root-view/i);
           expect(counter).to.equal(1);
+        });
+      });
+
+      describe('onAfterLeave', () => {
+        it('should be called with the router context as the only argument', async() => {
+          const onAfterLeave = sinon.spy();
+          router.setRoutes([
+            {path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave)},
+            {path: '/users', component: 'x-users-list'}
+          ]);
+
+          await router.render('/');
+
+          expect(onAfterLeave).not.to.have.been.called;
+
+          await router.render('/users');
+
+          expect(onAfterLeave).to.have.been.called.once;
+          expect(onAfterLeave.args[0].length).to.equal(1);
+
+          const context = onAfterLeave.args[0][0];
+          expect(context.pathname).to.equal('/users');
+          expect(context.route.path).to.equal('/users');
+          expect(context.cancel).to.be.an('undefined');
+          expect(context.redirect).to.be.an('undefined');
+          expect(context.component).to.be.an('undefined');
+          expect(context.next).to.be.an('undefined');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+        });
+
+        it('should be called on the route web component instance (as `this`)', async() => {
+          const onAfterLeave = sinon.spy();
+          router.setRoutes([
+            {path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave)},
+            {path: '/users', component: 'x-users-list'}
+          ]);
+
+          await router.render('/');
+          const homeViewElement = outlet.children[0];
+
+          await router.render('/users');
+
+          expect(onAfterLeave).to.have.been.calledOn(homeViewElement);
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+        });
+
+        it('should ignore all return values', async() => {
+          const values = [
+            true,
+            false,
+            0,
+            42,
+            [],
+            {not_a_redirect: true},
+            {redirect: {pathname: '/'}},
+            {cancel: true},
+            null,
+            undefined,
+            () => true,
+            'random-tag-name',
+            document.createElement('div'),
+          ];
+
+          for (let i = 0; i < values.length; i += 1) {
+            const onAfterLeave = sinon.stub().returns(values[i]);
+            router.setRoutes([
+              {path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave)},
+              {path: '/users', component: 'x-users-list'},
+            ]);
+
+            await router.render('/');
+            await router.render('/users');
+            expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+            verifyActiveRoutes(router, ['/users']);
+          }
+        });
+
+        it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
+          router.setRoutes([
+            {path: '/a', action: onAfterLeaveAction(
+              'x-spy',
+              function() {
+                callbacksLog.push('a.onAfterLeave');
+                return new Promise(resolve => {
+                  setTimeout(() => {
+                    callbacksLog.push('a.onAfterLeave.promise');
+                    resolve();
+                  }, 100);
+                });
+              },
+              'a')},
+            {path: '/b', action: elementWithAllLifecycleCallbacks('b')},
+          ]);
+
+          await router.render('/').catch(() => {});
+          await router.render('/a');
+          callbacksLog = [];
+          await router.render('/b');
+
+          expect(callbacksLog).to.deep.equal([
+            'b.action',
+            'a.onBeforeLeave',
+            'b.onBeforeEnter',
+            'a.onAfterLeave',
+            'a.onAfterLeave.promise',
+            'a.disconnectedCallback',
+            'b.connectedCallback',
+            'b.onAfterEnter',
+          ]);
         });
       });
 
@@ -473,6 +590,7 @@
           verifyCallbacks([
             'a.onBeforeLeave',
             'b.onBeforeEnter',
+            'a.onAfterLeave',
             'a.disconnectedCallback',
             'b.connectedCallback',
             'b.onAfterEnter',
@@ -513,6 +631,7 @@
             'b.action',
             'a.onBeforeLeave',
             'b.onBeforeEnter',
+            'a.onAfterLeave',
             'a.disconnectedCallback',
             'b.connectedCallback',
             'b.onAfterEnter',
@@ -568,6 +687,7 @@
             'c.action',
             'b.onBeforeLeave',
             'c.onBeforeEnter',
+            'b.onAfterLeave',
             'b.disconnectedCallback',
             'c.connectedCallback',
             'c.onAfterEnter',
@@ -626,6 +746,7 @@
             'asterisk.action',
             'b.onBeforeLeave',
             'asterisk.onBeforeEnter',
+            'b.onAfterLeave',
             'b.disconnectedCallback',
             'asterisk.connectedCallback',
             'asterisk.onAfterEnter',
@@ -661,6 +782,7 @@
             'ad.action',
             'ac.onBeforeLeave',
             'ad.onBeforeEnter',
+            'ac.onAfterLeave',
             'ac.disconnectedCallback',
             'ad.connectedCallback',
             'ad.onAfterEnter',
@@ -746,6 +868,8 @@
             'x-b.onBeforeLeave',
             'x-a.onBeforeLeave',
             'x-c.onBeforeEnter',
+            'x-a.onAfterLeave',
+            'x-b.onAfterLeave',
             'x-a.disconnectedCallback',
             'x-b.disconnectedCallback',
             'x-c.connectedCallback',
@@ -777,6 +901,7 @@
             'x-d.action',
             'x-b.onBeforeLeave',
             'x-d.onBeforeEnter',
+            'x-b.onAfterLeave',
             'x-b.disconnectedCallback',
             'x-d.connectedCallback',
             'x-d.onAfterEnter',
@@ -853,6 +978,7 @@
             'x-e.action',
             'x-b-root.onBeforeLeave',
             'x-e.onBeforeEnter',
+            'x-b-root.onAfterLeave',
             'x-b-root.disconnectedCallback',
             'x-e.connectedCallback',
             'x-e.onAfterEnter',
@@ -886,6 +1012,7 @@
             'x-a.action',
             'x-b.action',
             'x-e.onBeforeLeave',
+            'x-e.onAfterLeave',
             'x-e.disconnectedCallback',
           ]);
           checkOutlet(['x-a', 'x-b']);
@@ -931,6 +1058,7 @@
             'x-b-root.action',
             'x-e.onBeforeLeave',
             'x-b-root.onBeforeEnter',
+            'x-e.onAfterLeave',
             'x-e.disconnectedCallback',
             'x-b-root.connectedCallback',
             'x-b-root.onAfterEnter',

@@ -41,13 +41,14 @@
  * * actionC
  * * onBeforeLeaveB  (if defined in component-b)
  * * onBeforeEnterC (if defined in component-c)
+ * * onAfterLeaveB  (if defined in component-b)
  * * outlet contents updated with component-c
  * * onAfterEnterC (if defined in component-c)
  *
- * Any of the callbacks happening before the outlet contents update have a
- * possibility to cancel the navigation and fall back to the previous navigation
- * result (if there is no result and this is the first resolution, an exception
- * is thrown).
+ * If a `Promise` is returned by any of the callbacks, it is resolved before proceeding further.
+ * Any of the `onBefore...` callbacks have a possibility to cancel the navigation and fall back
+ * to the previous navigation result (if there is no result and this is the first resolution, an exception is thrown).
+ * `onAfter...` callbacks are considered as non-cancellable, and their return value is ignored.
  *
  * Other examples can be found in the
  * [live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.
@@ -57,6 +58,7 @@
 export class WebComponentInterface {
   /**
    * Method that gets executed when user navigates away from the component that had defined the method.
+   * The user can prevent the navigation by returning `context.cancel()` from the method or same value wrapped in `Promise`.
    * This effectively means that the corresponding component should be resolved by the router before the method can be executed.
    * If the router navigates to the same path twice in a row, in the second time the method is not called.
    * The WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
@@ -84,6 +86,7 @@ export class WebComponentInterface {
 
   /**
    * Method that gets executed before the outlet contents is updated with the new element.
+   * The user can prevent the navigation by returning `context.cancel()` from the method or same value wrapped in `Promise`.
    * If the router navigates to the same path twice in a row, in the second time the method is not called.
    * the WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
    *
@@ -111,6 +114,28 @@ export class WebComponentInterface {
   }
 
   /**
+   * Method that gets executed when user navigates away from the component that had defined the method, just before the element is to be removed from the DOM.
+   * The difference between this method and `onBeforeLeave` is that when this method is executed, there is no way to abort the navigation.
+   * This effectively means that the corresponding component should be resolved by the router before the method can be executed.
+   * If the router navigates to the same path twice in a row, in the second time the method is not called.
+   * The WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
+   *
+   * @param context the context object with the following properties:
+   *
+   * | Property           | Description
+   * | ------------------ |-------------
+   * | `context.pathname` | string with the pathname being rendered.
+   * | `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
+   * | `context.route`    | object that holds the route being rendered.
+   *
+   * Return values: any return value is ignored and Vaadin.Router proceeds with the navigation.
+   */
+  onAfterLeave(context) {
+    // user implementation example:
+    storeTimeSpentOnTheView();
+  }
+
+  /**
    * Method that gets executed after the outlet contents is updated with the new element.
    * If the router navigates to the same path twice in a row, in the second time the method is not called.
    * The WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
@@ -128,7 +153,7 @@ export class WebComponentInterface {
   onAfterEnter(context) {
     // user implementation example:
     return new Promise(resolve => {
-      sendBackendStatistics();
+      sendVisitStatistics();
       resolve();
     });
   }

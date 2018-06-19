@@ -246,8 +246,10 @@ export class Router extends Resolver {
           }
 
           if (context !== this.__previousContext) {
-            this.__setOutletContent(context);
-            return this.__onAfterEnter(context);
+            return this.__runOnAfterCallbacks(context, this.__previousContext, 'onAfterLeave')
+              .then(() => this.__setOutletContent(context))
+              .then(() => this.__runOnAfterCallbacks(context, context, 'onAfterEnter'))
+              .then(() => context);
           }
           return Promise.resolve(context);
         }
@@ -417,15 +419,17 @@ export class Router extends Resolver {
     }
   }
 
-  __onAfterEnter(context) {
-    const callbackContext = Object.assign({}, context, {next: undefined});
+  __runOnAfterCallbacks(currentContext, targetContext, callbackName) {
     let promises = Promise.resolve();
+    if (targetContext) {
+      const callbackContext = Object.assign({}, currentContext, {next: undefined});
 
-    for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
-      const currentComponent = context.chain[i].__component || {};
-      promises = promises.then(() => runCallbackIfPossible(currentComponent.onAfterEnter, callbackContext, currentComponent));
+      for (let i = currentContext.__divergedChainIndex; i < targetContext.chain.length; i++) {
+        const currentComponent = targetContext.chain[i].__component || {};
+        promises = promises.then(() => runCallbackIfPossible(currentComponent[callbackName], callbackContext, currentComponent));
+      }
     }
-    return promises.then(() => context);
+    return promises;
   }
 
   /**
