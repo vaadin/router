@@ -139,11 +139,11 @@
 
         before(() => {
           window.addEventListener('click', onWindowClick);
-          window.addEventListener('vaadin-router:navigate', onWindowNavigate);
+          window.addEventListener('vaadin-router:go', onWindowNavigate);
         });
 
         after(() => {
-          window.removeEventListener('vaadin-router:navigate', onWindowNavigate);
+          window.removeEventListener('vaadin-router:go', onWindowNavigate);
           window.removeEventListener('click', onWindowClick);
         });
 
@@ -167,11 +167,11 @@
             CLICK.inactivate();
           });
 
-          it('should translate `click` events on <a> links into `vaadin-router:navigate` events on window', () => {
+          it('should translate `click` events on <a> links into `vaadin-router:go` events on window', () => {
             emulateClick(document.getElementById('in-app'));
 
             expect(navigateEvents).to.have.lengthOf(1);
-            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:go');
           });
 
           it('should prevent the default action on the original `click` event', () => {
@@ -181,41 +181,41 @@
             expect(clicks[0]).to.have.property('defaultPrevented', true);
           });
 
-          it('should set the `detail.pathname` property of the `vaadin-router:navigate` event to the pathname of the clicked link', () => {
+          it('should set the `detail.pathname` property of the `vaadin-router:go` event to the pathname of the clicked link', () => {
             emulateClick(document.getElementById('in-app'));
 
             expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
           });
 
-          it('should translate `click` events inside <a> links into `vaadin-router:navigate` events on window', () => {
+          it('should translate `click` events inside <a> links into `vaadin-router:go` events on window', () => {
             emulateClick(document.getElementById('text-in-a-link'));
 
             expect(navigateEvents).to.have.lengthOf(1);
-            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:go');
             expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
 
             expect(clicks).to.have.lengthOf(1);
             expect(clicks[0]).to.have.property('defaultPrevented', true);
           });
 
-          it('should translate `click` events on <a> links inside Shadow DOM into `vaadin-router:navigate` events on window', () => {
+          it('should translate `click` events on <a> links inside Shadow DOM into `vaadin-router:go` events on window', () => {
             const shadowRoot = document.getElementById('shadow-host-with-a-link').shadowRoot;
             emulateClick(shadowRoot.getElementById('in-app-in-a-shadow'));
 
             expect(navigateEvents).to.have.lengthOf(1);
-            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:go');
             expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
 
             expect(clicks).to.have.lengthOf(1);
             expect(clicks[0]).to.have.property('defaultPrevented', true);
           });
 
-          it('should translate `click` events inside shadow DOM inside <a> links into `vaadin-router:navigate` events on window', () => {
+          it('should translate `click` events inside shadow DOM inside <a> links into `vaadin-router:go` events on window', () => {
             const shadowRoot = document.getElementById('shadow-host-in-a-link').shadowRoot;
             emulateClick(shadowRoot.getElementById('text-in-a-shadow-in-a-link'));
 
             expect(navigateEvents).to.have.lengthOf(1);
-            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:go');
             expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
 
             expect(clicks).to.have.lengthOf(1);
@@ -229,7 +229,7 @@
             window.history.replaceState(null, document.title, location);
 
             expect(navigateEvents).to.have.lengthOf(1);
-            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:navigate');
+            expect(navigateEvents[0]).to.have.property('type', 'vaadin-router:go');
             expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/');
 
             expect(clicks).to.have.lengthOf(1);
@@ -317,7 +317,7 @@
             CLICK.inactivate();
           });
 
-          it('should not translate `click` events into `vaadin-router:navigate` when inactivated', () => {
+          it('should not translate `click` events into `vaadin-router:go` when inactivated', () => {
             emulateClick(document.getElementById('in-app'));
 
             expect(navigateEvents).to.have.lengthOf(0);
