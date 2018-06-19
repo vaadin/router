@@ -1,6 +1,7 @@
 import Resolver from './resolver/resolver.js';
 import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
+import triggerNavigation from './triggers/triggerNavigation.js';
 import animate from './transitions/animate.js';
 import {log, loadBundle} from './utils.js';
 
@@ -506,7 +507,7 @@ export class Router extends Resolver {
    * subscribed to navigation events, it won't be garbage collected.
    */
   subscribe() {
-    window.addEventListener('vaadin-router:navigate',
+    window.addEventListener('vaadin-router:go',
       this.__navigationEventHandler);
   }
 
@@ -515,7 +516,7 @@ export class Router extends Resolver {
    * method.
    */
   unsubscribe() {
-    window.removeEventListener('vaadin-router:navigate',
+    window.removeEventListener('vaadin-router:go',
       this.__navigationEventHandler);
   }
 
@@ -544,5 +545,15 @@ export class Router extends Resolver {
    */
   static setTriggers(...triggers) {
     setNavigationTriggers(triggers);
+  }
+
+  /**
+   * Triggers navigation to a new path and returns without waiting until the
+   * navigation is complete.
+   *
+   * @param {!string} pathname a new in-app path
+   */
+  static go(pathname) {
+    triggerNavigation(pathname);
   }
 }

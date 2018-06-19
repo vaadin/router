@@ -1,5 +1,5 @@
 /**
- * Creates and dispatches a new `vaadin-router:navigate` event on the given
+ * Creates and dispatches a new `vaadin-router:go` event on the given
  * context (`window` by default). That triggers Vaadin.Router navigation to the
  * given path.
  *
@@ -8,7 +8,7 @@
 export default function triggerNavigation(pathname) {
   window.dispatchEvent(
     new CustomEvent(
-      'vaadin-router:navigate',
+      'vaadin-router:go',
       {
         detail: {pathname},
         cancelable: true
