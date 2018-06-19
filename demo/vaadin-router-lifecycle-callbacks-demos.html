@@ -16,7 +16,8 @@
         <li><b><code>onBeforeLeave(context): Promise | Cancel | void</code></b></li>
         <li><b><code>onAfterLeave(context): Promise | void</code></b></li>
         <hr/>
-        <li>the <code>'vaadin-router:route-changed'</code> event on the <code>window</code></li>
+        <li>the <code>'vaadin-router:route-changed'</code> / <code>'vaadin-router:error'</code>
+          events on the <code>window</code></li>
       </ul>
       Vaadin.Router lifecycle callbacks can be defined as methods on the Web Component
       <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-definition"
@@ -353,6 +354,12 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+    <p>
+      In case if navigation fails for any reason (e.g. if no route matched the
+      given pathname), instead of the <code>vaadin-router:route-changed</code>
+      event Vaadin.Router dispatches <code>vaadin-router:error</code> and
+      attaches the error object to the event as <code>event.detail.error</code>.
+    </p>
   </template>
   <script>
     class VaadinRouterLifecycleCallbacksDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {

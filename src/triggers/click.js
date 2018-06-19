@@ -1,4 +1,4 @@
-import triggerNavigation from './triggerNavigation.js';
+import {fireRouterEvent} from '../utils.js';
 
 /* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
 function getAnchorOrigin(anchor) {
@@ -82,7 +82,7 @@ function vaadinRouterGlobalClickHandler(event) {
 
   // if none of the above, convert the click into a navigation event
   event.preventDefault();
-  triggerNavigation(anchor.pathname);
+  fireRouterEvent('go', {pathname: anchor.pathname});
 }
 
 /**

@@ -11,7 +11,6 @@ window.VaadinRouterSuites = {
     'resolver/matchRoute.spec.js',
     'resolver/resolver.spec.js',
     // 'resolver/generateUrls.spec.js',
-    'triggers/triggerNavigation.spec.js',
     'triggers/setNavigationTriggers.spec.js',
     'triggers/popstate.spec.js',
     'triggers/click.spec.html',
