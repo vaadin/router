@@ -631,6 +631,22 @@
             expect(newRoutes[1]).to.be.equal(newRoute);
           });
 
+          it('action that added a route is able to resolve it', async() => {
+            router.setRoutes([
+              {path: '/users/(.*?)', action: context => {
+                context.addRoutes({path: '/users/:user', component: 'x-user-profile'});
+                return context.next();
+              }}
+            ]);
+
+            await router.render('/users/2');
+
+            const elem = outlet.children[0];
+            expect(elem.tagName).to.match(/x-user-profile/i);
+            expect(elem.route.params).to.be.object;
+            expect(elem.route.params.user).to.equal('2');
+          });
+
           it('action.this points to the route that defines action', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view', action: function(context) {
