@@ -236,7 +236,6 @@ export class Router extends Resolver {
    * @return {!Promise<!Node>}
    */
   render(pathnameOrContext, shouldUpdateHistory) {
-    this.__ensureOutlet();
     const renderId = ++this.__lastStartedRenderId;
     this.ready = this.resolve(pathnameOrContext)
       .then(originalContext => this.__fullyResolveChain(originalContext, originalContext))
@@ -448,7 +447,7 @@ export class Router extends Resolver {
   }
 
   __removeOutletContent(content) {
-    content = content || this.__outlet.children;
+    content = content || (this.__outlet && this.__outlet.children);
     if (content && content.length) {
       const parent = content[0].parentNode;
       for (let i = 0; i < content.length; i += 1) {
@@ -521,9 +520,7 @@ export class Router extends Resolver {
 
   __onNavigationEvent(event) {
     const pathname = event ? event.detail.pathname : window.location.pathname;
-    if (this.root.children.length > 0) {
-      this.render(pathname, true);
-    }
+    this.render(pathname, true);
   }
 
   /**
