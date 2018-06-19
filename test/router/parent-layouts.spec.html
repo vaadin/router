@@ -47,7 +47,13 @@
     });
 
     describe('parent layouts rendering', () => {
-      const {verifyActiveRoutes, onBeforeEnterAction, onBeforeLeaveAction, checkOutletContents} = VaadinTestNamespace;
+      const {
+        verifyActiveRoutes,
+        onBeforeEnterAction,
+        onBeforeLeaveAction,
+        checkOutletContents
+      } = VaadinTestNamespace;
+
       const checkOutlet = values => checkOutletContents(outlet.children[0], 'tagName', values);
 
       it('each of the nested route components are rendered as children to each other in the same hierarchy', async() => {
