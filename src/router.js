@@ -52,7 +52,8 @@ function amend(amendmentFunction, context, route) {
 
 function processNewChildren(newChildren, route, context) {
   if (typeof newChildren !== 'object') {
-    throw new Error(log(`Expected route '${route}' 'children' method to return an object, but got: '${newChildren}'`));
+    throw new Error(log(`Expected 'children' method  of the route with path '${route.path}' `
+      + `to return an object, but got: '${newChildren}'`));
   }
 
   route.children = [];
@@ -61,7 +62,10 @@ function processNewChildren(newChildren, route, context) {
     ensureRoute(childRoutes[i]);
     route.children.push(childRoutes[i]);
   }
-  return context.next();
+
+  if (route.component) {
+    return processComponent(route, context);
+  }
 }
 
 function processComponent(route, context) {
@@ -138,7 +142,7 @@ export class Router extends Resolver {
 
     const updatedContext = Object.assign({
       redirect: path => redirect(context, path),
-      component: component => renderComponent(context, component),
+      component: component => renderComponent(context, component)
     }, context);
     const actionResult = runCallbackIfPossible(processAction, updatedContext, route);
     if (isResultNotEmpty(actionResult)) {
@@ -160,6 +164,9 @@ export class Router extends Resolver {
 
     return callbacks.then(() => runCallbackIfPossible(route.children, Object.assign({}, context, {next: undefined}), route))
       .then(newChildren => {
+        if (typeof route.children === 'function') {
+          delete route.children;
+        }
         return isResultNotEmpty(newChildren)
           ? processNewChildren(newChildren, route, context)
           : processComponent(route, context);
