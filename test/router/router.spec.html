@@ -402,7 +402,7 @@
           });
 
           it('should update the history state after navigation', async() => {
-            window.dispatchEvent(new CustomEvent('vaadin-router:go', {detail: {pathname: '/admin'}}));
+            window.dispatchEvent(new CustomEvent('vaadin-router-go', {detail: {pathname: '/admin'}}));
             await router.ready;
             expect(window.location.pathname).to.equal('/admin');
           });
@@ -410,7 +410,7 @@
           it('should trigger a popstate event after navigation', async() => {
             const onpopstate = sinon.spy();
             window.addEventListener('popstate', onpopstate);
-            window.dispatchEvent(new CustomEvent('vaadin-router:go', {detail: {pathname: '/admin'}}));
+            window.dispatchEvent(new CustomEvent('vaadin-router-go', {detail: {pathname: '/admin'}}));
             await router.ready;
             window.removeEventListener('popstate', onpopstate);
             expect(onpopstate).to.have.been.called.once;
@@ -419,7 +419,7 @@
           it('should not trigger a popstate event after navigation if the pathname has not changed', async() => {
             const onpopstate = sinon.spy();
             window.addEventListener('popstate', onpopstate);
-            window.dispatchEvent(new CustomEvent('vaadin-router:go', {detail: {pathname: '/'}}));
+            window.dispatchEvent(new CustomEvent('vaadin-router-go', {detail: {pathname: '/'}}));
             await router.ready;
             window.removeEventListener('popstate', onpopstate);
             expect(onpopstate).to.not.have.been.called;
@@ -427,15 +427,15 @@
 
           it('should fire navigate event only once per single pathname change', async() => {
             const navigateSpy = sinon.spy();
-            window.addEventListener('vaadin-router:go', navigateSpy);
-            const event = new CustomEvent('vaadin-router:go', {detail: {pathname: '/admin'}});
+            window.addEventListener('vaadin-router-go', navigateSpy);
+            const event = new CustomEvent('vaadin-router-go', {detail: {pathname: '/admin'}});
             window.dispatchEvent(event);
             await router.ready;
             expect(navigateSpy).to.be.calledOnce;
           });
 
           it('should automatically subscribe to navigation events when created', async() => {
-            window.dispatchEvent(new CustomEvent('vaadin-router:go', {detail: {pathname: '/'}}));
+            window.dispatchEvent(new CustomEvent('vaadin-router-go', {detail: {pathname: '/'}}));
             await router.ready;
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
@@ -443,7 +443,7 @@
 
           it('should unsubscribe from navigation events after an `unsubscribe()` method call', async() => {
             router.unsubscribe();
-            window.dispatchEvent(new CustomEvent('vaadin-router:go', {detail: {pathname: '/admin'}}));
+            window.dispatchEvent(new CustomEvent('vaadin-router-go', {detail: {pathname: '/admin'}}));
             await router.ready;
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
@@ -452,7 +452,7 @@
           it('should subscribe to navigation events after a `subscribe()` method call', async() => {
             router.unsubscribe();
             router.subscribe();
-            window.dispatchEvent(new CustomEvent('vaadin-router:go', {detail: {pathname: '/'}}));
+            window.dispatchEvent(new CustomEvent('vaadin-router-go', {detail: {pathname: '/'}}));
             await router.ready;
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
@@ -487,20 +487,20 @@
             expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
           });
 
-          it('should trigger a `vaadin-router:go` event on the `window` when Router.go() is called', () => {
+          it('should trigger a `vaadin-router-go` event on the `window` when Router.go() is called', () => {
             const spy = sinon.spy();
-            window.addEventListener('vaadin-router:go', spy);
+            window.addEventListener('vaadin-router-go', spy);
             Vaadin.Router.go('');
-            window.removeEventListener('vaadin-router:go', spy);
+            window.removeEventListener('vaadin-router-go', spy);
             expect(spy).to.have.been.called.once;
-            expect(spy.args[0][0]).to.have.property('type', 'vaadin-router:go');
+            expect(spy.args[0][0]).to.have.property('type', 'vaadin-router-go');
           });
 
           it('should pass the given pathname in the `detail.pathname` property of the triggered event when Router.go() is called', () => {
             const spy = sinon.spy();
-            window.addEventListener('vaadin-router:go', spy);
+            window.addEventListener('vaadin-router-go', spy);
             Vaadin.Router.go('/a');
-            window.removeEventListener('vaadin-router:go', spy);
+            window.removeEventListener('vaadin-router-go', spy);
             expect(spy).to.have.been.called.once;
             expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/a');
           });

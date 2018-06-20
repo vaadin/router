@@ -8,9 +8,15 @@ function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
 }
 
-function redirect(context, path) {
+function redirect(context, pathname) {
   const params = Object.assign({}, context.params);
-  return {redirect: {pathname: path, from: context.pathname, params}};
+  return {
+    redirect: {
+      pathname,
+      from: context.pathname,
+      params
+    }
+  };
 }
 
 function renderComponent(context, component) {
@@ -383,7 +389,7 @@ export class Router extends Resolver {
     if (window.location.pathname !== pathname) {
       const changeState = replace ? 'replaceState' : 'pushState';
       window.history[changeState](null, document.title, pathname);
-      window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router:ignore'}));
+      window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router-ignore'}));
     }
   }
 
@@ -508,7 +514,7 @@ export class Router extends Resolver {
    * subscribed to navigation events, it won't be garbage collected.
    */
   subscribe() {
-    window.addEventListener('vaadin-router:go', this.__navigationEventHandler);
+    window.addEventListener('vaadin-router-go', this.__navigationEventHandler);
   }
 
   /**
@@ -516,7 +522,7 @@ export class Router extends Resolver {
    * method.
    */
   unsubscribe() {
-    window.removeEventListener('vaadin-router:go', this.__navigationEventHandler);
+    window.removeEventListener('vaadin-router-go', this.__navigationEventHandler);
   }
 
   __onNavigationEvent(event) {

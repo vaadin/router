@@ -149,14 +149,14 @@
     </vaadin-demo-snippet>
     <p>
       NOTE: the same effect can be achieved by dispatching a <code>
-      vaadin-router:go</code> custom event on the <code>window</code>. The
+      vaadin-router-go</code> custom event on the <code>window</code>. The
       target path should be provided as <code>event.detail.pathname</code>.
     </p>
     <marked-element>
       <script type="text/markdown">
         ```js
         window.dispatchEvent(
-          new CustomEvent('vaadin-router:go', {detail: {pathname: '/to/path'}}));
+          new CustomEvent('vaadin-router-go', {detail: {pathname: '/to/path'}}));
         ```
       </script>
     </marked-element>
