@@ -56,10 +56,21 @@ const config = [
     plugins: [
       ...plugins,
       babel({
-        // The 'external-helpers' Babel plugin allows Rollup to include every
-        // used babel helper just once per bundle, rather than including them in
-        // every module that uses them (which is the default behaviour).
-        plugins: ['external-helpers'],
+        plugins: [
+          // The 'external-helpers' Babel plugin allows Rollup to include every
+          // used babel helper just once per bundle, rather than including them in
+          // every module that uses them (which is the default behaviour).
+          'external-helpers',
+
+          // The 'transform-runtime' Babel plugin instructs Babel to include the
+          // regenerator runtime library (which is required to run the
+          // babel-transpiled async / await code).
+          ['transform-runtime', {
+            'helpers': false,
+            'polyfill': false,
+            'regenerator': true,
+          }]
+        ],
         presets: [
           ['env', {
             // Run `npm run browserslist` to see the percent of users covered

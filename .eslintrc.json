@@ -13,12 +13,7 @@
     "Vaadin": false
   },
   "parserOptions": {
-    "sourceType": "module"
-  },
-  "overrides": [{
-    "files": ["gulpfile.js"],
-    "parserOptions": {
-      "ecmaVersion": 2017
-    }
-  }]
+    "sourceType": "module",
+    "ecmaVersion": 2017
+  }
 }
