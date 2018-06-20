@@ -94,5 +94,5 @@ export function loadBundle(path) {
 export function fireRouterEvent(type, detail) {
   window.dispatchEvent(
     new CustomEvent(
-      `vaadin-router:${type}`, {detail}));
+      `vaadin-router-${type}`, {detail}));
 }

@@ -1064,16 +1064,16 @@
         });
       });
 
-      describe('the global `vaadin-router:route-changed` event', () => {
+      describe('the global `vaadin-router-route-changed` event', () => {
         it('should be triggered after a completed navigation', async() => {
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
           ]);
 
           const onRouteChanged = sinon.spy();
-          window.addEventListener('vaadin-router:route-changed', onRouteChanged);
+          window.addEventListener('vaadin-router-route-changed', onRouteChanged);
           await router.render('/');
-          window.removeEventListener('vaadin-router:route-changed', onRouteChanged);
+          window.removeEventListener('vaadin-router-route-changed', onRouteChanged);
 
           expect(onRouteChanged).to.have.been.called.once;
         });
@@ -1085,12 +1085,12 @@
           ]);
 
           const onRouteChanged = sinon.spy();
-          window.addEventListener('vaadin-router:route-changed', onRouteChanged);
+          window.addEventListener('vaadin-router-route-changed', onRouteChanged);
           await Promise.all([
             router.render('/'),
             router.render('/admin')
           ]);
-          window.removeEventListener('vaadin-router:route-changed', onRouteChanged);
+          window.removeEventListener('vaadin-router-route-changed', onRouteChanged);
 
           expect(onRouteChanged).to.have.been.called.once;
         });
@@ -1101,9 +1101,9 @@
           ]);
 
           const onRouteChanged = sinon.spy();
-          window.addEventListener('vaadin-router:route-changed', onRouteChanged);
+          window.addEventListener('vaadin-router-route-changed', onRouteChanged);
           await router.render('/admin');
-          window.removeEventListener('vaadin-router:route-changed', onRouteChanged);
+          window.removeEventListener('vaadin-router-route-changed', onRouteChanged);
 
           expect(onRouteChanged).to.have.been.called.once;
           expect(onRouteChanged.args[0].length).to.equal(1);
@@ -1113,16 +1113,16 @@
         });
       });
 
-      describe('the global `vaadin-router:error` event', () => {
+      describe('the global `vaadin-router-error` event', () => {
         it('should be triggered after a failed navigation', async() => {
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
           ]);
 
           const onError = sinon.spy();
-          window.addEventListener('vaadin-router:error', onError);
+          window.addEventListener('vaadin-router-error', onError);
           await router.render('/non-existent').catch(() => {});
-          window.removeEventListener('vaadin-router:error', onError);
+          window.removeEventListener('vaadin-router-error', onError);
 
           expect(onError).to.have.been.called.once;
         });
@@ -1133,12 +1133,12 @@
           ]);
 
           const onError = sinon.spy();
-          window.addEventListener('vaadin-router:error', onError);
+          window.addEventListener('vaadin-router-error', onError);
           await Promise.all([
             router.render('/non-existent-1').catch(() => {}),
             router.render('/non-existent-2').catch(() => {}),
           ]);
-          window.removeEventListener('vaadin-router:error', onError);
+          window.removeEventListener('vaadin-router-error', onError);
 
           expect(onError).to.have.been.called.once;
         });
@@ -1149,9 +1149,9 @@
           ]);
 
           const onError = sinon.spy();
-          window.addEventListener('vaadin-router:error', onError);
+          window.addEventListener('vaadin-router-error', onError);
           await router.render('/non-existent').catch(() => {});
-          window.removeEventListener('vaadin-router:error', onError);
+          window.removeEventListener('vaadin-router-error', onError);
 
           expect(onError).to.have.been.called.once;
           expect(onError.args[0].length).to.equal(1);

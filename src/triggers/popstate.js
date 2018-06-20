@@ -16,7 +16,7 @@ if (isIE && typeof window.PopStateEvent !== 'function') {
 }
 
 function vaadinRouterGlobalPopstateHandler(event) {
-  if (event.state === 'vaadin-router:ignore') {
+  if (event.state === 'vaadin-router-ignore') {
     return;
   }
   fireRouterEvent('go', {pathname: window.location.pathname});
