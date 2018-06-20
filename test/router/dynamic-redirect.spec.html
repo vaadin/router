@@ -85,6 +85,21 @@
           verifyActiveRoutes(router, ['/a']);
           expect(outlet.children[0].tagName).to.match(/x-users-view/i);
         });
+
+        it('should use `window.replaceState()` when redirecting from action', async() => {
+          const pushSpy = sinon.spy(window.history, 'pushState');
+          const replaceSpy = sinon.spy(window.history, 'replaceState');
+
+          router.setRoutes([
+            {path: '/', action: context => context.redirect('/a')},
+            {path: '/a', component: 'x-users-view'},
+          ]);
+
+          await router.render('/', true);
+
+          expect(pushSpy).to.not.be.called;
+          expect(replaceSpy).to.be.calledOnce;
+        });
       });
     });
   </script>

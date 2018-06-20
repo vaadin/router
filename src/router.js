@@ -244,7 +244,7 @@ export class Router extends Resolver {
       .then(context => {
         if (renderId === this.__lastStartedRenderId) {
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(context.result.route.pathname);
+            this.__updateBrowserHistory(context.result.route.pathname, context.from);
           }
 
           if (context !== this.__previousContext) {
@@ -380,10 +380,11 @@ export class Router extends Resolver {
     }
   }
 
-  __updateBrowserHistory(pathnameOrContext) {
+  __updateBrowserHistory(pathnameOrContext, replace) {
     const pathname = pathnameOrContext.pathname || pathnameOrContext;
     if (window.location.pathname !== pathname) {
-      window.history.pushState(null, document.title, pathname);
+      const changeState = replace ? 'replaceState' : 'pushState';
+      window.history[changeState](null, document.title, pathname);
       window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router:ignore'}));
     }
   }
