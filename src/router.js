@@ -2,7 +2,7 @@ import Resolver from './resolver/resolver.js';
 import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
-import {log, loadBundle, fireRouterEvent} from './utils.js';
+import {ensureRoute, fireRouterEvent, loadBundle, log, toArray} from './utils.js';
 
 function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
@@ -48,6 +48,26 @@ function amend(amendmentFunction, context, route) {
         Object.assign({cancel: () => ({cancel: true})}, context, {next: undefined}), component);
     }
   };
+}
+
+function processNewChildren(newChildren, route, context) {
+  if (typeof newChildren !== 'object') {
+    throw new Error(log(`Expected route '${route}' 'children' method to return an object, but got: '${newChildren}'`));
+  }
+
+  route.children = [];
+  const childRoutes = toArray(newChildren);
+  for (let i = 0; i < childRoutes.length; i++) {
+    ensureRoute(childRoutes[i]);
+    route.children.push(childRoutes[i]);
+  }
+  return context.next();
+}
+
+function processComponent(route, context) {
+  if (typeof route.component === 'string') {
+    return renderComponent(context, route.component);
+  }
 }
 
 /**
@@ -119,10 +139,9 @@ export class Router extends Resolver {
     const updatedContext = Object.assign({
       redirect: path => redirect(context, path),
       component: component => renderComponent(context, component),
-      addRoutes: routes => this.addRoutes(routes),
     }, context);
     const actionResult = runCallbackIfPossible(processAction, updatedContext, route);
-    if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
+    if (isResultNotEmpty(actionResult)) {
       return actionResult;
     }
 
@@ -130,19 +149,21 @@ export class Router extends Resolver {
       return redirect(context, route.redirect);
     }
 
+    let callbacks = Promise.resolve();
+
     if (route.bundle) {
-      return loadBundle(route.bundle)
-        .then(() => this.__processComponent(route, context))
-        .catch(() => new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`)));
+      callbacks = callbacks.then(() => loadBundle(route.bundle))
+        .catch(() => {
+          throw new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`));
+        });
     }
 
-    return this.__processComponent(route, context);
-  }
-
-  __processComponent(route, context) {
-    if (typeof route.component === 'string') {
-      return renderComponent(context, route.component);
-    }
+    return callbacks.then(() => runCallbackIfPossible(route.children, Object.assign({}, context, {next: undefined}), route))
+      .then(newChildren => {
+        return isResultNotEmpty(newChildren)
+          ? processNewChildren(newChildren, route, context)
+          : processComponent(route, context);
+      });
   }
 
   /**

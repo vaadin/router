@@ -15,7 +15,8 @@ export function ensureRoute(route) {
   }
 
   const stringKeys = ['component', 'redirect', 'bundle'];
-  if (typeof route.action !== 'function' && !Array.isArray(route.children) && !stringKeys.some(key => typeof route[key] === 'string')) {
+  if (typeof route.action !== 'function' && !Array.isArray(route.children) && typeof route.children !== 'function'
+    && !stringKeys.some(key => typeof route[key] === 'string')) {
     throw new Error(
       log(
         `Expected route config "${route.path}" to include either "${stringKeys.join('", "')}" ` +
