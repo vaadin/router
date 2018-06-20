@@ -280,6 +280,19 @@
             expect(outlet.children[0].tagName).to.match(/x-users-view/i);
           });
 
+          it('should use `window.replaceState()` when redirecting', async() => {
+            const pushSpy = sinon.spy(window.history, 'pushState');
+            const replaceSpy = sinon.spy(window.history, 'replaceState');
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/people', redirect: '/users'},
+              {path: '/users', component: 'x-users-view'},
+            ]);
+            await router.render('/people', true);
+            expect(pushSpy).to.not.be.called;
+            expect(replaceSpy).to.be.calledOnce;
+          });
+
           it('should set the `route.redirectFrom` property on the route component in case of redirect', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
