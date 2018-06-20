@@ -132,9 +132,14 @@
 
         <dom-module id="x-wrapper">
           <template>
-            <a href="/">Home</a>
-            <a href="/users">Users</a>
-            <slot></slot>
+            <style include="vaadin-router-demo-nested-styles"></style>
+            <nav>
+              <a href="/">Home</a>
+              <a href="/users">Users</a>
+            </nav>
+            <main>
+              <slot></slot>
+            </ma>
           </template>
         </dom-module>
         <style>
