@@ -624,40 +624,6 @@
             expect(contextParam.cancel).to.be.an('undefined');
             expect(contextParam.redirect).to.be.a('function');
             expect(contextParam.component).to.be.a('function');
-            expect(contextParam.addRoutes).to.be.a('function');
-          });
-
-          it('action should be able to add routes to the router', async() => {
-            const newRoute = {path: '/users/:user', component: 'x-user-profile'};
-            const oldRoute = {path: '/users', component: 'x-home-view', action: context => {
-              context.addRoutes(newRoute);
-            }};
-
-            router.setRoutes([oldRoute]);
-
-            await router.render('/users');
-
-            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-            const newRoutes = router.getRoutes();
-            expect(newRoutes).to.be.an('array').that.has.lengthOf(2);
-            expect(newRoutes[0]).to.be.equal(oldRoute);
-            expect(newRoutes[1]).to.be.equal(newRoute);
-          });
-
-          it('action that added a route is able to resolve it', async() => {
-            router.setRoutes([
-              {path: '/users/(.*?)', action: context => {
-                context.addRoutes({path: '/users/:user', component: 'x-user-profile'});
-                return context.next();
-              }}
-            ]);
-
-            await router.render('/users/2');
-
-            const elem = outlet.children[0];
-            expect(elem.tagName).to.match(/x-user-profile/i);
-            expect(elem.route.params).to.be.object;
-            expect(elem.route.params.user).to.equal('2');
           });
 
           it('action.this points to the route that defines action', async() => {
@@ -888,6 +854,22 @@
 
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
             expect(from).to.be.equal('/c');
+          });
+
+          it('when children parameter is a function, its result is added to the route as children and navigated to', async() => {
+            const newRoute = {path: '/:user', component: 'x-user-profile'};
+            const originalRoute = {path: '/users', children: () => newRoute};
+            router.setRoutes([originalRoute]);
+
+            await router.render('/users/2');
+
+            const elem = outlet.children[0];
+            expect(elem.tagName).to.match(/x-user-profile/i);
+            expect(elem.route.params).to.be.object;
+            expect(elem.route.params.user).to.equal('2');
+
+            expect(originalRoute.children).to.be.an('array').lengthOf(1);
+            expect(originalRoute.children[0]).to.equal(newRoute);
           });
         });
 
