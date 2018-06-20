@@ -150,12 +150,17 @@
     </vaadin-demo-snippet>
 
     <h3>Nested Components</h3>
-    <p>In certain cases, for instance when creating a navigation bar shown on certain application pages, it is useful to define a common layout for the pages.
-    With Vaadin.Router it is done by specifying a <code>component</code> property both in parent and child route objects.</p>
-    <p>In this case child route's component will be rendered as a light dom child of parent route's component.</p>
-    <p>When using Web Components, in order to have the children displayed, the parent Web Component should contain
-       <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot">slot tag</a>.
-      This demo shows the nested components, note that the parent layout is the same even when you switch between the different child routes.</p>
+    <p>
+      In certain cases, for instance when creating a navigation bar shown on certain application pages,
+      it is useful to define a common layout and reuse it. Vaadin.Router supports this by specifying
+      the <code>component</code> property both in parent and child route objects.
+    </p>
+    <p>In this case child route's component will be rendered as a light DOM child of parent route's component.</p>
+    <p>
+      When using Web Components, in order to display the children rendered by Vaadin.Router, parent component should contain
+      the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"><code><b>&lt;slot&gt;</b></code></a>
+      tag in its Shadow DOM. The parent layout component stays in the DOM when you switch between the child routes.
+    </p>
     <vaadin-demo-snippet id="vaadin-router-getting-started-demo-4" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
