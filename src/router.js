@@ -223,21 +223,26 @@ export class Router extends Resolver {
    * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
    * See also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
+   * * `children` – array of nested routes or a function that provides the array.
+   * Function can accept a `context` parameter described below and either be asynchronous or synchronous: in the former case,
+   * the path resolution will be paused until the function returns the result.
+   * Function is executed only once: it's return value is cached and used for further resolutions.
+   * Parent routes' properties are executed before resolving the children. Children 'path' values are relative to the parent ones.
+   *
    * * `component` – the tag name of the Web Component to resolve the route to.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
    * If route contains the `component` property (or an action that return a component)
    * and its child route also contains the `component` property, child route's component
    * will be rendered as a light dom child of a parent component.
    *
-   * * `children` – nested routes. Parent routes' properties are executed before resolving the children.
-   * Children 'path' values are relative to the parent ones.
-   *
-   * `context` object that is passed to `route` functions holds the following parameters:
+   * `context` object that is passed to `route` functions holds the following properties:
    * * `context.pathname` – string with the pathname being resolved
    *
    * * `context.params` – object with route parameters
    *
    * * `context.route` – object that holds the route that is currently being rendered.
+   *
+   * In addition to those properties, `action` function has additional helper methods:
    *
    * * `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)
    *
