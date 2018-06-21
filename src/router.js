@@ -58,11 +58,11 @@ function processNewChildren(newChildren, route, context) {
       + `to return an object, but got: '${newChildren}'`));
   }
 
-  route.children = [];
+  route.__children = [];
   const childRoutes = toArray(newChildren);
   for (let i = 0; i < childRoutes.length; i++) {
     ensureRoute(childRoutes[i]);
-    route.children.push(childRoutes[i]);
+    route.__children.push(childRoutes[i]);
   }
 
   if (route.component) {
@@ -166,9 +166,7 @@ export class Router extends Resolver {
 
     return callbacks.then(() => runCallbackIfPossible(route.children, undefined, route))
       .then(newChildren => {
-        if (typeof route.children === 'function') {
-          delete route.children;
-        }
+        route.__children = route.children;
         return isResultNotEmpty(newChildren)
           ? processNewChildren(newChildren, route, context)
           : processComponent(route, context);
