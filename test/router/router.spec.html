@@ -904,6 +904,24 @@
             expect(data[3].oldValue).to.equal('entering');
           });
         });
+
+        describe('vaadin-router-meta', () => {
+          let router;
+
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
+          });
+
+          afterEach(() => {
+            router.unsubscribe();
+          });
+
+          it('should expose the version on the `vaadin-router-meta` custom element class', async() => {
+            const meta = customElements.get('vaadin-router-meta');
+            expect(meta).to.be.not.empty;
+            expect(meta.version).to.be.string;
+          });
+        });
       });
     });
 
