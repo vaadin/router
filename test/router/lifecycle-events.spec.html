@@ -172,6 +172,20 @@
           verifyActiveRoutes(router, ['/users']);
         });
 
+        it('should fail on recursive redirects', async() => {
+          router.setRoutes([
+            {path: '/', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/u'))},
+            {path: '/u', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/users'))},
+            {path: '/users', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/'))}
+          ]);
+
+          const onError = sinon.spy();
+          await router.render('/').catch(onError);
+
+          expect(outlet.children).to.have.lengthOf(0);
+          expect(onError).to.have.been.called.once;
+        });
+
         it('should ignore any other return value than `cancel` or `redirect`', async() => {
           const values = [
             true,
