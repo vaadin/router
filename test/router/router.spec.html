@@ -269,6 +269,18 @@
             expect(spy.secondCall.args[0].pathname).to.equal(pathname);
           });
 
+          it('should handle multiple redirects', async() => {
+            router.setRoutes([
+              {path: '/a', redirect: '/b'},
+              {path: '/b', redirect: '/c'},
+              {path: '/c', component: 'x-home-view'},
+            ]);
+
+            await router.render('/a');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
           it('should render a component for the new route when redirecting', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},

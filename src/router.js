@@ -304,7 +304,8 @@ export class Router extends Resolver {
     if (result instanceof HTMLElement) {
       return Promise.resolve(context);
     } else if (result.redirect) {
-      return this.__redirect(result.redirect);
+      return this.__redirect(result.redirect)
+        .then(context => this.__amendWithResolutionResult(context));
     } else if (result instanceof Error) {
       return Promise.reject(result);
     } else {

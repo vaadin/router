@@ -159,6 +159,19 @@
           verifyActiveRoutes(router, ['/users']);
         });
 
+        it('should be able to have multiple redirects', async() => {
+          router.setRoutes([
+            {path: '/', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/u'))},
+            {path: '/u', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/users'))},
+            {path: '/users', component: 'x-users-list'}
+          ]);
+
+          await router.render('/');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+          verifyActiveRoutes(router, ['/users']);
+        });
+
         it('should ignore any other return value than `cancel` or `redirect`', async() => {
           const values = [
             true,
