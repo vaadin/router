@@ -376,7 +376,7 @@ export class Router extends Resolver {
 
   __redirect(redirectData, counter) {
     if (counter > MAX_REDIRECT_COUNT) {
-      throw new Error(`Too many redirects when rendering ${redirectData.from}`);
+      throw new Error(log(`Too many redirects when rendering ${redirectData.from}`));
     }
 
     return this.resolve({
