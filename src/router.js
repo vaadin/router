@@ -164,7 +164,7 @@ export class Router extends Resolver {
         });
     }
 
-    return callbacks.then(() => runCallbackIfPossible(route.children, null, route))
+    return callbacks.then(() => runCallbackIfPossible(route.children, undefined, route))
       .then(newChildren => {
         if (typeof route.children === 'function') {
           delete route.children;
