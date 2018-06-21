@@ -166,7 +166,6 @@ export class Router extends Resolver {
 
     return callbacks.then(() => runCallbackIfPossible(route.children, undefined, route))
       .then(newChildren => {
-        route.__children = route.children;
         return isResultNotEmpty(newChildren)
           ? processNewChildren(newChildren, route, context)
           : processComponent(route, context);

@@ -72,7 +72,7 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
         return {done: true};
       }
 
-      const children = route.__children || route.children;
+      const children = route.__children = route.__children || route.children;
 
       if (!match) {
         match = matchPath(routepath, pathname, !children, parentKeys, parentParams);
