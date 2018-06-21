@@ -164,7 +164,7 @@ export class Router extends Resolver {
         });
     }
 
-    return callbacks.then(() => runCallbackIfPossible(route.children, Object.assign({}, context, {next: undefined}), route))
+    return callbacks.then(() => runCallbackIfPossible(route.children, null, route))
       .then(newChildren => {
         if (typeof route.children === 'function') {
           delete route.children;
@@ -226,7 +226,7 @@ export class Router extends Resolver {
    * See also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
    * * `children` – array of nested routes or a function that provides the array.
-   * Function can accept a `context` parameter described below and either be asynchronous or synchronous: in the former case,
+   * Function can be asynchronous or synchronous: in the former case,
    * the path resolution will be paused until the function returns the result.
    * Function is executed only once: it's return value is cached and used for further resolutions.
    * Parent routes' properties are executed before resolving the children. Children 'path' values are relative to the parent ones.
@@ -237,14 +237,16 @@ export class Router extends Resolver {
    * and its child route also contains the `component` property, child route's component
    * will be rendered as a light dom child of a parent component.
    *
-   * `context` object that is passed to `route` functions holds the following properties:
+   * For any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback
+   * through the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function
+   * because arrow functions do not have their own `this` reference.
+   *
+   * `context` object that is passed to `action` function holds the following properties:
    * * `context.pathname` – string with the pathname being resolved
    *
    * * `context.params` – object with route parameters
    *
    * * `context.route` – object that holds the route that is currently being rendered.
-   *
-   * In addition to those properties, `action` function has additional helper methods:
    *
    * * `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)
    *
