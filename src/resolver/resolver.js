@@ -59,7 +59,7 @@ class Resolver {
     this.errorHandler = options.errorHandler;
     this.resolveRoute = options.resolveRoute || resolveRoute;
     this.context = Object.assign({resolver: this}, options.context);
-    this.root = Array.isArray(routes) ? {path: '', children: routes, __children: routes, parent: null, __synthetic: true} : routes;
+    this.root = Array.isArray(routes) ? {path: '', children: routes, parent: null, __synthetic: true} : routes;
     this.root.parent = null;
   }
 
@@ -71,7 +71,7 @@ class Resolver {
    * @return {!Array<!Route>}
    */
   getRoutes() {
-    return [...this.root.__children];
+    return [...this.root.children];
   }
 
   /**
@@ -84,7 +84,6 @@ class Resolver {
     ensureRoutes(routes);
     const newRoutes = [...toArray(routes)];
     this.root.children = newRoutes;
-    this.root.__children = newRoutes;
   }
 
   /**
@@ -98,8 +97,7 @@ class Resolver {
    */
   addRoutes(routes) {
     ensureRoutes(routes);
-    const newRoutes = [...toArray(routes)];
-    this.root.__children.push(newRoutes);
+    this.root.children.push(...toArray(routes));
     return this.getRoutes();
   }
 
