@@ -269,6 +269,32 @@
             expect(spy.secondCall.args[0].pathname).to.equal(pathname);
           });
 
+          it('should handle multiple redirects', async() => {
+            router.setRoutes([
+              {path: '/a', redirect: '/b'},
+              {path: '/b', redirect: '/c'},
+              {path: '/c', component: 'x-home-view'},
+            ]);
+
+            await router.render('/a');
+
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
+          it('should fail on recursive redirects', async() => {
+            router.setRoutes([
+              {path: '/a', redirect: '/b'},
+              {path: '/b', redirect: '/c'},
+              {path: '/c', redirect: '/a'},
+            ]);
+
+            const onError = sinon.spy();
+            await router.render('/a').catch(onError);
+
+            expect(outlet.children).to.have.lengthOf(0);
+            expect(onError).to.have.been.called.once;
+          });
+
           it('should render a component for the new route when redirecting', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},

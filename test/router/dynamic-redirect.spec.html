@@ -86,6 +86,33 @@
           expect(outlet.children[0].tagName).to.match(/x-users-view/i);
         });
 
+        it('should be able to have multiple action redirects', async() => {
+          router.setRoutes([
+            {path: '/', action: context => context.redirect('/u')},
+            {path: '/u', action: context => context.redirect('/users')},
+            {path: '/users', component: 'x-users-list'}
+          ]);
+
+          await router.render('/');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+          verifyActiveRoutes(router, ['/users']);
+        });
+
+        it('should fail on recursive action redirects', async() => {
+          router.setRoutes([
+            {path: '/a', action: context => context.redirect('/b')},
+            {path: '/b', action: context => context.redirect('/c')},
+            {path: '/c', action: context => context.redirect('/a')},
+          ]);
+
+          const onError = sinon.spy();
+          await router.render('/a').catch(onError);
+
+          expect(outlet.children).to.have.lengthOf(0);
+          expect(onError).to.have.been.called.once;
+        });
+
         it('should use `window.replaceState()` when redirecting from action', async() => {
           const pushSpy = sinon.spy(window.history, 'pushState');
           const replaceSpy = sinon.spy(window.history, 'replaceState');
