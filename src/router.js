@@ -4,6 +4,8 @@ import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
 import {log, loadBundle, fireRouterEvent} from './utils.js';
 
+const MAX_REDIRECT_COUNT = 256;
+
 function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
 }
@@ -304,7 +306,7 @@ export class Router extends Resolver {
     if (result instanceof HTMLElement) {
       return Promise.resolve(context);
     } else if (result.redirect) {
-      return this.__redirect(result.redirect)
+      return this.__redirect(result.redirect, context.__redirectCount)
         .then(context => this.__amendWithResolutionResult(context));
     } else if (result instanceof Error) {
       return Promise.reject(result);
@@ -365,17 +367,22 @@ export class Router extends Resolver {
           return this.__previousContext;
         }
         if (amendmentResult.redirect) {
-          return this.__redirect(amendmentResult.redirect);
+          return this.__redirect(amendmentResult.redirect, newContext.__redirectCount);
         }
       }
       return newContext;
     });
   }
 
-  __redirect(redirectData) {
+  __redirect(redirectData, counter) {
+    if (counter > MAX_REDIRECT_COUNT) {
+      throw new Error(`Too many redirects when rendering ${redirectData.from}`);
+    }
+
     return this.resolve({
       pathname: Router.pathToRegexp.compile(redirectData.pathname)(redirectData.params),
-      from: redirectData.from
+      from: redirectData.from,
+      __redirectCount: (counter || 0) + 1
     });
   }
 
