@@ -72,8 +72,10 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
         return {done: true};
       }
 
+      const children = route.__children = route.__children || route.children;
+
       if (!match) {
-        match = matchPath(routepath, pathname, !route.children, parentKeys, parentParams);
+        match = matchPath(routepath, pathname, !children, parentKeys, parentParams);
 
         if (match) {
           return {
@@ -87,10 +89,10 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
         }
       }
 
-      if (match && route.children) {
-        while (childIndex < route.children.length) {
+      if (match && children) {
+        while (childIndex < children.length) {
           if (!childMatches) {
-            const childRoute = route.children[childIndex];
+            const childRoute = children[childIndex];
             childRoute.parent = route;
 
             let matchedLength = match.path.length;

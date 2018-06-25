@@ -25,7 +25,7 @@ function cacheRoutes(routesByName, route, routes) {
     for (let i = 0; i < routes.length; i++) {
       const childRoute = routes[i];
       childRoute.parent = route;
-      cacheRoutes(routesByName, childRoute, childRoute.children);
+      cacheRoutes(routesByName, childRoute, childRoute.__children);
     }
   }
 }
@@ -41,7 +41,7 @@ function generateUrls(router, options = {}) {
     let route = router.routesByName.get(routeName);
     if (!route) {
       router.routesByName.clear(); // clear cache
-      cacheRoutes(router.routesByName, router.root, router.root.children);
+      cacheRoutes(router.routesByName, router.root, router.root.__children);
 
       route = router.routesByName.get(routeName);
       if (!route) {

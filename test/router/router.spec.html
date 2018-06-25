@@ -955,7 +955,7 @@
             expect(from).to.be.equal('/c');
           });
 
-          it('children function result should be added to the route as children and navigated to', async() => {
+          it('children function result should be added to the route as __children and navigated to', async() => {
             const newRoute = {path: '/:user', component: 'x-user-profile'};
             const originalRoute = {path: '/users', children: () => newRoute};
             router.setRoutes(originalRoute);
@@ -967,8 +967,60 @@
             expect(elem.route.params).to.be.object;
             expect(elem.route.params.user).to.equal('2');
 
-            expect(originalRoute.children).to.be.an('array').lengthOf(1);
-            expect(originalRoute.children[0]).to.equal(newRoute);
+            expect(originalRoute.children).to.be.an('function');
+            expect(originalRoute.__children).to.be.an('array').lengthOf(1);
+            expect(originalRoute.__children[0]).to.equal(newRoute);
+          });
+
+          it('children function supports promises', async() => {
+            const newRoute = {path: '/:user', component: 'x-user-profile'};
+            const originalRoute = {path: '/users', children: () => Promise.resolve(newRoute)};
+            router.setRoutes(originalRoute);
+
+            await router.render('/users/2');
+
+            const elem = outlet.children[0];
+            expect(elem.tagName).to.match(/x-user-profile/i);
+            expect(elem.route.params).to.be.object;
+            expect(elem.route.params.user).to.equal('2');
+
+            expect(originalRoute.children).to.be.an('function');
+            expect(originalRoute.__children).to.be.an('array').lengthOf(1);
+            expect(originalRoute.__children[0]).to.equal(newRoute);
+          });
+
+          it('children function is evaluated every time and result is updated, if needed', async() => {
+            let numberOfExecutions = 0;
+
+            const evenPath = {path: '/d', action: context => context.component('x-d')};
+            const oddPath = {path: '/b', action: context => context.component('x-b')};
+
+            const originalRoute = {path: '/a', children: () => new Promise(resolve => {
+              numberOfExecutions++;
+              if (numberOfExecutions % 2 === 0) {
+                resolve(evenPath);
+              } else {
+                resolve(oddPath);
+              }
+            })};
+
+            router.setRoutes(originalRoute);
+
+            await router.render('/a/b');
+
+            expect(numberOfExecutions).to.equal(1);
+            expect(outlet.children[0].tagName).to.match(/x-b/i);
+
+            expect(originalRoute.__children).to.be.an('array').lengthOf(1);
+            expect(originalRoute.__children[0]).to.equal(oddPath);
+
+            await router.render('/a/d');
+
+            expect(numberOfExecutions).to.equal(2);
+            expect(outlet.children[0].tagName).to.match(/x-d/i);
+
+            expect(originalRoute.__children).to.be.an('array').lengthOf(1);
+            expect(originalRoute.__children[0]).to.equal(evenPath);
           });
 
           it('when children function result is not needed, router renders everything correctly still', async() => {
@@ -1029,38 +1081,7 @@
             }
           });
 
-          it('when children function returns promise, its result gets cached in the same route as children', async() => {
-            let numberOfExecutions = 0;
-
-            const newChildren = [
-              {path: '/b', component: 'x-b'},
-              {path: '/d', action: context => context.component('x-d')}
-            ];
-
-            const originalRoute = {path: '/a', children: () => new Promise(resolve => {
-              numberOfExecutions++;
-              resolve(newChildren);
-            })};
-
-            router.setRoutes(originalRoute);
-
-            await router.render('/a/b');
-
-            expect(numberOfExecutions).to.equal(1);
-            const firstElement = outlet.children[0];
-            expect(firstElement.tagName).to.match(/x-b/i);
-
-            await router.render('/a/d');
-
-            expect(numberOfExecutions).to.equal(1);
-            expect(outlet.children[0].tagName).to.match(/x-d/i);
-
-            expect(originalRoute.children).to.be.an('array').lengthOf(2);
-            expect(originalRoute.children[0]).to.equal(newChildren[0]);
-            expect(originalRoute.children[1]).to.equal(newChildren[1]);
-          });
-
-          it('when children function returns null or undefined, its result is ignored and cached', async() => {
+          it('when children function returns null or undefined, its result is ignored', async() => {
             const returnValues = [null, undefined];
 
             for (let i = 0; i < returnValues.length; i++) {
@@ -1080,7 +1101,7 @@
 
               await router.render('/a');
 
-              expect(numberOfExecutions).to.equal(1);
+              expect(numberOfExecutions).to.equal(2);
               expect(outlet.children[0].tagName).to.match(/x-a/i);
             }
           });
