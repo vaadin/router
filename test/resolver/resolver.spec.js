@@ -633,6 +633,20 @@
       expect(context.result).to.be.true;
     });
 
+    it('should support an empty array of children', async() => {
+      const action = sinon.spy();
+      const resolver = new Resolver([
+        {
+          path: '/a',
+          action: action,
+          children: [],
+        },
+      ]);
+
+      await resolver.resolve('/a/b').catch(() => {});
+      expect(action).to.have.been.called.once;
+    });
+
     it('should re-throw an error', async() => {
       const error = new Error('test error');
       const resolver = new Resolver([
