@@ -8,6 +8,7 @@
  */
 
 import Resolver from './resolver.js';
+import {isString} from '../utils.js';
 
 const {pathToRegexp} = Resolver;
 const cache = new Map();
@@ -64,7 +65,7 @@ function generateUrls(router, options = {}) {
       const toPath = pathToRegexp.tokensToFunction(tokens);
       const keys = Object.create(null);
       for (let i = 0; i < tokens.length; i++) {
-        if (typeof tokens[i] !== 'string') {
+        if (!isString(tokens[i])) {
           keys[tokens[i].name] = true;
         }
       }

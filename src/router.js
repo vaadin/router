@@ -2,7 +2,16 @@ import Resolver from './resolver/resolver.js';
 import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
-import {ensureRoute, fireRouterEvent, loadBundle, log, toArray} from './utils.js';
+import {
+  ensureRoute,
+  fireRouterEvent,
+  loadBundle,
+  log,
+  toArray,
+  isFunction,
+  isString,
+  isObject,
+} from './utils.js';
 
 const MAX_REDIRECT_COUNT = 256;
 
@@ -33,7 +42,7 @@ function renderComponent(context, component) {
 }
 
 function runCallbackIfPossible(callback, context, thisObject) {
-  if (typeof callback === 'function') {
+  if (isFunction(callback)) {
     return callback.call(thisObject, context);
   }
 }
@@ -53,8 +62,8 @@ function amend(amendmentFunction, context, route) {
 }
 
 function processNewChildren(newChildren, route, context) {
-  if (typeof newChildren !== 'object') {
-    throw new Error(log(`Expected 'children' method  of the route with path '${route.path}' `
+  if (!isObject(newChildren)) {
+    throw new Error(log(`Expected 'children' method of the route with path '${route.path}' `
       + `to return an object, but got: '${newChildren}'`));
   }
 
@@ -71,7 +80,7 @@ function processNewChildren(newChildren, route, context) {
 }
 
 function processComponent(route, context) {
-  if (typeof route.component === 'string') {
+  if (isString(route.component)) {
     return renderComponent(context, route.component);
   }
 }
@@ -151,7 +160,7 @@ export class Router extends Resolver {
       return actionResult;
     }
 
-    if (typeof route.redirect === 'string') {
+    if (isString(route.redirect)) {
       return redirect(context, route.redirect);
     }
 
@@ -538,7 +547,7 @@ export class Router extends Resolver {
     }
 
     if (from && to && config) {
-      const isObj = typeof config === 'object';
+      const isObj = isObject(config);
       const leave = isObj && config.leave || 'leaving';
       const enter = isObj && config.enter || 'entering';
       promises.push(animate(from, leave));
