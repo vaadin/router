@@ -60,7 +60,8 @@
     "IE 11"
   ],
   "dependencies": {
-    "path-to-regexp": "2.2.0"
+    "path-to-regexp": "2.2.0",
+    "@vaadin/vaadin-development-mode-detector": "^1.1.0-alpha2"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
