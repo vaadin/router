@@ -222,11 +222,17 @@ export class Router extends Resolver {
    * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
    * See also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
-   * * `children` – array of nested routes or a function that provides the array.
-   * Function can be asynchronous or synchronous: in the former case,
-   * the path resolution will be paused until the function returns the result.
-   * Function is executed only once: it's return value is cached and used for further resolutions.
-   * Parent routes' properties are executed before resolving the children. Children 'path' values are relative to the parent ones.
+   * * `children` – an array of nested routes or a function that provides this
+   * array at the render time. The function can be synchronous or asynchronous:
+   * in the latter case the render is delayed until the returned promise is
+   * resolved. The `children` function is executed every time when this route is
+   * being rendered. This allows for dynamic route structures (e.g. backend-defined),
+   * but it might have a performance impact as well. In order to avoid calling
+   * the fuction on consequent renders, you can override the `children` property
+   * of the route object and save the calculated array there
+   * (via `this.children = [ route1, route2, ...];`).
+   * Parent routes are fully resolved before resolving the children. Children
+   * 'path' values are relative to the parent ones.
    *
    * * `component` – the tag name of the Web Component to resolve the route to.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
