@@ -955,7 +955,7 @@
             expect(from).to.be.equal('/c');
           });
 
-          describe('children (function)', () => {
+          describe.only('children (function)', () => {
             it('should be able to return a list of routes', async() => {
               const children = () => [
                 {path: '/:user', component: 'x-user-profile'}
@@ -1063,7 +1063,6 @@
               expect(context.cancel).to.be.an('undefined');
               expect(context.redirect).to.be.an('undefined');
               expect(context.component).to.be.an('undefined');
-              expect(context.next).to.be.an('undefined');
             });
 
             it('should be called on the route object (as `this`)', async() => {

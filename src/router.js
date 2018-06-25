@@ -173,7 +173,7 @@ export class Router extends Resolver {
         });
     }
 
-    return callbacks.then(() => runCallbackIfPossible(route.children, undefined, route))
+    return callbacks.then(() => runCallbackIfPossible(route.children, context, route))
       .then(newChildren => {
         return isResultNotEmpty(newChildren)
           ? processNewChildren(newChildren, route, context)
