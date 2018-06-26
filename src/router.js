@@ -15,6 +15,8 @@ import {
 
 const MAX_REDIRECT_COUNT = 256;
 
+const RENDER_ABANDONED = {};
+
 function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
 }
@@ -296,48 +298,65 @@ export class Router extends Resolver {
    * @return {!Promise<!Node>}
    */
   render(pathnameOrContext, shouldUpdateHistory) {
-    const renderId = ++this.__lastStartedRenderId;
-    this.ready = this.resolve(pathnameOrContext)
-      .then(originalContext => this.__fullyResolveChain(originalContext, originalContext))
-      .then(context => {
-        if (renderId === this.__lastStartedRenderId) {
-          if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(context.result.route.pathname, context.from);
-          }
-
-          if (context !== this.__previousContext) {
-            return this.__runOnAfterCallbacks(context, this.__previousContext, 'onAfterLeave')
-              .then(() => this.__setOutletContent(context))
-              .then(() => this.__runOnAfterCallbacks(context, context, 'onAfterEnter'))
-              .then(() => context);
-          }
-          return Promise.resolve(context);
-        }
-      })
-      .then(context => {
-        if (renderId === this.__lastStartedRenderId) {
-          return this.__animateIfNeeded(context);
-        }
-      })
-      .then(context => {
-        if (renderId === this.__lastStartedRenderId) {
-          this.__removeOldOutletContent();
-        }
-        this.__previousContext = context;
-        fireRouterEvent('route-changed', {pathname: context.pathname});
-        return this.__outlet;
-      })
-      .catch(error => {
-        if (renderId === this.__lastStartedRenderId) {
-          if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(pathnameOrContext);
-          }
-          this.__removeOutletContent();
-          fireRouterEvent('error', {error});
-          throw error;
-        }
-      });
+    this.ready = this.__render(pathnameOrContext, shouldUpdateHistory);
     return this.ready;
+  }
+
+  __assertNotAbandoned(renderId) {
+    if (renderId !== this.__lastStartedRenderId) {
+      throw RENDER_ABANDONED;
+    }
+  }
+
+  async __render(pathnameOrContext, shouldUpdateHistory) {
+    const renderId = ++this.__lastStartedRenderId;
+    try {
+      let context = await this.resolve(pathnameOrContext);
+      this.__assertNotAbandoned(renderId);
+
+      context = await this.__fullyResolveChain(context, context);
+      this.__assertNotAbandoned(renderId);
+
+      if (context === this.__previousContext) {
+        // The navigation was cancelled by a lifecycle callback
+        return this.__outlet;
+      }
+
+      if (shouldUpdateHistory) {
+        this.__updateBrowserHistory(context.result.route.pathname, context.from);
+      }
+
+      await this.__runOnAfterCallbacks(context, this.__previousContext, 'onAfterLeave');
+      this.__assertNotAbandoned(renderId);
+
+      await this.__setOutletContent(context);
+      this.__assertNotAbandoned(renderId);
+
+      await this.__runOnAfterCallbacks(context, context, 'onAfterEnter');
+      this.__assertNotAbandoned(renderId);
+
+      context = await this.__animateIfNeeded(context);
+      this.__assertNotAbandoned(renderId);
+
+      this.__removeOldOutletContent();
+      this.__previousContext = context;
+      fireRouterEvent('route-changed', {pathname: context.pathname});
+      return this.__outlet;
+    } catch (error) {
+      if (error === RENDER_ABANDONED || renderId !== this.__lastStartedRenderId) {
+        // A new render pass has started before this one is completed.
+        // The current render pass and its result (or error) is no longer
+        // relevant. So we just silently end it without any visible side effects.
+        return;
+      }
+
+      if (shouldUpdateHistory) {
+        this.__updateBrowserHistory(pathnameOrContext);
+      }
+      this.__removeOutletContent();
+      fireRouterEvent('error', {error});
+      throw error;
+    }
   }
 
   __fullyResolveChain(originalContext, currentContext) {
