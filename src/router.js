@@ -62,7 +62,7 @@ function amend(amendmentFunction, context, route) {
 }
 
 function processNewChildren(newChildren, route, context) {
-  if (!isObject(newChildren)) {
+  if (isResultNotEmpty(newChildren) && !isObject(newChildren)) {
     throw new Error(log(`Expected 'children' method of the route with path '${route.path}' `
       + `to return an object, but got: '${newChildren}'`));
   }
@@ -173,12 +173,19 @@ export class Router extends Resolver {
         });
     }
 
-    return callbacks.then(() => runCallbackIfPossible(route.children, context, route))
-      .then(newChildren => {
-        return isResultNotEmpty(newChildren)
-          ? processNewChildren(newChildren, route, context)
-          : processComponent(route, context);
-      });
+    return callbacks.then(() => {
+      if (isFunction(route.children)) {
+        return Promise.resolve(route.children(context))
+          .then(children => {
+            if (!isResultNotEmpty(children) && !isFunction(route.children)) {
+              children = route.children;
+            }
+            return processNewChildren(children, route, context);
+          });
+      } else {
+        return processComponent(route, context);
+      }
+    });
   }
 
   /**

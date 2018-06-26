@@ -955,7 +955,7 @@
             expect(from).to.be.equal('/c');
           });
 
-          describe.only('children (function)', () => {
+          describe('children (function)', () => {
             it('should be able to return a list of routes', async() => {
               const children = () => [
                 {path: '/:user', component: 'x-user-profile'}
@@ -991,8 +991,8 @@
             });
 
             it('should be able to override the route `children` property instead of returning a value', async() => {
-              const children = sinon.spy(function() {
-                this.children = [
+              const children = sinon.spy((context) => {
+                context.route.children = [
                   {path: '/:user', component: 'x-user-profile'}
                 ];
               });
@@ -1010,35 +1010,51 @@
             });
 
             it('should be called every time when resolver needs the route children list', async() => {
-              const children = sinon.stub();
-              children.onCall(0).returns([]); // The first call returns a empty list
-
-              // All following calls return a single child route
-              children.returns([
+              const children = sinon.spy(() => [
                 {path: '/:user', component: 'x-user-profile'}
               ]);
 
               router.setRoutes([
                 {path: '/users', children: children},
+              ]);
+
+              await router.render('/users/1');
+              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+
+              await router.render('/users/1');
+              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+
+              expect(children).to.have.been.calledTwice;
+            });
+
+            it('should discard the previous return value and use the new one', async() => {
+              const children = sinon.stub();
+              children.onFirstCall().returns([
+                {path: '/:user', component: 'x-user-profile'}
+              ]);
+
+              router.setRoutes([
+                // a no-op action is here only to make the route "valid"
+                // (because a Sinon stub does not pass the validation as an array or a function)
+                {path: '/users', children: children, action: () => {}},
                 {path: '(.*)', component: 'x-not-found-view'},
               ]);
 
               await router.render('/users/1');
+              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+
+              await router.render('/users/1');
               expect(outlet.children[0].tagName).to.match(/x-not-found-view/i);
-
-              await router.render('/users/1');
-              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
-
-              await router.render('/users/1');
-              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
-              expect(children).to.have.been.calledTrice;
             });
 
             it('should not be called when resolver does not need the route children list', async() => {
               const children = sinon.spy();
               router.setRoutes([
-                {path: '/users', component: 'x-users-layout', children: children}
+                {path: '/users', component: 'x-users-layout'},
+                {path: '/', children: children}
               ]);
+              await router.ready.catch(() => {});
+              children.reset();
 
               await router.render('/users');
 
