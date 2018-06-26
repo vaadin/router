@@ -381,16 +381,21 @@
         <script>
           window.addEventListener('vaadin-router-route-changed', (event) => {
             const breadcrumbs = document.querySelector('x-breadcrumbs');
-            breadcrumbs.routes = event.detail.router.activeRoutes;
+            breadcrumbs.routes = event.detail.router.activeRoutes
+              .filter(route => !!route.breadcrumb);
           });
 
           const {Router} = window.Vaadin;
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/users', component: 'x-user-list'},
-            {path: '/users/:user', component: 'x-user-profile'},
+            {path: '/', breadcrumb: {title: 'Home', href: '/'}, children: [
+              {path: '/', component: 'x-home-view'},
+              {path: '/users', breadcrumb: {title: 'Users', href: '/users'}, children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', breadcrumb: {title: 'Kim', href: '/users/kim'}, component: 'x-user-profile'},
+              ]},
+            ]},
             {path: '(.*)', component: 'x-not-found-view'},
           ]);
         </script>

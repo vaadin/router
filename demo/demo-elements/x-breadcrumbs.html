@@ -10,17 +10,21 @@
       }
 
       .delimiter {
-        margin-left: 1em;
-        margin-right: 1em;
+        margin-left: 0.5em;
+        margin-right: 0.5em;
       }
     </style>
 
-    <template is="dom-repeat" items="[[routes]]">
-      <a href$="[[item.href]]">[[item.title]]</a>
-      <template is="dom-if" if="[[__isNotLastIndexOf(routes, i)]]">
-        <span class="delimiter">&gt;</span>
+    <dom-repeat items="[[routes]]">
+      <template>
+        <a href$="[[item.breadcrumb.href]]">[[item.breadcrumb.title]]</a>
+        <dom-if if="[[__isNotLastIndexOf(routes, index)]]">
+          <template>
+            <span class="delimiter">&gt;</span>
+          </template>
+        </dom-if>
       </template>
-    </template>
+    </dom-repeat>
   </template>
   <script>
     class XBreadcrumbs extends Polymer.Element {
@@ -35,7 +39,7 @@
       }
 
       __isNotLastIndexOf(routes, i) {
-        return i < routes.length;
+        return i < routes.length - 1;
       }
     }
     window.customElements.define(XBreadcrumbs.is, XBreadcrumbs);

@@ -138,6 +138,18 @@ export class Router extends Resolver {
     this.ready;
     this.ready = Promise.resolve(outlet);
 
+    /**
+     * A read-only list of the currently active routes (starting from the root
+     * down to a leaf of the routes config tree). The list is initially empty
+     * and gets updated after each _completed_ render call. When a render fails
+     * the `activeRoutes` is set to an empty list.
+     *
+     * @public
+     * @type {!Array<Route>}
+     */
+    this.activeRoutes;
+    this.activeRoutes = [];
+
     this.__lastStartedRenderId = 0;
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
@@ -324,7 +336,8 @@ export class Router extends Resolver {
           this.__removeOldOutletContent();
         }
         this.__previousContext = context;
-        fireRouterEvent('route-changed', {pathname: context.pathname});
+        this.activeRoutes = context.chain;
+        fireRouterEvent('route-changed', {router: this, pathname: context.pathname});
         return this.__outlet;
       })
       .catch(error => {
@@ -333,7 +346,8 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(pathnameOrContext);
           }
           this.__removeOutletContent();
-          fireRouterEvent('error', {error});
+          this.activeRoutes = [];
+          fireRouterEvent('error', {router: this, error});
           throw error;
         }
       });
