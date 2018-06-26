@@ -360,6 +360,48 @@
       event Vaadin.Router dispatches <code>vaadin-router-error</code> and
       attaches the error object to the event as <code>event.detail.error</code>.
     </p>
+
+    <h3>Getting the Currently Active Routes Chain</h3>
+    <p>
+      In order to visualize the current in-app location you can use the <em>
+      active routes chain</em> API of Vaadin.Router. The <code>activeRoutes</code>
+      property of a <code>router</code> object is a read-only list of routes
+      that correspond to the last completed navigation. This may be useful for
+      example when creating a breadcrumbs componenent.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-7" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/users">All Users</a>
+        <a href="/users/kim">Kim</a>
+        <a href="/about">About</a>
+        <x-breadcrumbs></x-breadcrumbs>>
+        <div id="outlet"></div>
+
+        <script>
+          window.addEventListener('vaadin-router-route-changed', (event) => {
+            const breadcrumbs = document.querySelector('x-breadcrumbs');
+            breadcrumbs.routes = event.detail.router.activeRoutes;
+          });
+
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/users', component: 'x-user-list'},
+            {path: '/users/:user', component: 'x-user-profile'},
+            {path: '(.*)', component: 'x-not-found-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+    <p>
+      In case if navigation fails for any reason (e.g. if no route matched the
+      given pathname), instead of the <code>vaadin-router-route-changed</code>
+      event Vaadin.Router dispatches <code>vaadin-router-error</code> and
+      attaches the error object to the event as <code>event.detail.error</code>.
+    </p>
   </template>
   <script>
     class VaadinRouterLifecycleCallbacksDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
