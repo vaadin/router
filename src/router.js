@@ -73,10 +73,6 @@ function processNewChildren(newChildren, route, context) {
     ensureRoute(childRoutes[i]);
     route.__children.push(childRoutes[i]);
   }
-
-  if (route.component) {
-    return processComponent(route, context);
-  }
 }
 
 function processComponent(route, context) {
@@ -173,19 +169,20 @@ export class Router extends Resolver {
         });
     }
 
-    return callbacks.then(() => {
-      if (isFunction(route.children)) {
-        return Promise.resolve(route.children(context))
-          .then(children => {
-            if (!isResultNotEmpty(children) && !isFunction(route.children)) {
-              children = route.children;
-            }
-            return processNewChildren(children, route, context);
-          });
-      } else {
-        return processComponent(route, context);
-      }
-    });
+    if (isFunction(route.children)) {
+      callbacks = callbacks
+        .then(() => route.children(context))
+        .then(children => {
+          // The route.children() callback might have re-written the
+          // route.children property instead of returning a value
+          if (!isResultNotEmpty(children) && !isFunction(route.children)) {
+            children = route.children;
+          }
+          processNewChildren(children, route, context);
+        });
+    }
+
+    return callbacks.then(() => processComponent(route, context));
   }
 
   /**
