@@ -416,6 +416,60 @@
           });
         });
 
+        describe('router.activeRoutes', () => {
+          let router;
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
+          });
+
+          afterEach(() => {
+            router.unsubscribe();
+          });
+
+          it('should be an array', () => {
+            expect(router).to.have.property('activeRoutes')
+              .that.is.an('array');
+          });
+
+          it('should be an empty array initially', () => {
+            expect(router.activeRoutes).to.deep.equal([]);
+          });
+
+          it('should contain the routes chain of the last completed render pass (single route)', async() => {
+            const route = {path: '/', component: 'x-home-view'};
+            router.setRoutes(route);
+
+            await router.ready;
+
+            expect(router.activeRoutes).to.have.lengthOf(1);
+            expect(router.activeRoutes[0]).to.equal(route);
+          });
+
+          it('should contain the routes chain of the last completed render pass (multiple routes)', async() => {
+            const routeC = {path: '/c', component: 'x-c'};
+            const routeB = {path: '/b', component: 'x-b', children: [routeC]};
+            const routeA = {path: '/a', component: 'x-a', children: [routeB]};
+
+            router.setRoutes(routeA);
+            await router.render('/a/b/c');
+
+            expect(router.activeRoutes).to.have.lengthOf(3);
+            expect(router.activeRoutes[0]).to.equal(routeA);
+            expect(router.activeRoutes[1]).to.equal(routeB);
+            expect(router.activeRoutes[2]).to.equal(routeC);
+          });
+
+          it('should be an empty array after a failed render', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'}
+            ]);
+            await router.render('/');
+            await router.render('/non-existent').catch(() => {});
+
+            expect(router.activeRoutes).to.deep.equal([]);
+          });
+        });
+
         describe('navigation events', () => {
           let router;
           beforeEach(async() => {
