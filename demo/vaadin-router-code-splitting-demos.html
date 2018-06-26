@@ -41,7 +41,7 @@
             {path: '/', component: 'x-home-view'},
             {
               path: '/user/:id',
-              bundle: `${window.Vaadin.demoComponentsRoot}/user.bundle.js`,
+              bundle: `${Vaadin.Demo.componentsRoot}/user.bundle.js`,
               component: 'x-user-js-bundle-view' // <-- defined in the bundle
             },
           ]);
@@ -76,7 +76,7 @@
             // This is one way of loading a bundle lazily (works for Polymer apps).
             // Other apps might use different ways.
             Polymer.importHref(
-              `${window.Vaadin.demoComponentsRoot}/user.bundle.html`,
+              `${Vaadin.Demo.componentsRoot}/user.bundle.html`,
               null,
               function(err) {
                 throw new Error('bundle not found');
@@ -121,7 +121,7 @@
               path: '/users',
               children: function(context) {
                 return new Promise(function(resolve) {
-                  window.__importModule(`${window.Vaadin.demoComponentsRoot}/users-routes.js`).then(module => {
+                  Vaadin.Demo.import(`${Vaadin.Demo.componentsRoot}/users-routes.js`).then(module => {
                     resolve(module.default);
                   });
                 });

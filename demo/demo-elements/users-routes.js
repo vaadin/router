@@ -1,12 +1,14 @@
 (() => {
+  window.Vaadin = window.Vaadin || {};
+  Vaadin.Demo = Vaadin.Demo || {};
+  Vaadin.Demo.moduleStorage = Vaadin.Demo.moduleStorage || [];
+
   const userRoutes = [
     {path: '/', component: 'x-user-home'},
     {path: '/:user', component: 'x-user-profile'},
   ];
 
-  window.__tempModuleStorage = window.__tempModuleStorage || [];
-
-  window.__tempModuleStorage.push({
+  Vaadin.Demo.moduleStorage.push({
     default: userRoutes
   });
 })();
