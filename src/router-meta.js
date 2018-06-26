@@ -1,10 +1,7 @@
-/**
- * The custom element class containing Router meta information,
- * considered as a read-only part of the public API.
- *
- * @class VaadinRouterMeta
- */
-class VaadinRouterMeta extends HTMLElement {
+// NOTE(web-padawan): Have to use an awkward IIFE returning class here
+// to prevent this class from showing up in analysis.json & API docs.
+/** @private */
+const VaadinRouterMeta = (() => class extends HTMLElement {
   static get is() {
     return 'vaadin-router-meta';
   }
@@ -12,6 +9,6 @@ class VaadinRouterMeta extends HTMLElement {
   static get version() {
     return '0.3.0';
   }
-}
+})();
 
 customElements.define(VaadinRouterMeta.is, VaadinRouterMeta);
