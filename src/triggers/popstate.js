@@ -1,10 +1,10 @@
-import {fireRouterEvent} from '../utils.js';
+import {fireRouterEvent, isFunction} from '../utils.js';
 
 // PopStateEvent constructor shim
 const isIE = /Trident/.test(navigator.userAgent);
 
 /* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
-if (isIE && typeof window.PopStateEvent !== 'function') {
+if (isIE && !isFunction(window.PopStateEvent)) {
   window.PopStateEvent = function(inType, params) {
     params = params || {};
     var e = document.createEvent('Event');

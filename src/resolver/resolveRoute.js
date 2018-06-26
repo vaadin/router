@@ -7,8 +7,10 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
+import {isFunction} from '../utils.js';
+
 function resolveRoute(context) {
-  if (typeof context.route.action === 'function') {
+  if (isFunction(context.route.action)) {
     return context.route.action(context);
   }
   return undefined;

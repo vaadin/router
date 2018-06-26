@@ -1089,6 +1089,34 @@
           ]);
           checkOutlet(['x-a', 'x-b', 'x-b-root']);
         });
+
+        it('lifecycle events work for routes added via children function', async() => {
+          router.setRoutes([
+            {path: '/a', component: 'x-a', children: () => [
+              {path: '/b', action: elementWithAllLifecycleCallbacks('x-b')},
+            ]},
+            {path: '/c', component: 'x-c'}
+          ]);
+
+          callbacksLog = [];
+          await router.render('/a/b');
+
+          verifyCallbacks([
+            'x-b.action',
+            'x-b.onBeforeEnter',
+            'x-b.connectedCallback',
+            'x-b.onAfterEnter',
+          ]);
+
+          callbacksLog = [];
+          await router.render('/c');
+
+          verifyCallbacks([
+            'x-b.onBeforeLeave',
+            'x-b.onAfterLeave',
+            'x-b.disconnectedCallback',
+          ]);
+        });
       });
 
       describe('the global `vaadin-router-route-changed` event', () => {

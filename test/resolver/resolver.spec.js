@@ -73,7 +73,7 @@
     });
   });
 
-  describe('routes getter / setter', () => {
+  describe('router JS API', () => {
     it('should have a getter for the routes config', () => {
       const router = new Resolver([]);
       const actual = router.getRoutes();
@@ -89,6 +89,27 @@
       expect(actual).to.be.an('array').that.has.lengthOf(1);
       expect(actual[0]).to.have.property('path', '/');
       expect(actual[0]).to.have.property('component', 'x-home-view');
+    });
+
+    it('should have a method for adding routes', () => {
+      const router = new Resolver([]);
+
+      const newRoutes = router.addRoutes([{path: '/', component: 'x-home-view'}]);
+
+      const actual = router.getRoutes();
+      expect(newRoutes).to.deep.equal(actual);
+      expect(actual).to.be.an('array').that.has.lengthOf(1);
+      expect(actual[0]).to.have.property('path', '/');
+      expect(actual[0]).to.have.property('component', 'x-home-view');
+    });
+
+    it('should have a method for removing routes', () => {
+      const router = new Resolver([{path: '/', component: 'x-home-view'}]);
+      expect(router.getRoutes()).to.be.an('array').that.has.lengthOf(1);
+
+      router.removeRoutes();
+
+      expect(router.getRoutes()).to.be.an('array').that.has.lengthOf(0);
     });
   });
 
@@ -610,6 +631,20 @@
       expect(action3.calledOnce).to.be.true;
       expect(action3.args[0][0]).to.have.deep.property('route.path', '/a/b');
       expect(context.result).to.be.true;
+    });
+
+    it('should support an empty array of children', async() => {
+      const action = sinon.spy();
+      const resolver = new Resolver([
+        {
+          path: '/a',
+          action: action,
+          children: [],
+        },
+      ]);
+
+      await resolver.resolve('/a/b').catch(() => {});
+      expect(action).to.have.been.called.once;
     });
 
     it('should re-throw an error', async() => {
