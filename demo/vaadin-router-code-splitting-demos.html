@@ -119,13 +119,7 @@
             {path: '/', component: 'x-home-view'},
             {
               path: '/users',
-              children: function(context) {
-                return new Promise(function(resolve) {
-                  Vaadin.Demo.import(`${Vaadin.Demo.componentsRoot}/users-routes.js`).then(module => {
-                    resolve(module.default);
-                  });
-                });
-              }
+              children: () => Vaadin.Demo.import(`${Vaadin.Demo.componentsRoot}/users-routes.js`).then(module => module.default)
             }
           ]);
 
