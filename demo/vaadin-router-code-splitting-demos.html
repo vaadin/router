@@ -93,6 +93,52 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Bundle Specific Route Config</h3>
+    <p>
+      Vaadin.Router supports code splitting for the config object, enabling developers to create non-monolithic
+      app structures. This might be useful for teams working on different parts of the app, and having a need to
+      define the routing structures for their sub routes without a central coordination.
+    </p>
+    <p>
+      The <code>children</code> property on the route config object can be set to a function, which returns an
+      array of the route objects. It may return a <code><b>Promise</b></code>, which allows to dynamically import
+      the configuration file, and return the children array exported from it.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-code-splitting-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/users/guest">User Profile</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {
+              path: '/users',
+              children: function(context) {
+                return new Promise(function(resolve) {
+                  window.__importModule(`${window.Vaadin.demoComponentsRoot}/users-routes.js`).then(module => {
+                    resolve(module.default);
+                  });
+                });
+              }
+            }
+          ]);
+
+          /*
+          users-routes.js:
+          export default [
+            {path: '/', component: 'x-user-home'},
+            {path: '/:user', component: 'x-user-profile'},
+          ];
+          */
+        </script>
+      </template>
+    </vaadin-demo-snippet>
   </template>
   <script>
     class VaadinRouterCodeSplittingDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
