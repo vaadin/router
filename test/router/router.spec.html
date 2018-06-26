@@ -1076,6 +1076,7 @@
               const context = children.args[0][0];
               expect(context.pathname).to.equal('/users/1');
               expect(context.route.path).to.equal('/users');
+              expect(context.next).to.be.an('undefined');
               expect(context.cancel).to.be.an('undefined');
               expect(context.redirect).to.be.an('undefined');
               expect(context.component).to.be.an('undefined');

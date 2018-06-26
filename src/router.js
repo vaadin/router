@@ -171,7 +171,7 @@ export class Router extends Resolver {
 
     if (isFunction(route.children)) {
       callbacks = callbacks
-        .then(() => route.children(context))
+        .then(() => route.children(Object.assign({}, context, {next: undefined})))
         .then(children => {
           // The route.children() callback might have re-written the
           // route.children property instead of returning a value
