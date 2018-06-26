@@ -1,5 +1,38 @@
 {
   "schema_version": "1.0.0",
+  "elements": [
+    {
+      "description": "The custom element class containing Router meta information,\nconsidered as a read-only part of the public API.",
+      "summary": "",
+      "path": "dist/vaadin-router.js",
+      "properties": [],
+      "methods": [],
+      "staticMethods": [],
+      "demos": [],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 1704,
+          "column": 0
+        },
+        "end": {
+          "line": 1712,
+          "column": 1
+        }
+      },
+      "privacy": "public",
+      "superclass": "HTMLElement",
+      "name": "VaadinRouterMeta",
+      "attributes": [],
+      "events": [],
+      "styling": {
+        "cssVariables": [],
+        "selectors": []
+      },
+      "slots": [],
+      "tagname": "vaadin-router-meta"
+    }
+  ],
   "classes": [
     {
       "description": "",
@@ -13,11 +46,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 896,
+              "line": 911,
               "column": 2
             },
             "end": {
-              "line": 898,
+              "line": 913,
               "column": 3
             }
           },
@@ -33,11 +66,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 906,
+              "line": 921,
               "column": 2
             },
             "end": {
-              "line": 909,
+              "line": 925,
               "column": 3
             }
           },
@@ -59,11 +92,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 920,
+              "line": 936,
               "column": 2
             },
             "end": {
-              "line": 923,
+              "line": 940,
               "column": 3
             }
           },
@@ -80,16 +113,36 @@
           }
         },
         {
+          "name": "removeRoutes",
+          "description": "Removes all existing routes from the routing config.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 945,
+              "column": 2
+            },
+            "end": {
+              "line": 947,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
           "name": "resolve",
           "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 942,
+              "line": 966,
               "column": 2
             },
             "end": {
-              "line": 1010,
+              "line": 1034,
               "column": 3
             }
           },
@@ -111,11 +164,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 875,
+          "line": 890,
           "column": 0
         },
         "end": {
-          "line": 1011,
+          "line": 1035,
           "column": 1
         }
       },
@@ -134,11 +187,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1166,
+              "line": 1212,
               "column": 4
             },
             "end": {
-              "line": 1166,
+              "line": 1212,
               "column": 15
             }
           },
@@ -152,11 +205,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 896,
+              "line": 911,
               "column": 2
             },
             "end": {
-              "line": 898,
+              "line": 913,
               "column": 3
             }
           },
@@ -169,15 +222,15 @@
         },
         {
           "name": "setRoutes",
-          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting a `context` parameter described below.\nIf present, this function is always invoked first, disregarding of the other properties' presence.\nIf the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.\nSee also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `bundle` – `.js` or `.mjs` bundle to load before resolving the route. Each bundle is only loaded once.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nIf route contains the `component` property (or an action that return a component)\nand its child route also contains the `component` property, child route's component\nwill be rendered as a light dom child of a parent component.\n\n* `children` – nested routes. Parent routes' properties are executed before resolving the children.\nChildren 'path' values are relative to the parent ones.\n\n`context` object that is passed to `route` functions holds the following parameters:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)\n\n* `context.redirect(path)` – function that creates a redirect data for the path specified.\n\n* `context.component(component)` – function that creates a new HTMLElement with current context",
+          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting a `context` parameter described below.\nIf present, this function is always invoked first, disregarding of the other properties' presence.\nIf the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.\nSee also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `bundle` – `.js` or `.mjs` bundle to load before resolving the route. Each bundle is only loaded once.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `children` – an array of nested routes or a function that provides this\narray at the render time. The function can be synchronous or asynchronous:\nin the latter case the render is delayed until the returned promise is\nresolved. The `children` function is executed every time when this route is\nbeing rendered. This allows for dynamic route structures (e.g. backend-defined),\nbut it might have a performance impact as well. In order to avoid calling\nthe fuction on consequent renders, you can override the `children` property\nof the route object and save the calculated array there\n(via `this.children = [ route1, route2, ...];`).\nParent routes are fully resolved before resolving the children. Children\n'path' values are relative to the parent ones.\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nIf route contains the `component` property (or an action that return a component)\nand its child route also contains the `component` property, child route's component\nwill be rendered as a light dom child of a parent component.\n\nFor any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback\nthrough the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function\nbecause arrow functions do not have their own `this` reference.\n\n`context` object that is passed to `action` function holds the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)\n\n* `context.redirect(path)` – function that creates a redirect data for the path specified.\n\n* `context.component(component)` – function that creates a new HTMLElement with current context",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1280,
+              "line": 1349,
               "column": 2
             },
             "end": {
-              "line": 1283,
+              "line": 1352,
               "column": 3
             }
           },
@@ -199,11 +252,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 920,
+              "line": 936,
               "column": 2
             },
             "end": {
-              "line": 923,
+              "line": 940,
               "column": 3
             }
           },
@@ -221,16 +274,37 @@
           "inheritedFrom": "Vaadin.Resolver"
         },
         {
+          "name": "removeRoutes",
+          "description": "Removes all existing routes from the routing config.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 945,
+              "column": 2
+            },
+            "end": {
+              "line": 947,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          },
+          "inheritedFrom": "Vaadin.Resolver"
+        },
+        {
           "name": "resolve",
           "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 942,
+              "line": 966,
               "column": 2
             },
             "end": {
-              "line": 1010,
+              "line": 1034,
               "column": 3
             }
           },
@@ -253,40 +327,16 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1175,
+              "line": 1221,
               "column": 2
             },
             "end": {
-              "line": 1198,
+              "line": 1260,
               "column": 3
             }
           },
           "metadata": {},
           "params": [
-            {
-              "name": "context"
-            }
-          ]
-        },
-        {
-          "name": "__processComponent",
-          "description": "",
-          "privacy": "private",
-          "sourceRange": {
-            "start": {
-              "line": 1200,
-              "column": 2
-            },
-            "end": {
-              "line": 1204,
-              "column": 3
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "route"
-            },
             {
               "name": "context"
             }
@@ -298,11 +348,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1216,
+              "line": 1272,
               "column": 2
             },
             "end": {
-              "line": 1221,
+              "line": 1277,
               "column": 3
             }
           },
@@ -324,11 +374,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1228,
+              "line": 1284,
               "column": 2
             },
             "end": {
-              "line": 1230,
+              "line": 1286,
               "column": 3
             }
           },
@@ -345,11 +395,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1303,
+              "line": 1372,
               "column": 2
             },
             "end": {
-              "line": 1346,
+              "line": 1415,
               "column": 3
             }
           },
@@ -374,11 +424,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1348,
+              "line": 1417,
               "column": 2
             },
             "end": {
-              "line": 1359,
+              "line": 1428,
               "column": 3
             }
           },
@@ -398,11 +448,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1361,
+              "line": 1430,
               "column": 2
             },
             "end": {
-              "line": 1379,
+              "line": 1449,
               "column": 3
             }
           },
@@ -419,11 +469,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1381,
+              "line": 1451,
               "column": 2
             },
             "end": {
-              "line": 1388,
+              "line": 1458,
               "column": 3
             }
           },
@@ -440,11 +490,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1390,
+              "line": 1460,
               "column": 2
             },
             "end": {
-              "line": 1431,
+              "line": 1501,
               "column": 3
             }
           },
@@ -461,11 +511,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1433,
+              "line": 1503,
               "column": 2
             },
             "end": {
-              "line": 1438,
+              "line": 1513,
               "column": 3
             }
           },
@@ -473,6 +523,9 @@
           "params": [
             {
               "name": "redirectData"
+            },
+            {
+              "name": "counter"
             }
           ]
         },
@@ -482,11 +535,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1440,
+              "line": 1515,
               "column": 2
             },
             "end": {
-              "line": 1444,
+              "line": 1519,
               "column": 3
             }
           },
@@ -507,11 +560,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1446,
+              "line": 1521,
               "column": 2
             },
             "end": {
-              "line": 1453,
+              "line": 1528,
               "column": 3
             }
           },
@@ -534,11 +587,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1455,
+              "line": 1530,
               "column": 2
             },
             "end": {
-              "line": 1498,
+              "line": 1573,
               "column": 3
             }
           },
@@ -558,11 +611,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1500,
+              "line": 1575,
               "column": 2
             },
             "end": {
-              "line": 1506,
+              "line": 1581,
               "column": 3
             }
           },
@@ -578,11 +631,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1508,
+              "line": 1583,
               "column": 2
             },
             "end": {
-              "line": 1513,
+              "line": 1588,
               "column": 3
             }
           },
@@ -598,11 +651,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1515,
+              "line": 1590,
               "column": 2
             },
             "end": {
-              "line": 1523,
+              "line": 1598,
               "column": 3
             }
           },
@@ -622,11 +675,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1525,
+              "line": 1600,
               "column": 2
             },
             "end": {
-              "line": 1536,
+              "line": 1611,
               "column": 3
             }
           },
@@ -649,11 +702,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1538,
+              "line": 1613,
               "column": 2
             },
             "end": {
-              "line": 1567,
+              "line": 1642,
               "column": 3
             }
           },
@@ -670,11 +723,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1575,
+              "line": 1650,
               "column": 2
             },
             "end": {
-              "line": 1577,
+              "line": 1652,
               "column": 3
             }
           },
@@ -690,11 +743,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1583,
+              "line": 1658,
               "column": 2
             },
             "end": {
-              "line": 1585,
+              "line": 1660,
               "column": 3
             }
           },
@@ -710,11 +763,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1587,
+              "line": 1662,
               "column": 2
             },
             "end": {
-              "line": 1590,
+              "line": 1665,
               "column": 3
             }
           },
@@ -736,11 +789,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1608,
+              "line": 1683,
               "column": 2
             },
             "end": {
-              "line": 1610,
+              "line": 1685,
               "column": 3
             }
           },
@@ -762,11 +815,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1618,
+              "line": 1693,
               "column": 2
             },
             "end": {
-              "line": 1620,
+              "line": 1695,
               "column": 3
             }
           },
@@ -796,11 +849,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 1137,
+          "line": 1183,
           "column": 0
         },
         "end": {
-          "line": 1621,
+          "line": 1696,
           "column": 1
         }
       },
