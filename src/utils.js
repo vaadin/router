@@ -14,9 +14,14 @@ export function ensureRoute(route) {
     );
   }
 
-  const stringKeys = ['component', 'redirect', 'bundle'];
-  if (!isFunction(route.action) && !Array.isArray(route.children) && !isFunction(route.children)
-    && !stringKeys.some(key => isString(route[key]))) {
+  const stringKeys = ['component', 'redirect'];
+  if (
+    !isFunction(route.action) &&
+    !Array.isArray(route.children) &&
+    !isFunction(route.children) &&
+    !isObject(route.bundle) &&
+    !stringKeys.some(key => isString(route[key]))
+  ) {
     throw new Error(
       log(
         `Expected route config "${route.path}" to include either "${stringKeys.join('", "')}" ` +
@@ -25,9 +30,9 @@ export function ensureRoute(route) {
     );
   }
 
-  if (route.bundle && (!isString(route.bundle) || !route.bundle.match(/.+\.[m]?js$/))) {
+  if (route.bundle && (!isString(route.bundle.url) || !route.bundle.url.match(/.+\.js$/))) {
     throw new Error(
-      log(`Unsupported type for bundle "${route.bundle}": .js or .mjs expected.`)
+      log(`Unsupported type for bundle "${route.bundle.url}": .js expected.`)
     );
   }
 
@@ -50,7 +55,8 @@ export function ensureRoutes(routes) {
 }
 
 // TODO replace this with dynamic import after https://github.com/vaadin/vaadin-router/issues/34 is done
-export function loadBundle(path) {
+export function loadBundle(bundle) {
+  const path = bundle.url;
   let script = document.head.querySelector('script[src="' + path + '"][async]');
   if (script && script.parentNode === document.head) {
     if (script.__dynamicImportLoaded) {
@@ -74,7 +80,7 @@ export function loadBundle(path) {
   return new Promise((resolve, reject) => {
     script = document.createElement('script');
     script.setAttribute('src', path);
-    if (path.match(/\.mjs$/i)) {
+    if (bundle.type === 'module') {
       script.setAttribute('type', 'module');
     }
     script.async = true;

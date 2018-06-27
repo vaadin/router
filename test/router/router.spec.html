@@ -81,7 +81,7 @@
 
           it('route should throw when created with unknown bundle extension', () => {
             const router = new Vaadin.Router(outlet);
-            expect(() => router.setRoutes([{path: '/', bundle: 'test.html'}])).to.throw(Error);
+            expect(() => router.setRoutes([{path: '/', bundle: {url: 'test.html'}}])).to.throw(Error);
           });
 
           it('should accept an options object as the 2nd argument', () => {
@@ -641,7 +641,7 @@
 
           it('should load bundle once, bundle should be executed', async() => {
             router.setRoutes([
-              {path: '/', component: 'x-home-view', bundle: existingBundlePath},
+              {path: '/', component: 'x-home-view', bundle: {url: existingBundlePath}},
             ]);
             await router.render('/');
             expect(window[bundleVariableName]).to.equal(bundleVariableValue);
@@ -684,7 +684,7 @@
           it('should throw on incorrect bundle path', async() => {
             const nonExistingPath = 'does-not-exist.js';
             router.setRoutes([
-              {path: '/', component: 'x-home-view', bundle: nonExistingPath},
+              {path: '/', component: 'x-home-view', bundle: {url: nonExistingPath}},
             ]);
 
             await expectException(router.render('/'), ['Bundle not found']);
@@ -694,7 +694,7 @@
           it('action without return should be executed before bundle but allow the bundle to be loaded', async() => {
             let actionExecuted = false;
             router.setRoutes([
-              {path: '/', component: 'x-home-view', bundle: existingBundlePath, action: () => {
+              {path: '/', component: 'x-home-view', bundle: {url: existingBundlePath}, action: () => {
                 removeBundle();
                 actionExecuted = true;
               }},
@@ -719,7 +719,7 @@
             };
 
             router.setRoutes([
-              {path: '/', bundle: existingBundlePath, action: removeBundleAndReturn},
+              {path: '/', bundle: {url: existingBundlePath}, action: removeBundleAndReturn},
               {path: '/', component: 'x-home-view'},
             ]);
 
@@ -862,7 +862,7 @@
             removeBundle();
 
             router.setRoutes([
-              {path: '/test', redirect: '/users', bundle: existingBundlePath},
+              {path: '/test', redirect: '/users', bundle: {url: existingBundlePath}},
               {path: '/users', component: 'x-users-view'},
             ]);
 
@@ -890,7 +890,7 @@
             removeBundle();
 
             router.setRoutes([
-              {path: '/test', bundle: existingBundlePath, children: () => {
+              {path: '/test', bundle: {url: existingBundlePath}, children: () => {
                 expect(getBundleScripts(existingBundlePath).length).to.equal(1);
                 return {path: '/child', component: 'x-test-child-view'};
               }},
