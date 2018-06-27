@@ -25,7 +25,7 @@
       // eslint-disable-next-line no-invalid-this
       this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
-      const {checkOutletContents} = VaadinTestNamespace;
+      const {checkOutletContents, onAfterLeaveAction} = VaadinTestNamespace;
       const checkOutlet = values => checkOutletContents(outlet.children[0], 'tagName', values);
 
       let outlet;
@@ -1250,6 +1250,46 @@
             const meta = customElements.get('vaadin-router-meta');
             expect(meta).to.be.not.empty;
             expect(meta.version).to.be.string;
+          });
+        });
+
+        describe('simultaneous resolutions', () => {
+          let router;
+
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
+          });
+
+          afterEach(() => {
+            router.unsubscribe();
+          });
+
+          it('when two resolutions try to update outlet contents, the one with outdated renderId gets terminated', async() => {
+            router.setRoutes([
+              {path: '/', action: onAfterLeaveAction('x-root', context => {
+                if (context.pathname === '/outdated') {
+                  return new Promise(resolve => {
+                    setTimeout(() => resolve(), 3000);
+                  });
+                }
+              })},
+              {path: '/outdated', component: 'x-outdated'},
+              {path: '/correct', component: 'x-correct'},
+            ]);
+
+            await router.render('/');
+
+            const outdatedRender = router.render('/outdated');
+            const correctRender = new Promise(resolve => {
+              setTimeout(() => resolve(), 1000);
+            }).then(() => router.render('/correct'));
+
+            await Promise.all([outdatedRender, correctRender]);
+
+            expect(outlet.children.length).to.equal(1);
+            expect(outlet.children[0].tagName).to.match(/x-correct/i);
+            expect(router.__previousContext).to.be.an('object');
+            expect(router.__previousContext.pathname).to.equal('/correct');
           });
         });
       });
