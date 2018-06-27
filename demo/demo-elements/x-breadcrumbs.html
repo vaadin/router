@@ -1,0 +1,43 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+<link rel="import" href="../../../polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../../polymer/lib/elements/dom-if.html">
+
+<dom-module id="x-breadcrumbs">
+  <template preserve-content>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    Location:
+    <dom-repeat items="[[items]]">
+      <template>
+        <a href$="[[item.href]]">[[item.title]]</a>
+        <dom-if if="[[__isNotLastIndexOf(items, index)]]">
+          <template>
+            <span class="delimiter">&gt;</span>
+          </template>
+        </dom-if>
+      </template>
+    </dom-repeat>
+  </template>
+  <script>
+    class XBreadcrumbs extends Polymer.Element {
+      static get is() {
+        return 'x-breadcrumbs';
+      }
+
+      static get properties() {
+        return {
+          items: Array
+        };
+      }
+
+      __isNotLastIndexOf(items, i) {
+        return i < items.length - 1;
+      }
+    }
+    window.customElements.define(XBreadcrumbs.is, XBreadcrumbs);
+  </script>
+</dom-module>

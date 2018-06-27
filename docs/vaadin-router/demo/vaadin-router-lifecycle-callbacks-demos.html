@@ -358,6 +358,64 @@
       event Vaadin.Router dispatches <code>vaadin-router-error</code> and
       attaches the error object to the event as <code>event.detail.error</code>.
     </p>
+
+    <h3>Getting the Currently Active Routes Chain</h3>
+    <p>
+      When handling Vaadin Router events, you can access the router instance via
+      <code>event.detail.router</code>. For example, the <em>active routes chain
+      </em> API of Vaadin.Router is available via the <code>activeRoutes</code>
+      property of a <code>router</code> object. It is a read-only list of routes
+      that correspond to the last completed navigation, which  may be useful for
+      example when creating a breadcrumbs component to visualize the current
+      in-app location.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-7" iframe-src="iframe.html">
+      <template preserve-content="">
+        <a href="/users">All Users</a>
+        <a href="/users/kim">Kim</a>
+        <a href="/about">About</a>
+        <x-breadcrumbs></x-breadcrumbs>
+        <div id="outlet"></div>
+
+        <script>
+          window.addEventListener('vaadin-router-route-changed', (event) => {
+            const router = event.detail.router;
+            const params = event.detail.params;
+
+            const breadcrumbs = document.querySelector('x-breadcrumbs');
+            breadcrumbs.items = router.activeRoutes
+              .filter(route => !!route.xBreadcrumb)
+              .map(route => {
+                return {
+                  title: route.xBreadcrumb.title.replace(/:user/, params.user),
+                  href: route.xBreadcrumb.href.replace(/:user/, params.user),
+                };
+              });
+          });
+
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', xBreadcrumb: {title: 'home', href: '/'}, children: [
+              {path: '/', component: 'x-home-view'},
+              {path: '/users', xBreadcrumb: {title: 'users', href: '/users'}, children: [
+                {path: '/', component: 'x-user-list'},
+                {path: '/:user', xBreadcrumb: {title: ':user', href: '/users/:user'}, component: 'x-user-profile'},
+              ]},
+            ]},
+            {path: '(.*)', component: 'x-not-found-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+    <p>
+      The router configuration allows you to add any custom properties to route
+      objects. The example above uses that to set a custom <code>xBreadcrumb</code>
+      property on the routes that we want to show up in breadcrumbs. That
+      property is used later when processing the <code>vaadin-router-route-changed
+      </code> events.
+    </p>
   </template>
   <script>var VaadinRouterLifecycleCallbacksDemos=function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterLifecycleCallbacksDemos,_DemoReadyEventEmitte);function VaadinRouterLifecycleCallbacksDemos(){babelHelpers.classCallCheck(this,VaadinRouterLifecycleCallbacksDemos);return babelHelpers.possibleConstructorReturn(this,(VaadinRouterLifecycleCallbacksDemos.__proto__||Object.getPrototypeOf(VaadinRouterLifecycleCallbacksDemos)).apply(this,arguments))}babelHelpers.createClass(VaadinRouterLifecycleCallbacksDemos,null,[{key:"is",get:function get(){return"vaadin-router-lifecycle-callbacks-demos"}}]);return VaadinRouterLifecycleCallbacksDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterLifecycleCallbacksDemos.is,VaadinRouterLifecycleCallbacksDemos);</script>
 </dom-module>
