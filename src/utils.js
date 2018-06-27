@@ -8,14 +8,15 @@ export function log(msg) {
 }
 
 export function ensureRoute(route) {
-  if (!route || typeof route.path !== 'string') {
+  if (!route || !isString(route.path)) {
     throw new Error(
       log(`Expected route config to be an object with a "path" string property, or an array of such objects`)
     );
   }
 
   const stringKeys = ['component', 'redirect', 'bundle'];
-  if (typeof route.action !== 'function' && !Array.isArray(route.children) && !stringKeys.some(key => typeof route[key] === 'string')) {
+  if (!isFunction(route.action) && !Array.isArray(route.children) && !isFunction(route.children)
+    && !stringKeys.some(key => isString(route[key]))) {
     throw new Error(
       log(
         `Expected route config "${route.path}" to include either "${stringKeys.join('", "')}" ` +
@@ -24,7 +25,7 @@ export function ensureRoute(route) {
     );
   }
 
-  if (route.bundle && (typeof route.bundle !== 'string' || !route.bundle.match(/.+\.[m]?js$/))) {
+  if (route.bundle && (!isString(route.bundle) || !route.bundle.match(/.+\.[m]?js$/))) {
     throw new Error(
       log(`Unsupported type for bundle "${route.bundle}": .js or .mjs expected.`)
     );
@@ -95,4 +96,16 @@ export function fireRouterEvent(type, detail) {
   window.dispatchEvent(
     new CustomEvent(
       `vaadin-router-${type}`, {detail}));
+}
+
+export function isObject(o) {
+  return typeof o === 'object';
+}
+
+export function isFunction(f) {
+  return typeof f === 'function';
+}
+
+export function isString(s) {
+  return typeof s === 'string';
 }

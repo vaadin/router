@@ -2,7 +2,18 @@ import Resolver from './resolver/resolver.js';
 import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
-import {log, loadBundle, fireRouterEvent} from './utils.js';
+import {
+  ensureRoute,
+  fireRouterEvent,
+  loadBundle,
+  log,
+  toArray,
+  isFunction,
+  isString,
+  isObject,
+} from './utils.js';
+
+const MAX_REDIRECT_COUNT = 256;
 
 const RENDER_ABANDONED = {};
 
@@ -33,7 +44,7 @@ function renderComponent(context, component) {
 }
 
 function runCallbackIfPossible(callback, context, thisObject) {
-  if (typeof callback === 'function') {
+  if (isFunction(callback)) {
     return callback.call(thisObject, context);
   }
 }
@@ -50,6 +61,26 @@ function amend(amendmentFunction, context, route) {
         Object.assign({cancel: () => ({cancel: true})}, context, {next: undefined}), component);
     }
   };
+}
+
+function processNewChildren(newChildren, route, context) {
+  if (isResultNotEmpty(newChildren) && !isObject(newChildren)) {
+    throw new Error(log(`Expected 'children' method of the route with path '${route.path}' `
+      + `to return an object, but got: '${newChildren}'`));
+  }
+
+  route.__children = [];
+  const childRoutes = toArray(newChildren);
+  for (let i = 0; i < childRoutes.length; i++) {
+    ensureRoute(childRoutes[i]);
+    route.__children.push(childRoutes[i]);
+  }
+}
+
+function processComponent(route, context) {
+  if (isString(route.component)) {
+    return renderComponent(context, route.component);
+  }
 }
 
 /**
@@ -123,27 +154,37 @@ export class Router extends Resolver {
       component: component => renderComponent(context, component)
     }, context);
     const actionResult = runCallbackIfPossible(processAction, updatedContext, route);
-    if (isResultNotEmpty(actionResult) && !actionResult.cancel) {
+    if (isResultNotEmpty(actionResult)) {
       return actionResult;
     }
 
-    if (typeof route.redirect === 'string') {
+    if (isString(route.redirect)) {
       return redirect(context, route.redirect);
     }
 
+    let callbacks = Promise.resolve();
+
     if (route.bundle) {
-      return loadBundle(route.bundle)
-        .then(() => this.__processComponent(route, context))
-        .catch(() => new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`)));
+      callbacks = callbacks.then(() => loadBundle(route.bundle))
+        .catch(() => {
+          throw new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`));
+        });
     }
 
-    return this.__processComponent(route, context);
-  }
-
-  __processComponent(route, context) {
-    if (typeof route.component === 'string') {
-      return renderComponent(context, route.component);
+    if (isFunction(route.children)) {
+      callbacks = callbacks
+        .then(() => route.children(Object.assign({}, context, {next: undefined})))
+        .then(children => {
+          // The route.children() callback might have re-written the
+          // route.children property instead of returning a value
+          if (!isResultNotEmpty(children) && !isFunction(route.children)) {
+            children = route.children;
+          }
+          processNewChildren(children, route, context);
+        });
     }
+
+    return callbacks.then(() => processComponent(route, context));
   }
 
   /**
@@ -194,7 +235,19 @@ export class Router extends Resolver {
    * * `bundle` – `.js` or `.mjs` bundle to load before resolving the route. Each bundle is only loaded once.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
    * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
-   * See also **Lazy Loading** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+   * See also **Code Splitting** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+   *
+   * * `children` – an array of nested routes or a function that provides this
+   * array at the render time. The function can be synchronous or asynchronous:
+   * in the latter case the render is delayed until the returned promise is
+   * resolved. The `children` function is executed every time when this route is
+   * being rendered. This allows for dynamic route structures (e.g. backend-defined),
+   * but it might have a performance impact as well. In order to avoid calling
+   * the function on subsequent renders, you can override the `children` property
+   * of the route object and save the calculated array there
+   * (via `context.route.children = [ route1, route2, ...];`).
+   * Parent routes are fully resolved before resolving the children. Children
+   * 'path' values are relative to the parent ones.
    *
    * * `component` – the tag name of the Web Component to resolve the route to.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
@@ -202,10 +255,11 @@ export class Router extends Resolver {
    * and its child route also contains the `component` property, child route's component
    * will be rendered as a light dom child of a parent component.
    *
-   * * `children` – nested routes. Parent routes' properties are executed before resolving the children.
-   * Children 'path' values are relative to the parent ones.
+   * For any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback
+   * through the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function
+   * because arrow functions do not have their own `this` reference.
    *
-   * `context` object that is passed to `route` functions holds the following parameters:
+   * `context` object that is passed to `action` function holds the following properties:
    * * `context.pathname` – string with the pathname being resolved
    *
    * * `context.params` – object with route parameters
@@ -323,7 +377,8 @@ export class Router extends Resolver {
     if (result instanceof HTMLElement) {
       return Promise.resolve(context);
     } else if (result.redirect) {
-      return this.__redirect(result.redirect);
+      return this.__redirect(result.redirect, context.__redirectCount)
+        .then(context => this.__amendWithResolutionResult(context));
     } else if (result instanceof Error) {
       return Promise.reject(result);
     } else {
@@ -383,17 +438,22 @@ export class Router extends Resolver {
           return this.__previousContext;
         }
         if (amendmentResult.redirect) {
-          return this.__redirect(amendmentResult.redirect);
+          return this.__redirect(amendmentResult.redirect, newContext.__redirectCount);
         }
       }
       return newContext;
     });
   }
 
-  __redirect(redirectData) {
+  __redirect(redirectData, counter) {
+    if (counter > MAX_REDIRECT_COUNT) {
+      throw new Error(log(`Too many redirects when rendering ${redirectData.from}`));
+    }
+
     return this.resolve({
       pathname: Router.pathToRegexp.compile(redirectData.pathname)(redirectData.params),
-      from: redirectData.from
+      from: redirectData.from,
+      __redirectCount: (counter || 0) + 1
     });
   }
 
@@ -510,7 +570,7 @@ export class Router extends Resolver {
     }
 
     if (from && to && config) {
-      const isObj = typeof config === 'object';
+      const isObj = isObject(config);
       const leave = isObj && config.leave || 'leaving';
       const enter = isObj && config.enter || 'entering';
       promises.push(animate(from, leave));

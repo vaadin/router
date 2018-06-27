@@ -8,6 +8,7 @@
  */
 
 import Resolver from './resolver.js';
+import {isString} from '../utils.js';
 
 const {pathToRegexp} = Resolver;
 const cache = new Map();
@@ -25,7 +26,7 @@ function cacheRoutes(routesByName, route, routes) {
     for (let i = 0; i < routes.length; i++) {
       const childRoute = routes[i];
       childRoute.parent = route;
-      cacheRoutes(routesByName, childRoute, childRoute.children);
+      cacheRoutes(routesByName, childRoute, childRoute.__children);
     }
   }
 }
@@ -41,7 +42,7 @@ function generateUrls(router, options = {}) {
     let route = router.routesByName.get(routeName);
     if (!route) {
       router.routesByName.clear(); // clear cache
-      cacheRoutes(router.routesByName, router.root, router.root.children);
+      cacheRoutes(router.routesByName, router.root, router.root.__children);
 
       route = router.routesByName.get(routeName);
       if (!route) {
@@ -64,7 +65,7 @@ function generateUrls(router, options = {}) {
       const toPath = pathToRegexp.tokensToFunction(tokens);
       const keys = Object.create(null);
       for (let i = 0; i < tokens.length; i++) {
-        if (typeof tokens[i] !== 'string') {
+        if (!isString(tokens[i])) {
           keys[tokens[i].name] = true;
         }
       }
