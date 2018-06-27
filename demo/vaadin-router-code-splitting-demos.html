@@ -16,6 +16,22 @@
       </code> property of the route object.
     </p>
     <p>
+      By default Vaadin.Router loads route bundles as regular JavaScript files (async),
+      but it supports ES module bundles as well. In order to use a ES module as a route bundle,
+      set the <code>bundle</code> property to an object with the following structure:
+      <marked-element>
+        <script type="text/markdown">
+          ```js
+          {
+            bundle: {
+              src: '/chunk.js', // required, contains the bundle URL
+              type: 'module' // optional, default to "nomodule"
+            }
+          }
+          ```
+        </script>
+      </marked-element>
+    <p>
       Note: If the bundle URL does not end with <code>.js</code> nor with <code>
       .mjs</code>, Vaadin.Router throws an <code>Error</code> and does not
       attempt to load it. Use a custom route action as shown in the next demo if
@@ -94,6 +110,39 @@
       </template>
     </vaadin-demo-snippet>
 
+    <h3>Using Dynamic Imports</h3>
+    <p>
+      Vaadin.Router allows you to implement your own loading mechanism for bundles using
+      custom <a href="#vaadin-router-route-actions-demos">Route Actions</a>. In that case,
+      you can use <a href="https://github.com/tc39/proposal-dynamic-import" target="_blank"
+      rel="noopener">dynamic imports</a> and a module bundler to make the code work in browsers
+      not supporting them natively. Both Webpack and Polymer CLI support dynamic imports for lazy
+      loading ES modules, and transform them for the older browsers.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-code-splitting-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/user/guest">User Profile</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {
+              path: '/user/:id',
+              action: () => {
+                Vaadin.Demo.import(`${Vaadin.Demo.componentsRoot}/user.bundle.js`);
+              },
+              component: 'x-user-js-bundle-view' // <-- defined in the bundle
+            },
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
     <h3>Splitting and Lazy-Loading the Routes Configuration</h3>
     <p>
       Vaadin.Router supports splitting the routes configuration object into parts and lazily loading them on-demand,
@@ -110,7 +159,7 @@
       See the <a href="../#/classes/Vaadin.Router#method-setRoutes" target="_blank">API documentation</a>
       for detailed description of the <code>children</code> callback function.
     </p>
-    <vaadin-demo-snippet id="vaadin-router-code-splitting-3" iframe-src="iframe.html">
+    <vaadin-demo-snippet id="vaadin-router-code-splitting-4" iframe-src="iframe.html">
       <template preserve-content>
         <a href="/">Home</a>
         <a href="/users/guest">User Profile</a>
