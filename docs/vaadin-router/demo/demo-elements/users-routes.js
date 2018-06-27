@@ -1,0 +1,1 @@
+(function(){window.Vaadin=window.Vaadin||{};Vaadin.Demo=Vaadin.Demo||{};Vaadin.Demo.moduleStorage=Vaadin.Demo.moduleStorage||[];Vaadin.Demo.moduleStorage.push({default:[{path:"/",component:"x-user-home"},{path:"/:user",component:"x-user-profile"}]})})();
