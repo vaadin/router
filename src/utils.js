@@ -15,8 +15,13 @@ export function ensureRoute(route) {
   }
 
   const stringKeys = ['component', 'redirect', 'bundle'];
-  if (!isFunction(route.action) && !Array.isArray(route.children) && !isFunction(route.children)
-    && !stringKeys.some(key => isString(route[key]))) {
+  if (
+    !isFunction(route.action) &&
+    !Array.isArray(route.children) &&
+    !isFunction(route.children) &&
+    !isObject(route.bundle) &&
+    !stringKeys.some(key => isString(route[key]))
+  ) {
     throw new Error(
       log(
         `Expected route config "${route.path}" to include either "${stringKeys.join('", "')}" ` +
@@ -25,10 +30,13 @@ export function ensureRoute(route) {
     );
   }
 
-  if (route.bundle && (!isString(route.bundle) || !route.bundle.match(/.+\.[m]?js$/))) {
-    throw new Error(
-      log(`Unsupported type for bundle "${route.bundle}": .js or .mjs expected.`)
-    );
+  if (route.bundle) {
+    const src = isString(route.bundle) ? route.bundle : route.bundle.src;
+    if (!src.match(/.+\.[m]?js$/)) {
+      throw new Error(
+        log(`Unsupported type for bundle "${src}": .js or .mjs expected.`)
+      );
+    }
   }
 
   if (route.redirect) {
@@ -49,8 +57,8 @@ export function ensureRoutes(routes) {
   toArray(routes).forEach(route => ensureRoute(route));
 }
 
-// TODO replace this with dynamic import after https://github.com/vaadin/vaadin-router/issues/34 is done
-export function loadBundle(path) {
+export function loadBundle(bundle) {
+  const path = isString(bundle) ? bundle : bundle.src;
   let script = document.head.querySelector('script[src="' + path + '"][async]');
   if (script && script.parentNode === document.head) {
     if (script.__dynamicImportLoaded) {
@@ -74,7 +82,7 @@ export function loadBundle(path) {
   return new Promise((resolve, reject) => {
     script = document.createElement('script');
     script.setAttribute('src', path);
-    if (path.match(/\.mjs$/i)) {
+    if (isObject(bundle) && bundle.type === 'module') {
       script.setAttribute('type', 'module');
     }
     script.async = true;

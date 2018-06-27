@@ -702,6 +702,15 @@
             expect(getBundleScripts(existingBundlePath).length).to.equal(1);
           });
 
+          it('should support loading bundle in the long format', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view', bundle: {src: existingBundlePath}},
+            ]);
+            await router.render('/');
+            expect(window[bundleVariableName]).to.equal(bundleVariableValue);
+            expect(getBundleScripts(existingBundlePath).length).to.equal(1);
+          });
+
           it('action should be called with correct parameters', async() => {
             const action = sinon.spy();
             router.setRoutes([
