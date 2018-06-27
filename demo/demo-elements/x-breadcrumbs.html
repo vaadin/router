@@ -8,17 +8,13 @@
       :host {
         display: block;
       }
-
-      .delimiter {
-        margin-left: 0.5em;
-        margin-right: 0.5em;
-      }
     </style>
 
-    <dom-repeat items="[[routes]]">
+    Location:
+    <dom-repeat items="[[items]]">
       <template>
-        <a href$="[[item.breadcrumb.href]]">[[item.breadcrumb.title]]</a>
-        <dom-if if="[[__isNotLastIndexOf(routes, index)]]">
+        <a href$="[[item.href]]">[[item.title]]</a>
+        <dom-if if="[[__isNotLastIndexOf(items, index)]]">
           <template>
             <span class="delimiter">&gt;</span>
           </template>
@@ -34,12 +30,12 @@
 
       static get properties() {
         return {
-          routes: Array
+          items: Array
         };
       }
 
-      __isNotLastIndexOf(routes, i) {
-        return i < routes.length - 1;
+      __isNotLastIndexOf(items, i) {
+        return i < items.length - 1;
       }
     }
     window.customElements.define(XBreadcrumbs.is, XBreadcrumbs);

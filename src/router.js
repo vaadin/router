@@ -337,7 +337,7 @@ export class Router extends Resolver {
         }
         this.__previousContext = context;
         this.activeRoutes = context.chain;
-        fireRouterEvent('route-changed', {router: this, pathname: context.pathname});
+        fireRouterEvent('route-changed', {router: this, params: context.params, pathname: context.pathname});
         return this.__outlet;
       })
       .catch(error => {

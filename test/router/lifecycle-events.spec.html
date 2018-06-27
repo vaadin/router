@@ -1167,6 +1167,23 @@
           expect(event.detail.pathname).to.equal('/admin');
         });
 
+        it('should contain the route params as `event.detail.params`', async() => {
+          router.setRoutes([
+            {path: '/users/:user', component: 'x-users-view'},
+          ]);
+
+          const onRouteChanged = sinon.spy();
+          window.addEventListener('vaadin-router-route-changed', onRouteChanged);
+          await router.render('/users/42');
+          window.removeEventListener('vaadin-router-route-changed', onRouteChanged);
+
+          expect(onRouteChanged).to.have.been.called.once;
+          expect(onRouteChanged.args[0].length).to.equal(1);
+
+          const event = onRouteChanged.args[0][0];
+          expect(event.detail.params).to.deep.equal({user: '42'});
+        });
+
         it('should contain the router instance as `event.detail.router`', async() => {
           router.setRoutes([
             {path: '/admin', component: 'x-admin-view'},
