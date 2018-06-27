@@ -41,7 +41,7 @@
             {path: '/', component: 'x-home-view'},
             {
               path: '/user/:id',
-              bundle: `${window.Vaadin.demoComponentsRoot}/user.bundle.js`,
+              bundle: `${Vaadin.Demo.componentsRoot}/user.bundle.js`,
               component: 'x-user-js-bundle-view' // <-- defined in the bundle
             },
           ]);
@@ -76,7 +76,7 @@
             // This is one way of loading a bundle lazily (works for Polymer apps).
             // Other apps might use different ways.
             Polymer.importHref(
-              `${window.Vaadin.demoComponentsRoot}/user.bundle.html`,
+              `${Vaadin.Demo.componentsRoot}/user.bundle.html`,
               null,
               function(err) {
                 throw new Error('bundle not found');
@@ -90,6 +90,51 @@
             {path: '/', component: 'x-home-view'},
             {path: '/user/:id', action: loadCustomBundle, component: 'x-user-html-bundle-view'}
           ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Splitting and Lazy-Loading the Routes Configuration</h3>
+    <p>
+      Vaadin.Router supports splitting the routes configuration object into parts and lazily loading them on-demand,
+      enabling developers to create non-monolithic app structures. This might be useful for implementing a distributed
+      sub routes configuration within a big project, so that multiple teams working on different parts of the app
+      no longer have to merge their changes into the same file.
+    </p>
+    <p>
+      The <code>children</code> property on the route config object can be set to a function, which returns an
+      array of the route objects. It may return a <code><b>Promise</b></code>, which allows to dynamically import
+      the configuration file, and return the children array exported from it.
+    </p>
+    <p>
+      See the <a href="../#/classes/Vaadin.Router#method-setRoutes" target="_blank">API documentation</a>
+      for detailed description of the <code>children</code> callback function.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-code-splitting-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/users/guest">User Profile</a>
+        <div id="outlet"></div>
+        <script type="module">
+          // import {Router} from '@vaadin/router';
+          const {Router} = window.Vaadin;
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {
+              path: '/users',
+              children: () => Vaadin.Demo.import(`${Vaadin.Demo.componentsRoot}/users-routes.js`).then(module => module.default)
+            }
+          ]);
+
+          /*
+          users-routes.js:
+          export default [
+            {path: '/', component: 'x-user-home'},
+            {path: '/:user', component: 'x-user-profile'},
+          ];
+          */
         </script>
       </template>
     </vaadin-demo-snippet>
