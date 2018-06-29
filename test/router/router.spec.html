@@ -591,19 +591,6 @@
         });
 
         describe('route parameters', () => {
-          const existingBundlePath = 'components/vaadin-router/demo/demo-elements/bundle-script.js';
-          const removeBundle = () => {
-            const bundleScript = document.head.querySelector('script[src="' + existingBundlePath + '"][async]');
-            if (bundleScript) {
-              bundleScript.parentNode.removeChild(bundleScript);
-            }
-            expect(getBundleScripts(existingBundlePath).length).to.equal(0);
-          };
-
-          // variable name and value that is set in global context in the bundle above
-          const bundleVariableName = 'bundleScriptTestVariable';
-          const bundleVariableValue = 'Hello from bundle script!';
-
           let router;
           beforeEach(() => {
             router = new Vaadin.Router(outlet);
@@ -691,6 +678,26 @@
             expect(elem.tagName).to.match(/x-users-view/i);
             expect(elem.route.params).to.be.object;
             expect(elem.route.params.id).to.equal('1');
+          });
+        });
+
+        describe('route object properties: order of execution', () => {
+          const existingBundlePath = 'components/vaadin-router/demo/demo-elements/bundle-script.js';
+          const removeBundle = () => {
+            const bundleScript = document.head.querySelector('script[src="' + existingBundlePath + '"][async]');
+            if (bundleScript) {
+              bundleScript.parentNode.removeChild(bundleScript);
+            }
+            expect(getBundleScripts(existingBundlePath).length).to.equal(0);
+          };
+
+          // variable name and value that is set in global context in the bundle above
+          const bundleVariableName = 'bundleScriptTestVariable';
+          const bundleVariableValue = 'Hello from bundle script!';
+
+          let router;
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
           });
 
           it('should load bundle once, bundle should be executed', async() => {
@@ -1017,239 +1024,232 @@
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
             expect(from).to.be.equal('/c');
           });
+        });
 
-          describe('children (function)', () => {
-            it('should be able to return a list of routes', async() => {
-              const children = () => [
+        describe('children (function)', () => {
+          let router;
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
+          });
+
+          it('should be able to return a list of routes', async() => {
+            const children = () => [
+              {path: '/:user', component: 'x-user-profile'}
+            ];
+
+            router.setRoutes([
+              {path: '/users', children}
+            ]);
+
+            await router.render('/users/2');
+
+            const elem = outlet.children[0];
+            expect(elem.tagName).to.match(/x-user-profile/i);
+            expect(elem.route.params).to.be.object;
+            expect(elem.route.params.user).to.equal('2');
+          });
+
+          it('should be able to return a promise', async() => {
+            const children = () => Promise.resolve([
+              {path: '/:user', component: 'x-user-profile'}
+            ]);
+
+            router.setRoutes([
+              {path: '/users', children}
+            ]);
+
+            await router.render('/users/2');
+
+            const elem = outlet.children[0];
+            expect(elem.tagName).to.match(/x-user-profile/i);
+            expect(elem.route.params).to.be.object;
+            expect(elem.route.params.user).to.equal('2');
+          });
+
+          it('should be able to override the route `children` property instead of returning a value', async() => {
+            const children = sinon.spy((context) => {
+              context.route.children = [
                 {path: '/:user', component: 'x-user-profile'}
               ];
-
-              router.setRoutes([
-                {path: '/users', children: children}
-              ]);
-
-              await router.render('/users/2');
-
-              const elem = outlet.children[0];
-              expect(elem.tagName).to.match(/x-user-profile/i);
-              expect(elem.route.params).to.be.object;
-              expect(elem.route.params.user).to.equal('2');
             });
 
-            it('should be able to return a promise', async() => {
-              const children = () => Promise.resolve([
-                {path: '/:user', component: 'x-user-profile'}
-              ]);
+            router.setRoutes([
+              {path: '/users', children}
+            ]);
 
-              router.setRoutes([
-                {path: '/users', children: children}
-              ]);
+            await router.render('/users/2');
+            expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
 
-              await router.render('/users/2');
+            await router.render('/users/2');
+            expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+            expect(children).to.have.been.called.once;
+          });
 
-              const elem = outlet.children[0];
-              expect(elem.tagName).to.match(/x-user-profile/i);
-              expect(elem.route.params).to.be.object;
-              expect(elem.route.params.user).to.equal('2');
+          it('should be called every time when resolver needs the route children list', async() => {
+            const children = sinon.spy(() => [
+              {path: '/:user', component: 'x-user-profile'}
+            ]);
+
+            router.setRoutes([
+              {path: '/users', children},
+            ]);
+
+            await router.render('/users/1');
+            expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+
+            await router.render('/users/1');
+            expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+
+            expect(children).to.have.been.calledTwice;
+          });
+
+          it('should throw if the return result is not an object or array', async() => {
+            const children = () => new Promise(resolve => {
+              resolve(null);
             });
 
-            it('should be able to override the route `children` property instead of returning a value', async() => {
-              const children = sinon.spy((context) => {
-                context.route.children = [
-                  {path: '/:user', component: 'x-user-profile'}
-                ];
+            router.setRoutes([
+              {path: '/users', children},
+            ]);
+
+            await expectException(router.render('/users/1'), ['Incorrect "children" value']);
+          });
+
+          it('should discard the previous return value and use the new one', async() => {
+            let callCount = 0;
+            const children = () => {
+              return ++callCount === 1 ? [{path: '/:user', component: 'x-user-profile'}] : [];
+            };
+
+            router.setRoutes([
+              {path: '/users', children},
+              {path: '(.*)', component: 'x-not-found-view'},
+            ]);
+
+            await router.render('/users/1');
+            expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+
+            await router.render('/users/1');
+            expect(outlet.children[0].tagName).to.match(/x-not-found-view/i);
+          });
+
+          it('should not be called when resolver does not need the route children list', async() => {
+            const children = sinon.spy();
+            router.setRoutes([
+              {path: '/users', component: 'x-users-layout'},
+              {path: '/', children}
+            ]);
+            await router.ready.catch(() => {});
+            children.reset();
+
+            await router.render('/users');
+
+            expect(outlet.children[0].tagName).to.match(/x-users-layout/i);
+            expect(children).to.not.have.been.called;
+          });
+
+          it('should be called with the resolver context as the only argument', async() => {
+            const children = sinon.spy();
+            router.setRoutes([
+              {path: '/users', children}
+            ]);
+
+            await router.render('/users/1').catch(() => {});
+
+            expect(children).to.have.been.called.once;
+            expect(children.args[0].length).to.equal(1);
+
+            const context = children.args[0][0];
+            expect(context.pathname).to.equal('/users/1');
+            expect(context.route.path).to.equal('/users');
+            expect(context.next).to.be.an('undefined');
+            expect(context.cancel).to.be.an('undefined');
+            expect(context.redirect).to.be.an('undefined');
+            expect(context.component).to.be.an('undefined');
+          });
+
+          it('should be called on the route object (as `this`)', async() => {
+            const children = sinon.spy();
+            const route = {path: '/users', children};
+            router.setRoutes([route]);
+
+            await router.render('/users/1').catch(() => {});
+
+            expect(children).to.have.been.calledOn(route);
+          });
+
+          it('should cause resolver to throw if the returned routes are invalid', async() => {
+            const incorrectRoutes = [
+              {},
+              true,
+              {redirect: {pathname: '/'}},
+              () => false,
+              new Promise(resolve => resolve(222)),
+              2,
+              'whatever',
+              {component: 'i-have-no-path-property'},
+            ];
+
+            for (let i = 0; i < incorrectRoutes.length; i++) {
+              router.setRoutes({path: '/a', children: () => incorrectRoutes[i]});
+
+              let exceptionThrown = false;
+              await router.render('/a').catch(() => {
+                exceptionThrown = true;
               });
 
-              router.setRoutes([
-                {path: '/users', children: children}
-              ]);
+              expect(exceptionThrown, `No exception thrown for 'children' function incorrect return value '${incorrectRoutes[i]}'`)
+                .to.equal(true);
+            }
+          });
 
-              await router.render('/users/2');
-              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
-
-              await router.render('/users/2');
-              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
-              expect(children).to.have.been.called.once;
-            });
-
-            it('should be called every time when resolver needs the route children list', async() => {
-              const children = sinon.spy(() => [
-                {path: '/:user', component: 'x-user-profile'}
-              ]);
-
-              router.setRoutes([
-                {path: '/users', children: children},
-              ]);
-
-              await router.render('/users/1');
-              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
-
-              await router.render('/users/1');
-              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
-
-              expect(children).to.have.been.calledTwice;
-            });
-
-            it('should discard the previous return value and use the new one', async() => {
-              const children = sinon.stub();
-              children.onFirstCall().returns([
-                {path: '/:user', component: 'x-user-profile'}
-              ]);
-
-              router.setRoutes([
-                // a no-op action is here only to make the route "valid"
-                // (because a Sinon stub does not pass the validation as an array or a function)
-                {path: '/users', children: children, action: () => {}},
-                {path: '(.*)', component: 'x-not-found-view'},
-              ]);
-
-              await router.render('/users/1');
-              expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
-
-              await router.render('/users/1');
-              expect(outlet.children[0].tagName).to.match(/x-not-found-view/i);
-            });
-
-            it('should not be called when resolver does not need the route children list', async() => {
-              const children = sinon.spy();
-              router.setRoutes([
-                {path: '/users', component: 'x-users-layout'},
-                {path: '/', children: children}
-              ]);
-              await router.ready.catch(() => {});
-              children.reset();
-
-              await router.render('/users');
-
-              expect(outlet.children[0].tagName).to.match(/x-users-layout/i);
-              expect(children).to.not.have.been.called;
-            });
-
-            it('should be called with the resolver context as the only argument', async() => {
-              const children = sinon.spy();
-              router.setRoutes([
-                {path: '/users', children: children}
-              ]);
-
-              await router.render('/users/1').catch(() => {});
-
-              expect(children).to.have.been.called.once;
-              expect(children.args[0].length).to.equal(1);
-
-              const context = children.args[0][0];
-              expect(context.pathname).to.equal('/users/1');
-              expect(context.route.path).to.equal('/users');
-              expect(context.next).to.be.an('undefined');
-              expect(context.cancel).to.be.an('undefined');
-              expect(context.redirect).to.be.an('undefined');
-              expect(context.component).to.be.an('undefined');
-            });
-
-            it('should be called on the route object (as `this`)', async() => {
-              const children = sinon.spy();
-              const route = {path: '/users', children: children};
-              router.setRoutes([route]);
-
-              await router.render('/users/1').catch(() => {});
-
-              expect(children).to.have.been.calledOn(route);
-            });
-
-            it('should cause resolver to throw if the returned routes are invalid', async() => {
-              const incorrectRoutes = [
-                {},
-                true,
-                {redirect: {pathname: '/'}},
-                () => false,
-                new Promise(resolve => resolve(222)),
-                2,
-                'whatever',
-                {component: 'i-have-no-path-property'},
-              ];
-
-              for (let i = 0; i < incorrectRoutes.length; i++) {
-                router.setRoutes({path: '/a', children: () => incorrectRoutes[i]});
-
-                let exceptionThrown = false;
-                await router.render('/a').catch(() => {
-                  exceptionThrown = true;
-                });
-
-                expect(exceptionThrown, `No exception thrown for 'children' function incorrect return value '${incorrectRoutes[i]}'`)
-                  .to.equal(true);
-              }
-            });
-
-            it('if the return value null or undefined, it should be ignored', async() => {
-              const returnValues = [null, undefined];
-
-              for (let i = 0; i < returnValues.length; i++) {
-                const children = sinon.stub().returns(returnValues[i]);
-                router.setRoutes([
-                  {path: '/a', children: children},
-                  {path: '(.*)', component: 'x-not-found-view'},
-                ]);
-
-                await router.render('/a/1');
-
-                expect(children).to.have.been.called.once;
-                expect(outlet.children[0].tagName).to.match(/x-not-found-view/i);
-
-                await router.render('/a/2');
-
-                expect(children).to.have.been.called.twice;
-                expect(outlet.children[0].tagName).to.match(/x-not-found-view/i);
-              }
-            });
-
-            it('if the return value is a tree of nested routes, they should get resolved correctly', async() => {
-              router.setRoutes([
-                {
-                  path: '/',
-                  component: 'x-root',
-                  children: [{
-                    path: '/a',
-                    children: () => (
-                      {
-                        path: '/b',
-                        children: () => new Promise(resolve => resolve(
-                          {
-                            path: '/c',
-                            component: 'x-c',
-                            children: [
-                              {
-                                path: '/d',
-                                component: 'x-d'
-                              }
-                            ]
-                          }
-                        ))
-                      }
-                    )
-                  }]
-                },
-              ]);
-
-              await router.render('/a/b/c/d');
-
-              checkOutlet(['x-root', 'x-c', 'x-d']);
-            });
-
-            it('if the return value is route with a `redirect`, it should get resolved correctly', async() => {
-              router.setRoutes(
-                {
+          it('if the return value is a tree of nested routes, they should get resolved correctly', async() => {
+            router.setRoutes([
+              {
+                path: '/',
+                component: 'x-root',
+                children: [{
                   path: '/a',
-                  children: () => [
-                    {path: '/b', redirect: '/a/c', component: 'x-b'},
-                    {path: '/c', component: 'x-c'}
-                  ]
-                }
-              );
+                  children: () => (
+                    {
+                      path: '/b',
+                      children: () => new Promise(resolve => resolve(
+                        {
+                          path: '/c',
+                          component: 'x-c',
+                          children: [
+                            {
+                              path: '/d',
+                              component: 'x-d'
+                            }
+                          ]
+                        }
+                      ))
+                    }
+                  )
+                }]
+              },
+            ]);
 
-              await router.render('/a/b');
+            await router.render('/a/b/c/d');
 
-              expect(outlet.children[0].tagName).to.match(/x-c/i);
-            });
+            checkOutlet(['x-root', 'x-c', 'x-d']);
+          });
+
+          it('if the return value is route with a `redirect`, it should get resolved correctly', async() => {
+            router.setRoutes(
+              {
+                path: '/a',
+                children: () => [
+                  {path: '/b', redirect: '/a/c', component: 'x-b'},
+                  {path: '/c', component: 'x-c'}
+                ]
+              }
+            );
+
+            await router.render('/a/b');
+
+            expect(outlet.children[0].tagName).to.match(/x-c/i);
           });
         });
 

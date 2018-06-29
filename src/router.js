@@ -190,6 +190,9 @@ export class Router extends Resolver {
           if (!isResultNotEmpty(children) && !isFunction(route.children)) {
             children = route.children;
           }
+          if (!Array.isArray(children) && !isObject(children)) {
+            throw new Error(log(`Incorrect "children" value for the route ${route.path}, array expected`));
+          }
           processNewChildren(children, route, context);
         });
     }
