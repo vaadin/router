@@ -17,7 +17,7 @@
     <pre><code>&lt;script type="module"&gt;
   import {Router} from 'https://unpkg.com/@vaadin/router';
 &lt;/script&gt;</code></pre>
-    <p><strong>In Webpack projects</strong> the <code>Router</code> class can
+    <p><strong>In Webpack / Rollup / Polymer CLI projects</strong> the <code>Router</code> class can
       be imported from the <code>@vaadin/router</code> npm package:
     </p>
     <code>import {Router} from '@vaadin/router';</code>
@@ -51,7 +51,7 @@
         <main id="outlet"></main>
 
         <script>
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router' / var Router = Vaadin.Router
 
           // select the DOM node where the router inserts route Web Components
           const outlet = document.getElementById('outlet');
@@ -102,9 +102,8 @@
         <a href="/users/kim">Kim</a>
         <a href="/about">About</a>
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router' / var Router = Vaadin.Router
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -131,9 +130,8 @@
         <a href="/users">All Users</a>
         <a href="/users/kim">Kim</a>
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router' / var Router = Vaadin.Router
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -165,9 +163,8 @@
       <template preserve-content>
         <div id="outlet"></div>
 
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router' / var Router = Vaadin.Router
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
