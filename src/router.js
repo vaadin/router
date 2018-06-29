@@ -62,9 +62,12 @@ function amend(amendmentFunction, context, route) {
 }
 
 function processNewChildren(newChildren, route, context) {
-  if (isResultNotEmpty(newChildren) && !isObject(newChildren)) {
-    throw new Error(log(`Expected 'children' method of the route with path '${route.path}' `
-      + `to return an object, but got: '${newChildren}'`));
+  if (!Array.isArray(newChildren) && !isObject(newChildren)) {
+    throw new Error(
+      log(
+        `Incorrect "children" value for the route ${route.path}: expected array or object, but got ${newChildren}`
+      )
+    );
   }
 
   route.__children = [];
