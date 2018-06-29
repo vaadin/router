@@ -107,7 +107,8 @@ export function fireRouterEvent(type, detail) {
 }
 
 export function isObject(o) {
-  return typeof o === 'object';
+  // guard against null passing the typeof check
+  return typeof o === 'object' && !!o;
 }
 
 export function isFunction(f) {
