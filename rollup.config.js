@@ -36,7 +36,7 @@ const config = [
     input: 'index.js',
     output: {
       format: 'es',
-      file: pkg.browser,
+      file: pkg.main,
       sourcemap: true,
     },
     plugins
@@ -48,7 +48,7 @@ const config = [
     input: 'index.js',
     output: {
       format: 'umd',
-      file: pkg.main,
+      file: pkg.main.replace('.js', '.umd.js'),
       sourcemap: true,
       name: 'Vaadin',
       extend: true,
