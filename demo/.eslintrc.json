@@ -3,6 +3,7 @@
   },
   "globals": {
     "ElementDemo": false,
-    "DemoReadyEventEmitter": false
+    "DemoReadyEventEmitter": false,
+    "Router": false
   }
 }
