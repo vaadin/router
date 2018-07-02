@@ -11,6 +11,7 @@ import {
   isFunction,
   isString,
   isObject,
+  getNotFoundError
 } from './utils.js';
 
 const MAX_REDIRECT_COUNT = 256;
@@ -378,6 +379,13 @@ export class Router extends Resolver {
         const initialContext = amendedContext !== currentContext ? amendedContext : originalContext;
         return amendedContext.next()
           .then(nextContext => {
+            if (nextContext === null) {
+              const chain = initialContext.chain;
+              const lastMatched = chain[chain.length - 1].__matchedPath;
+              if (initialContext.pathname !== lastMatched) {
+                throw getNotFoundError(initialContext);
+              }
+            }
             return nextContext
               ? this.__fullyResolveChain(initialContext, nextContext)
               : this.__amendWithLifecycleCallbacks(initialContext);

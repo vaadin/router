@@ -10,7 +10,7 @@
 import pathToRegexp from './path-to-regexp.js';
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
-import {toArray, ensureRoutes, isString} from '../utils.js';
+import {toArray, ensureRoutes, isString, getNotFoundError} from '../utils.js';
 
 function isChildRoute(parentRoute, childRoute) {
   let route = childRoute;
@@ -32,15 +32,25 @@ function generateErrorMessage(currentContext) {
   return errorMessage;
 }
 
-function addRouteToChain(context, newRoute) {
+function addRouteToChain(context, newRoute, matchedPath) {
   function shouldDiscardOldChain(oldChain, newRoute) {
     return !newRoute.parent || !oldChain || !oldChain.length || oldChain[oldChain.length - 1] !== newRoute.parent;
   }
 
   if (newRoute && !newRoute.__synthetic) {
     if (shouldDiscardOldChain(context.chain, newRoute)) {
+      newRoute.__matchedPath = matchedPath;
       context.chain = [newRoute];
     } else {
+      const prevMatched = context.chain[context.chain.length - 1].__matchedPath;
+      // check for "extra root path" case
+      if (matchedPath === '') {
+        newRoute.__matchedPath = prevMatched;
+      } else {
+        newRoute.__matchedPath = prevMatched === '/' ?
+          prevMatched + matchedPath :
+          prevMatched + '/' + matchedPath;
+      }
       context.chain.push(newRoute);
     }
   }
@@ -153,13 +163,10 @@ class Resolver {
       }
 
       if (matches.done) {
-        const error = new Error(`Page not found (${context.pathname})`);
-        error.context = context;
-        error.code = 404;
-        return Promise.reject(error);
+        return Promise.reject(getNotFoundError(context));
       }
 
-      addRouteToChain(context, matches.value.route);
+      addRouteToChain(context, matches.value.route, matches.value.path);
       currentContext = Object.assign({}, context, matches.value);
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {
