@@ -84,6 +84,7 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
               route,
               keys: match.keys,
               params: match.params,
+              path: match.path
             },
           };
         }

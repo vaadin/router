@@ -103,6 +103,19 @@
         checkOutlet(['x-a', 'x-b', 'x-c']);
       });
 
+      it('should not render the root component, if path does not match', async() => {
+        router.setRoutes([
+          {path: '/', component: 'x-root', children: [
+            {path: '/a', component: 'x-a'}
+          ]}
+        ]);
+        let exception;
+        await router.render('/c').catch((e) => {
+          exception = e;
+        });
+        expect(exception, 'No exception thrown for not matched route /c').to.be.instanceof(Error);
+      });
+
       it('when not all nested views have components, all present components are rendered as children ' +
         'to each other in the same hierarchy', async() => {
         router.setRoutes([
