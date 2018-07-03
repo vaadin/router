@@ -19,6 +19,12 @@ function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
 }
 
+function copyContextWithoutNext(context) {
+  const copy = Object.assign({}, context);
+  delete copy.next;
+  return copy;
+}
+
 function redirect(context, pathname) {
   const params = Object.assign({}, context.params);
   return {
@@ -186,7 +192,7 @@ export class Router extends Resolver {
 
     if (isFunction(route.children)) {
       callbacks = callbacks
-        .then(() => route.children(Object.assign({}, context, {next: undefined})))
+        .then(() => route.children(copyContextWithoutNext(context)))
         .then(children => {
           // The route.children() callback might have re-written the
           // route.children property instead of returning a value
@@ -321,9 +327,9 @@ export class Router extends Resolver {
           }
 
           if (context !== this.__previousContext) {
-            return this.__runOnAfterCallbacks(context, this.__previousContext, 'onAfterLeave')
+            return this.__runOnAfterLeaveCallbacks(context, this.__previousContext)
               .then(() => this.__setOutletContent(context))
-              .then(() => this.__runOnAfterCallbacks(context, context, 'onAfterEnter'))
+              .then(() => this.__runOnAfterEnterCallbacks(context))
               .then(() => context);
           }
           return Promise.resolve(context);
@@ -540,15 +546,42 @@ export class Router extends Resolver {
     }
   }
 
-  __runOnAfterCallbacks(currentContext, targetContext, callbackName) {
+  __runOnAfterLeaveCallbacks(currentContext, targetContext) {
     let promises = Promise.resolve();
-    if (targetContext) {
-      const callbackContext = Object.assign({}, currentContext, {next: undefined});
 
-      for (let i = currentContext.__divergedChainIndex; i < targetContext.chain.length; i++) {
-        const currentComponent = targetContext.chain[i].__component || {};
-        promises = promises.then(() => runCallbackIfPossible(currentComponent[callbackName], callbackContext, currentComponent));
+    if (targetContext) {
+      const callbackContext = copyContextWithoutNext(currentContext);
+
+      // REVERSE iteration: from Z to A
+      for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
+        const currentComponent = targetContext.chain[i].__component;
+        if (!currentComponent) {
+          continue;
+        }
+        promises = promises
+          .then(() => runCallbackIfPossible(currentComponent.onAfterLeave, callbackContext, currentComponent))
+          .then((result) => {
+            this.__removeOutletContent(currentComponent.children);
+            return result;
+          })
+          .catch((error) => {
+            this.__removeOutletContent(currentComponent.children);
+            throw error;
+          });
       }
+    }
+    return promises;
+  }
+
+  __runOnAfterEnterCallbacks(currentContext) {
+    let promises = Promise.resolve();
+    const callbackContext = copyContextWithoutNext(currentContext);
+
+    // forward iteration: from A to Z
+    for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
+      const currentComponent = currentContext.chain[i].__component || {};
+      promises = promises
+        .then(() => runCallbackIfPossible(currentComponent.onAfterEnter, callbackContext, currentComponent));
     }
     return promises;
   }
