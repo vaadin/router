@@ -83,8 +83,8 @@
         <div id="stats"></div>
         <div id="outlet"></div>
         <script>
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const urlToNumberOfVisits = {};
 
@@ -138,8 +138,8 @@
         </nav>
         <div id="outlet"></div>
         <script>
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const pollBackendForChanges = () => {
             return new Promise((resolve, reject) => {
@@ -186,8 +186,8 @@
         </nav>
         <div id="outlet"></div>
         <script>
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const redirect = context => {
             context.params.user += ' (redirected)';
@@ -226,8 +226,8 @@
         </nav>
         <div id="outlet"></div>
         <script>
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const render = context => {
             if (context.params.user === 'admin') {

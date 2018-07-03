@@ -52,8 +52,8 @@
         <a href="/data/entity/view/12">Knowledge Base</a>
         <div id="outlet"></div>
         <script>
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -89,7 +89,8 @@
         <main id="outlet"></main>
 
         <script>
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
           window.authorized = false;
 
           class XAdminView extends HTMLElement {
@@ -133,7 +134,8 @@
         <main id="outlet"></main>
 
         <script>
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           document.querySelector('#trigger').addEventListener('click', () => {
             Router.go('/user/you-know-who');

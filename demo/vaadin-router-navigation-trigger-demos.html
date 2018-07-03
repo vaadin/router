@@ -56,8 +56,8 @@
       <template preserve-content>
         <div id="outlet"></div>
         <script>
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -88,8 +88,8 @@
         <a href="/users">Users</a>
         <div id="outlet"></div>
         <script>
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -127,8 +127,8 @@
         </ul>
         <div id="outlet"></div>
         <script>
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
           const {POPSTATE} = Router.NavigationTrigger;
           Router.setTriggers(POPSTATE);
 
@@ -164,8 +164,8 @@
         <a href="/users">Users</a>
         <div id="outlet"></div>
         <script>
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
