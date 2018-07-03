@@ -48,7 +48,7 @@
         <a href="/">Home</a>
         <a href="/go">Are you ready?</a>
         <div id="outlet"></div>
-        <script type="module">
+        <script>
           Polymer({
             is: 'x-countdown',
 
@@ -84,8 +84,8 @@
             }
           });
 
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -124,7 +124,7 @@
         <a href="/">Home</a>
         <a href="/friend">Meet a friend</a>
         <div id="outlet"></div>
-        <script type="module">
+        <script>
           Polymer({
             is: 'x-friend',
 
@@ -139,8 +139,8 @@
             }
           });
 
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -191,7 +191,7 @@
           </template>
         </dom-module>
         <div id="outlet"></div>
-        <script type="module">
+        <script>
           Polymer({
             is: 'x-user-manage',
             onBeforeLeave: function(context) {
@@ -202,8 +202,8 @@
               }
             }
           });
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -243,9 +243,9 @@
     <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-4" iframe-src="iframe.html">
       <template preserve-content>
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -292,7 +292,7 @@
         <a href="/">Home</a>
         <a href="/danger">Danger</a>
         <div id="outlet"></div>
-        <script type="module">
+        <script>
           Polymer({
             is: 'x-dangerous',
             onBeforeEnter: function(context) {
@@ -301,8 +301,8 @@
               }
             }
           });
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -342,7 +342,8 @@
             breadcrumbs.innerHTML = `You are at '${event.detail.pathname}'`;
           });
 
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -395,7 +396,8 @@
               });
           });
 
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([

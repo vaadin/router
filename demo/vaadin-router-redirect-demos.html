@@ -51,9 +51,9 @@
         <a href="/u/Kim">User profile</a>
         <a href="/data/entity/view/12">Knowledge Base</a>
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -86,10 +86,11 @@
         <a href="/admin">Admin</a>
         <a href="/login">Login</a>
         <a href="/logout">Logout</a>
-        <main id="outlet"></main>
+        <div id="outlet"></div>
 
         <script>
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
           window.authorized = false;
 
           class XAdminView extends HTMLElement {
@@ -130,10 +131,11 @@
     <vaadin-demo-snippet id="vaadin-router-redirect-demos-3" iframe-src="iframe.html">
       <template preserve-content>
         <button id="trigger">Open <code>/user/you-know-who</code></button>
-        <main id="outlet"></main>
+        <div id="outlet"></div>
 
         <script>
-          const {Router} = window.Vaadin;
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           document.querySelector('#trigger').addEventListener('click', () => {
             Router.go('/user/you-know-who');
