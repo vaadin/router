@@ -53,7 +53,7 @@
         <div id="outlet"></div>
         <script>
           // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // var Router = Vaadin.Router; // for vaadin-router.umd.js
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -90,7 +90,7 @@
 
         <script>
           // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // var Router = Vaadin.Router; // for vaadin-router.umd.js
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
           window.authorized = false;
 
           class XAdminView extends HTMLElement {
@@ -135,7 +135,7 @@
 
         <script>
           // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // var Router = Vaadin.Router; // for vaadin-router.umd.js
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
           document.querySelector('#trigger').addEventListener('click', () => {
             Router.go('/user/you-know-who');
