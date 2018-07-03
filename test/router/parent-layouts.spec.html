@@ -71,6 +71,22 @@
         checkOutlet(['x-a', 'x-b', 'x-c']);
       });
 
+      it('should remove nested route components when the parent route is navigated to', async() => {
+        router.setRoutes([
+          {path: '/a', component: 'x-a', children: [
+            {path: '/b', component: 'x-b'}
+          ]},
+          {path: '/c', component: 'x-c'}
+        ]);
+
+        await router.render('/a/b');
+        await router.render('/c');
+        await router.render('/a');
+
+        verifyActiveRoutes(router, ['/a']);
+        checkOutlet(['x-a']);
+      });
+
       it('when action returns a component result, it is rendered the same way as if it was a component property', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
