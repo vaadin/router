@@ -118,3 +118,10 @@ export function isFunction(f) {
 export function isString(s) {
   return typeof s === 'string';
 }
+
+export function getNotFoundError(context) {
+  const error = new Error(log(`Page not found (${context.pathname})`));
+  error.context = context;
+  error.code = 404;
+  return error;
+}

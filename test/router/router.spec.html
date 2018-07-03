@@ -1024,6 +1024,25 @@
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
             expect(from).to.be.equal('/c');
           });
+
+          it('should match routes with trailing slashes', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-a'},
+              {path: '/child', children: [
+                {path: '/', component: 'x-b'},
+                {path: '/page/', component: 'x-c'}
+              ]},
+            ]);
+
+            await router.render('/');
+            checkOutlet(['x-a']);
+
+            await router.render('/child/');
+            checkOutlet(['x-b']);
+
+            await router.render('/child/page/');
+            checkOutlet(['x-c']);
+          });
         });
 
         describe('children (function)', () => {

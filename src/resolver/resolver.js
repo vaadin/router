@@ -10,7 +10,7 @@
 import pathToRegexp from './path-to-regexp.js';
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
-import {toArray, ensureRoutes, isString} from '../utils.js';
+import {toArray, ensureRoutes, isString, getNotFoundError} from '../utils.js';
 
 function isChildRoute(parentRoute, childRoute) {
   let route = childRoute;
@@ -32,16 +32,24 @@ function generateErrorMessage(currentContext) {
   return errorMessage;
 }
 
-function addRouteToChain(context, newRoute) {
-  function shouldDiscardOldChain(oldChain, newRoute) {
-    return !newRoute.parent || !oldChain || !oldChain.length || oldChain[oldChain.length - 1] !== newRoute.parent;
+function addRouteToChain(context, match) {
+  const {route, path} = match;
+  function shouldDiscardOldChain(oldChain, route) {
+    return !route.parent || !oldChain || !oldChain.length || oldChain[oldChain.length - 1] !== route.parent;
   }
 
-  if (newRoute && !newRoute.__synthetic) {
-    if (shouldDiscardOldChain(context.chain, newRoute)) {
-      context.chain = [newRoute];
+  if (route && !route.__synthetic) {
+    if (shouldDiscardOldChain(context.chain, route)) {
+      context.chain = [route];
+      context.__matchedPath = path;
     } else {
-      context.chain.push(newRoute);
+      context.chain.push(route);
+      const prevMatched = context.__matchedPath;
+      if (path.length) {
+        context.__matchedPath = prevMatched === '/' ?
+          prevMatched + path :
+          prevMatched + '/' + path;
+      }
     }
   }
 }
@@ -153,13 +161,10 @@ class Resolver {
       }
 
       if (matches.done) {
-        const error = new Error(`Page not found (${context.pathname})`);
-        error.context = context;
-        error.code = 404;
-        return Promise.reject(error);
+        return Promise.reject(getNotFoundError(context));
       }
 
-      addRouteToChain(context, matches.value.route);
+      addRouteToChain(context, matches.value);
       currentContext = Object.assign({}, context, matches.value);
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {

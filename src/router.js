@@ -11,6 +11,7 @@ import {
   isFunction,
   isString,
   isObject,
+  getNotFoundError
 } from './utils.js';
 
 const MAX_REDIRECT_COUNT = 256;
@@ -67,7 +68,7 @@ function amend(amendmentFunction, context, route) {
   };
 }
 
-function processNewChildren(newChildren, route, context) {
+function processNewChildren(newChildren, route) {
   if (!Array.isArray(newChildren) && !isObject(newChildren)) {
     throw new Error(
       log(
@@ -208,7 +209,7 @@ export class Router extends Resolver {
           if (!isResultNotEmpty(children) && !isFunction(route.children)) {
             children = route.children;
           }
-          processNewChildren(children, route, context);
+          processNewChildren(children, route);
         });
     }
 
@@ -378,6 +379,11 @@ export class Router extends Resolver {
         const initialContext = amendedContext !== currentContext ? amendedContext : originalContext;
         return amendedContext.next()
           .then(nextContext => {
+            if (nextContext === null) {
+              if (amendedContext.pathname !== amendedContext.__matchedPath) {
+                throw getNotFoundError(initialContext);
+              }
+            }
             return nextContext
               ? this.__fullyResolveChain(initialContext, nextContext)
               : this.__amendWithLifecycleCallbacks(initialContext);
