@@ -68,7 +68,7 @@ function amend(amendmentFunction, context, route) {
   };
 }
 
-function processNewChildren(newChildren, route, context) {
+function processNewChildren(newChildren, route) {
   if (!Array.isArray(newChildren) && !isObject(newChildren)) {
     throw new Error(
       log(
@@ -209,7 +209,7 @@ export class Router extends Resolver {
           if (!isResultNotEmpty(children) && !isFunction(route.children)) {
             children = route.children;
           }
-          processNewChildren(children, route, context);
+          processNewChildren(children, route);
         });
     }
 
