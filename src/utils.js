@@ -76,26 +76,7 @@ export function ensureRoutes(routes) {
 
 function loadScript(src, key) {
   let script = document.head.querySelector('script[src="' + src + '"][async]');
-  if (script && script.parentNode === document.head) {
-    if (script.__dynamicImportLoaded) {
-      return Promise.resolve();
-    } else {
-      return new Promise((resolve, reject) => {
-        const originalOnLoad = script.onload;
-        script.onreadystatechange = script.onload = e => {
-          originalOnLoad();
-          resolve(e);
-        };
-
-        const originalOnError = script.onerror;
-        script.onerror = e => {
-          originalOnError();
-          reject(e);
-        };
-      });
-    }
-  }
-  return new Promise((resolve, reject) => {
+  if (!script) {
     script = document.createElement('script');
     script.setAttribute('src', src);
     if (key === MODULE) {
@@ -104,6 +85,8 @@ function loadScript(src, key) {
       script.setAttribute(NOMODULE, '');
     }
     script.async = true;
+  }
+  return new Promise((resolve, reject) => {
     script.onreadystatechange = script.onload = e => {
       script.__dynamicImportLoaded = true;
       resolve(e);
@@ -114,7 +97,11 @@ function loadScript(src, key) {
       }
       reject(e);
     };
-    document.head.appendChild(script);
+    if (script.parentNode === null) {
+      document.head.appendChild(script);
+    } else if (script.__dynamicImportLoaded) {
+      resolve();
+    }
   });
 }
 
