@@ -32,26 +32,24 @@ function generateErrorMessage(currentContext) {
   return errorMessage;
 }
 
-function addRouteToChain(context, newRoute, matchedPath) {
-  function shouldDiscardOldChain(oldChain, newRoute) {
-    return !newRoute.parent || !oldChain || !oldChain.length || oldChain[oldChain.length - 1] !== newRoute.parent;
+function addRouteToChain(context, match) {
+  const {route, path} = match;
+  function shouldDiscardOldChain(oldChain, route) {
+    return !route.parent || !oldChain || !oldChain.length || oldChain[oldChain.length - 1] !== route.parent;
   }
 
-  if (newRoute && !newRoute.__synthetic) {
-    if (shouldDiscardOldChain(context.chain, newRoute)) {
-      newRoute.__matchedPath = matchedPath;
-      context.chain = [newRoute];
+  if (route && !route.__synthetic) {
+    if (shouldDiscardOldChain(context.chain, route)) {
+      context.chain = [route];
+      context.__matchedPath = path;
     } else {
-      const prevMatched = context.chain[context.chain.length - 1].__matchedPath;
-      // check for "extra root path" case
-      if (matchedPath === '') {
-        newRoute.__matchedPath = prevMatched;
-      } else {
-        newRoute.__matchedPath = prevMatched === '/' ?
-          prevMatched + matchedPath :
-          prevMatched + '/' + matchedPath;
+      context.chain.push(route);
+      const prevMatched = context.__matchedPath;
+      if (path.length) {
+        context.__matchedPath = prevMatched === '/' ?
+          prevMatched + path :
+          prevMatched + '/' + path;
       }
-      context.chain.push(newRoute);
     }
   }
 }
@@ -166,7 +164,7 @@ class Resolver {
         return Promise.reject(getNotFoundError(context));
       }
 
-      addRouteToChain(context, matches.value.route, matches.value.path);
+      addRouteToChain(context, matches.value);
       currentContext = Object.assign({}, context, matches.value);
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {

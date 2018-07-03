@@ -380,9 +380,7 @@ export class Router extends Resolver {
         return amendedContext.next()
           .then(nextContext => {
             if (nextContext === null) {
-              const chain = initialContext.chain;
-              const lastMatched = chain[chain.length - 1].__matchedPath;
-              if (initialContext.pathname !== lastMatched) {
+              if (amendedContext.pathname !== amendedContext.__matchedPath) {
                 throw getNotFoundError(initialContext);
               }
             }
