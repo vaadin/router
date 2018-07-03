@@ -13,7 +13,11 @@
 
 <body>
   <test-pushstate-throttler id="throttler"></test-pushstate-throttler>
-  <div id="outlet"></div>
+  <test-fixture id="outlet">
+    <template>
+      <div></div>
+    </template>
+  </test-fixture>
 
   <script>
     class XSpy extends HTMLElement {
@@ -78,7 +82,7 @@
       const suite = this;
       suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
-      const outlet = document.getElementById('outlet');
+      let outlet;
       const throttler = document.getElementById('throttler');
       let router;
       beforeEach(async function() {
@@ -90,6 +94,9 @@
 
         // reset the window URL
         window.history.pushState(null, null, '/');
+
+        // stamp the test fixture DOM into the page
+        outlet = fixture('outlet');
 
         // create a new router instance
         router = new Vaadin.Router(outlet);
@@ -840,7 +847,6 @@
             ]},
             {path: '/c', action: elementWithAllLifecycleCallbacks('x-c')}
           ]);
-          router.__removeOutletContent();
           callbacksLog = [];
         });
 

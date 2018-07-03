@@ -90,6 +90,15 @@ function processComponent(route, context) {
   }
 }
 
+function removeDomNodes(nodes) {
+  if (nodes && nodes.length) {
+    const parent = nodes[0].parentNode;
+    for (let i = 0; i < nodes.length; i += 1) {
+      parent.removeChild(nodes[i]);
+    }
+  }
+}
+
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -328,7 +337,7 @@ export class Router extends Resolver {
 
           if (context !== this.__previousContext) {
             return this.__runOnAfterLeaveCallbacks(context, this.__previousContext)
-              .then(() => this.__setOutletContent(context))
+              .then(() => this.__addAppearingContent(context))
               .then(() => this.__runOnAfterEnterCallbacks(context))
               .then(() => context);
           }
@@ -342,7 +351,7 @@ export class Router extends Resolver {
       })
       .then(context => {
         if (renderId === this.__lastStartedRenderId) {
-          this.__removeOldOutletContent();
+          this.__removeDisappearingContent();
         }
         this.__previousContext = context;
         this.activeRoutes = [...context.chain];
@@ -354,7 +363,7 @@ export class Router extends Resolver {
           if (shouldUpdateHistory) {
             this.__updateBrowserHistory(pathnameOrContext);
           }
-          this.__removeOutletContent();
+          removeDomNodes(this.__outlet && this.__outlet.children);
           this.activeRoutes = [];
           fireRouterEvent('error', {router: this, error});
           throw error;
@@ -476,73 +485,63 @@ export class Router extends Resolver {
     }
   }
 
-  __setOutletContent(context) {
-    this.__removePendingContent();
-
-    function containsElement(htmlElements, elementToSearch) {
-      for (let i = 0; i < htmlElements.length; i++) {
-        if (htmlElements[i] === elementToSearch) {
-          return true;
-        }
-      }
-      return false;
-    }
-
+  __addAppearingContent(context) {
     this.__ensureOutlet();
 
-    let lastUnchangedComponent = this.__outlet;
+    // If the previous 'entering' animation has not completed yet,
+    // stop it and remove that content from the DOM before adding new one.
+    this.__removeAppearingContent();
 
-    if (context) {
-      for (let i = 0; i < context.__divergedChainIndex; i++) {
-        const unchangedComponent = context.chain[i].__component;
-        if (unchangedComponent) {
-          if (containsElement(lastUnchangedComponent.children || [], unchangedComponent)) {
-            lastUnchangedComponent = unchangedComponent;
-          } else {
-            break;
-          }
+    // Find the deepest common parent between the last and the new component
+    // chains.
+    let deepestCommonParent = this.__outlet;
+    for (let i = 0; i < context.__divergedChainIndex; i++) {
+      const unchangedComponent = context.chain[i].__component;
+      if (unchangedComponent) {
+        if (unchangedComponent.parentElement === deepestCommonParent) {
+          deepestCommonParent = unchangedComponent;
+        } else {
+          break;
         }
       }
     }
 
-    this.__oldContent = Array.from(lastUnchangedComponent.childNodes);
-    this.__newContent = [];
+    // Keep two lists of DOM elements:
+    //  - those that should be removed once the transition animation is over
+    //  - and those that should remain
+    this.__disappearingContent = Array.from(deepestCommonParent.children);
+    this.__appearingContent = [];
 
-    if (context) {
-      let parentElement = lastUnchangedComponent;
-      for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
-        const componentToAdd = context.chain[i].__component;
-        if (componentToAdd) {
-          parentElement.appendChild(componentToAdd);
-          parentElement = componentToAdd;
-          this.__newContent.push(componentToAdd);
+    // Add new elements (starting after the deepest common parent) to the DOM.
+    // That way only the components that are actually different between the two
+    // locations are added to the DOM (and those that are common remain in the
+    // DOM without first removing and then adding them again).
+    let parentElement = deepestCommonParent;
+    for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
+      const componentToAdd = context.chain[i].__component;
+      if (componentToAdd) {
+        parentElement.appendChild(componentToAdd);
+        if (parentElement === deepestCommonParent) {
+          this.__appearingContent.push(componentToAdd);
         }
+        parentElement = componentToAdd;
       }
     }
   }
 
-  __removeOldOutletContent() {
-    if (this.__oldContent && this.__oldContent.length) {
-      this.__removeOutletContent(this.__oldContent);
+  __removeDisappearingContent() {
+    if (this.__disappearingContent) {
+      removeDomNodes(this.__disappearingContent);
     }
-    this.__oldContent = null;
-    this.__newContent = null;
+    this.__disappearingContent = null;
+    this.__appearingContent = null;
   }
 
-  __removePendingContent() {
-    if (this.__oldContent && this.__newContent) {
-      this.__oldContent = this.__newContent;
-      this.__removeOldOutletContent();
-    }
-  }
-
-  __removeOutletContent(content) {
-    content = content || (this.__outlet && this.__outlet.children);
-    if (content && content.length) {
-      const parent = content[0].parentNode;
-      for (let i = 0; i < content.length; i += 1) {
-        parent.removeChild(content[i]);
-      }
+  __removeAppearingContent() {
+    if (this.__disappearingContent && this.__appearingContent) {
+      removeDomNodes(this.__appearingContent);
+      this.__disappearingContent = null;
+      this.__appearingContent = null;
     }
   }
 
@@ -561,11 +560,11 @@ export class Router extends Resolver {
         promises = promises
           .then(() => runCallbackIfPossible(currentComponent.onAfterLeave, callbackContext, currentComponent))
           .then((result) => {
-            this.__removeOutletContent(currentComponent.children);
+            removeDomNodes(currentComponent.children);
             return result;
           })
           .catch((error) => {
-            this.__removeOutletContent(currentComponent.children);
+            removeDomNodes(currentComponent.children);
             throw error;
           });
       }
@@ -587,8 +586,8 @@ export class Router extends Resolver {
   }
 
   __animateIfNeeded(context) {
-    const from = this.__oldContent && this.__oldContent[0];
-    const to = this.__newContent && this.__newContent[0];
+    const from = this.__disappearingContent && this.__disappearingContent[0];
+    const to = this.__appearingContent && this.__appearingContent[0];
     const promises = [];
 
     const chain = context.chain;
