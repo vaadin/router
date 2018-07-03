@@ -48,9 +48,9 @@
         <a href="/">Home</a>
         <a href="/user/guest">User Profile</a>
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -84,9 +84,9 @@
         <a href="/">Home</a>
         <a href="/user/admin">User Profile</a>
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const loadCustomBundle = (context) => {
             // This is one way of loading a bundle lazily (works for Polymer apps).
@@ -123,9 +123,9 @@
         <a href="/">Home</a>
         <a href="/user/guest">User Profile</a>
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -163,9 +163,9 @@
         <a href="/">Home</a>
         <a href="/users/guest">User Profile</a>
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([

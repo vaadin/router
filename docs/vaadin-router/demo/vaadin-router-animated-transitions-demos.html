@@ -26,9 +26,9 @@
         <a href="/image-125px">Image</a>
         <a href="/users">Users</a>
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([{
@@ -98,9 +98,9 @@
     <vaadin-demo-snippet id="vaadin-router-animated-transitions-demos-2" iframe-src="iframe.html">
       <template preserve-content="">
         <div id="outlet"></div>
-        <script type="module">
-          // import {Router} from '@vaadin/router';
-          const {Router} = window.Vaadin;
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // var Router = Vaadin.Router; // for vaadin-router.umd.js
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
@@ -139,8 +139,8 @@
             </nav>
             <main>
               <slot></slot>
-            </main>
-          </template>
+            
+          </main></template>
         </dom-module>
         <style>
           .leaving {
