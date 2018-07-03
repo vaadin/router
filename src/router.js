@@ -19,6 +19,12 @@ function isResultNotEmpty(result) {
   return result !== null && result !== undefined;
 }
 
+function copyContextWithoutNext(context) {
+  const copy = Object.assign({}, context);
+  delete copy.next;
+  return copy;
+}
+
 function redirect(context, pathname) {
   const params = Object.assign({}, context.params);
   return {
@@ -186,7 +192,7 @@ export class Router extends Resolver {
 
     if (isFunction(route.children)) {
       callbacks = callbacks
-        .then(() => route.children(Object.assign({}, context, {next: undefined})))
+        .then(() => route.children(copyContextWithoutNext(context)))
         .then(children => {
           // The route.children() callback might have re-written the
           // route.children property instead of returning a value
@@ -544,7 +550,7 @@ export class Router extends Resolver {
     let promises = Promise.resolve();
 
     if (targetContext) {
-      const callbackContext = Object.assign({}, currentContext, {next: undefined});
+      const callbackContext = copyContextWithoutNext(currentContext);
 
       // REVERSE iteration: from Z to A
       for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
@@ -569,7 +575,7 @@ export class Router extends Resolver {
 
   __runOnAfterEnterCallbacks(currentContext) {
     let promises = Promise.resolve();
-    const callbackContext = Object.assign({}, currentContext, {next: undefined});
+    const callbackContext = copyContextWithoutNext(currentContext);
 
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
