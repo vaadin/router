@@ -56,6 +56,10 @@
         .to.have.property('params')
         .that.is.an('object')
         .and.is.not.null;
+      expect(match)
+        .to.have.property('path')
+        .that.is.an('string')
+        .and.is.not.null;
     });
 
     it('should treat null route path as ""', () => {
