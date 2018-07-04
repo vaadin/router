@@ -436,9 +436,10 @@
             router.unsubscribe();
           });
 
-          it('should be an object', () => {
+          it('should be a non-null object', () => {
             expect(router).to.have.property('location')
-              .that.is.an('object');
+              .that.is.an('object')
+              .and.is.not.null;
           });
 
           it('should initially have non-null pathname, routes and params properties', () => {
@@ -527,6 +528,29 @@
             await router.render('/non-existent').catch(() => {});
 
             expect(router.location.routes).to.deep.equal([]);
+          });
+
+          it('should have a separate property for the last route of the routes chain', async() => {
+            const routeC = {path: '/c', component: 'x-c'};
+            const routeB = {path: '/b', component: 'x-b', children: [routeC]};
+            const routeA = {path: '/a', component: 'x-a', children: [routeB]};
+
+            router.setRoutes(routeA);
+            await router.render('/a/b/c');
+
+            expect(router.location.route).to.equal(routeC);
+          });
+
+          it('should have an `undefined` route property after a failed render', async() => {
+            const routeC = {path: '/c', component: 'x-c'};
+            const routeB = {path: '/b', component: 'x-b', children: [routeC]};
+            const routeA = {path: '/a', component: 'x-a', children: [routeB]};
+
+            router.setRoutes(routeA);
+            await router.render('/a/b/c');
+            await router.render('/non-existent').catch(() => {});
+
+            expect(router.location.route).to.not.be.defined;
           });
 
           it('should contain the parameters from the last completed render pass', async() => {
