@@ -24,8 +24,8 @@
           ```js
           {
             bundle: {
-              src: '/chunk.js', // required, contains the bundle URL
-              type: 'module' // optional, default to "nomodule"
+              module: '/bundle.esm.js', // for browsers supporting ES modules
+              nomodule: '/bundle.es5.js' // fallback for older browsers
             }
           }
           ```

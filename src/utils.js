@@ -7,6 +7,18 @@ export function log(msg) {
   return `[Vaadin.Router] ${msg}`;
 }
 
+const MODULE = 'module';
+const NOMODULE = 'nomodule';
+const bundleKeys = [MODULE, NOMODULE];
+
+function ensureBundle(src) {
+  if (!src.match(/.+\.[m]?js$/)) {
+    throw new Error(
+      log(`Unsupported type for bundle "${src}": .js or .mjs expected.`)
+    );
+  }
+}
+
 export function ensureRoute(route) {
   if (!route || !isString(route.path)) {
     throw new Error(
@@ -14,12 +26,14 @@ export function ensureRoute(route) {
     );
   }
 
+  const bundle = route.bundle;
+
   const stringKeys = ['component', 'redirect', 'bundle'];
   if (
     !isFunction(route.action) &&
     !Array.isArray(route.children) &&
     !isFunction(route.children) &&
-    !isObject(route.bundle) &&
+    !isObject(bundle) &&
     !stringKeys.some(key => isString(route[key]))
   ) {
     throw new Error(
@@ -30,12 +44,15 @@ export function ensureRoute(route) {
     );
   }
 
-  if (route.bundle) {
-    const src = isString(route.bundle) ? route.bundle : route.bundle.src;
-    if (!src.match(/.+\.[m]?js$/)) {
+  if (bundle) {
+    if (isString(bundle)) {
+      ensureBundle(bundle);
+    } else if (!bundleKeys.some(key => key in bundle)) {
       throw new Error(
-        log(`Unsupported type for bundle "${src}": .js or .mjs expected.`)
+        log('Expected route bundle to include either "' + NOMODULE + '" or "' + MODULE + '" keys, or both')
       );
+    } else {
+      bundleKeys.forEach(key => key in bundle && ensureBundle(bundle[key]));
     }
   }
 
@@ -57,35 +74,19 @@ export function ensureRoutes(routes) {
   toArray(routes).forEach(route => ensureRoute(route));
 }
 
-export function loadBundle(bundle) {
-  const path = isString(bundle) ? bundle : bundle.src;
-  let script = document.head.querySelector('script[src="' + path + '"][async]');
-  if (script && script.parentNode === document.head) {
-    if (script.__dynamicImportLoaded) {
-      return Promise.resolve();
-    } else {
-      return new Promise((resolve, reject) => {
-        const originalOnLoad = script.onload;
-        script.onreadystatechange = script.onload = e => {
-          originalOnLoad();
-          resolve(e);
-        };
-
-        const originalOnError = script.onerror;
-        script.onerror = e => {
-          originalOnError();
-          reject(e);
-        };
-      });
-    }
-  }
-  return new Promise((resolve, reject) => {
+function loadScript(src, key) {
+  let script = document.head.querySelector('script[src="' + src + '"][async]');
+  if (!script) {
     script = document.createElement('script');
-    script.setAttribute('src', path);
-    if (isObject(bundle) && bundle.type === 'module') {
-      script.setAttribute('type', 'module');
+    script.setAttribute('src', src);
+    if (key === MODULE) {
+      script.setAttribute('type', MODULE);
+    } else if (key === NOMODULE) {
+      script.setAttribute(NOMODULE, '');
     }
     script.async = true;
+  }
+  return new Promise((resolve, reject) => {
     script.onreadystatechange = script.onload = e => {
       script.__dynamicImportLoaded = true;
       resolve(e);
@@ -96,8 +97,24 @@ export function loadBundle(bundle) {
       }
       reject(e);
     };
-    document.head.appendChild(script);
+    if (script.parentNode === null) {
+      document.head.appendChild(script);
+    } else if (script.__dynamicImportLoaded) {
+      resolve();
+    }
   });
+}
+
+export function loadBundle(bundle) {
+  if (isString(bundle)) {
+    return loadScript(bundle);
+  } else {
+    return Promise.race(
+      bundleKeys
+        .filter(key => key in bundle)
+        .map(key => loadScript(bundle[key], key))
+    );
+  }
 }
 
 export function fireRouterEvent(type, detail) {
