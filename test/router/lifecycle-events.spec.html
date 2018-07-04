@@ -495,40 +495,6 @@
             verifyActiveRoutes(router, ['/users']);
           }
         });
-
-        it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
-          router.setRoutes([
-            {path: '/a', action: onAfterLeaveAction(
-              'x-spy',
-              function() {
-                callbacksLog.push('a.onAfterLeave');
-                return new Promise(resolve => {
-                  setTimeout(() => {
-                    callbacksLog.push('a.onAfterLeave.promise');
-                    resolve();
-                  }, 100);
-                });
-              },
-              'a')},
-            {path: '/b', action: elementWithAllLifecycleCallbacks('b')},
-          ]);
-
-          await router.render('/').catch(() => {});
-          await router.render('/a');
-          callbacksLog = [];
-          await router.render('/b');
-
-          expect(callbacksLog).to.deep.equal([
-            'b.action',
-            'a.onBeforeLeave',
-            'b.onBeforeEnter',
-            'a.onAfterLeave',
-            'a.onAfterLeave.promise',
-            'b.connectedCallback',
-            'b.onAfterEnter',
-            'a.disconnectedCallback',
-          ]);
-        });
       });
 
       describe('onAfterEnter', () => {
@@ -595,39 +561,6 @@
             expect(outlet.children[0].tagName).to.match(/x-users-list/i);
             verifyActiveRoutes(router, ['/users']);
           }
-        });
-
-        it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
-          router.setRoutes([
-            {path: '/a', action: elementWithAllLifecycleCallbacks('a')},
-            {path: '/b', action: onAfterEnterAction(
-              'x-spy',
-              function() {
-                callbacksLog.push('b.onAfterEnter');
-                return new Promise(resolve => {
-                  setTimeout(() => {
-                    callbacksLog.push('b.onAfterEnter.promise');
-                    resolve();
-                  }, 100);
-                });
-              },
-              'b')},
-          ]);
-
-          await router.render('/').catch(() => {});
-          await router.render('/a');
-          callbacksLog = [];
-          await router.render('/b');
-
-          verifyCallbacks([
-            'a.onBeforeLeave',
-            'b.onBeforeEnter',
-            'a.onAfterLeave',
-            'b.connectedCallback',
-            'b.onAfterEnter',
-            'b.onAfterEnter.promise',
-            'a.disconnectedCallback',
-          ]);
         });
       });
 

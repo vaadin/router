@@ -342,36 +342,46 @@ export class Router extends Resolver {
   render(pathnameOrContext, shouldUpdateHistory) {
     const renderId = ++this.__lastStartedRenderId;
     const pathname = pathnameOrContext.pathname || pathnameOrContext;
+
+    // Find the first route that resolves to a non-empty result
     this.ready = this.resolve(pathnameOrContext)
-      .then(originalContext => this.__fullyResolveChain(originalContext, originalContext))
+
+      // Process the result of this.resolve() and handle all special commands:
+      // (redirect / prevent / component). If the result is a 'component',
+      // then go deeper and build the entire chain of nested components matching
+      // the pathname. Also call all 'on before' callbacks along the way.
+      .then(context => this.__fullyResolveChain(context))
+
       .then(context => {
         if (renderId === this.__lastStartedRenderId) {
-          if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(context.result.route.pathname, context.from);
+          // Check if the render was prevented and make an early return in that case
+          if (context === this.__previousContext) {
+            return this.__outlet;
           }
 
-          if (context !== this.__previousContext) {
-            return this.__runOnAfterLeaveCallbacks(context, this.__previousContext)
-              .then(() => this.__addAppearingContent(context))
-              .then(() => this.__runOnAfterEnterCallbacks(context))
-              .then(() => context);
+          if (shouldUpdateHistory) {
+            this.__updateBrowserHistory(context.pathname, context.from);
           }
-          return Promise.resolve(context);
+
+          this.__runOnAfterLeaveCallbacks(context, this.__previousContext);
+          this.__addAppearingContent(context);
+          this.__runOnAfterEnterCallbacks(context);
+
+          return this.__animateIfNeeded(context)
+            .then(() => {
+              if (renderId === this.__lastStartedRenderId) {
+                // If there is another render pass started after this one,
+                // the 'disappearing content' would be removed when the other
+                // render pass calls `this.__addAppearingContent()`
+                this.__removeDisappearingContent();
+
+                this.__previousContext = context;
+                this.location = createLocation(context);
+                fireRouterEvent('location-changed', {router: this, location: this.location});
+                return this.__outlet;
+              }
+            });
         }
-      })
-      .then(context => {
-        if (renderId === this.__lastStartedRenderId) {
-          return this.__animateIfNeeded(context);
-        }
-      })
-      .then(context => {
-        if (renderId === this.__lastStartedRenderId) {
-          this.__removeDisappearingContent();
-        }
-        this.__previousContext = context;
-        this.location = createLocation(context);
-        fireRouterEvent('location-changed', {router: this, location: this.location});
-        return this.__outlet;
       })
       .catch(error => {
         if (renderId === this.__lastStartedRenderId) {
@@ -387,7 +397,7 @@ export class Router extends Resolver {
     return this.ready;
   }
 
-  __fullyResolveChain(originalContext, currentContext) {
+  __fullyResolveChain(originalContext, currentContext = originalContext) {
     return this.__amendWithResolutionResult(currentContext)
       .then(amendedContext => {
         const initialContext = amendedContext !== currentContext ? amendedContext : originalContext;
@@ -431,7 +441,7 @@ export class Router extends Resolver {
       if (amendedContext === this.__previousContext || amendedContext === contextWithFullChain) {
         return amendedContext;
       }
-      return this.__fullyResolveChain(amendedContext, amendedContext);
+      return this.__fullyResolveChain(amendedContext);
     });
   }
 
@@ -565,43 +575,34 @@ export class Router extends Resolver {
   }
 
   __runOnAfterLeaveCallbacks(currentContext, targetContext) {
-    let promises = Promise.resolve();
+    if (!targetContext) {
+      return;
+    }
 
-    if (targetContext) {
-      const callbackContext = copyContextWithoutNext(currentContext);
+    const callbackContext = copyContextWithoutNext(currentContext);
 
-      // REVERSE iteration: from Z to A
-      for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
-        const currentComponent = targetContext.chain[i].__component;
-        if (!currentComponent) {
-          continue;
-        }
-        promises = promises
-          .then(() => runCallbackIfPossible(currentComponent.onAfterLeave, callbackContext, currentComponent))
-          .then((result) => {
-            removeDomNodes(currentComponent.children);
-            return result;
-          })
-          .catch((error) => {
-            removeDomNodes(currentComponent.children);
-            throw error;
-          });
+    // REVERSE iteration: from Z to A
+    for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
+      const currentComponent = targetContext.chain[i].__component;
+      if (!currentComponent) {
+        continue;
+      }
+      try {
+        runCallbackIfPossible(currentComponent.onAfterLeave, callbackContext, currentComponent);
+      } finally {
+        removeDomNodes(currentComponent.children);
       }
     }
-    return promises;
   }
 
   __runOnAfterEnterCallbacks(currentContext) {
-    let promises = Promise.resolve();
     const callbackContext = copyContextWithoutNext(currentContext);
 
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
       const currentComponent = currentContext.chain[i].__component || {};
-      promises = promises
-        .then(() => runCallbackIfPossible(currentComponent.onAfterEnter, callbackContext, currentComponent));
+      runCallbackIfPossible(currentComponent.onAfterEnter, callbackContext, currentComponent);
     }
-    return promises;
   }
 
   __animateIfNeeded(context) {
@@ -631,7 +632,7 @@ export class Router extends Resolver {
       });
     }
 
-    return context;
+    return Promise.resolve(context);
   }
 
   /**
