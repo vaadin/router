@@ -1318,8 +1318,24 @@
           expect(onError.args[0].length).to.equal(1);
 
           const event = onError.args[0][0];
-          expect(event.detail.error).to.be.an('error');
           expect(event.detail.router).to.equal(router);
+        });
+
+        it('should contain the failed pathname as `event.detail.pathname`', async() => {
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+          ]);
+
+          const onError = sinon.spy();
+          window.addEventListener('vaadin-router-error', onError);
+          await router.render('/non-existent').catch(() => {});
+          window.removeEventListener('vaadin-router-error', onError);
+
+          expect(onError).to.have.been.called.once;
+          expect(onError.args[0].length).to.equal(1);
+
+          const event = onError.args[0][0];
+          expect(event.detail.pathname).to.equal('/non-existent');
         });
       });
     });

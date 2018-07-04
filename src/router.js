@@ -11,7 +11,7 @@ import {
   isFunction,
   isString,
   isObject,
-  getNotFoundError
+  getNotFoundError,
 } from './utils.js';
 
 const MAX_REDIRECT_COUNT = 256;
@@ -109,12 +109,13 @@ function getMatchedPath(chain) {
   });
 }
 
-function createLocation({pathname = '', chain = [], params = {}, from}) {
+function createLocation({pathname = '', chain = [], params = {}, from}, route) {
   return {
     pathname,
     routes: chain.map(item => item.route),
+    route: (!route && chain.length && chain[chain.length - 1]) || route,
     params,
-    redirectFrom: from
+    redirectFrom: from,
   };
 }
 
@@ -349,6 +350,7 @@ export class Router extends Resolver {
    */
   render(pathnameOrContext, shouldUpdateHistory) {
     const renderId = ++this.__lastStartedRenderId;
+    const pathname = pathnameOrContext.pathname || pathnameOrContext;
     this.ready = this.resolve(pathnameOrContext)
       .then(originalContext => this.__fullyResolveChain(originalContext, originalContext))
       .then(context => {
@@ -384,11 +386,11 @@ export class Router extends Resolver {
       .catch(error => {
         if (renderId === this.__lastStartedRenderId) {
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(pathnameOrContext);
+            this.__updateBrowserHistory(pathname);
           }
           removeDomNodes(this.__outlet && this.__outlet.children);
-          this.location = createLocation(error.context || {});
-          fireRouterEvent('error', {router: this, error});
+          this.location = createLocation({pathname});
+          fireRouterEvent('error', {router: this, error, pathname});
           throw error;
         }
       });
@@ -505,8 +507,7 @@ export class Router extends Resolver {
     }
   }
 
-  __updateBrowserHistory(pathnameOrContext, replace) {
-    const pathname = pathnameOrContext.pathname || pathnameOrContext;
+  __updateBrowserHistory(pathname, replace) {
     if (window.location.pathname !== pathname) {
       const changeState = replace ? 'replaceState' : 'pushState';
       window.history[changeState](null, document.title, pathname);
