@@ -326,9 +326,9 @@
         <div id="outlet"></div>
 
         <script>
-          window.addEventListener('vaadin-router-route-changed', (event) => {
+          window.addEventListener('vaadin-router-location-changed', (event) => {
             const breadcrumbs = document.querySelector('#breadcrumbs');
-            breadcrumbs.innerHTML = `You are at '${event.detail.pathname}'`;
+            breadcrumbs.innerHTML = `You are at '${event.detail.location.pathname}'`;
           });
 
           // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
@@ -372,9 +372,9 @@
         <div id="outlet"></div>
 
         <script>
-          window.addEventListener('vaadin-router-route-changed', (event) => {
+          window.addEventListener('vaadin-router-location-changed', (event) => {
             const router = event.detail.router;
-            const params = event.detail.params;
+            const params = event.detail.location.params;
 
             const breadcrumbs = document.querySelector('x-breadcrumbs');
             breadcrumbs.items = router.location.routes
