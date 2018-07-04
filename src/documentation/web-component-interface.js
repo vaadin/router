@@ -140,6 +140,10 @@ export class WebComponentInterface {
    * If the router navigates to the same path twice in a row, in the second time the method is not called.
    * The WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
    *
+   * This callback is called asynchronously after the native
+   * [`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)
+   * defined by the Custom Elements spec.
+   *
    * @param context the context object with the following properties:
    *
    * | Property           | Description

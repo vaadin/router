@@ -31,7 +31,7 @@
       check other matching routes.
     </p>
     <p>
-      The <code>action(context)</code> function receives a <code>context</code>
+      The <code>action(context, commands)</code> function receives a <code>context</code>
       parameter with the following properties:
       <ul>
         <li><code>context.pathname</code> [string] the pathname being resolved
@@ -39,34 +39,55 @@
         <li><code>context.params</code> [object] the route parameters</li>
         <li><code>context.route</code> [object] the route that is currently being rendered</li>
         <li><code>context.next()</code> [function] function for asynchronously getting the next route contents from the resolution chain (if any)</li>
-        <li><code>context.redirect(path)</code> [function] that creates a redirect data for the path specified.
-        This data can be returned from <code>action</code> to perform an actual redirect</li>
-        <li><code>context.component(component)</code> [function] that creates a new <code>HTMLElement</code>
-          with current context. If an action returns this element, the behavior is the same as for <code>component</code> route property:
-          the action result will be rendered, if the action is in a child route,
-          the result will be rendered as light dom child of the component from a parent route.
+      </ul>
+
+      The <code>commands</code> is a helper object with methods to create return
+      values for the action:
+      <ul>
+        <li>
+          <code>return commands.redirect('/new/path')</code> create and return a
+          redirect command for the specified path. This command should be
+          returned from the <code>action</code> to perform an actual redirect.
+        </li>
+        <li>
+          <code>return commands.prevent()</code> create and return a prevent
+          command.  This command should be returned from the <code>action</code>
+          to instruct router to stop the current navigation and remain at the
+          previous location.
+        </li>
+        <li>
+          <code>return commands.component('tag-name')</code> create and return a
+          new <code>HTMLElement</code> that will be rendered into the router
+          outlet. Using the <code>component</code> command ensures that the
+          created component is initialize as a Vaadin.Router view (i.e. the
+          <code>location</code> property is set according to the current router
+          context.
+          <br/>
+          If an action returns this element, the behavior is the same as for
+          <code>component</code> route property: the action result will be
+          rendered, if the action is in a child route, the result will be
+          rendered as light dom child of the component from a parent route.
         </li>
       </ul>
       The supported return values are
       <ul>
-        <li>an instance of <code>HTMLElement</code></li>
-        <li>a <em>redirect</em> object, i.e. an <code>object</code> with a
-          <code>redirect</code> property that looks like:
-          <marked-element>
-            <script type="text/markdown">
-              ```js
-              {
-                route: {
-                  pathname: '/new/path/:param',
-                  from: '/old/path/:param',
-                  params: /* the parameters object (if any) */
-                }
-              }
-              ```
-            </script>
-          </marked-element>
+        <li>
+          an instance of <code>HTMLElement</code> (e.g. created with
+          <code>commands.component('tag-name')</code>
         </li>
-        <li><code>null</code> or <code>undefined</code></li>
+        <li>
+          a <em>redirect</em> command created with
+          <code>commands.redirect('/new/path')</code>
+        </li>
+        <li>
+          a <em>prevent</em> command created with <code>commands.prevent()</code>
+        </li>
+        <li>
+          <code>null</code> or <code>undefined</code>
+        </li>
+        <li>
+          a promise that resolves to any of the above
+        </li>
       </ul>
     </p>
     <p>
@@ -166,11 +187,12 @@
 
     <h3>Redirecting from an Action</h3>
     <p>
-      <code>action()</code> can use its <code>context</code> parameter to influence
-      the route resolution result.
-      First demo had demonstrated the <code>context.next()</code> usage,
-      this demo demonstrates <code>context.redirect(path)</code> method usage
-      that allows you to redirect to any other defined route by using its path.
+      <code>action()</code> can return a command created using the
+      <code>commands</code> parameter methods to affect the route resolution
+      result.
+      The first demo had demonstrated the <code>context.next()</code> usage,
+      this demo demonstrates using <code>commands.redirect(path)</code> to
+      redirect to any other defined route by using its path.
       All the parameters in current context will be passed to the redirect target.
     </p>
     <p>
@@ -207,13 +229,14 @@
 
     <h3>Returning Custom Element as an Action Result</h3>
     <p>
-      Another thing that <code>action()</code> can do with <code>context</code>
-      parameter is to create a custom element with current context.
-      All the parameters in current context will be passed to the rendered element.
+      Another command available to a custom <code>action()</code> is
+      <code>commands.component('tag-name')</code>. It is useful to create a
+      custom element with current context. All the parameters in current context
+      will be passed to the rendered element.
     </p>
     <p>
-      Note: If the only thing your action does is custom element creation, it can
-      be replaced with <code>component</code> property of the route.
+      Note: If the only thing your action does is custom element creation, it
+      can be replaced with <code>component</code> property of the route.
       See <a href="#vaadin-router-getting-started-demos">Getting Started</a>
       section for examples.
     </p>

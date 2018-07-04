@@ -26,6 +26,29 @@ export class Location {
     this.pathname;
 
     /**
+     * (optional) The original pathname string in case if this location is a
+     * result of a redirect.
+     *
+     * E.g. with the routes config as below a navigation to `/u/12` produces a
+     * location with `pathname: '/user/12'` and `redirectFrom: '/u/12'`.
+     *
+     * ```javascript
+     * setRoutes([
+     *   {path: '/u/:id', redirect: '/user/:id'},
+     *   {path: '/user/:id', compoennt: 'x-user-view'},
+     * ]);
+     * ```
+     *
+     * See the **Redirects** section of the
+     * [live demos](#/classes/Vaadin.Router/demos/demo/index.html) for more
+     * details.
+     *
+     * @public
+     * @type {?string}
+     */
+    this.redirectFrom;
+
+    /**
      * (optional) The route object associated with `this` Web Component instance.
      *
      * This property is defined in the `location` objects that are passed as
