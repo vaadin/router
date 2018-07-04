@@ -368,7 +368,7 @@ export class Router extends Resolver {
         }
         this.__previousContext = context;
         this.location = createLocation(context);
-        fireRouterEvent('route-changed', {router: this, params: context.params, pathname: context.pathname});
+        fireRouterEvent('location-changed', {router: this, location: this.location});
         return this.__outlet;
       })
       .catch(error => {
