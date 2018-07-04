@@ -94,7 +94,7 @@ function processComponent(route, context) {
 function removeDomNodes(nodes) {
   if (nodes && nodes.length) {
     const parent = nodes[0].parentNode;
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
       parent.removeChild(nodes[i]);
     }
   }
@@ -389,7 +389,7 @@ export class Router extends Resolver {
             }
             return nextContext
               ? this.__fullyResolveChain(initialContext, nextContext)
-              : this.__amendWithLifecycleCallbacks(initialContext);
+              : this.__amendWithOnBeforeCallbacks(initialContext);
           });
       });
   }
@@ -415,8 +415,8 @@ export class Router extends Resolver {
     }
   }
 
-  __amendWithLifecycleCallbacks(contextWithFullChain) {
-    return this.__runLifecycleCallbacks(contextWithFullChain).then(amendedContext => {
+  __amendWithOnBeforeCallbacks(contextWithFullChain) {
+    return this.__runOnBeforeCallbacks(contextWithFullChain).then(amendedContext => {
       if (amendedContext === this.__previousContext || amendedContext === contextWithFullChain) {
         return amendedContext;
       }
@@ -424,7 +424,7 @@ export class Router extends Resolver {
     });
   }
 
-  __runLifecycleCallbacks(newContext) {
+  __runOnBeforeCallbacks(newContext) {
     const previousChain = (this.__previousContext || {}).chain;
     const newChain = newContext.chain;
 
@@ -432,8 +432,8 @@ export class Router extends Resolver {
 
     newContext.__divergedChainIndex = 0;
     if (previousChain && previousChain.length) {
-      for (; newContext.__divergedChainIndex < Math.min(previousChain.length, newChain.length); newContext.__divergedChainIndex++) {
-        if (previousChain[newContext.__divergedChainIndex] !== newChain[newContext.__divergedChainIndex]) {
+      for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
+        if (previousChain[i] !== newChain[i]) {
           break;
         }
       }
@@ -507,7 +507,7 @@ export class Router extends Resolver {
     for (let i = 0; i < context.__divergedChainIndex; i++) {
       const unchangedComponent = context.chain[i].__component;
       if (unchangedComponent) {
-        if (unchangedComponent.parentElement === deepestCommonParent) {
+        if (unchangedComponent.parentNode === deepestCommonParent) {
           deepestCommonParent = unchangedComponent;
         } else {
           break;
@@ -595,8 +595,8 @@ export class Router extends Resolver {
   }
 
   __animateIfNeeded(context) {
-    const from = this.__disappearingContent && this.__disappearingContent[0];
-    const to = this.__appearingContent && this.__appearingContent[0];
+    const from = (this.__disappearingContent || [])[0];
+    const to = (this.__appearingContent || [])[0];
     const promises = [];
 
     const chain = context.chain;
@@ -609,9 +609,8 @@ export class Router extends Resolver {
     }
 
     if (from && to && config) {
-      const isObj = isObject(config);
-      const leave = isObj && config.leave || 'leaving';
-      const enter = isObj && config.enter || 'entering';
+      const leave = isObject(config) && config.leave || 'leaving';
+      const enter = isObject(config) && config.enter || 'entering';
       promises.push(animate(from, leave));
       promises.push(animate(to, enter));
     }
