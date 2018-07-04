@@ -109,6 +109,15 @@ function getMatchedPath(chain) {
   });
 }
 
+function createLocation({pathname = '', chain = [], params = {}, from}) {
+  return {
+    pathname,
+    routes: chain.map(item => item.route),
+    params,
+    redirectFrom: from
+  };
+}
+
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -167,16 +176,16 @@ export class Router extends Resolver {
     this.ready = Promise.resolve(outlet);
 
     /**
-     * A read-only list of the currently active routes (starting from the root
-     * down to a leaf of the routes config tree). The list is initially empty
-     * and gets updated after each _completed_ render call. When a render fails
-     * the `activeRoutes` is set to an empty list.
+     * Contains read-only information about the current router location:
+     * pathname, active routes, parameters. See the
+     * [Location type declaration](#/classes/Vaadin.Router.Location)
+     * for more details.
      *
      * @public
-     * @type {!Array<Route>}
+     * @type {!Vaadin.Router.Location}
      */
-    this.activeRoutes;
-    this.activeRoutes = [];
+    this.location;
+    this.location = createLocation({});
 
     this.__lastStartedRenderId = 0;
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
@@ -368,7 +377,7 @@ export class Router extends Resolver {
           this.__removeDisappearingContent();
         }
         this.__previousContext = context;
-        this.activeRoutes = context.chain.map(item => item.route);
+        this.location = createLocation(context);
         fireRouterEvent('route-changed', {router: this, params: context.params, pathname: context.pathname});
         return this.__outlet;
       })
@@ -378,7 +387,7 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(pathnameOrContext);
           }
           removeDomNodes(this.__outlet && this.__outlet.children);
-          this.activeRoutes = [];
+          this.location = createLocation(error.context || {});
           fireRouterEvent('error', {router: this, error});
           throw error;
         }
