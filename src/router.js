@@ -261,7 +261,10 @@ export class Router extends Resolver {
    * The target route should also be defined.
    * See also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
-   * * `bundle` – `.js` or `.mjs` bundle to load before resolving the route. Each bundle is only loaded once.
+   * * `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,
+   * or the object with "module" and "nomodule" keys referring to different bundles.
+   * Each bundle is only loaded once. If "module" and "nomodule" are set, only one bundle is loaded,
+   * depending on whether the browser supports ES modules or not.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
    * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
    * See also **Code Splitting** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
