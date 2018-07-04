@@ -21,7 +21,7 @@
         <li>
           <b><code>
           <a href="..#/classes/Vaadin.WebComponentInterface#method-onAfterEnter">
-          onAfterEnter(location)</a>: Promise | void</code></b>
+          onAfterEnter(location)</a>: void</code></b>
         </li>
         <li>
           <b><code>
@@ -32,7 +32,7 @@
         <li>
           <b><code>
           <a href="..#/classes/Vaadin.WebComponentInterface#method-onAfterLeave">
-            onAfterLeave(location)</a>: Promise | void</code></b>
+            onAfterLeave(location)</a>: void</code></b>
         </li>
         <hr/>
         <li>
@@ -138,9 +138,7 @@
       interactions.
     </p>
     <p>
-      Any value returned from this callback is ignored. However, if it returns
-      a promise, the router waits until the promise is resolved before
-      proceeding with the navigation.
+      Any value returned from this callback is ignored.
     </p>
     <p>
       See the <a href="../#/classes/Vaadin.WebComponentInterface#method-onAfterEnter">
@@ -259,9 +257,7 @@
       from the view.
     </p>
     <p>
-      Any value returned from this callback is ignored. However, if it returns
-      a promise, the router waits until the promise is resolved before
-      completing with the navigation.
+      Any value returned from this callback is ignored.
     </p>
     <p>
       See the <a href="../#/classes/Vaadin.WebComponentInterface#method-onAfterLeave">

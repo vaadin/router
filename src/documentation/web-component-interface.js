@@ -156,9 +156,6 @@ export class WebComponentInterface {
    */
   onAfterEnter(context) {
     // user implementation example:
-    return new Promise(resolve => {
-      sendVisitStatistics();
-      resolve();
-    });
+    sendVisitStatistics();
   }
 }
