@@ -377,7 +377,7 @@
             const params = event.detail.params;
 
             const breadcrumbs = document.querySelector('x-breadcrumbs');
-            breadcrumbs.items = router.activeRoutes
+            breadcrumbs.items = router.location.routes
               .filter(route => !!route.xBreadcrumb)
               .map(route => {
                 return {

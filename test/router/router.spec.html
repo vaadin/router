@@ -426,7 +426,7 @@
           });
         });
 
-        describe('router.activeRoutes', () => {
+        describe('router.location', () => {
           let router;
           beforeEach(() => {
             router = new Vaadin.Router(outlet);
@@ -436,26 +436,76 @@
             router.unsubscribe();
           });
 
-          it('should be an array', () => {
-            expect(router).to.have.property('activeRoutes')
-              .that.is.an('array');
+          it('should be an object', () => {
+            expect(router).to.have.property('location')
+              .that.is.an('object');
           });
 
-          it('should be an empty array initially', () => {
-            expect(router.activeRoutes).to.deep.equal([]);
+          it('should initially have non-null pathname, routes and params properties', () => {
+            expect(router.location).to.have.property('pathname')
+              .that.is.a('string');
+            expect(router.location).to.have.property('routes')
+              .that.is.deep.equal([]);
+            expect(router.location).to.have.property('params')
+              .that.is.deep.equal({});
           });
 
-          it('should contain the routes chain of the last completed render pass (single route)', async() => {
+          it('should contain the pathname from the last completed render pass', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-root'},
+              {path: '/a/b/c', component: 'x-a'}
+            ]);
+
+            await router.render('/');
+            await router.render('/a/b/c');
+
+            expect(router.location.pathname).to.equal('/a/b/c');
+          });
+
+          it('should contain the pathname from the last completed render pass (with params)', async() => {
+            router.setRoutes([
+              {path: '/a/b/:c', component: 'x-a'}
+            ]);
+
+            await router.render('/a/b/42');
+
+            expect(router.location.pathname).to.equal('/a/b/42');
+          });
+
+          it('should contain the final and the original pathnames from the last completed render pass (redirected)', async() => {
+            router.setRoutes([
+              {path: '/a', redirect: '/c'},
+              {path: '/c', component: 'x-a'}
+            ]);
+
+            await router.render('/a');
+
+            expect(router.location.pathname).to.equal('/c');
+            expect(router.location.redirectFrom).to.equal('/a');
+          });
+
+          it('should contain the pathname after a failed render', async() => {
+            router.setRoutes([
+              {path: '/a', component: 'x-a'}
+            ]);
+
+            await router.render('/a');
+            await router.render('/non-existent-path').catch(() => {});
+
+            expect(router.location.pathname).to.equal('/non-existent-path');
+          });
+
+          it('should contain the routes chain from the last completed render pass (single route)', async() => {
             const route = {path: '/', component: 'x-home-view'};
             router.setRoutes(route);
 
             await router.ready;
 
-            expect(router.activeRoutes).to.have.lengthOf(1);
-            expect(router.activeRoutes[0]).to.equal(route);
+            expect(router.location.routes).to.have.lengthOf(1);
+            expect(router.location.routes[0]).to.equal(route);
           });
 
-          it('should contain the routes chain of the last completed render pass (multiple routes)', async() => {
+          it('should contain the routes chain from the last completed render pass (multiple routes)', async() => {
             const routeC = {path: '/c', component: 'x-c'};
             const routeB = {path: '/b', component: 'x-b', children: [routeC]};
             const routeA = {path: '/a', component: 'x-a', children: [routeB]};
@@ -463,20 +513,54 @@
             router.setRoutes(routeA);
             await router.render('/a/b/c');
 
-            expect(router.activeRoutes).to.have.lengthOf(3);
-            expect(router.activeRoutes[0]).to.equal(routeA);
-            expect(router.activeRoutes[1]).to.equal(routeB);
-            expect(router.activeRoutes[2]).to.equal(routeC);
+            expect(router.location.routes).to.have.lengthOf(3);
+            expect(router.location.routes[0]).to.equal(routeA);
+            expect(router.location.routes[1]).to.equal(routeB);
+            expect(router.location.routes[2]).to.equal(routeC);
           });
 
-          it('should be an empty array after a failed render', async() => {
+          it('should contain an empty routes chain array after a failed render', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'}
             ]);
             await router.render('/');
             await router.render('/non-existent').catch(() => {});
 
-            expect(router.activeRoutes).to.deep.equal([]);
+            expect(router.location.routes).to.deep.equal([]);
+          });
+
+          it('should contain the parameters from the last completed render pass', async() => {
+            router.setRoutes([
+              {path: '/a/:b', component: 'x-a'},
+              {path: '/:a/:b', component: 'x-any'},
+            ]);
+
+            await router.render('/any/thing');
+            await router.render('/a/42');
+
+            expect(router.location.params).to.deep.equal({b: '42'});
+          });
+
+          it('should contain the parameters from the last completed render pass (redirected)', async() => {
+            router.setRoutes([
+              {path: '/a/:id', redirect: '/b/:id'},
+              {path: '/b/:id', component: 'x-b'}
+            ]);
+
+            await router.render('/a/42');
+
+            expect(router.location.params).to.deep.equal({id: '42'});
+          });
+
+          it('should contain an empty parameters set after a failed render', async() => {
+            router.setRoutes([
+              {path: '/a/:id', component: 'x-a'}
+            ]);
+
+            await router.render('/a/42');
+            await router.render('/non-existent-path').catch(() => {});
+
+            expect(router.location.params).to.deep.equal({});
           });
         });
 
