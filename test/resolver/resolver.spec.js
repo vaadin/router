@@ -217,10 +217,11 @@
       expect(context.chain[0].path).to.equal('/a/b');
     });
 
-    it('the matched part of the path is stored in the context', async() => {
+    it('the resolved parts of the path are stored in the context', async() => {
       const resolver = new Resolver([{path: '/a/b', action: () => true}]);
       const context = await resolver.resolve({pathname: '/a/b'});
-      expect(context.__matchedPath).to.equal('/a/b');
+      expect(context.resolvedPaths).to.be.an('array').lengthOf(1);
+      expect(context.resolvedPaths[0]).to.equal('/a/b');
     });
 
     it('paths with parameters should have each route activated without parameters replaced', async() => {

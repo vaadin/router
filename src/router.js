@@ -38,13 +38,18 @@ function redirect(context, pathname) {
 }
 
 function renderComponent(context, component) {
-  const element = context.route.__component || document.createElement(component);
+  const element = createElement(context, component);
+  context.route.__componentToRender = element;
+  return element;
+}
+
+function createElement(context, component) {
+  const element = document.createElement(component);
   const params = Object.assign({}, context.params);
   element.route = {params, pathname: context.pathname};
   if (context.from) {
     element.route.redirectFrom = context.from;
   }
-  context.route.__component = element;
   return element;
 }
 
@@ -54,13 +59,12 @@ function runCallbackIfPossible(callback, context, thisObject) {
   }
 }
 
-function amend(amendmentFunction, context, route) {
+function amend(amendmentFunction, context, component) {
   return amendmentResult => {
     if (amendmentResult && (amendmentResult.cancel || amendmentResult.redirect)) {
       return amendmentResult;
     }
 
-    const component = route.__component;
     if (component) {
       return runCallbackIfPossible(component[amendmentFunction],
         Object.assign({cancel: () => ({cancel: true})}, context, {next: undefined}), component);
@@ -98,6 +102,15 @@ function removeDomNodes(nodes) {
       parent.removeChild(nodes[i]);
     }
   }
+}
+
+function getMatchedPath(resolvedPaths) {
+  return resolvedPaths.reduce((prev, path) => {
+    if (path.length) {
+      return prev === '/' ? prev + path : prev + '/' + path;
+    }
+    return prev;
+  });
 }
 
 /**
@@ -383,7 +396,7 @@ export class Router extends Resolver {
         return amendedContext.next()
           .then(nextContext => {
             if (nextContext === null) {
-              if (amendedContext.pathname !== amendedContext.__matchedPath) {
+              if (amendedContext.pathname !== getMatchedPath(amendedContext.resolvedPaths)) {
                 throw getNotFoundError(initialContext);
               }
             }
@@ -425,22 +438,24 @@ export class Router extends Resolver {
   }
 
   __runOnBeforeCallbacks(newContext) {
-    const previousChain = (this.__previousContext || {}).chain;
+    const previousContext = this.__previousContext || {};
+    const previousChain = previousContext.chain || [];
+    const previousPaths = previousContext.resolvedPaths || [];
     const newChain = newContext.chain;
 
     let callbacks = Promise.resolve();
 
     newContext.__divergedChainIndex = 0;
-    if (previousChain && previousChain.length) {
+    if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if (previousChain[i] !== newChain[i]) {
+        if (previousChain[i] !== newChain[i] || previousPaths[i] !== newContext.resolvedPaths[i]) {
           break;
         }
       }
 
       for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
         callbacks = callbacks
-          .then(amend('onBeforeLeave', newContext, previousChain[i]))
+          .then(amend('onBeforeLeave', newContext, previousChain[i].__componentRendered))
           .then(result => {
             if (!(result || {}).redirect) {
               return result;
@@ -451,7 +466,15 @@ export class Router extends Resolver {
 
     const onBeforeEnterContext = Object.assign({redirect: path => redirect(newContext, path)}, newContext);
     for (let i = newContext.__divergedChainIndex; i < newChain.length; i++) {
-      callbacks = callbacks.then(amend('onBeforeEnter', onBeforeEnterContext, newChain[i]));
+      // check if the parameters changed for the same route
+      if (previousPaths[i] && previousPaths[i] !== newContext.resolvedPaths[i]) {
+        const rendered = newChain[i].__componentRendered;
+        // if component defined in action, use that, else create new one
+        if (rendered && !newChain[i].__componentToRender) {
+          newChain[i].__componentToRender = createElement(newContext, rendered.tagName);
+        }
+      }
+      callbacks = callbacks.then(amend('onBeforeEnter', onBeforeEnterContext, newChain[i].__componentToRender));
     }
 
     return callbacks.then(amendmentResult => {
@@ -505,7 +528,7 @@ export class Router extends Resolver {
     // chains.
     let deepestCommonParent = this.__outlet;
     for (let i = 0; i < context.__divergedChainIndex; i++) {
-      const unchangedComponent = context.chain[i].__component;
+      const unchangedComponent = context.chain[i].__componentRendered;
       if (unchangedComponent) {
         if (unchangedComponent.parentNode === deepestCommonParent) {
           deepestCommonParent = unchangedComponent;
@@ -527,9 +550,12 @@ export class Router extends Resolver {
     // DOM without first removing and then adding them again).
     let parentElement = deepestCommonParent;
     for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
-      const componentToAdd = context.chain[i].__component;
+      const componentToAdd = context.chain[i].__componentToRender;
       if (componentToAdd) {
         parentElement.appendChild(componentToAdd);
+        // mark component as rendered
+        context.chain[i].__componentRendered = componentToAdd;
+        delete context.chain[i].__componentToRender;
         if (parentElement === deepestCommonParent) {
           this.__appearingContent.push(componentToAdd);
         }
@@ -562,7 +588,7 @@ export class Router extends Resolver {
 
       // REVERSE iteration: from Z to A
       for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
-        const currentComponent = targetContext.chain[i].__component;
+        const currentComponent = targetContext.chain[i].__componentRendered;
         if (!currentComponent) {
           continue;
         }
@@ -587,7 +613,7 @@ export class Router extends Resolver {
 
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
-      const currentComponent = currentContext.chain[i].__component || {};
+      const currentComponent = currentContext.chain[i].__componentRendered || {};
       promises = promises
         .then(() => runCallbackIfPossible(currentComponent.onAfterEnter, callbackContext, currentComponent));
     }

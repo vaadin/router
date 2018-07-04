@@ -41,15 +41,10 @@ function addRouteToChain(context, match) {
   if (route && !route.__synthetic) {
     if (shouldDiscardOldChain(context.chain, route)) {
       context.chain = [route];
-      context.__matchedPath = path;
+      context.resolvedPaths = [path];
     } else {
       context.chain.push(route);
-      const prevMatched = context.__matchedPath;
-      if (path.length) {
-        context.__matchedPath = prevMatched === '/' ?
-          prevMatched + path :
-          prevMatched + '/' + path;
-      }
+      context.resolvedPaths.push(path);
     }
   }
 }
