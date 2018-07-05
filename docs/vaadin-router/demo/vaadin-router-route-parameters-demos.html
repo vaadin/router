@@ -53,14 +53,17 @@
     </vaadin-demo-snippet>
 
     <h3>Accessing Route Parameters</h3>
-    <p>Route parameters are bound to the <code>route.params</code> property of
-      the route Web Component (the <code>route</code> property is set on the
-      route component by Vaadin.Router).</p>
+    <p>
+      Route parameters are bound to the <code>location.params</code> property of
+      the route Web Component
+      (<a href="..#/classes/Vaadin.Router.Location"><code>location</code></a>
+      is set on the route components by Vaadin.Router).
+    </p>
     <ul>
       <li>Named parameters are accessible by a string key, e.g.
-        <code>route.params.id</code> or <code>route.params['id']</code></li>
+        <code>location.params.id</code> or <code>location.params['id']</code></li>
       <li>Unnamed parameters are accessible by a numeric index, e.g.
-        <code>route.params[0]</code></li>
+        <code>location.params[0]</code></li>
     </ul>
     <p>The example below shows how to access route parameters in a Polymer 2
       based Web Component:</p>
@@ -69,8 +72,8 @@
         <dom-module id="x-project-view">
           <template>
             <h1>Project</h1>
-            <p>ID: [[route.params.id]]</p>
-            <code>/project</code> or <code>/projects</code>: [[route.params.0]]
+            <p>ID: [[location.params.id]]</p>
+            <code>/project</code> or <code>/projects</code>: [[location.params.0]]
           </template>
         </dom-module>
 

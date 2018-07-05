@@ -18,26 +18,12 @@
       and cannot be reached by pressing the "Back" browser button. Unconditional
       redirects work for routes both with and without parameters.
     </p><p>
-      The original path is available to the view Web Component as the
-      <code>route.redirectFrom</code> string property, as described in the snippet below.
-      <a href="#vaadin-router-route-actions-demos">Route Actions</a> can access
-      the original path reference as <code>context.from</code>.
+      The original path is available to route Web Components as the
+      <a href="..#/classes/Vaadin.Router.Location#property-redirectFrom">
+      <code>location.redirectFrom</code></a> string property, and to custom
+      <a href="#vaadin-router-route-actions-demos">route actions</a> –
+      as <code>context.redirectFrom</code>.
     </p>
-    <marked-element>
-      <script type="text/markdown">
-        ```js
-        {
-          route: {
-            pathname: '/user/guest',
-            redirectFrom: '/u/guest', /* the path which redirected */
-            params: {
-              id: 'guest'
-            }
-          }
-        }
-        ```
-      </script>
-    </marked-element>
     <p>
       Note: If a route has both the <code>redirect</code> and <code>action</code>
       properties, <code>action</code> is executed first and if it does not
@@ -69,10 +55,11 @@
 
     <h3>Dynamic Redirects</h3>
     <p>
-      Vaadin.Router allows redirecting to another route dynamically based on
-      a condition evaluated at the run time. In order to do that, add <code>
-      return context.redirect('/new/path')</code> into the <code>onBeforeEnter()
-      </code> lifecycle callback of the route Web Component.
+      Vaadin.Router allows redirecting to another path dynamically based on
+      a condition evaluated at the run time. In order to do that, <code>
+      return commands.redirect('/new/path')</code> from the
+      <a href="#vaadin-router-lifecycle-callbacks-demos"><code>onBeforeEnter()
+      </code></a> lifecycle callback of the route Web Component.
     </p>
     <p>
       It is also possible to redirect from a custom route action. The demo below
@@ -94,9 +81,9 @@
           window.authorized = false;
 
           class XAdminView extends HTMLElement {
-            onBeforeEnter(context) {
+            onBeforeEnter(locatoin, commands) {
               if (!window.authorized) {
-                return context.redirect('/login/' + encodeURIComponent(context.pathname));
+                return commands.redirect('/login/' + encodeURIComponent(location.pathname));
               }
             }
           }
@@ -123,10 +110,10 @@
 
     <h3>Navigation from JavaScript</h3>
     <p>
-      If you want to redirect users to another route in response to a user
+      If you want to send users to another path in response to a user
       action (outside of a lifecycle callback), you can do that by using the
-      static <code>Router.go('/to/path')</code> method on the Vaadin.Router
-      class.
+      static <a href="..#/classes/Vaadin.Router#staticmethod-go"><code>
+      Router.go('/to/path')</code></a> method on the Vaadin.Router class.
     </p>
     <vaadin-demo-snippet id="vaadin-router-redirect-demos-3" iframe-src="iframe.html">
       <template preserve-content="">

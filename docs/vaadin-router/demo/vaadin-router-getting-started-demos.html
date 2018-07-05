@@ -68,21 +68,21 @@
     <p>
       Route components can be any Web Components regardless of how they are
       built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc.
-      The only convention is that the <code>route</code> object property is set
-      by the router on the component when rendering:
-      <marked-element>
-        <script type="text/markdown">
-          ```js
-          {
-            route: {
-              pathname: '/',
-              params: {},
-              /* any other route-specific info */
-            }
-          }
-          ```
-        </script>
-      </marked-element>
+    </p>
+    <p>
+      Vaadin.Router follows the lifecycle callbacks convention described in
+      <a href="..#/classes/Vaadin.WebComponentInterface">WebComponentInterface</a>:
+      if a route component defines any of these callback methods, Vaadin.Router
+      will call them at the appropriate points in the navigation lifecycle.
+      See the <a href="#vaadin-router-lifecycle-callbacks-demos">Lifecycle
+      Callbacks</a> section for more details.
+    </p>
+    <p>
+      In addition to that Vaadin.Router also sets a
+      <a href="..#/classes/Vaadin.Router.Location"><code>location</code>
+      property</a> on every route Web Component so that you could access the
+      current location details via an instance property (e.g.
+      <code>this.location.pathname</code>).
     </p>
 
     <h3>Fallback Routes (404)</h3>
@@ -95,7 +95,7 @@
       the route resolution is based on the first match, the fallback route
       should always be <strong>after</strong> other alternatives.</p>
     <p>The path that leads to the fallback route is available to the route
-      component via the <code>route.pathname</code> property.</p>
+      component via the <code>location.pathname</code> property.</p>
     <vaadin-demo-snippet id="vaadin-router-getting-started-demo-2" iframe-src="iframe.html">
       <template preserve-content="">
         <a href="/">Home</a>
