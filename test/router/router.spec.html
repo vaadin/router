@@ -167,12 +167,12 @@
             }));
           });
 
-          it('should return a promise that resolves to the router outlet DOM element', async() => {
+          it('should return a promise that resolves to the router.location', async() => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             const result = router.render('/');
             expect(result).to.be.a('promise');
             const actual = await result;
-            expect(actual).to.equal(outlet);
+            expect(actual).to.equal(router.location);
           });
 
           it('should return a promise that resolves when the rendered content is appended to the DOM', async() => {
@@ -362,7 +362,7 @@
           it('(render in progress / ok) should get fulfilled after the render is completed', async() => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             router.render('/');
-            await router.ready.then((outlet) => {
+            await router.ready.then((location) => {
               expect(outlet.children).to.have.lengthOf(1);
               expect(outlet.children[0].tagName).to.match(/x-home-view/i);
             });
@@ -385,7 +385,7 @@
           it('(render completed / ok) should get fulfilled with the last render result', async() => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             await router.render('/').then(() => {
-              return router.ready.then((outlet) => {
+              return router.ready.then((location) => {
                 expect(outlet.children).to.have.lengthOf(1);
                 expect(outlet.children[0].tagName).to.match(/x-home-view/i);
               });
@@ -395,7 +395,7 @@
           it('(render completed / error) should get rejected with the last render error', async() => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             await router.render('non-existent-path').catch(() => {
-              return router.ready.then((outlet) => {
+              return router.ready.then((location) => {
                 throw new Error('the `ready` promise should have been rejected');
               }).catch((error) => {
                 expect(error).to.be.an('error');
@@ -724,7 +724,7 @@
               {path: '/:user', component: 'x-user-profile'}
             ]);
             router.render('/foo');
-            await router.ready.then((outlet) => {
+            await router.ready.then((location) => {
               const elem = outlet.children[0];
               expect(elem.location).to.be.object;
               expect(elem.location.params).to.be.object;
@@ -738,7 +738,7 @@
               {path: '/(user[s]?)/:id', component: 'x-users-view'},
             ]);
             router.render('/users/1');
-            await router.ready.then((outlet) => {
+            await router.ready.then((location) => {
               const elem = outlet.children[0];
               expect(elem.location).to.be.object;
               expect(elem.location.params).to.be.object;
@@ -752,7 +752,7 @@
               {path: '/image-:size(\\d+)px', component: 'x-image-view'},
             ]);
             router.render('/image-15px');
-            await router.ready.then((outlet) => {
+            await router.ready.then((location) => {
               const elem = outlet.children[0];
               expect(elem.location).to.be.object;
               expect(elem.location.params).to.be.object;
@@ -766,7 +766,7 @@
               {path: '/kb/:path+/:id', component: 'x-knowledge-base'},
             ]);
             router.render('/kb/folder/nested/1');
-            await router.ready.then((outlet) => {
+            await router.ready.then((location) => {
               const elem = outlet.children[0];
               expect(elem.location).to.be.object;
               expect(elem.location.params).to.be.object;
