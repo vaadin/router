@@ -48,11 +48,7 @@ function createRedirect(context, pathname) {
 
 function renderComponent(context, component) {
   const element = document.createElement(component);
-  const params = Object.assign({}, context.params);
-  element.route = {params, pathname: context.pathname};
-  if (context.from) {
-    element.route.redirectFrom = context.from;
-  }
+  element.location = createLocation(context);
   const index = context.chain.map(item => item.route).indexOf(context.route);
   context.chain[index].element = element;
   return element;

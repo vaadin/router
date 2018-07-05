@@ -333,14 +333,14 @@
             expect(replaceSpy).to.be.calledOnce;
           });
 
-          it('should set the `route.redirectFrom` property on the route component in case of redirect', async() => {
+          it('should set the `location.redirectFrom` property on the route component in case of redirect', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/people', redirect: '/users'},
               {path: '/users', component: 'x-users-view'},
             ]);
             await router.render('/people');
-            expect(outlet.children[0]).to.have.deep.property('route.redirectFrom', '/people');
+            expect(outlet.children[0]).to.have.deep.property('location.redirectFrom', '/people');
           });
         });
 
@@ -718,7 +718,7 @@
             router.unsubscribe();
           });
 
-          it('should bind named parameters to `route.params` property using string keys', async() => {
+          it('should bind named parameters to `location.params` property using string keys', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/:user', component: 'x-user-profile'}
@@ -726,13 +726,13 @@
             router.render('/foo');
             await router.ready.then((outlet) => {
               const elem = outlet.children[0];
-              expect(elem.route).to.be.object;
-              expect(elem.route.params).to.be.object;
-              expect(elem.route.params.user).to.equal('foo');
+              expect(elem.location).to.be.object;
+              expect(elem.location.params).to.be.object;
+              expect(elem.location.params.user).to.equal('foo');
             });
           });
 
-          it('should bind unnamed parameters to `route.params` property using numeric indexes', async() => {
+          it('should bind unnamed parameters to `location.params` property using numeric indexes', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/(user[s]?)/:id', component: 'x-users-view'},
@@ -740,13 +740,13 @@
             router.render('/users/1');
             await router.ready.then((outlet) => {
               const elem = outlet.children[0];
-              expect(elem.route).to.be.object;
-              expect(elem.route.params).to.be.object;
-              expect(elem.route.params[0]).to.equal('users');
+              expect(elem.location).to.be.object;
+              expect(elem.location.params).to.be.object;
+              expect(elem.location.params[0]).to.equal('users');
             });
           });
 
-          it('should bind named custom parameters to `route.params` property using string keys', async() => {
+          it('should bind named custom parameters to `location.params` property using string keys', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/image-:size(\\d+)px', component: 'x-image-view'},
@@ -754,13 +754,13 @@
             router.render('/image-15px');
             await router.ready.then((outlet) => {
               const elem = outlet.children[0];
-              expect(elem.route).to.be.object;
-              expect(elem.route.params).to.be.object;
-              expect(elem.route.params.size).to.equal('15');
+              expect(elem.location).to.be.object;
+              expect(elem.location.params).to.be.object;
+              expect(elem.location.params.size).to.equal('15');
             });
           });
 
-          it('should bind named segments to the `route.params` property using string keys', async() => {
+          it('should bind named segments to the `location.params` property using string keys', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/kb/:path+/:id', component: 'x-knowledge-base'},
@@ -768,21 +768,21 @@
             router.render('/kb/folder/nested/1');
             await router.ready.then((outlet) => {
               const elem = outlet.children[0];
-              expect(elem.route).to.be.object;
-              expect(elem.route.params).to.be.object;
-              expect(elem.route.params.path).to.deep.equal(['folder', 'nested']);
-              expect(elem.route.params.id).to.equal('1');
+              expect(elem.location).to.be.object;
+              expect(elem.location.params).to.be.object;
+              expect(elem.location.params.path).to.deep.equal(['folder', 'nested']);
+              expect(elem.location.params.id).to.equal('1');
             });
           });
 
-          it('should set the `route.pathname` property on the route component', async() => {
+          it('should set the `location.pathname` property on the route component', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/admin', component: 'x-admin-view'},
               {path: '(.*)', component: 'x-not-found-view'},
             ]);
             await router.render('/non-existent/path');
-            expect(outlet.children[0]).to.have.deep.property('route.pathname', '/non-existent/path');
+            expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
           });
 
           it('should keep route parameters when redirecting to different route', async() => {
@@ -794,8 +794,8 @@
             await router.render('/users/1');
             const elem = outlet.children[0];
             expect(elem.tagName).to.match(/x-users-view/i);
-            expect(elem.route.params).to.be.object;
-            expect(elem.route.params.id).to.equal('1');
+            expect(elem.location.params).to.be.object;
+            expect(elem.location.params.id).to.equal('1');
           });
 
           it('should create new component instance for the same route with different parameters', async() => {
@@ -807,15 +807,15 @@
             await router.render('/users/1');
             const elemOne = outlet.children[0];
             expect(elemOne.tagName).to.match(/x-users-view/i);
-            expect(elemOne.route.params).to.be.object;
-            expect(elemOne.route.params.id).to.equal('1');
+            expect(elemOne.location.params).to.be.object;
+            expect(elemOne.location.params.id).to.equal('1');
 
             await router.render('/users/2');
             const elemTwo = outlet.children[0];
             expect(elemTwo.tagName).to.match(/x-users-view/i);
             expect(elemTwo).to.not.equal(elemOne);
-            expect(elemTwo.route.params).to.be.object;
-            expect(elemTwo.route.params.id).to.equal('2');
+            expect(elemTwo.location.params).to.be.object;
+            expect(elemTwo.location.params.id).to.equal('2');
           });
         });
 
@@ -1044,8 +1044,8 @@
 
             const elem = outlet.children[0];
             expect(elem.tagName).to.match(/x-users-view/i);
-            expect(elem.route.params).to.be.object;
-            expect(elem.route.params.id).to.equal('1');
+            expect(elem.location.params).to.be.object;
+            expect(elem.location.params.id).to.equal('1');
           });
 
           it('action can render components by using the context method', async() => {
@@ -1057,8 +1057,8 @@
 
             const elem = outlet.children[0];
             expect(elem.tagName).to.match(/x-users-view/i);
-            expect(elem.route.params).to.be.object;
-            expect(elem.route.params.id).to.equal('1');
+            expect(elem.location.params).to.be.object;
+            expect(elem.location.params.id).to.equal('1');
           });
 
           it('redirect should be executed before component and stop it from loading', async() => {
@@ -1208,8 +1208,8 @@
 
             const elem = outlet.children[0];
             expect(elem.tagName).to.match(/x-user-profile/i);
-            expect(elem.route.params).to.be.object;
-            expect(elem.route.params.user).to.equal('2');
+            expect(elem.location.params).to.be.object;
+            expect(elem.location.params.user).to.equal('2');
           });
 
           it('should be able to return a promise', async() => {
@@ -1225,8 +1225,8 @@
 
             const elem = outlet.children[0];
             expect(elem.tagName).to.match(/x-user-profile/i);
-            expect(elem.route.params).to.be.object;
-            expect(elem.route.params.user).to.equal('2');
+            expect(elem.location.params).to.be.object;
+            expect(elem.location.params.user).to.equal('2');
           });
 
           it('should be able to override the route `children` property instead of returning a value', async() => {
