@@ -51,6 +51,16 @@
       return component;
     };
 
+    const elementWithUserParameter = () => context => {
+      const elementName = `x-user-${context.params.user}`;
+      callbacksLog.push(`${elementName}.action`);
+      const component = context.component('x-spy');
+      if (!component.name) {
+        component.name = elementName;
+      }
+      return component;
+    };
+
     describe('Vaadin.Router lifecycle events', function() {
       const {
         verifyActiveRoutes,
@@ -820,16 +830,24 @@
           ]);
         });
 
-        it('/users/Jane -> /users/John (when parameters are changed, no extra callbacks are called)', async() => {
+        it('/users/jane -> /users/john (when parameters are changed, all callbacks are called again)', async() => {
           router.setRoutes([
-            {path: '/users/:user', action: elementWithAllLifecycleCallbacks('x-user')},
+            {path: '/users/:user', action: elementWithUserParameter()}
           ]);
 
-          await router.render('/users/Jane');
+          await router.render('/users/jane');
           callbacksLog = [];
-          await router.render('/users/John');
+          await router.render('/users/john');
 
-          verifyCallbacks(['x-user.action']);
+          verifyCallbacks([
+            'x-user-john.action',
+            'x-user-jane.onBeforeLeave',
+            'x-user-john.onBeforeEnter',
+            'x-user-jane.onAfterLeave',
+            'x-user-john.connectedCallback',
+            'x-user-john.onAfterEnter',
+            'x-user-jane.disconnectedCallback',
+          ]);
         });
       });
 
@@ -1121,6 +1139,53 @@
             'x-b.onBeforeLeave',
             'x-b.onAfterLeave',
             'x-b.disconnectedCallback',
+          ]);
+        });
+
+        it('/users/jane/edit -> /users/john/edit (when parameters changed, callbacks for nested routes are called)', async() => {
+          router.setRoutes([
+            {path: '/users', action: elementWithAllLifecycleCallbacks('x-users'), children: [
+              {path: '/:user', action: elementWithUserParameter(), children: [
+                {path: '/edit', action: elementWithAllLifecycleCallbacks('x-user-edit')}
+              ]}
+            ]}
+          ]);
+
+          await router.render('/users/jane/edit');
+          verifyCallbacks([
+            'x-users.action',
+            'x-user-jane.action',
+            'x-user-edit.action',
+            'x-users.onBeforeEnter',
+            'x-user-jane.onBeforeEnter',
+            'x-user-edit.onBeforeEnter',
+            'x-users.connectedCallback',
+            'x-user-jane.connectedCallback',
+            'x-user-edit.connectedCallback',
+            'x-users.onAfterEnter',
+            'x-user-jane.onAfterEnter',
+            'x-user-edit.onAfterEnter',
+          ]);
+
+          callbacksLog = [];
+          await router.render('/users/john/edit');
+
+          verifyCallbacks([
+            'x-users.action',
+            'x-user-john.action',
+            'x-user-edit.action',
+            'x-user-edit.onBeforeLeave',
+            'x-user-jane.onBeforeLeave',
+            'x-user-john.onBeforeEnter',
+            'x-user-edit.onBeforeEnter',
+            'x-user-edit.onAfterLeave',
+            'x-user-jane.onAfterLeave',
+            'x-user-edit.disconnectedCallback',
+            'x-user-john.connectedCallback',
+            'x-user-edit.connectedCallback',
+            'x-user-john.onAfterEnter',
+            'x-user-edit.onAfterEnter',
+            'x-user-jane.disconnectedCallback',
           ]);
         });
       });

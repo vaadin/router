@@ -38,13 +38,14 @@ function redirect(context, pathname) {
 }
 
 function renderComponent(context, component) {
-  const element = context.route.__component || document.createElement(component);
+  const element = document.createElement(component);
   const params = Object.assign({}, context.params);
   element.route = {params, pathname: context.pathname};
   if (context.from) {
     element.route.redirectFrom = context.from;
   }
-  context.route.__component = element;
+  const index = context.chain.map(item => item.route).indexOf(context.route);
+  context.chain[index].element = element;
   return element;
 }
 
@@ -54,16 +55,15 @@ function runCallbackIfPossible(callback, context, thisObject) {
   }
 }
 
-function amend(amendmentFunction, context, route) {
+function amend(amendmentFunction, context, element) {
   return amendmentResult => {
     if (amendmentResult && (amendmentResult.cancel || amendmentResult.redirect)) {
       return amendmentResult;
     }
 
-    const component = route.__component;
-    if (component) {
-      return runCallbackIfPossible(component[amendmentFunction],
-        Object.assign({cancel: () => ({cancel: true})}, context, {next: undefined}), component);
+    if (element) {
+      return runCallbackIfPossible(element[amendmentFunction],
+        Object.assign({cancel: () => ({cancel: true})}, copyContextWithoutNext(context)), element);
     }
   };
 }
@@ -98,6 +98,15 @@ function removeDomNodes(nodes) {
       parent.removeChild(nodes[i]);
     }
   }
+}
+
+function getMatchedPath(chain) {
+  return chain.map(item => item.path).reduce((prev, path) => {
+    if (path.length) {
+      return prev === '/' ? prev + path : prev + '/' + path;
+    }
+    return prev;
+  });
 }
 
 /**
@@ -339,9 +348,10 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(context.result.route.pathname, context.from);
           }
 
-          if (context !== this.__previousContext) {
-            return this.__runOnAfterLeaveCallbacks(context, this.__previousContext)
-              .then(() => this.__addAppearingContent(context))
+          const previousContext = this.__previousContext;
+          if (context !== previousContext) {
+            return this.__runOnAfterLeaveCallbacks(context, previousContext)
+              .then(() => this.__addAppearingContent(context, previousContext))
               .then(() => this.__runOnAfterEnterCallbacks(context))
               .then(() => context);
           }
@@ -358,7 +368,7 @@ export class Router extends Resolver {
           this.__removeDisappearingContent();
         }
         this.__previousContext = context;
-        this.activeRoutes = [...context.chain];
+        this.activeRoutes = context.chain.map(item => item.route);
         fireRouterEvent('route-changed', {router: this, params: context.params, pathname: context.pathname});
         return this.__outlet;
       })
@@ -383,7 +393,7 @@ export class Router extends Resolver {
         return amendedContext.next()
           .then(nextContext => {
             if (nextContext === null) {
-              if (amendedContext.pathname !== amendedContext.__matchedPath) {
+              if (amendedContext.pathname !== getMatchedPath(amendedContext.chain)) {
                 throw getNotFoundError(initialContext);
               }
             }
@@ -425,22 +435,23 @@ export class Router extends Resolver {
   }
 
   __runOnBeforeCallbacks(newContext) {
-    const previousChain = (this.__previousContext || {}).chain;
+    const previousContext = this.__previousContext || {};
+    const previousChain = previousContext.chain || [];
     const newChain = newContext.chain;
 
     let callbacks = Promise.resolve();
 
     newContext.__divergedChainIndex = 0;
-    if (previousChain && previousChain.length) {
+    if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if (previousChain[i] !== newChain[i]) {
+        if (previousChain[i].route !== newChain[i].route || previousChain[i].path !== newChain[i].path) {
           break;
         }
       }
 
       for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
         callbacks = callbacks
-          .then(amend('onBeforeLeave', newContext, previousChain[i]))
+          .then(amend('onBeforeLeave', newContext, previousChain[i].element))
           .then(result => {
             if (!(result || {}).redirect) {
               return result;
@@ -451,7 +462,7 @@ export class Router extends Resolver {
 
     const onBeforeEnterContext = Object.assign({redirect: path => redirect(newContext, path)}, newContext);
     for (let i = newContext.__divergedChainIndex; i < newChain.length; i++) {
-      callbacks = callbacks.then(amend('onBeforeEnter', onBeforeEnterContext, newChain[i]));
+      callbacks = callbacks.then(amend('onBeforeEnter', onBeforeEnterContext, newChain[i].element));
     }
 
     return callbacks.then(amendmentResult => {
@@ -494,7 +505,7 @@ export class Router extends Resolver {
     }
   }
 
-  __addAppearingContent(context) {
+  __addAppearingContent(context, previousContext) {
     this.__ensureOutlet();
 
     // If the previous 'entering' animation has not completed yet,
@@ -505,7 +516,7 @@ export class Router extends Resolver {
     // chains.
     let deepestCommonParent = this.__outlet;
     for (let i = 0; i < context.__divergedChainIndex; i++) {
-      const unchangedComponent = context.chain[i].__component;
+      const unchangedComponent = previousContext && previousContext.chain[i].element;
       if (unchangedComponent) {
         if (unchangedComponent.parentNode === deepestCommonParent) {
           deepestCommonParent = unchangedComponent;
@@ -527,13 +538,13 @@ export class Router extends Resolver {
     // DOM without first removing and then adding them again).
     let parentElement = deepestCommonParent;
     for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
-      const componentToAdd = context.chain[i].__component;
-      if (componentToAdd) {
-        parentElement.appendChild(componentToAdd);
+      const elementToAdd = context.chain[i].element;
+      if (elementToAdd) {
+        parentElement.appendChild(elementToAdd);
         if (parentElement === deepestCommonParent) {
-          this.__appearingContent.push(componentToAdd);
+          this.__appearingContent.push(elementToAdd);
         }
-        parentElement = componentToAdd;
+        parentElement = elementToAdd;
       }
     }
   }
@@ -562,7 +573,7 @@ export class Router extends Resolver {
 
       // REVERSE iteration: from Z to A
       for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
-        const currentComponent = targetContext.chain[i].__component;
+        const currentComponent = targetContext.chain[i].element;
         if (!currentComponent) {
           continue;
         }
@@ -587,7 +598,7 @@ export class Router extends Resolver {
 
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
-      const currentComponent = currentContext.chain[i].__component || {};
+      const currentComponent = currentContext.chain[i].element || {};
       promises = promises
         .then(() => runCallbackIfPossible(currentComponent.onAfterEnter, callbackContext, currentComponent));
     }
@@ -602,8 +613,8 @@ export class Router extends Resolver {
     const chain = context.chain;
     let config;
     for (let i = chain.length; i > 0; i--) {
-      if (chain[i - 1].animate) {
-        config = chain[i - 1].animate;
+      if (chain[i - 1].route.animate) {
+        config = chain[i - 1].route.animate;
         break;
       }
     }

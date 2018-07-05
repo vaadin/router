@@ -35,21 +35,15 @@ function generateErrorMessage(currentContext) {
 function addRouteToChain(context, match) {
   const {route, path} = match;
   function shouldDiscardOldChain(oldChain, route) {
-    return !route.parent || !oldChain || !oldChain.length || oldChain[oldChain.length - 1] !== route.parent;
+    return !route.parent || !oldChain || !oldChain.length || oldChain[oldChain.length - 1].route !== route.parent;
   }
 
   if (route && !route.__synthetic) {
+    const item = {path, route};
     if (shouldDiscardOldChain(context.chain, route)) {
-      context.chain = [route];
-      context.__matchedPath = path;
+      context.chain = [item];
     } else {
-      context.chain.push(route);
-      const prevMatched = context.__matchedPath;
-      if (path.length) {
-        context.__matchedPath = prevMatched === '/' ?
-          prevMatched + path :
-          prevMatched + '/' + path;
-      }
+      context.chain.push(item);
     }
   }
 }

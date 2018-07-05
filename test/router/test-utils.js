@@ -1,5 +1,5 @@
 function verifyActiveRoutes(router, expectedSegments) {
-  expect(router.__previousContext.chain.map(route => route.path)).to.deep.equal(expectedSegments);
+  expect(router.__previousContext.chain.map(item => item.route.path)).to.deep.equal(expectedSegments);
 }
 
 function onBeforeLeaveAction(componentName, callback, name) {

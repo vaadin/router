@@ -107,7 +107,6 @@
             {path: '/',
               component: 'x-wrapper',
               children: [
-                {path: '/', component: 'x-home-view'},
                 {
                   path: '/users',
                   animate: {
@@ -122,7 +121,8 @@
                       animate: true
                     }
                   ]
-                }
+                },
+                {path: '(.*)', redirect: '/users'}
               ]
             }
           ]);
@@ -134,8 +134,9 @@
           <template>
             <style include="vaadin-router-demo-nested-styles"></style>
             <nav>
-              <a href="/">Home</a>
               <a href="/users">Users</a>
+              <a href="/users/kim">Kim</a>
+              <a href="/users/jane">Jane</a>
             </nav>
             <main>
               <slot></slot>
@@ -144,19 +145,19 @@
         </dom-module>
         <style>
           .leaving {
-            animation: 1s fadeOut ease-in-out;
+            animation: 1s slideOutDown ease-in-out;
           }
 
           .entering {
-            animation: 1s fadeIn linear;
+            animation: 1s slideInDown linear;
           }
 
           .users-entering {
-            animation: 0.5s slideInDown ease-in;
+            animation: 0.5s fadeIn ease-in;
           }
 
           .users-leaving {
-            animation: 0.5s slideOutDown linear;
+            animation: 0.5s fadeOut linear;
           }
 
           @keyframes fadeOut {
