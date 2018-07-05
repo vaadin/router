@@ -71,6 +71,30 @@
         checkOutlet(['x-a', 'x-b', 'x-c']);
       });
 
+      it('should preserve references to same DOM node and reuse it on subsequent renders', async() => {
+        router.setRoutes([
+          {path: '/a', component: 'x-a', children: [
+            {path: '/b', component: 'x-b'},
+            {path: '/c', component: 'x-c'},
+            {path: '/d', component: 'x-d'}
+          ]}
+        ]);
+
+        await router.render('/a/b');
+        const first = outlet.children[0];
+        expect(first.firstElementChild.tagName).to.match(/x-b/i);
+
+        await router.render('/a/c');
+        const second = outlet.children[0];
+        expect(second).to.equal(first);
+        expect(second.firstElementChild.tagName).to.match(/x-c/i);
+
+        await router.render('/a/d');
+        const third = outlet.children[0];
+        expect(third).to.equal(second);
+        expect(third.firstElementChild.tagName).to.match(/x-d/i);
+      });
+
       it('should remove nested route components when the parent route is navigated to', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
