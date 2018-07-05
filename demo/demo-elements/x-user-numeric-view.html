@@ -9,7 +9,7 @@
     </style>
 
     <h1>User Profile</h1>
-    <p>ID: [[route.params.0]]</p>
+    <p>ID: [[location.params.0]]</p>
   </template>
   <script>
     (() => {
@@ -20,7 +20,7 @@
 
         static get properties() {
           return {
-            route: Object
+            location: Object
           };
         }
       }

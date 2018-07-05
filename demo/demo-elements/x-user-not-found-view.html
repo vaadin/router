@@ -9,7 +9,7 @@
     </style>
 
     <h1>The princess is in another castle</h1>
-    <p>You've come to <code>[[route.pathname]]</code>, but alas, there is
+    <p>You've come to <code>[[location.pathname]]</code>, but alas, there is
       nothing there.</p>
   </template>
   <script>
@@ -21,7 +21,7 @@
 
         static get properties() {
           return {
-            route: Object
+            location: Object
           };
         }
       }

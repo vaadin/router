@@ -7,7 +7,7 @@
       const tpl = document.createElement('template');
       tpl.innerHTML = `
         <h1>User Profile</h1>
-        <p>User id: <b>[[route.params.id]]</b>. This view was loaded using JS bundle.</p>
+        <p>User id: <b>[[location.params.id]]</b>. This view was loaded using JS bundle.</p>
       `;
       return tpl;
     }

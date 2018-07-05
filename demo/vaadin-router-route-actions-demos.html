@@ -211,9 +211,9 @@
           // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
           // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
-          const redirect = context => {
+          const redirect = (context, commands) => {
             context.params.user += ' (redirected)';
-            return context.redirect('/users/:user');
+            return commands.redirect('/users/:user');
           };
 
           const router = new Router(document.getElementById('outlet'));
@@ -252,11 +252,11 @@
           // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
           // const Router = Vaadin.Router; // for vaadin-router.umd.js
 
-          const render = context => {
+          const render = (context, commands) => {
             if (context.params.user === 'admin') {
-              return context.component('x-user-profile');
+              return commands.component('x-user-profile');
             }
-            const stubElement = context.component('h3');
+            const stubElement = commands.component('h3');
             stubElement.innerHTML = 'Access denied';
             return stubElement;
           };

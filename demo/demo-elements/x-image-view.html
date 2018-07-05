@@ -6,7 +6,7 @@
       }
     </style>
 
-    <div style$="height: [[route.params.size]]px; width: [[route.params.size]]px; background: [[route.params.color]];"></div>
+    <div style$="height: [[location.params.size]]px; width: [[location.params.size]]px; background: [[location.params.color]];"></div>
   </template>
   <script>
     class XImageView extends Polymer.Element {
@@ -16,7 +16,7 @@
 
       static get properties() {
         return {
-          route: Object
+          location: Object
         };
       }
     }
