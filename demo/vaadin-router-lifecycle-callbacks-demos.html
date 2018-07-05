@@ -138,9 +138,17 @@
       interactions.
     </p>
     <p>
-      Any value returned from this callback is ignored.
+      NOTE: When navigating between views the <code>onAfterEnter</code>
+      callback on the new view's component is called <em>before</em> the
+      <code>onAfterLeave</code> callback on the previous view's component (which
+      is being removed). At some point both the new and the old view components
+      are present in the DOM to allow
+      <a href="#vaadin-router-animated-transitions-demos">animating</a> the
+      transition (you can listen to the <code>animationend</code> event to
+      detect when it is over).
     </p>
     <p>
+      Any value returned from this callback is ignored.
       See the <a href="../#/classes/Vaadin.WebComponentInterface#method-onAfterEnter">
       API documentation</a> for more details.
     </p>
@@ -250,16 +258,25 @@
     <h3><code>onAfterLeave(location, commands, router)</code></h3>
     <p>
       The component's route does not match the current path anymore and the
-      component has been removed from the DOM. At this point it is certain that
+      component's removal from the DOM has been started (it will be removed
+      after a transition animation, if any). At this point it is certain that
       navigation won't be prevented. Use this callback to clean-up and perform
       any custom actions that leaving a view should trigger. For example, the
       demo below auto-saves any unsaved changes when the user navigates away
       from the view.
     </p>
     <p>
-      Any value returned from this callback is ignored.
+      NOTE: When navigating between views the <code>onAfterEnter</code>
+      callback on the new view's component is called <em>before</em> the
+      <code>onAfterLeave</code> callback on the previous view's component (which
+      is being removed). At some point both the new and the old view components
+      are present in the DOM to allow
+      <a href="#vaadin-router-animated-transitions-demos">animating</a> the
+      transition (you can listen to the <code>animationend</code> event to
+      detect when it is over).
     </p>
     <p>
+      Any value returned from this callback is ignored.
       See the <a href="../#/classes/Vaadin.WebComponentInterface#method-onAfterLeave">
       API documentation</a> for more details.
     </p>

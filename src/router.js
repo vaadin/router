@@ -366,24 +366,25 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(context.pathname, context.redirectFrom);
           }
 
-          this.__runOnAfterLeaveCallbacks(context, previousContext);
           this.__addAppearingContent(context, previousContext);
+          const animationDone = this.__animateIfNeeded(context);
+
           this.__runOnAfterEnterCallbacks(context);
+          this.__runOnAfterLeaveCallbacks(context, previousContext);
 
-          return this.__animateIfNeeded(context)
-            .then(() => {
-              if (renderId === this.__lastStartedRenderId) {
-                // If there is another render pass started after this one,
-                // the 'disappearing content' would be removed when the other
-                // render pass calls `this.__addAppearingContent()`
-                this.__removeDisappearingContent();
+          return animationDone.then(() => {
+            if (renderId === this.__lastStartedRenderId) {
+              // If there is another render pass started after this one,
+              // the 'disappearing content' would be removed when the other
+              // render pass calls `this.__addAppearingContent()`
+              this.__removeDisappearingContent();
 
-                this.__previousContext = context;
-                this.location = createLocation(context);
-                fireRouterEvent('location-changed', {router: this, location: this.location});
-                return this.location;
-              }
-            });
+              this.__previousContext = context;
+              this.location = createLocation(context);
+              fireRouterEvent('location-changed', {router: this, location: this.location});
+              return this.location;
+            }
+          });
         }
       })
       .catch(error => {
