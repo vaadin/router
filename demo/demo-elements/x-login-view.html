@@ -22,7 +22,7 @@
           window.authorized = true;
           window.dispatchEvent(
             new CustomEvent('vaadin-router-go',
-              {detail: {pathname: this.route.params.to || '/'}}));
+              {detail: {pathname: this.location.params.to || '/'}}));
         }
       }
 

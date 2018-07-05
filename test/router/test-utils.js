@@ -3,8 +3,8 @@ function verifyActiveRoutes(router, expectedSegments) {
 }
 
 function onBeforeLeaveAction(componentName, callback, name) {
-  return context => {
-    const component = context.component(componentName);
+  return (context, commands) => {
+    const component = commands.component(componentName);
     component.name = name;
     component.onBeforeLeave = callback;
     return component;
@@ -12,8 +12,8 @@ function onBeforeLeaveAction(componentName, callback, name) {
 }
 
 function onBeforeEnterAction(componentName, callback, name) {
-  return context => {
-    const component = context.component(componentName);
+  return (context, commands) => {
+    const component = commands.component(componentName);
     component.name = name;
     component.onBeforeEnter = callback;
     return component;
@@ -21,8 +21,8 @@ function onBeforeEnterAction(componentName, callback, name) {
 }
 
 function onAfterEnterAction(componentName, callback, name) {
-  return context => {
-    const component = context.component(componentName);
+  return (context, commands) => {
+    const component = commands.component(componentName);
     component.name = name;
     component.onAfterEnter = callback;
     return component;
@@ -30,8 +30,8 @@ function onAfterEnterAction(componentName, callback, name) {
 }
 
 function onAfterLeaveAction(componentName, callback, name) {
-  return context => {
-    const component = context.component(componentName);
+  return (context, commands) => {
+    const component = commands.component(componentName);
     component.name = name;
     component.onAfterLeave = callback;
     return component;

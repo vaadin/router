@@ -114,8 +114,8 @@
       it('when action returns a component result, it is rendered the same way as if it was a component property', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
-            {path: '/b', action: context => context.component('x-b'), children: [
-              {path: '/c', action: context => context.component('x-c')}
+            {path: '/b', action: (context, commands) => commands.component('x-b'), children: [
+              {path: '/c', action: (context, commands) => commands.component('x-c')}
             ]}
           ]},
         ]);
@@ -195,9 +195,14 @@
       it('action with redirect result amends previous path', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
-            {path: '/b', action: context => context.redirect('/d/e'), component: 'x-b', children: [
-              {path: '/c', component: 'x-c'}
-            ]}
+            {
+              path: '/b',
+              action: (context, commands) => commands.redirect('/d/e'),
+              component: 'x-b',
+              children: [
+                {path: '/c', component: 'x-c'}
+              ]
+            }
           ]},
           {path: '/d', component: 'x-d', children: [
             {path: '/e', component: 'x-e'}
@@ -213,7 +218,7 @@
       it('child layout: onBeforeEnter with redirect result amends previous path', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
-            {path: '/b', action: onBeforeEnterAction('x-b', context => context.redirect('/d/e')), children: [
+            {path: '/b', action: onBeforeEnterAction('x-b', (location, commands) => commands.redirect('/d/e')), children: [
               {path: '/c', component: 'x-c'}
             ]}
           ]},
@@ -235,7 +240,7 @@
               {path: '/c', component: 'x-c'}
             ]}
           ]},
-          {path: '/d', action: onBeforeEnterAction('x-d', context => context.cancel()), children: [
+          {path: '/d', action: onBeforeEnterAction('x-d', (location, commands) => commands.prevent()), children: [
             {path: '/e', component: 'x-e'}
           ]}
         ]);
@@ -250,7 +255,7 @@
       it('child layout: onBeforeLeave with cancel result aborts current resolution', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
-            {path: '/b', action: onBeforeLeaveAction('x-b', context => context.cancel()), children: [
+            {path: '/b', action: onBeforeLeaveAction('x-b', (location, commands) => commands.prevent()), children: [
               {path: '/c', component: 'x-c'}
             ]}
           ]},

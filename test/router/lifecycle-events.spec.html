@@ -44,17 +44,17 @@
 
     let callbacksLog = [];
 
-    const elementWithAllLifecycleCallbacks = elementName => context => {
+    const elementWithAllLifecycleCallbacks = elementName => (context, commands) => {
       callbacksLog.push(`${elementName}.action`);
-      const component = context.component('x-spy');
+      const component = commands.component('x-spy');
       component.name = elementName;
       return component;
     };
 
-    const elementWithUserParameter = () => context => {
+    const elementWithUserParameter = () => (context, commands) => {
       const elementName = `x-user-${context.params.user}`;
       callbacksLog.push(`${elementName}.action`);
-      const component = context.component('x-spy');
+      const component = commands.component('x-spy');
       if (!component.name) {
         component.name = elementName;
       }
@@ -117,7 +117,7 @@
       });
 
       describe('onBeforeEnter', () => {
-        it('should be called with the router context as the only argument', async() => {
+        it('should be called with 3 arguments: [location, commands, router]', async() => {
           const onBeforeEnter = sinon.spy();
           router.setRoutes([
             {path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter)}
@@ -126,15 +126,17 @@
           await router.render('/');
 
           expect(onBeforeEnter).to.have.been.called.once;
-          expect(onBeforeEnter.args[0].length).to.equal(1);
+          expect(onBeforeEnter.args[0].length).to.equal(3);
 
-          const context = onBeforeEnter.args[0][0];
-          expect(context.pathname).to.equal('/');
-          expect(context.route.path).to.equal('/');
-          expect(context.cancel).to.be.a('function');
-          expect(context.redirect).to.be.a('function');
-          expect(context.component).to.be.an('undefined');
-          expect(context.next).to.be.an('undefined');
+          const location = onBeforeEnter.args[0][0];
+          expect(location.pathname).to.equal('/');
+          expect(location.route.path).to.equal('/');
+
+          const commands = onBeforeEnter.args[0][1];
+          expect(commands).to.be.an('object').that.is.not.null;
+
+          const routerArg = onBeforeEnter.args[0][2];
+          expect(routerArg).to.equal(router);
 
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
         });
@@ -151,9 +153,9 @@
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
         });
 
-        it('should be able to return a `cancel` result to prevent navigation', async() => {
+        it('should be able to return a `prevent` command to prevent navigation', async() => {
           router.setRoutes([
-            {path: '/', action: onBeforeEnterAction('whatever', context => context.cancel())},
+            {path: '/', action: onBeforeEnterAction('whatever', (location, commands) => commands.prevent())},
             {path: '/users', component: 'x-users-list'}
           ]);
 
@@ -164,9 +166,9 @@
           verifyActiveRoutes(router, ['/users']);
         });
 
-        it('should be able to return a `redirect` result to redirect navigation', async() => {
+        it('should be able to return a `redirect` command to redirect navigation', async() => {
           router.setRoutes([
-            {path: '/', action: onBeforeEnterAction('whatever', context => context.redirect('/users'))},
+            {path: '/', action: onBeforeEnterAction('whatever', (location, commands) => commands.redirect('/users'))},
             {path: '/users', component: 'x-users-list'}
           ]);
 
@@ -178,8 +180,8 @@
 
         it('should be able to have multiple redirects', async() => {
           router.setRoutes([
-            {path: '/', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/u'))},
-            {path: '/u', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/users'))},
+            {path: '/', action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/u'))},
+            {path: '/u', action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/users'))},
             {path: '/users', component: 'x-users-list'}
           ]);
 
@@ -191,9 +193,9 @@
 
         it('should fail on recursive redirects', async() => {
           router.setRoutes([
-            {path: '/', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/u'))},
-            {path: '/u', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/users'))},
-            {path: '/users', action: onBeforeEnterAction('x-redirect-component', context => context.redirect('/'))}
+            {path: '/', action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/u'))},
+            {path: '/u', action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/users'))},
+            {path: '/users', action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/'))}
           ]);
 
           const onError = sinon.spy();
@@ -203,7 +205,7 @@
           expect(onError).to.have.been.called.once;
         });
 
-        it('should ignore any other return value than `cancel` or `redirect`', async() => {
+        it('should ignore any other return value than `prevent` or `redirect`', async() => {
           const values = [
             true,
             false,
@@ -270,8 +272,8 @@
             connectedCallback() {
               counter++;
             }
-            onBeforeLeave(context) {
-              return context.cancel();
+            onBeforeLeave(location, commands) {
+              return commands.prevent();
             }
           });
           router.setRoutes([
@@ -286,7 +288,7 @@
       });
 
       describe('onBeforeLeave', () => {
-        it('should be called with the router context as the only argument', async() => {
+        it('should be called with 3 arguments: [location, commands, router]', async() => {
           const onBeforeLeave = sinon.spy();
           router.setRoutes([
             {path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave)},
@@ -299,15 +301,17 @@
           await router.render('/users');
 
           expect(onBeforeLeave).to.have.been.called.once;
-          expect(onBeforeLeave.args[0].length).to.equal(1);
+          expect(onBeforeLeave.args[0].length).to.equal(3);
 
-          const context = onBeforeLeave.args[0][0];
-          expect(context.pathname).to.equal('/users');
-          expect(context.route.path).to.equal('/users');
-          expect(context.cancel).to.be.a('function');
-          expect(context.redirect).to.be.an('undefined');
-          expect(context.component).to.be.an('undefined');
-          expect(context.next).to.be.an('undefined');
+          const location = onBeforeLeave.args[0][0];
+          expect(location.pathname).to.equal('/users');
+          expect(location.route.path).to.equal('/users');
+
+          const commands = onBeforeLeave.args[0][1];
+          expect(commands).to.be.an('object').that.is.not.null;
+
+          const routerArg = onBeforeLeave.args[0][2];
+          expect(routerArg).to.equal(router);
 
           expect(outlet.children[0].tagName).to.match(/x-users-list/i);
         });
@@ -328,9 +332,9 @@
           expect(outlet.children[0].tagName).to.match(/x-users-list/i);
         });
 
-        it('should be able to return a `cancel` result to prevent navigation', async() => {
+        it('should be able to return a `prevent` command to prevent navigation', async() => {
           router.setRoutes([
-            {path: '/', action: onBeforeLeaveAction('x-home-view', context => context.cancel())},
+            {path: '/', action: onBeforeLeaveAction('x-home-view', (location, commands) => commands.prevent())},
             {path: '/users', component: 'x-users-list'},
           ]);
 
@@ -341,7 +345,7 @@
           verifyActiveRoutes(router, ['/']);
         });
 
-        it('should ignore any other return value than `cancel`', async() => {
+        it('should ignore any other return value than `prevent`', async() => {
           const values = [
             true,
             false,
@@ -416,8 +420,8 @@
             }
           });
           customElements.define('x-disallowed-view', class extends HTMLElement {
-            onBeforeEnter(context) {
-              return context.cancel();
+            onBeforeEnter(location, commands) {
+              return commands.prevent();
             }
           });
           router.setRoutes([
@@ -432,7 +436,7 @@
       });
 
       describe('onAfterLeave', () => {
-        it('should be called with the router context as the only argument', async() => {
+        it('should be called with 3 arguments: [location, commands, router]', async() => {
           const onAfterLeave = sinon.spy();
           router.setRoutes([
             {path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave)},
@@ -446,15 +450,20 @@
           await router.render('/users');
 
           expect(onAfterLeave).to.have.been.called.once;
-          expect(onAfterLeave.args[0].length).to.equal(1);
+          expect(onAfterLeave.args[0].length).to.equal(3);
 
-          const context = onAfterLeave.args[0][0];
-          expect(context.pathname).to.equal('/users');
-          expect(context.route.path).to.equal('/users');
-          expect(context.cancel).to.be.an('undefined');
-          expect(context.redirect).to.be.an('undefined');
-          expect(context.component).to.be.an('undefined');
-          expect(context.next).to.be.an('undefined');
+          const location = onAfterLeave.args[0][0];
+          expect(location.pathname).to.equal('/users');
+          expect(location.route.path).to.equal('/users');
+
+          const commands = onAfterLeave.args[0][1];
+          expect(commands).to.be.an('object').that.is.not.null;
+          expect(commands.prevent).to.not.be.defined;
+          expect(commands.redirect).to.not.be.defined;
+          expect(commands.component).to.not.be.defined;
+
+          const routerArg = onAfterLeave.args[0][2];
+          expect(routerArg).to.equal(router);
 
           expect(outlet.children[0].tagName).to.match(/x-users-list/i);
         });
@@ -505,44 +514,10 @@
             verifyActiveRoutes(router, ['/users']);
           }
         });
-
-        it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
-          router.setRoutes([
-            {path: '/a', action: onAfterLeaveAction(
-              'x-spy',
-              function() {
-                callbacksLog.push('a.onAfterLeave');
-                return new Promise(resolve => {
-                  setTimeout(() => {
-                    callbacksLog.push('a.onAfterLeave.promise');
-                    resolve();
-                  }, 100);
-                });
-              },
-              'a')},
-            {path: '/b', action: elementWithAllLifecycleCallbacks('b')},
-          ]);
-
-          await router.render('/').catch(() => {});
-          await router.render('/a');
-          callbacksLog = [];
-          await router.render('/b');
-
-          expect(callbacksLog).to.deep.equal([
-            'b.action',
-            'a.onBeforeLeave',
-            'b.onBeforeEnter',
-            'a.onAfterLeave',
-            'a.onAfterLeave.promise',
-            'b.connectedCallback',
-            'b.onAfterEnter',
-            'a.disconnectedCallback',
-          ]);
-        });
       });
 
       describe('onAfterEnter', () => {
-        it('should be called with the router context as the only argument', async() => {
+        it('should be called with 3 argument: [location, commands, router]', async() => {
           const onAfterEnter = sinon.spy();
           router.setRoutes([
             {path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter)}
@@ -551,15 +526,20 @@
           await router.render('/');
 
           expect(onAfterEnter).to.have.been.called.once;
-          expect(onAfterEnter.args[0].length).to.equal(1);
+          expect(onAfterEnter.args[0].length).to.equal(3);
 
-          const context = onAfterEnter.args[0][0];
-          expect(context.pathname).to.equal('/');
-          expect(context.route.path).to.equal('/');
-          expect(context.cancel).to.be.an('undefined');
-          expect(context.redirect).to.be.an('undefined');
-          expect(context.component).to.be.an('undefined');
-          expect(context.next).to.be.an('undefined');
+          const location = onAfterEnter.args[0][0];
+          expect(location.pathname).to.equal('/');
+          expect(location.route.path).to.equal('/');
+
+          const commands = onAfterEnter.args[0][1];
+          expect(commands).to.be.an('object').that.is.not.null;
+          expect(commands.prevent).to.not.be.defined;
+          expect(commands.redirect).to.not.be.defined;
+          expect(commands.component).to.not.be.defined;
+
+          const routerArg = onAfterEnter.args[0][2];
+          expect(routerArg).to.equal(router);
 
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
         });
@@ -605,39 +585,6 @@
             expect(outlet.children[0].tagName).to.match(/x-users-list/i);
             verifyActiveRoutes(router, ['/users']);
           }
-        });
-
-        it('should support returning a promise (and continue the resolve pass after the promise resolves)', async() => {
-          router.setRoutes([
-            {path: '/a', action: elementWithAllLifecycleCallbacks('a')},
-            {path: '/b', action: onAfterEnterAction(
-              'x-spy',
-              function() {
-                callbacksLog.push('b.onAfterEnter');
-                return new Promise(resolve => {
-                  setTimeout(() => {
-                    callbacksLog.push('b.onAfterEnter.promise');
-                    resolve();
-                  }, 100);
-                });
-              },
-              'b')},
-          ]);
-
-          await router.render('/').catch(() => {});
-          await router.render('/a');
-          callbacksLog = [];
-          await router.render('/b');
-
-          verifyCallbacks([
-            'a.onBeforeLeave',
-            'b.onBeforeEnter',
-            'a.onAfterLeave',
-            'b.connectedCallback',
-            'b.onAfterEnter',
-            'b.onAfterEnter.promise',
-            'a.disconnectedCallback',
-          ]);
         });
       });
 
@@ -1190,16 +1137,16 @@
         });
       });
 
-      describe('the global `vaadin-router-route-changed` event', () => {
+      describe('the global `vaadin-router-location-changed` event', () => {
         it('should be triggered after a completed navigation', async() => {
           router.setRoutes([
             {path: '/', component: 'x-home-view'},
           ]);
 
           const onRouteChanged = sinon.spy();
-          window.addEventListener('vaadin-router-route-changed', onRouteChanged);
+          window.addEventListener('vaadin-router-location-changed', onRouteChanged);
           await router.render('/');
-          window.removeEventListener('vaadin-router-route-changed', onRouteChanged);
+          window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
           expect(onRouteChanged).to.have.been.called.once;
         });
@@ -1211,48 +1158,31 @@
           ]);
 
           const onRouteChanged = sinon.spy();
-          window.addEventListener('vaadin-router-route-changed', onRouteChanged);
+          window.addEventListener('vaadin-router-location-changed', onRouteChanged);
           await Promise.all([
             router.render('/'),
             router.render('/admin')
           ]);
-          window.removeEventListener('vaadin-router-route-changed', onRouteChanged);
+          window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
           expect(onRouteChanged).to.have.been.called.once;
         });
 
-        it('should contain the new path as `event.detail.pathname`', async() => {
+        it('should contain the new location as `event.detail.location`', async() => {
           router.setRoutes([
             {path: '/admin', component: 'x-admin-view'},
           ]);
 
           const onRouteChanged = sinon.spy();
-          window.addEventListener('vaadin-router-route-changed', onRouteChanged);
+          window.addEventListener('vaadin-router-location-changed', onRouteChanged);
           await router.render('/admin');
-          window.removeEventListener('vaadin-router-route-changed', onRouteChanged);
+          window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
           expect(onRouteChanged).to.have.been.called.once;
           expect(onRouteChanged.args[0].length).to.equal(1);
 
           const event = onRouteChanged.args[0][0];
-          expect(event.detail.pathname).to.equal('/admin');
-        });
-
-        it('should contain the route params as `event.detail.params`', async() => {
-          router.setRoutes([
-            {path: '/users/:user', component: 'x-users-view'},
-          ]);
-
-          const onRouteChanged = sinon.spy();
-          window.addEventListener('vaadin-router-route-changed', onRouteChanged);
-          await router.render('/users/42');
-          window.removeEventListener('vaadin-router-route-changed', onRouteChanged);
-
-          expect(onRouteChanged).to.have.been.called.once;
-          expect(onRouteChanged.args[0].length).to.equal(1);
-
-          const event = onRouteChanged.args[0][0];
-          expect(event.detail.params).to.deep.equal({user: '42'});
+          expect(event.detail.location).to.equal(router.location);
         });
 
         it('should contain the router instance as `event.detail.router`', async() => {
@@ -1261,9 +1191,9 @@
           ]);
 
           const onRouteChanged = sinon.spy();
-          window.addEventListener('vaadin-router-route-changed', onRouteChanged);
+          window.addEventListener('vaadin-router-location-changed', onRouteChanged);
           await router.render('/admin');
-          window.removeEventListener('vaadin-router-route-changed', onRouteChanged);
+          window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
           expect(onRouteChanged).to.have.been.called.once;
           expect(onRouteChanged.args[0].length).to.equal(1);
@@ -1335,8 +1265,24 @@
           expect(onError.args[0].length).to.equal(1);
 
           const event = onError.args[0][0];
-          expect(event.detail.error).to.be.an('error');
           expect(event.detail.router).to.equal(router);
+        });
+
+        it('should contain the failed pathname as `event.detail.pathname`', async() => {
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+          ]);
+
+          const onError = sinon.spy();
+          window.addEventListener('vaadin-router-error', onError);
+          await router.render('/non-existent').catch(() => {});
+          window.removeEventListener('vaadin-router-error', onError);
+
+          expect(onError).to.have.been.called.once;
+          expect(onError.args[0].length).to.equal(1);
+
+          const event = onError.args[0][0];
+          expect(event.detail.pathname).to.equal('/non-existent');
         });
       });
     });

@@ -66,7 +66,7 @@
 
         it('action that returns custom component activates route', async() => {
           router.setRoutes([
-            {path: '/', action: context => context.component('x-home-view')},
+            {path: '/', action: (context, commands) => commands.component('x-home-view')},
           ]);
 
           await router.render('/');
@@ -76,7 +76,7 @@
 
         it('action that returns redirect activates redirect route', async() => {
           router.setRoutes([
-            {path: '/', action: context => context.redirect('/a')},
+            {path: '/', action: (context, commands) => commands.redirect('/a')},
             {path: '/a', component: 'x-users-view'},
           ]);
 
@@ -88,8 +88,8 @@
 
         it('should be able to have multiple action redirects', async() => {
           router.setRoutes([
-            {path: '/', action: context => context.redirect('/u')},
-            {path: '/u', action: context => context.redirect('/users')},
+            {path: '/', action: (context, commands) => commands.redirect('/u')},
+            {path: '/u', action: (context, commands) => commands.redirect('/users')},
             {path: '/users', component: 'x-users-list'}
           ]);
 
@@ -101,9 +101,9 @@
 
         it('should fail on recursive action redirects', async() => {
           router.setRoutes([
-            {path: '/a', action: context => context.redirect('/b')},
-            {path: '/b', action: context => context.redirect('/c')},
-            {path: '/c', action: context => context.redirect('/a')},
+            {path: '/a', action: (context, commands) => commands.redirect('/b')},
+            {path: '/b', action: (context, commands) => commands.redirect('/c')},
+            {path: '/c', action: (context, commands) => commands.redirect('/a')},
           ]);
 
           const onError = sinon.spy();
@@ -118,7 +118,7 @@
           const replaceSpy = sinon.spy(window.history, 'replaceState');
 
           router.setRoutes([
-            {path: '/', action: context => context.redirect('/a')},
+            {path: '/', action: (context, commands) => commands.redirect('/a')},
             {path: '/a', component: 'x-users-view'},
           ]);
 
