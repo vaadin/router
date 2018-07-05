@@ -207,21 +207,16 @@
       ]);
       const context = await resolver.resolve({pathname: '/a'});
       expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].name).to.equal('second');
+      expect(context.chain[0].route).to.be.an('object');
+      expect(context.chain[0].route.name).to.equal('second');
     });
 
-    it('the path to the route that produced the result is in the `context` (1))', async() => {
+    it('the path to the route that produced the result, and the matched path are in the `context` (1))', async() => {
       const resolver = new Resolver([{path: '/a/b', action: () => true}]);
       const context = await resolver.resolve({pathname: '/a/b'});
       expect(context.chain).to.be.an('array').lengthOf(1);
       expect(context.chain[0].path).to.equal('/a/b');
-    });
-
-    it('the resolved parts of the path are stored in the context', async() => {
-      const resolver = new Resolver([{path: '/a/b', action: () => true}]);
-      const context = await resolver.resolve({pathname: '/a/b'});
-      expect(context.resolvedPaths).to.be.an('array').lengthOf(1);
-      expect(context.resolvedPaths[0]).to.equal('/a/b');
+      expect(context.chain[0].route.path).to.equal('/a/b');
     });
 
     it('paths with parameters should have each route activated without parameters replaced', async() => {
@@ -234,15 +229,15 @@
       let context;
       context = await resolver.resolve('/users/1');
       expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].path).to.equal('/users/:user');
+      expect(context.chain[0].route.path).to.equal('/users/:user');
 
       context = await resolver.resolve('/image-15px');
       expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].path).to.equal('/image-:size(\\d+)px');
+      expect(context.chain[0].route.path).to.equal('/image-:size(\\d+)px');
 
       context = await resolver.resolve('/kb/folder/nested/1');
       expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].path).to.equal('/kb/:path+/:id');
+      expect(context.chain[0].route.path).to.equal('/kb/:path+/:id');
     });
 
     it('the path to the route that produced the result is in the `context` (2)', async() => {
@@ -259,8 +254,8 @@
       ]);
       const context = await resolver.resolve({pathname: '/a/b'});
       expect(context.chain).to.be.an('array').lengthOf(2);
-      expect(context.chain[0].path).to.equal('/a');
-      expect(context.chain[1].path).to.equal('/b');
+      expect(context.chain[0].route.path).to.equal('/a');
+      expect(context.chain[1].route.path).to.equal('/b');
     });
 
     it('the path to the route that produced the result is in the `context` (3)', async() => {
@@ -283,7 +278,7 @@
       ]);
       const context = await resolver.resolve({pathname: '/b'});
       expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].path).to.equal('/b');
+      expect(context.chain[0].route.path).to.equal('/b');
     });
 
     it('should provide all URL parameters to each route', async() => {
