@@ -159,7 +159,7 @@ export class Router extends Resolver {
      * with the last render cycle result.
      *
      * @public
-     * @type {!Promise<?Node>}
+     * @type {!Promise<!Vaadin.Router.Location>}
      */
     this.ready;
     this.ready = Promise.resolve(outlet);
@@ -359,7 +359,7 @@ export class Router extends Resolver {
 
           // Check if the render was prevented and make an early return in that case
           if (context === previousContext) {
-            return this.__outlet;
+            return this.location;
           }
 
           if (shouldUpdateHistory) {
@@ -381,7 +381,7 @@ export class Router extends Resolver {
                 this.__previousContext = context;
                 this.location = createLocation(context);
                 fireRouterEvent('location-changed', {router: this, location: this.location});
-                return this.__outlet;
+                return this.location;
               }
             });
         }
