@@ -25,13 +25,13 @@ function copyContextWithoutNext(context) {
   return copy;
 }
 
-function createLocation({pathname = '', chain = [], params = {}, from}, route) {
+function createLocation({pathname = '', chain = [], params = {}, redirectFrom}, route) {
   return {
     pathname,
     routes: chain.map(item => item.route),
     route: (!route && chain.length && chain[chain.length - 1].route) || route,
     params,
-    redirectFrom: from,
+    redirectFrom,
   };
 }
 
@@ -363,7 +363,7 @@ export class Router extends Resolver {
           }
 
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(context.pathname, context.from);
+            this.__updateBrowserHistory(context.pathname, context.redirectFrom);
           }
 
           this.__runOnAfterLeaveCallbacks(context, previousContext);
@@ -502,7 +502,7 @@ export class Router extends Resolver {
 
     return this.resolve({
       pathname: Router.pathToRegexp.compile(redirectData.pathname)(redirectData.params),
-      from: redirectData.from,
+      redirectFrom: redirectData.from,
       __redirectCount: (counter || 0) + 1
     });
   }

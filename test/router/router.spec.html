@@ -279,7 +279,7 @@
             const firstResult = await spy.returnValues[0];
             expect(firstResult.result).to.deep.equal(result);
 
-            expect(spy.secondCall.args[0].from).to.equal(from);
+            expect(spy.secondCall.args[0].redirectFrom).to.equal(from);
             expect(spy.secondCall.args[0].pathname).to.equal(pathname);
           });
 
@@ -1127,7 +1127,7 @@
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
 
-          it('action with redirect has its context.from and redirect.from populated correctly', async() => {
+          it('action with redirect has its context.redirectFrom and redirect.from populated correctly', async() => {
             const from = '/a/b/c';
 
             router.setRoutes([
@@ -1141,7 +1141,7 @@
                 ]},
               ]},
               {path: '/d', component: 'x-home-view', action: context => {
-                expect(context.from).to.be.equal(from);
+                expect(context.redirectFrom).to.be.equal(from);
               }}
             ]);
 
@@ -1150,7 +1150,7 @@
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           });
 
-          it('action with redirect gets double slashes removed from its context.from and redirect.from', async() => {
+          it('action with redirect gets double slashes removed from its context.redirectFrom and redirect.from', async() => {
             let from = '';
             router.setRoutes([
               {path: '/', children: [
@@ -1159,7 +1159,7 @@
                 ]},
               ]},
               {path: '/d', component: 'x-home-view', action: context => {
-                from = context.from;
+                from = context.redirectFrom;
               }}
             ]);
 
