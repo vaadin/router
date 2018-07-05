@@ -26,7 +26,17 @@ function copyContextWithoutNext(context) {
   return copy;
 }
 
-function redirect(context, pathname) {
+function createLocation({pathname = '', chain = [], params = {}, from}, route) {
+  return {
+    pathname,
+    routes: [...chain],
+    route: (!route && chain.length && chain[chain.length - 1]) || route,
+    params,
+    redirectFrom: from,
+  };
+}
+
+function createRedirect(context, pathname) {
   const params = Object.assign({}, context.params);
   return {
     redirect: {
@@ -48,13 +58,13 @@ function renderComponent(context, component) {
   return element;
 }
 
-function runCallbackIfPossible(callback, context, thisObject) {
+function runCallbackIfPossible(callback, args, thisArg) {
   if (isFunction(callback)) {
-    return callback.call(thisObject, context);
+    return callback.apply(thisArg, args);
   }
 }
 
-function amend(amendmentFunction, context, route) {
+function amend(amendmentFunction, location, commands, route) {
   return amendmentResult => {
     if (amendmentResult && (amendmentResult.cancel || amendmentResult.redirect)) {
       return amendmentResult;
@@ -62,8 +72,10 @@ function amend(amendmentFunction, context, route) {
 
     const component = route.__component;
     if (component) {
-      return runCallbackIfPossible(component[amendmentFunction],
-        Object.assign({cancel: () => ({cancel: true})}, context, {next: undefined}), component);
+      return runCallbackIfPossible(
+        component[amendmentFunction],
+        [location, commands],
+        component);
     }
   };
 }
@@ -98,16 +110,6 @@ function removeDomNodes(nodes) {
       parent.removeChild(nodes[i]);
     }
   }
-}
-
-function createLocation({pathname = '', chain = [], params = {}, from}, route) {
-  return {
-    pathname,
-    routes: [...chain],
-    route: (!route && chain.length && chain[chain.length - 1]) || route,
-    params,
-    redirectFrom: from,
-  };
 }
 
 /**
@@ -189,16 +191,16 @@ export class Router extends Resolver {
     const route = context.route;
 
     const updatedContext = Object.assign({
-      redirect: path => redirect(context, path),
+      redirect: path => createRedirect(context, path),
       component: component => renderComponent(context, component)
     }, context);
-    const actionResult = runCallbackIfPossible(processAction, updatedContext, route);
+    const actionResult = processAction(updatedContext);
     if (isResultNotEmpty(actionResult)) {
       return actionResult;
     }
 
     if (isString(route.redirect)) {
-      return redirect(context, route.redirect);
+      return createRedirect(context, route.redirect);
     }
 
     let callbacks = Promise.resolve();
@@ -450,6 +452,8 @@ export class Router extends Resolver {
     const newChain = newContext.chain;
 
     let callbacks = Promise.resolve();
+    const prevent = () => ({cancel: true});
+    const redirect = (pathname) => createRedirect(newContext, pathname);
 
     newContext.__divergedChainIndex = 0;
     if (previousChain && previousChain.length) {
@@ -460,8 +464,9 @@ export class Router extends Resolver {
       }
 
       for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
+        const location = createLocation(newContext);
         callbacks = callbacks
-          .then(amend('onBeforeLeave', newContext, previousChain[i]))
+          .then(amend('onBeforeLeave', location, {prevent}, previousChain[i]))
           .then(result => {
             if (!(result || {}).redirect) {
               return result;
@@ -470,9 +475,9 @@ export class Router extends Resolver {
       }
     }
 
-    const onBeforeEnterContext = Object.assign({redirect: path => redirect(newContext, path)}, newContext);
     for (let i = newContext.__divergedChainIndex; i < newChain.length; i++) {
-      callbacks = callbacks.then(amend('onBeforeEnter', onBeforeEnterContext, newChain[i]));
+      const location = createLocation(newContext, newChain[i]);
+      callbacks = callbacks.then(amend('onBeforeEnter', location, {prevent, redirect}, newChain[i]));
     }
 
     return callbacks.then(amendmentResult => {
@@ -579,8 +584,6 @@ export class Router extends Resolver {
       return;
     }
 
-    const callbackContext = copyContextWithoutNext(currentContext);
-
     // REVERSE iteration: from Z to A
     for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
       const currentComponent = targetContext.chain[i].__component;
@@ -588,7 +591,8 @@ export class Router extends Resolver {
         continue;
       }
       try {
-        runCallbackIfPossible(currentComponent.onAfterLeave, callbackContext, currentComponent);
+        const location = createLocation(currentContext);
+        runCallbackIfPossible(currentComponent.onAfterLeave, [location], currentComponent);
       } finally {
         removeDomNodes(currentComponent.children);
       }
@@ -596,12 +600,11 @@ export class Router extends Resolver {
   }
 
   __runOnAfterEnterCallbacks(currentContext) {
-    const callbackContext = copyContextWithoutNext(currentContext);
-
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
       const currentComponent = currentContext.chain[i].__component || {};
-      runCallbackIfPossible(currentComponent.onAfterEnter, callbackContext, currentComponent);
+      const location = createLocation(currentContext, currentContext.chain[i]);
+      runCallbackIfPossible(currentComponent.onAfterEnter, [location], currentComponent);
     }
   }
 
