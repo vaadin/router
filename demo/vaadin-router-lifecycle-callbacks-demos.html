@@ -219,10 +219,10 @@
         <script>
           Polymer({
             is: 'x-user-manage',
-            onBeforeLeave: function(context) {
-              if (context.pathname.indexOf('user/delete') > 0) {
+            onBeforeLeave: function(location, commands) {
+              if (location.pathname.indexOf('user/delete') > 0) {
                 if (!window.confirm('Are you sure you want to delete this user?')) {
-                  return context.cancel();
+                  return commands.prevent();
                 }
               }
             }

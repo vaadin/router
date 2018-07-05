@@ -81,9 +81,9 @@
           window.authorized = false;
 
           class XAdminView extends HTMLElement {
-            onBeforeEnter(context) {
+            onBeforeEnter(locatoin, commands) {
               if (!window.authorized) {
-                return context.redirect('/login/' + encodeURIComponent(context.pathname));
+                return commands.redirect('/login/' + encodeURIComponent(location.pathname));
               }
             }
           }
