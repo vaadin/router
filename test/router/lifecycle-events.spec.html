@@ -44,9 +44,9 @@
 
     let callbacksLog = [];
 
-    const elementWithAllLifecycleCallbacks = elementName => context => {
+    const elementWithAllLifecycleCallbacks = elementName => (context, commands) => {
       callbacksLog.push(`${elementName}.action`);
-      const component = context.component('x-spy');
+      const component = commands.component('x-spy');
       component.name = elementName;
       return component;
     };

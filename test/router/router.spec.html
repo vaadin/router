@@ -868,14 +868,17 @@
             await router.render('/');
 
             expect(action).to.have.been.called.once;
-            expect(action.args[0].length).to.equal(1);
+            expect(action.args[0].length).to.equal(2);
+
             const contextParam = action.args[0][0];
             expect(contextParam.pathname).to.equal('/');
             expect(contextParam.route.path).to.equal('/');
             expect(contextParam.route.component).to.equal('x-home-view');
-            expect(contextParam.cancel).to.be.an('undefined');
-            expect(contextParam.redirect).to.be.a('function');
-            expect(contextParam.component).to.be.a('function');
+
+            const commandsParam = action.args[0][1];
+            expect(commandsParam.prevent).to.be.an('undefined');
+            expect(commandsParam.redirect).to.be.a('function');
+            expect(commandsParam.component).to.be.a('function');
           });
 
           it('action.this points to the route that defines action', async() => {
@@ -979,9 +982,9 @@
             const children = sinon.spy();
 
             router.setRoutes([
-              {path: '/home', children, action: context => {
+              {path: '/home', children, action: (context, commands) => {
                 actionExecuted = true;
-                return context.redirect('/users');
+                return commands.redirect('/users');
               }},
               {path: '/users', component: 'x-users-view'},
             ]);
@@ -1033,7 +1036,7 @@
 
           it('action can redirect by using the context method', async() => {
             router.setRoutes([
-              {path: '/users/:id', action: context => context.redirect('/user/:id')},
+              {path: '/users/:id', action: (context, commands) => commands.redirect('/user/:id')},
               {path: '/user/:id', component: 'x-users-view'},
             ]);
 
@@ -1047,7 +1050,7 @@
 
           it('action can render components by using the context method', async() => {
             router.setRoutes([
-              {path: '/users/:id', action: context => context.component('x-users-view')},
+              {path: '/users/:id', action: (context, commands) => commands.component('x-users-view')},
             ]);
 
             await router.render('/users/1');
@@ -1116,7 +1119,7 @@
           it('context.redirect() should work when invoked without the `this` context', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
-              {path: '/a', action: ({redirect}) => redirect('/')}
+              {path: '/a', action: (context, commands) => commands.redirect('/')}
             ]);
 
             await router.render('/a');
@@ -1130,8 +1133,8 @@
             router.setRoutes([
               {path: '/a', children: [
                 {path: '/b', children: [
-                  {path: '/c', action: context => {
-                    const redirectObject = context.redirect('/d');
+                  {path: '/c', action: (context, commands) => {
+                    const redirectObject = commands.redirect('/d');
                     expect(redirectObject.redirect.from).to.be.equal(from);
                     return redirectObject;
                   }}
@@ -1152,7 +1155,7 @@
             router.setRoutes([
               {path: '/', children: [
                 {path: '', children: [
-                  {path: '/c', action: context => context.redirect('/d')}
+                  {path: '/c', action: (context, commands) => commands.redirect('/d')}
                 ]},
               ]},
               {path: '/d', component: 'x-home-view', action: context => {
@@ -1323,9 +1326,6 @@
             expect(context.pathname).to.equal('/users/1');
             expect(context.route.path).to.equal('/users');
             expect(context.next).to.be.an('undefined');
-            expect(context.cancel).to.be.an('undefined');
-            expect(context.redirect).to.be.an('undefined');
-            expect(context.component).to.be.an('undefined');
           });
 
           it('should be called on the route object (as `this`)', async() => {

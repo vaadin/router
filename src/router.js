@@ -1,5 +1,4 @@
 import Resolver from './resolver/resolver.js';
-import {default as processAction} from './resolver/resolveRoute.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
 import {
@@ -94,12 +93,6 @@ function processNewChildren(newChildren, route) {
   for (let i = 0; i < childRoutes.length; i++) {
     ensureRoute(childRoutes[i]);
     route.__children.push(childRoutes[i]);
-  }
-}
-
-function processComponent(route, context) {
-  if (isString(route.component)) {
-    return renderComponent(context, route.component);
   }
 }
 
@@ -199,17 +192,17 @@ export class Router extends Resolver {
   __resolveRoute(context) {
     const route = context.route;
 
-    const updatedContext = Object.assign({
+    const commands = {
       redirect: path => createRedirect(context, path),
       component: component => renderComponent(context, component)
-    }, context);
-    const actionResult = processAction(updatedContext);
+    };
+    const actionResult = runCallbackIfPossible(route.action, [context, commands], route);
     if (isResultNotEmpty(actionResult)) {
       return actionResult;
     }
 
     if (isString(route.redirect)) {
-      return createRedirect(context, route.redirect);
+      return commands.redirect(route.redirect);
     }
 
     let callbacks = Promise.resolve();
@@ -234,7 +227,11 @@ export class Router extends Resolver {
         });
     }
 
-    return callbacks.then(() => processComponent(route, context));
+    return callbacks.then(() => {
+      if (isString(route.component)) {
+        return commands.component(route.component);
+      }
+    });
   }
 
   /**

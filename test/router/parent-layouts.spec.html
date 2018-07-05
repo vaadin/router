@@ -90,8 +90,8 @@
       it('when action returns a component result, it is rendered the same way as if it was a component property', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
-            {path: '/b', action: context => context.component('x-b'), children: [
-              {path: '/c', action: context => context.component('x-c')}
+            {path: '/b', action: (context, commands) => commands.component('x-b'), children: [
+              {path: '/c', action: (context, commands) => commands.component('x-c')}
             ]}
           ]},
         ]);
@@ -171,9 +171,14 @@
       it('action with redirect result amends previous path', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
-            {path: '/b', action: context => context.redirect('/d/e'), component: 'x-b', children: [
-              {path: '/c', component: 'x-c'}
-            ]}
+            {
+              path: '/b',
+              action: (context, commands) => commands.redirect('/d/e'),
+              component: 'x-b',
+              children: [
+                {path: '/c', component: 'x-c'}
+              ]
+            }
           ]},
           {path: '/d', component: 'x-d', children: [
             {path: '/e', component: 'x-e'}
