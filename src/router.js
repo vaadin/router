@@ -64,17 +64,14 @@ function runCallbackIfPossible(callback, args, thisArg) {
   }
 }
 
-function amend(amendmentFunction, location, commands, element) {
+function amend(amendmentFunction, args, element) {
   return amendmentResult => {
     if (amendmentResult && (amendmentResult.cancel || amendmentResult.redirect)) {
       return amendmentResult;
     }
 
     if (element) {
-      return runCallbackIfPossible(
-        element[amendmentFunction],
-        [location, commands],
-        element);
+      return runCallbackIfPossible(element[amendmentFunction], args, element);
     }
   };
 }
@@ -475,7 +472,7 @@ export class Router extends Resolver {
       for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
         const location = createLocation(newContext);
         callbacks = callbacks
-          .then(amend('onBeforeLeave', location, {prevent}, previousChain[i].element))
+          .then(amend('onBeforeLeave', [location, {prevent}, this], previousChain[i].element))
           .then(result => {
             if (!(result || {}).redirect) {
               return result;
@@ -486,7 +483,7 @@ export class Router extends Resolver {
 
     for (let i = newContext.__divergedChainIndex; i < newChain.length; i++) {
       const location = createLocation(newContext, newChain[i].route);
-      callbacks = callbacks.then(amend('onBeforeEnter', location, {prevent, redirect}, newChain[i].element));
+      callbacks = callbacks.then(amend('onBeforeEnter', [location, {prevent, redirect}, this], newChain[i].element));
     }
 
     return callbacks.then(amendmentResult => {
@@ -601,7 +598,10 @@ export class Router extends Resolver {
       }
       try {
         const location = createLocation(currentContext);
-        runCallbackIfPossible(currentComponent.onAfterLeave, [location], currentComponent);
+        runCallbackIfPossible(
+          currentComponent.onAfterLeave,
+          [location, {}, targetContext.resolver],
+          currentComponent);
       } finally {
         removeDomNodes(currentComponent.children);
       }
@@ -613,7 +613,10 @@ export class Router extends Resolver {
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
       const currentComponent = currentContext.chain[i].element || {};
       const location = createLocation(currentContext, currentContext.chain[i].route);
-      runCallbackIfPossible(currentComponent.onAfterEnter, [location], currentComponent);
+      runCallbackIfPossible(
+        currentComponent.onAfterEnter,
+        [location, {}, currentContext.resolver],
+        currentComponent);
     }
   }
 

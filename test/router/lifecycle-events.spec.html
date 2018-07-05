@@ -117,7 +117,7 @@
       });
 
       describe('onBeforeEnter', () => {
-        it('should be called with 2 arguments: [location, commands]', async() => {
+        it('should be called with 3 arguments: [location, commands, router]', async() => {
           const onBeforeEnter = sinon.spy();
           router.setRoutes([
             {path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter)}
@@ -126,7 +126,7 @@
           await router.render('/');
 
           expect(onBeforeEnter).to.have.been.called.once;
-          expect(onBeforeEnter.args[0].length).to.equal(2);
+          expect(onBeforeEnter.args[0].length).to.equal(3);
 
           const location = onBeforeEnter.args[0][0];
           expect(location.pathname).to.equal('/');
@@ -135,8 +135,8 @@
           const commands = onBeforeEnter.args[0][1];
           expect(commands).to.be.an('object').that.is.not.null;
 
-          // const routerArg = onBeforeEnter.args[0][2];
-          // expect(routerArg).to.equal(router);
+          const routerArg = onBeforeEnter.args[0][2];
+          expect(routerArg).to.equal(router);
 
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
         });
@@ -288,7 +288,7 @@
       });
 
       describe('onBeforeLeave', () => {
-        it('should be called with 2 arguments: [location, commands]', async() => {
+        it('should be called with 3 arguments: [location, commands, router]', async() => {
           const onBeforeLeave = sinon.spy();
           router.setRoutes([
             {path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave)},
@@ -301,7 +301,7 @@
           await router.render('/users');
 
           expect(onBeforeLeave).to.have.been.called.once;
-          expect(onBeforeLeave.args[0].length).to.equal(2);
+          expect(onBeforeLeave.args[0].length).to.equal(3);
 
           const location = onBeforeLeave.args[0][0];
           expect(location.pathname).to.equal('/users');
@@ -310,8 +310,8 @@
           const commands = onBeforeLeave.args[0][1];
           expect(commands).to.be.an('object').that.is.not.null;
 
-          // const routerArg = onBeforeLeave.args[0][2];
-          // expect(routerArg).to.equal(router);
+          const routerArg = onBeforeLeave.args[0][2];
+          expect(routerArg).to.equal(router);
 
           expect(outlet.children[0].tagName).to.match(/x-users-list/i);
         });
@@ -436,7 +436,7 @@
       });
 
       describe('onAfterLeave', () => {
-        it('should be called with 1 argument: [location]', async() => {
+        it('should be called with 3 arguments: [location, commands, router]', async() => {
           const onAfterLeave = sinon.spy();
           router.setRoutes([
             {path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave)},
@@ -450,14 +450,20 @@
           await router.render('/users');
 
           expect(onAfterLeave).to.have.been.called.once;
-          expect(onAfterLeave.args[0].length).to.equal(1);
+          expect(onAfterLeave.args[0].length).to.equal(3);
 
           const location = onAfterLeave.args[0][0];
           expect(location.pathname).to.equal('/users');
           expect(location.route.path).to.equal('/users');
 
-          // const routerArg = onAfterLeave.args[0][1];
-          // expect(routerArg).to.equal(router);
+          const commands = onAfterLeave.args[0][1];
+          expect(commands).to.be.an('object').that.is.not.null;
+          expect(commands.prevent).to.not.be.defined;
+          expect(commands.redirect).to.not.be.defined;
+          expect(commands.component).to.not.be.defined;
+
+          const routerArg = onAfterLeave.args[0][2];
+          expect(routerArg).to.equal(router);
 
           expect(outlet.children[0].tagName).to.match(/x-users-list/i);
         });
@@ -511,7 +517,7 @@
       });
 
       describe('onAfterEnter', () => {
-        it('should be called with 1 argument: [location]', async() => {
+        it('should be called with 3 argument: [location, commands, router]', async() => {
           const onAfterEnter = sinon.spy();
           router.setRoutes([
             {path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter)}
@@ -520,14 +526,20 @@
           await router.render('/');
 
           expect(onAfterEnter).to.have.been.called.once;
-          expect(onAfterEnter.args[0].length).to.equal(1);
+          expect(onAfterEnter.args[0].length).to.equal(3);
 
           const location = onAfterEnter.args[0][0];
           expect(location.pathname).to.equal('/');
           expect(location.route.path).to.equal('/');
 
-          // const routerArg = onAfterEnter.args[0][2];
-          // expect(routerArg).to.equal(router);
+          const commands = onAfterEnter.args[0][1];
+          expect(commands).to.be.an('object').that.is.not.null;
+          expect(commands.prevent).to.not.be.defined;
+          expect(commands.redirect).to.not.be.defined;
+          expect(commands.component).to.not.be.defined;
+
+          const routerArg = onAfterEnter.args[0][2];
+          expect(routerArg).to.equal(router);
 
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
         });
