@@ -38,18 +38,14 @@ function redirect(context, pathname) {
 }
 
 function renderComponent(context, component) {
-  const element = createElement(context, component);
-  context.route.__componentToRender = element;
-  return element;
-}
-
-function createElement(context, component) {
   const element = document.createElement(component);
   const params = Object.assign({}, context.params);
   element.route = {params, pathname: context.pathname};
   if (context.from) {
     element.route.redirectFrom = context.from;
   }
+  const index = context.chain.map(item => item.route).indexOf(context.route);
+  context.chain[index].element = element;
   return element;
 }
 
@@ -59,15 +55,15 @@ function runCallbackIfPossible(callback, context, thisObject) {
   }
 }
 
-function amend(amendmentFunction, context, component) {
+function amend(amendmentFunction, context, element) {
   return amendmentResult => {
     if (amendmentResult && (amendmentResult.cancel || amendmentResult.redirect)) {
       return amendmentResult;
     }
 
-    if (component) {
-      return runCallbackIfPossible(component[amendmentFunction],
-        Object.assign({cancel: () => ({cancel: true})}, context, {next: undefined}), component);
+    if (element) {
+      return runCallbackIfPossible(element[amendmentFunction],
+        Object.assign({cancel: () => ({cancel: true})}, copyContextWithoutNext(context)), element);
     }
   };
 }
@@ -104,8 +100,8 @@ function removeDomNodes(nodes) {
   }
 }
 
-function getMatchedPath(resolvedPaths) {
-  return resolvedPaths.reduce((prev, path) => {
+function getMatchedPath(chain) {
+  return chain.map(item => item.path).reduce((prev, path) => {
     if (path.length) {
       return prev === '/' ? prev + path : prev + '/' + path;
     }
@@ -352,9 +348,10 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(context.result.route.pathname, context.from);
           }
 
-          if (context !== this.__previousContext) {
-            return this.__runOnAfterLeaveCallbacks(context, this.__previousContext)
-              .then(() => this.__addAppearingContent(context))
+          const previousContext = this.__previousContext;
+          if (context !== previousContext) {
+            return this.__runOnAfterLeaveCallbacks(context, previousContext)
+              .then(() => this.__addAppearingContent(context, previousContext))
               .then(() => this.__runOnAfterEnterCallbacks(context))
               .then(() => context);
           }
@@ -371,7 +368,7 @@ export class Router extends Resolver {
           this.__removeDisappearingContent();
         }
         this.__previousContext = context;
-        this.activeRoutes = [...context.chain];
+        this.activeRoutes = context.chain.map(item => item.route);
         fireRouterEvent('route-changed', {router: this, params: context.params, pathname: context.pathname});
         return this.__outlet;
       })
@@ -396,7 +393,7 @@ export class Router extends Resolver {
         return amendedContext.next()
           .then(nextContext => {
             if (nextContext === null) {
-              if (amendedContext.pathname !== getMatchedPath(amendedContext.resolvedPaths)) {
+              if (amendedContext.pathname !== getMatchedPath(amendedContext.chain)) {
                 throw getNotFoundError(initialContext);
               }
             }
@@ -440,7 +437,6 @@ export class Router extends Resolver {
   __runOnBeforeCallbacks(newContext) {
     const previousContext = this.__previousContext || {};
     const previousChain = previousContext.chain || [];
-    const previousPaths = previousContext.resolvedPaths || [];
     const newChain = newContext.chain;
 
     let callbacks = Promise.resolve();
@@ -448,14 +444,14 @@ export class Router extends Resolver {
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if (previousChain[i] !== newChain[i] || previousPaths[i] !== newContext.resolvedPaths[i]) {
+        if (previousChain[i].route !== newChain[i].route || previousChain[i].path !== newChain[i].path) {
           break;
         }
       }
 
       for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
         callbacks = callbacks
-          .then(amend('onBeforeLeave', newContext, previousChain[i].__componentRendered))
+          .then(amend('onBeforeLeave', newContext, previousChain[i].element))
           .then(result => {
             if (!(result || {}).redirect) {
               return result;
@@ -466,15 +462,7 @@ export class Router extends Resolver {
 
     const onBeforeEnterContext = Object.assign({redirect: path => redirect(newContext, path)}, newContext);
     for (let i = newContext.__divergedChainIndex; i < newChain.length; i++) {
-      // check if the parameters changed for the same route
-      if (previousPaths[i] && previousPaths[i] !== newContext.resolvedPaths[i]) {
-        const rendered = newChain[i].__componentRendered;
-        // if component defined in action, use that, else create new one
-        if (rendered && !newChain[i].__componentToRender) {
-          newChain[i].__componentToRender = createElement(newContext, rendered.tagName);
-        }
-      }
-      callbacks = callbacks.then(amend('onBeforeEnter', onBeforeEnterContext, newChain[i].__componentToRender));
+      callbacks = callbacks.then(amend('onBeforeEnter', onBeforeEnterContext, newChain[i].element));
     }
 
     return callbacks.then(amendmentResult => {
@@ -517,7 +505,7 @@ export class Router extends Resolver {
     }
   }
 
-  __addAppearingContent(context) {
+  __addAppearingContent(context, previousContext) {
     this.__ensureOutlet();
 
     // If the previous 'entering' animation has not completed yet,
@@ -528,7 +516,7 @@ export class Router extends Resolver {
     // chains.
     let deepestCommonParent = this.__outlet;
     for (let i = 0; i < context.__divergedChainIndex; i++) {
-      const unchangedComponent = context.chain[i].__componentRendered;
+      const unchangedComponent = previousContext && previousContext.chain[i].element;
       if (unchangedComponent) {
         if (unchangedComponent.parentNode === deepestCommonParent) {
           deepestCommonParent = unchangedComponent;
@@ -550,16 +538,13 @@ export class Router extends Resolver {
     // DOM without first removing and then adding them again).
     let parentElement = deepestCommonParent;
     for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
-      const componentToAdd = context.chain[i].__componentToRender;
-      if (componentToAdd) {
-        parentElement.appendChild(componentToAdd);
-        // mark component as rendered
-        context.chain[i].__componentRendered = componentToAdd;
-        delete context.chain[i].__componentToRender;
+      const elementToAdd = context.chain[i].element;
+      if (elementToAdd) {
+        parentElement.appendChild(elementToAdd);
         if (parentElement === deepestCommonParent) {
-          this.__appearingContent.push(componentToAdd);
+          this.__appearingContent.push(elementToAdd);
         }
-        parentElement = componentToAdd;
+        parentElement = elementToAdd;
       }
     }
   }
@@ -588,7 +573,7 @@ export class Router extends Resolver {
 
       // REVERSE iteration: from Z to A
       for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
-        const currentComponent = targetContext.chain[i].__componentRendered;
+        const currentComponent = targetContext.chain[i].element;
         if (!currentComponent) {
           continue;
         }
@@ -613,7 +598,7 @@ export class Router extends Resolver {
 
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
-      const currentComponent = currentContext.chain[i].__componentRendered || {};
+      const currentComponent = currentContext.chain[i].element || {};
       promises = promises
         .then(() => runCallbackIfPossible(currentComponent.onAfterEnter, callbackContext, currentComponent));
     }
@@ -628,8 +613,8 @@ export class Router extends Resolver {
     const chain = context.chain;
     let config;
     for (let i = chain.length; i > 0; i--) {
-      if (chain[i - 1].animate) {
-        config = chain[i - 1].animate;
+      if (chain[i - 1].route.animate) {
+        config = chain[i - 1].route.animate;
         break;
       }
     }
