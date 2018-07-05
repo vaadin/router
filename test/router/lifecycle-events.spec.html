@@ -51,10 +51,10 @@
       return component;
     };
 
-    const elementWithUserParameter = () => context => {
+    const elementWithUserParameter = () => (context, commands) => {
       const elementName = `x-user-${context.params.user}`;
       callbacksLog.push(`${elementName}.action`);
-      const component = context.component('x-spy');
+      const component = commands.component('x-spy');
       if (!component.name) {
         component.name = elementName;
       }
