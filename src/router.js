@@ -638,13 +638,7 @@ export class Router extends Resolver {
       promises.push(animate(to, enter));
     }
 
-    if (promises.length) {
-      return new Promise(resolve => {
-        Promise.all(promises).then(() => resolve(context));
-      });
-    }
-
-    return Promise.resolve(context);
+    return Promise.all(promises).then(() => context);
   }
 
   /**
