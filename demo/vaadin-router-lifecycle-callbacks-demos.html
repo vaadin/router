@@ -138,9 +138,15 @@
       interactions.
     </p>
     <p>
-      Any value returned from this callback is ignored.
+      NOTE: When navigation from one view to another the <code>onAfterEnter</code>
+      callback on the new view's component is called <em>before</em> the
+      <code>onAfterLeave</code> callback on the previous view's component (which
+      is being removed). At some point both the new and the old view components
+      are present in the DOM to allow animating the transition (you can listen
+      to the <code>animationend</code> event to detect when it is over).
     </p>
     <p>
+      Any value returned from this callback is ignored.
       See the <a href="../#/classes/Vaadin.WebComponentInterface#method-onAfterEnter">
       API documentation</a> for more details.
     </p>
@@ -257,9 +263,15 @@
       from the view.
     </p>
     <p>
-      Any value returned from this callback is ignored.
+      NOTE: When navigation from one view to another the <code>onAfterEnter</code>
+      callback on the new view's component is called <em>before</em> the
+      <code>onAfterLeave</code> callback on the previous view's component (which
+      is being removed). At some point both the new and the old view components
+      are present in the DOM to allow animating the transition (you can listen
+      to the <code>animationend</code> event to detect when it is over).
     </p>
     <p>
+      Any value returned from this callback is ignored.
       See the <a href="../#/classes/Vaadin.WebComponentInterface#method-onAfterLeave">
       API documentation</a> for more details.
     </p>

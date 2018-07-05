@@ -405,9 +405,9 @@
             'a.onBeforeLeave',
             'a.onBeforeLeave.promise',
             'b.onBeforeEnter',
-            'a.onAfterLeave',
             'b.connectedCallback',
             'b.onAfterEnter',
+            'a.onAfterLeave',
             'a.disconnectedCallback',
           ]);
         });
@@ -620,9 +620,9 @@
             'b.action',
             'a.onBeforeLeave',
             'b.onBeforeEnter',
-            'a.onAfterLeave',
             'b.connectedCallback',
             'b.onAfterEnter',
+            'a.onAfterLeave',
             'a.disconnectedCallback',
           ]);
         });
@@ -676,9 +676,9 @@
             'c.action',
             'b.onBeforeLeave',
             'c.onBeforeEnter',
-            'b.onAfterLeave',
             'c.connectedCallback',
             'c.onAfterEnter',
+            'b.onAfterLeave',
             'b.disconnectedCallback',
           ]);
         });
@@ -734,9 +734,9 @@
             'asterisk.action',
             'b.onBeforeLeave',
             'asterisk.onBeforeEnter',
-            'b.onAfterLeave',
             'asterisk.connectedCallback',
             'asterisk.onAfterEnter',
+            'b.onAfterLeave',
             'b.disconnectedCallback',
           ]);
         });
@@ -770,9 +770,9 @@
             'ad.action',
             'ac.onBeforeLeave',
             'ad.onBeforeEnter',
-            'ac.onAfterLeave',
             'ad.connectedCallback',
             'ad.onAfterEnter',
+            'ac.onAfterLeave',
             'ac.disconnectedCallback',
           ]);
         });
@@ -790,9 +790,9 @@
             'x-user-john.action',
             'x-user-jane.onBeforeLeave',
             'x-user-john.onBeforeEnter',
-            'x-user-jane.onAfterLeave',
             'x-user-john.connectedCallback',
             'x-user-john.onAfterEnter',
+            'x-user-jane.onAfterLeave',
             'x-user-jane.disconnectedCallback',
           ]);
         });
@@ -863,11 +863,11 @@
             'x-b.onBeforeLeave',
             'x-a.onBeforeLeave',
             'x-c.onBeforeEnter',
+            'x-c.connectedCallback',
+            'x-c.onAfterEnter',
             'x-b.onAfterLeave',
             'x-a.onAfterLeave',
             'x-b.disconnectedCallback',
-            'x-c.connectedCallback',
-            'x-c.onAfterEnter',
             'x-a.disconnectedCallback',
           ]);
           checkOutlet(['x-c']);
@@ -896,9 +896,9 @@
             'x-d.action',
             'x-b.onBeforeLeave',
             'x-d.onBeforeEnter',
-            'x-b.onAfterLeave',
             'x-d.connectedCallback',
             'x-d.onAfterEnter',
+            'x-b.onAfterLeave',
             'x-b.disconnectedCallback',
           ]);
           checkOutlet(['x-a', 'x-d']);
@@ -973,9 +973,9 @@
             'x-e.action',
             'x-b-root.onBeforeLeave',
             'x-e.onBeforeEnter',
-            'x-b-root.onAfterLeave',
             'x-e.connectedCallback',
             'x-e.onAfterEnter',
+            'x-b-root.onAfterLeave',
             'x-b-root.disconnectedCallback',
           ]);
           checkOutlet(['x-a', 'x-b', 'x-e']);
@@ -1053,9 +1053,9 @@
             'x-b-root.action',
             'x-e.onBeforeLeave',
             'x-b-root.onBeforeEnter',
-            'x-e.onAfterLeave',
             'x-b-root.connectedCallback',
             'x-b-root.onAfterEnter',
+            'x-e.onAfterLeave',
             'x-e.disconnectedCallback',
           ]);
           checkOutlet(['x-a', 'x-b', 'x-b-root']);
@@ -1125,13 +1125,13 @@
             'x-user-jane.onBeforeLeave',
             'x-user-john.onBeforeEnter',
             'x-user-edit.onBeforeEnter',
-            'x-user-edit.onAfterLeave',
-            'x-user-jane.onAfterLeave',
-            'x-user-edit.disconnectedCallback',
             'x-user-john.connectedCallback',
             'x-user-edit.connectedCallback',
             'x-user-john.onAfterEnter',
             'x-user-edit.onAfterEnter',
+            'x-user-edit.onAfterLeave',
+            'x-user-jane.onAfterLeave',
+            'x-user-edit.disconnectedCallback',
             'x-user-jane.disconnectedCallback',
           ]);
         });
