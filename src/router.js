@@ -29,7 +29,7 @@ function createLocation({pathname = '', chain = [], params = {}, from}, route) {
   return {
     pathname,
     routes: chain.map(item => item.route),
-    route: (!route && chain.length && chain[chain.length - 1]) || route,
+    route: (!route && chain.length && chain[chain.length - 1].route) || route,
     params,
     redirectFrom: from,
   };
