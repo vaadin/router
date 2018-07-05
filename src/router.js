@@ -513,13 +513,14 @@ export class Router extends Resolver {
     this.__removeAppearingContent();
 
     // Find the deepest common parent between the last and the new component
-    // chains.
+    // chains. Update references for the unchanged elements in the new chain
     let deepestCommonParent = this.__outlet;
     for (let i = 0; i < context.__divergedChainIndex; i++) {
-      const unchangedComponent = previousContext && previousContext.chain[i].element;
-      if (unchangedComponent) {
-        if (unchangedComponent.parentNode === deepestCommonParent) {
-          deepestCommonParent = unchangedComponent;
+      const unchangedElement = previousContext && previousContext.chain[i].element;
+      if (unchangedElement) {
+        if (unchangedElement.parentNode === deepestCommonParent) {
+          context.chain[i].element = unchangedElement;
+          deepestCommonParent = unchangedElement;
         } else {
           break;
         }
