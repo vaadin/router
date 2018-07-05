@@ -15,24 +15,24 @@
         <li>
           <b><code>
           <a href="..#/classes/Vaadin.WebComponentInterface#method-onBeforeEnter">
-          onBeforeEnter(location, commands)</a>: Promise | Prevent | Redirect |
+          onBeforeEnter(location, commands, router)</a>: Promise | Prevent | Redirect |
           void</code></b>
         </li>
         <li>
           <b><code>
           <a href="..#/classes/Vaadin.WebComponentInterface#method-onAfterEnter">
-          onAfterEnter(location)</a>: void</code></b>
+          onAfterEnter(location, commands, router)</a>: void</code></b>
         </li>
         <li>
           <b><code>
           <a href="..#/classes/Vaadin.WebComponentInterface#method-onBeforeLeave">
-          onBeforeLeave(location, commands)</a>: Promise | Prevent | void
+          onBeforeLeave(location, commands, router)</a>: Promise | Prevent | void
           </code></b>
         </li>
         <li>
           <b><code>
           <a href="..#/classes/Vaadin.WebComponentInterface#method-onAfterLeave">
-            onAfterLeave(location)</a>: void</code></b>
+            onAfterLeave(location, commands, router)</a>: void</code></b>
         </li>
         <hr/>
         <li>
@@ -48,7 +48,7 @@
       <code>disconnectedCallback()</code>).
     </p>
 
-    <h3><code>onBeforeEnter(location, commands)</code></h3>
+    <h3><code>onBeforeEnter(location, commands, router)</code></h3>
     <p>
       The component's route has matched the current path, an instance of the
       component has been created and is about to be inserted into the DOM. Use
@@ -129,7 +129,7 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3><code>onAfterEnter(location)</code></h3>
+    <h3><code>onAfterEnter(location, commands, router)</code></h3>
     <p>
       The component's route has matched the current path and an instance of the
       component has been rendered into the DOM. At this point it is certain that
@@ -183,7 +183,7 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3><code>onBeforeLeave(location, commands)</code></h3>
+    <h3><code>onBeforeLeave(location, commands, router)</code></h3>
     <p>
       The component's route does not match the current path anymore and the
       component is about to be removed from the DOM. Use this callback to
@@ -247,7 +247,7 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3><code>onAfterLeave(location)</code></h3>
+    <h3><code>onAfterLeave(location, commands, router)</code></h3>
     <p>
       The component's route does not match the current path anymore and the
       component has been removed from the DOM. At this point it is certain that
