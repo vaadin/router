@@ -156,6 +156,25 @@
         expect(exception, 'No exception thrown for not matched route /c').to.be.instanceof(Error);
       });
 
+      it('should allow parent route paths with trailing slashes', async() => {
+        router.setRoutes([
+          {path: '/', component: 'x-root'},
+          {path: '/a/', component: 'x-a', children: [
+            {path: '/b', component: 'x-b'},
+            {path: '(.+)', component: 'x-any'},
+          ]},
+        ]);
+
+        await router.render('/');
+        checkOutlet(['x-root']);
+
+        await router.render('/a/');
+        checkOutlet(['x-a']);
+
+        await router.render('/a/b');
+        checkOutlet(['x-a', 'x-b']);
+      });
+
       it('when not all nested views have components, all present components are rendered as children ' +
         'to each other in the same hierarchy', async() => {
         router.setRoutes([
