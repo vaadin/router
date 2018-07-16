@@ -101,7 +101,7 @@ function removeDomNodes(nodes) {
 function getMatchedPath(chain) {
   return chain.map(item => item.path).reduce((prev, path) => {
     if (path.length) {
-      return prev === '/' ? prev + path : prev + '/' + path;
+      return prev + (prev.charAt(prev.length - 1) === '/' ? '' : '/') + path;
     }
     return prev;
   });
