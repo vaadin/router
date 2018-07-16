@@ -10,20 +10,47 @@
 (({Resolver}) => {
 
   function test() {
-    /*** vaadin-dev-mode-only:start
+    /** vaadin-dev-mode-only:start
 
-    console.log('this code would only run in the dev mode');
+    return 'development';
 
-    vaadin-dev-mode-only:end ***/
+    vaadin-dev-mode-only:end **/
+
+    return 'production';
   }
 
   describe('new Resolver(routes, options)', () => {
     it.only('Function.prototype.toString() should return the function source with comments', async() => {
       const code = test.toString();
-      const re = /\/\*\*\* vaadin-dev-mode-only:start([\s\S]*)vaadin-dev-mode-only:end \*\*\*\//i;
+      const re = /\/\*\*\s+vaadin-dev-mode-only:start([\s\S]*)vaadin-dev-mode-only:end\s+\*\*\//i;
       const match = re.exec(code);
-      eval(match[1]);
-      expect(code).to.equal('');
+
+      // requires CSP: script-src 'unsafe-eval'
+      const fn = new Function(match[1]);
+
+      // requires CSP: script-src 'unsafe-inline'
+      /*
+      const id = `__continue_${new Date().getTime()}${(Math.random() * 1000) | 0}`;
+      const script = document.createElement('script');
+      let resolve;
+      const promise = new Promise(r => {
+        resolve = r;
+      });
+      window[id] = (fn) => {
+        script.parentElement.removeChild(script);
+        delete window[id];
+        resolve(fn());
+      };
+
+      script.innerHTML = `window['${id}'](() => {${match[1]}})`;
+      script.async = true;
+      const firstSctipt = document.getElementsByTagName('script')[0];
+      firstSctipt.parentNode.insertBefore(script, firstSctipt);
+
+      const result = await promise;
+      */
+      expect(fn()).to.equal('development');
+      expect(test()).to.equal('production');
     });
 
     it('should throw an error in case of invalid routes', async() => {
