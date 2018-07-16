@@ -9,7 +9,23 @@
 
 (({Resolver}) => {
 
+  function test() {
+    /*** vaadin-dev-mode-only:start
+
+    console.log('this code would only run in the dev mode');
+
+    vaadin-dev-mode-only:end ***/
+  }
+
   describe('new Resolver(routes, options)', () => {
+    it.only('Function.prototype.toString() should return the function source with comments', async() => {
+      const code = test.toString();
+      const re = /\/\*\*\* vaadin-dev-mode-only:start([\s\S]*)vaadin-dev-mode-only:end \*\*\*\//i;
+      const match = re.exec(code);
+      eval(match[1]);
+      expect(code).to.equal('');
+    });
+
     it('should throw an error in case of invalid routes', async() => {
       expect(() => new Resolver()).to.throw(TypeError, /Invalid routes/);
       expect(() => new Resolver(12)).to.throw(TypeError, /Invalid routes/);
