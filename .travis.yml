@@ -21,9 +21,5 @@ script:
   - yarn install:dependencies
   - yarn build
   - yarn lint
-  - if [[ $TRAVIS_PULL_REQUEST == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
-      wct --env saucelabs;
-    else
-      xvfb-run -s '-screen 0 1024x768x24' yarn test;
-    fi
+  - wct --env saucelabs;
   - yarn size-control
