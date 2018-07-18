@@ -1,3 +1,5 @@
+import {usageStatistics} from '@vaadin/vaadin-usage-statistics/vaadin-usage-statistics.js';
+
 // NOTE(web-padawan): Have to use an awkward IIFE returning class here
 // to prevent this class from showing up in analysis.json & API docs.
 /** @private */
@@ -7,8 +9,9 @@ const VaadinRouterMeta = (() => class extends HTMLElement {
   }
 
   static get version() {
-    return '0.3.0';
+    return '1.0.0-rc0';
   }
 })();
 
 customElements.define(VaadinRouterMeta.is, VaadinRouterMeta);
+usageStatistics();
