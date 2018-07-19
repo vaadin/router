@@ -514,12 +514,6 @@
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@polymer/esm-amd-loader/-/esm-amd-loader-1.0.2.tgz#6a6c26bd3293ce8c02765752e5581f2a4ea7e038"
 
-"@polymer/polymer@^3.0.0":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@polymer/polymer/-/polymer-3.0.2.tgz#626e6f9fae9716b0962ce0211e21df242153eab2"
-  dependencies:
-    "@webcomponents/shadycss" "^1.2.0"
-
 "@polymer/sinonjs@^1.14.1":
   version "1.17.1"
   resolved "https://registry.yarnpkg.com/@polymer/sinonjs/-/sinonjs-1.17.1.tgz#e47d3785b7d0e8c29feb97f7e924b0fc597e2e9b"
@@ -1025,25 +1019,19 @@
     "@types/events" "*"
     "@types/inquirer" "*"
 
-"@vaadin/vaadin-development-mode-detector@^1.1.0-alpha2":
-  version "1.1.0-alpha2"
-  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-development-mode-detector/-/vaadin-development-mode-detector-1.1.0-alpha2.tgz#541dbaec5f72ce8bfb0a9aa7acae365cd1f87099"
-  dependencies:
-    "@polymer/polymer" "^3.0.0"
+"@vaadin/vaadin-development-mode-detector@^2.0.0-alpha2":
+  version "2.0.0-alpha2"
+  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-development-mode-detector/-/vaadin-development-mode-detector-2.0.0-alpha2.tgz#bd8a46e2f793f33a90cf82b51e69ad19149ca4d5"
 
-"@vaadin/vaadin-usage-statistics@^2.0.0-alpha1":
-  version "2.0.0-alpha1"
-  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-usage-statistics/-/vaadin-usage-statistics-2.0.0-alpha1.tgz#cc91a7e0aaad3086d8222ce2eb99c34e40a0027d"
+"@vaadin/vaadin-usage-statistics@^2.0.0-alpha2":
+  version "2.0.0-alpha2"
+  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-usage-statistics/-/vaadin-usage-statistics-2.0.0-alpha2.tgz#15ecdfb3c952ad5867dd1c331bd76b12668f1362"
   dependencies:
-    "@vaadin/vaadin-development-mode-detector" "^1.1.0-alpha2"
-
-"@webcomponents/shadycss@^1.2.0":
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/@webcomponents/shadycss/-/shadycss-1.3.5.tgz#b19b45604811e428f7030d8710eebd4da0c6a353"
+    "@vaadin/vaadin-development-mode-detector" "^2.0.0-alpha2"
 
 "@webcomponents/webcomponentsjs@^1.0.7":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@webcomponents/webcomponentsjs/-/webcomponentsjs-1.2.2.tgz#a0d1f87e45a8222e70a98d4b7a8dc878cced2f9a"
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/@webcomponents/webcomponentsjs/-/webcomponentsjs-1.2.3.tgz#1b355a81bac65f03cc0a0961af054c3f28f3cf99"
 
 abbrev@1:
   version "1.1.1"
