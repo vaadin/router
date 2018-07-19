@@ -10,10 +10,22 @@
 [API documentation ↗](https://vaadin.github.io/vaadin-router/vaadin-router/)
 
 <p align="center">
-  <img src="https://raw.github.com/vaadin/vaadin-router/master/screenshot.png" width="196" alt="under construction">
+  <svg width="120" alt="router hero banner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 66 62">
+    <style>
+      .st0{fill:none;stroke:#2d3033;stroke-width:1.5;stroke-miterlimit:10}.st3{fill:#00b4f0}.st4{fill:#ff3a49}
+    </style>
+    <path class="st0" d="M33 31V6.4M6 55.6V31M33 55.6V31M59.9 55.6V31"/>
+    <path d="M29.2 6.4c0 2.1 1.7 3.8 3.8 3.8s3.8-1.7 3.8-3.8c0-2.1-1.7-3.8-3.8-3.8s-3.8 1.7-3.8 3.8" fill="#2d3033"/>
+    <path fill="#33383a" stroke="#2d3033" stroke-width="1.5" stroke-miterlimit="10" d="M6.1 31h53.8"/>
+    <path class="st3" d="M2.3 31c0 2.1 1.7 3.8 3.8 3.8s3.8-1.7 3.8-3.8c0-2.1-1.7-3.8-3.8-3.8S2.3 28.9 2.3 31M59.9 34.8c2.1 0 3.8-1.7 3.8-3.8s-1.7-3.8-3.8-3.8c-2.1 0-3.8 1.7-3.8 3.8s1.7 3.8 3.8 3.8"/>
+    <path class="st4" d="M33 34.8c2.1 0 3.8-1.7 3.8-3.8s-1.7-3.8-3.8-3.8c-2.1 0-3.8 1.7-3.8 3.8s1.7 3.8 3.8 3.8M2.3 55.6c0 2.1 1.7 3.8 3.8 3.8s3.8-1.7 3.8-3.8c0-2.1-1.7-3.8-3.8-3.8s-3.8 1.7-3.8 3.8"/>
+    <path d="M59.9 59.5c2.1 0 3.8-1.7 3.8-3.8s-1.7-3.8-3.8-3.8c-2.1 0-3.8 1.7-3.8 3.8s1.7 3.8 3.8 3.8" fill="#ff3a4b"/>
+    <path class="st3" d="M33 59.5c2.1 0 3.8-1.7 3.8-3.8s-1.7-3.8-3.8-3.8c-2.1 0-3.8 1.7-3.8 3.8s1.7 3.8 3.8 3.8"/>
+  </svg>
+  <h2 align="center">A client-side router for Web Components</h2>
 </p>
 
-Vaadin.Router is a small yet powerfull client-side router JS library. It uses the widely adopted express.js syntax for routes (`/users/:id`) to map URLs to Web Component views. All features one might expect from a modern router are supported: async route resolution, animated transitions, navigation guards, redirects, and more. It is framework-agnostic and works equally well with all Web Components regardless of how they are created (Polymer / SkateJS / Stencil / Angular / Vue / etc).
+Vaadin.Router is a small and powerful client-side router JS library. It uses the widely adopted express.js syntax for routes (`/users/:id`) to map URLs to Web Component views. All features one might expect from a modern router are supported: async route resolution, animated transitions, navigation guards, redirects, and more. It is framework-agnostic and works equally well with all Web Components regardless of how they are created (Polymer / SkateJS / Stencil / Angular / Vue / etc).
 
 Vaadin.Router is a good fit for developers that do not want to go all-in with one framework, and prefer to have freedom in picking the components that work best for their specific needs.
 
