@@ -10,7 +10,7 @@
 [API documentation ↗](https://vaadin.github.io/vaadin-router/vaadin-router/)
 
 <p align="center">
-  <img width="120" alt="router hero banner" src="https://raw.githubusercontent.com/vaadin/vaadin-router/update-readme/router-logo.svg?sanitize=true">
+  <img width="120" alt="router hero banner" src="https://user-images.githubusercontent.com/22416150/42952145-74cead64-8b80-11e8-9dfd-09b01f904972.png">
   <h2 align="center">A client-side router for Web Components</h2>
 </p>
 
