@@ -1020,8 +1020,8 @@
     "@types/inquirer" "*"
 
 "@vaadin/vaadin-development-mode-detector@^2.0.0-alpha2":
-  version "2.0.0-alpha2"
-  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-development-mode-detector/-/vaadin-development-mode-detector-2.0.0-alpha2.tgz#bd8a46e2f793f33a90cf82b51e69ad19149ca4d5"
+  version "2.0.0-alpha3"
+  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-development-mode-detector/-/vaadin-development-mode-detector-2.0.0-alpha3.tgz#3642f248fb65ce0fe75aa5bf4fff7b46ba3138a7"
 
 "@vaadin/vaadin-usage-statistics@^2.0.0-alpha2":
   version "2.0.0-alpha2"
@@ -3921,8 +3921,8 @@ extend-shallow@^3.0.0, extend-shallow@^3.0.2:
     is-extendable "^1.0.1"
 
 extend@3, extend@^3.0.0, extend@~3.0.0, extend@~3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.1.tgz#a755ea7bc1adfcc5a31ce7e762dbaadc5e636444"
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
 
 external-editor@^1.1.0:
   version "1.1.1"
