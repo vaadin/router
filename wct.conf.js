@@ -60,7 +60,7 @@ module.exports = {
 
       context.options.plugins.local.browsers = ['chrome'];
 
-      context.options.plugins.istanbub = {
+      context.options.plugins.istanbul = {
         dir: './coverage',
         reporters: ['text-summary', 'lcov'],
         include: [
