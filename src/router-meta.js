@@ -9,7 +9,7 @@ const VaadinRouterMeta = (() => class extends HTMLElement {
   }
 
   static get version() {
-    return '1.0.0-rc0';
+    return '1.0.0-rc.1';
   }
 })();
 
