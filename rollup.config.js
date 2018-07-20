@@ -39,13 +39,14 @@ const config = [
       file: pkg.main,
       sourcemap: true,
     },
-    plugins
+    plugins,
+    external: id => /@vaadin/.test(id)
   },
 
   // UMD bundle, transpiled (for the browsers that do not support ES modules).
   // Also works in Node.
   {
-    input: 'index.js',
+    input: 'index.umd.js',
     output: {
       format: 'umd',
       file: pkg.main.replace('.js', '.umd.js'),
