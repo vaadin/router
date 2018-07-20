@@ -1023,9 +1023,9 @@
   version "2.0.0-alpha3"
   resolved "https://registry.yarnpkg.com/@vaadin/vaadin-development-mode-detector/-/vaadin-development-mode-detector-2.0.0-alpha3.tgz#3642f248fb65ce0fe75aa5bf4fff7b46ba3138a7"
 
-"@vaadin/vaadin-usage-statistics@^2.0.0-alpha2":
-  version "2.0.0-alpha2"
-  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-usage-statistics/-/vaadin-usage-statistics-2.0.0-alpha2.tgz#15ecdfb3c952ad5867dd1c331bd76b12668f1362"
+"@vaadin/vaadin-usage-statistics@^2.0.0-alpha4":
+  version "2.0.0-alpha4"
+  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-usage-statistics/-/vaadin-usage-statistics-2.0.0-alpha4.tgz#656adc1967ba725053ffcb5ee16c39c89b781e7d"
   dependencies:
     "@vaadin/vaadin-development-mode-detector" "^2.0.0-alpha2"
 
@@ -4017,8 +4017,8 @@ fd-slicer@~1.1.0:
     pend "~1.2.0"
 
 feature-detect-es6@^1.3.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/feature-detect-es6/-/feature-detect-es6-1.4.1.tgz#1a37d8f1cade260e846462d41621eb3dbd3c4ef8"
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/feature-detect-es6/-/feature-detect-es6-1.5.0.tgz#a69bb7662c65f64f89f07eac5a461b649a1e0a00"
   dependencies:
     array-back "^1.0.4"
 
