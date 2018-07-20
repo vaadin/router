@@ -10,10 +10,11 @@
 [API documentation ↗](https://vaadin.github.io/vaadin-router/vaadin-router/)
 
 <p align="center">
-  <img src="https://raw.github.com/vaadin/vaadin-router/master/screenshot.png" width="196" alt="under construction">
+  <img width="120" alt="router hero banner" src="https://user-images.githubusercontent.com/22416150/42952145-74cead64-8b80-11e8-9dfd-09b01f904972.png">
+  <h2 align="center">A client-side router for Web Components</h2>
 </p>
 
-Vaadin.Router is a small yet powerfull client-side router JS library. It uses the widely adopted express.js syntax for routes (`/users/:id`) to map URLs to Web Component views. All features one might expect from a modern router are supported: async route resolution, animated transitions, navigation guards, redirects, and more. It is framework-agnostic and works equally well with all Web Components regardless of how they are created (Polymer / SkateJS / Stencil / Angular / Vue / etc).
+Vaadin.Router is a small and powerful client-side router JS library. It uses the widely adopted express.js syntax for routes (`/users/:id`) to map URLs to Web Component views. All features one might expect from a modern router are supported: async route resolution, animated transitions, navigation guards, redirects, and more. It is framework-agnostic and works equally well with all Web Components regardless of how they are created (Polymer / SkateJS / Stencil / Angular / Vue / etc).
 
 Vaadin.Router is a good fit for developers that do not want to go all-in with one framework, and prefer to have freedom in picking the components that work best for their specific needs.
 
@@ -34,7 +35,9 @@ router.setRoutes([
 ## Browser support
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/vaadin-router.svg)](https://saucelabs.com/u/vaadin-router)
 
-Testing environments for Vaadin.Router are provided by [SauceLabs](https://saucelabs.com).
+### Big Thanks
+
+Cross-browser Testing Platform and Open Source <3 Provided by [Sauce Labs](https://saucelabs.com).
 
 
 ## Running demos and tests in the browser
