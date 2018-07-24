@@ -58,7 +58,7 @@
                 {
                   "name": "redirectFrom",
                   "type": "?string",
-                  "description": "(optional) The original pathname string in case if this location is a\nresult of a redirect.\n\nE.g. with the routes config as below a navigation to `/u/12` produces a\nlocation with `pathname: '/user/12'` and `redirectFrom: '/u/12'`.\n\n```javascript\nsetRoutes([\n  {path: '/u/:id', redirect: '/user/:id'},\n  {path: '/user/:id', compoennt: 'x-user-view'},\n]);\n```\n\nSee the **Redirects** section of the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) for more\ndetails.",
+                  "description": "(optional) The original pathname string in case if this location is a\nresult of a redirect.\n\nE.g. with the routes config as below a navigation to `/u/12` produces a\nlocation with `pathname: '/user/12'` and `redirectFrom: '/u/12'`.\n\n```javascript\nsetRoutes([\n  {path: '/u/:id', redirect: '/user/:id'},\n  {path: '/user/:id', component: 'x-user-view'},\n]);\n```\n\nSee the **Redirects** section of the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) for more\ndetails.",
                   "privacy": "public",
                   "sourceRange": {
                     "start": {
