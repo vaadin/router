@@ -35,7 +35,7 @@ export class Location {
      * ```javascript
      * setRoutes([
      *   {path: '/u/:id', redirect: '/user/:id'},
-     *   {path: '/user/:id', compoennt: 'x-user-view'},
+     *   {path: '/user/:id', component: 'x-user-view'},
      * ]);
      * ```
      *
