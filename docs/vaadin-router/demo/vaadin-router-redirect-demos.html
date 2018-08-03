@@ -81,7 +81,7 @@
           window.authorized = false;
 
           class XAdminView extends HTMLElement {
-            onBeforeEnter(locatoin, commands) {
+            onBeforeEnter(location, commands) {
               if (!window.authorized) {
                 return commands.redirect('/login/' + encodeURIComponent(location.pathname));
               }
@@ -93,9 +93,9 @@
             {path: '/', component: 'x-home-view'},
             {path: '/admin', component: 'x-admin-view'},
             {path: '/login/:to?', component: 'x-login-view'},
-            {path: '/logout', action: (context) => {
+            {path: '/logout', action: (context, commands) => {
               window.authorized = false;
-              return context.redirect('/');
+              return commands.redirect('/');
             }},
           ]);
 
