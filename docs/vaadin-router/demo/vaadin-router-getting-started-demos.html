@@ -8,7 +8,7 @@
 
     <h3>The <code>Router</code> class</h3>
     <p>The <code>Router</code> class is the only thing you need to get started
-      with Vaadin.Router. Depending on your project setup, there are several
+      with Vaadin Router. Depending on your project setup, there are several
       ways to access it.
     </p>
     <p><strong>In modern browsers that support ES modules</strong> the <code>
@@ -31,13 +31,13 @@
 &lt;/script&gt;</code></pre>
 
     <h3>Getting Started</h3>
-    <p>Vaadin.Router automatically listens to navigation events and
+    <p>Vaadin Router automatically listens to navigation events and
       asynchronously renders a matching Web Component into the given DOM node
       (a.k.a. the router <em>outlet</em>). By default, navigation events are
       triggered by <code>popstate</code> events on the <code>window</code>, and
       by <code>click</code> events on <code>&lt;a&gt;</code> elements on the
       page.</p>
-    <p>The routes config maps URL paths to Web Components. Vaadin.Router goes
+    <p>The routes config maps URL paths to Web Components. Vaadin Router goes
       through the routes until it finds the first match, creates an instance
       of the route component, and inserts it into the router outlet (replacing
       any pre-existing outlet content). For details on the route path syntax
@@ -70,15 +70,15 @@
       built: vanilla JavaScript, Polymer, Stencil, SkateJS, Angular, Vue, etc.
     </p>
     <p>
-      Vaadin.Router follows the lifecycle callbacks convention described in
+      Vaadin Router follows the lifecycle callbacks convention described in
       <a href="..#/classes/Vaadin.WebComponentInterface">WebComponentInterface</a>:
-      if a route component defines any of these callback methods, Vaadin.Router
+      if a route component defines any of these callback methods, Vaadin Router
       will call them at the appropriate points in the navigation lifecycle.
       See the <a href="#vaadin-router-lifecycle-callbacks-demos">Lifecycle
       Callbacks</a> section for more details.
     </p>
     <p>
-      In addition to that Vaadin.Router also sets a
+      In addition to that Vaadin Router also sets a
       <a href="..#/classes/Vaadin.Router.Location"><code>location</code>
       property</a> on every route Web Component so that you could access the
       current location details via an instance property (e.g.
@@ -86,7 +86,7 @@
     </p>
 
     <h3>Fallback Routes (404)</h3>
-    <p>If Vaadin.Router does not find a matching route, the promise returned
+    <p>If Vaadin Router does not find a matching route, the promise returned
       from the <code>render()</code> method gets rejected, and any content in
       the router outlet is removed. In order to show a user-friendly 'page not
       found' view, a fallback route with a wildcard <code>'(.*)'</code> path can
@@ -153,12 +153,12 @@
     <h3>Nested Components</h3>
     <p>
       In certain cases, for instance when creating a navigation bar shown on certain application pages,
-      it is useful to define a common layout and reuse it. Vaadin.Router supports this by specifying
+      it is useful to define a common layout and reuse it. Vaadin Router supports this by specifying
       the <code>component</code> property both in parent and child route objects.
     </p>
     <p>In this case child route's component will be rendered as a light DOM child of parent route's component.</p>
     <p>
-      When using Web Components, in order to display the children rendered by Vaadin.Router, parent component should contain
+      When using Web Components, in order to display the children rendered by Vaadin Router, parent component should contain
       the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"><code><b>&lt;slot&gt;</b></code></a>
       tag in its Shadow DOM. The parent layout component stays in the DOM when you switch between the child routes.
     </p>

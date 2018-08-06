@@ -1,12 +1,12 @@
 {
-  "name": "Vaadin.Router",
+  "name": "Vaadin Router",
   "pages": [
     {
       "name": "Getting Started",
       "url": "vaadin-router-getting-started-demos",
       "src": "vaadin-router-getting-started-demos.html",
       "meta": {
-        "title": "Vaadin.Router Getting Started Examples",
+        "title": "Vaadin Router Getting Started Examples",
         "description": "",
         "image": ""
       }
@@ -16,7 +16,7 @@
       "url": "vaadin-router-route-parameters-demos",
       "src": "vaadin-router-route-parameters-demos.html",
       "meta": {
-        "title": "Vaadin.Router Route Parameters Examples",
+        "title": "Vaadin Router Route Parameters Examples",
         "description": "",
         "image": ""
       }
@@ -26,7 +26,7 @@
       "url": "vaadin-router-redirect-demos",
       "src": "vaadin-router-redirect-demos.html",
       "meta": {
-        "title": "Vaadin.Router Redirect Examples",
+        "title": "Vaadin Router Redirect Examples",
         "description": "",
         "image": ""
       }
@@ -36,7 +36,7 @@
       "url": "vaadin-router-lifecycle-callbacks-demos",
       "src": "vaadin-router-lifecycle-callbacks-demos.html",
       "meta": {
-        "title": "Vaadin.Router Lifecycle Callbacks Examples",
+        "title": "Vaadin Router Lifecycle Callbacks Examples",
         "description": "",
         "image": ""
       }
@@ -46,7 +46,7 @@
       "url": "vaadin-router-code-splitting-demos",
       "src": "vaadin-router-code-splitting-demos.html",
       "meta": {
-        "title": "Vaadin.Router Code Splitting Examples",
+        "title": "Vaadin Router Code Splitting Examples",
         "description": "",
         "image": ""
       }
@@ -56,7 +56,7 @@
       "url": "vaadin-router-animated-transitions-demos",
       "src": "vaadin-router-animated-transitions-demos.html",
       "meta": {
-        "title": "Vaadin.Router Transitions Examples",
+        "title": "Vaadin Router Transitions Examples",
         "description": "",
         "image": ""
       }
@@ -66,7 +66,7 @@
       "url": "vaadin-router-route-actions-demos",
       "src": "vaadin-router-route-actions-demos.html",
       "meta": {
-        "title": "Vaadin.Router Route Actions Examples",
+        "title": "Vaadin Router Route Actions Examples",
         "description": "",
         "image": ""
       }
@@ -76,7 +76,7 @@
       "url": "vaadin-router-navigation-trigger-demos",
       "src": "vaadin-router-navigation-trigger-demos.html",
       "meta": {
-        "title": "Vaadin.Router Navigation Trigger Examples",
+        "title": "Vaadin Router Navigation Trigger Examples",
         "description": "",
         "image": ""
       }

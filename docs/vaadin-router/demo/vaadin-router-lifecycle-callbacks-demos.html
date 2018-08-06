@@ -8,7 +8,7 @@
 
     <h3>Lifecycle Callbacks</h3>
     <p>
-      Vaadin.Router manages the lifecycle of all route Web Components.
+      Vaadin Router manages the lifecycle of all route Web Components.
       <em>Lifecycle callbacks</em> allow you to add custom logic to any point of
       this lifecycle:
       </p><ul>
@@ -40,7 +40,7 @@
           <code>'vaadin-router-error'</code> events on the <code>window</code>
         </li>
       </ul>
-      Vaadin.Router lifecycle callbacks can be defined as methods on the route
+      Vaadin Router lifecycle callbacks can be defined as methods on the route
       Web Component
       <a href="https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-definition" target="_blank" rel="noopener">class definition</a> in a similar way as
       the native custom element callbacks (like
@@ -325,7 +325,7 @@
       In order to react to route changes in other parts of the app (outside of
       route components), you can add an event listener for the <code>
       vaadin-router-location-changed</code> events on the <code>window</code>.
-      Vaadin.Router dispatches such events every time after navigating to a
+      Vaadin Router dispatches such events every time after navigating to a
       new path.
     </p>
     <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-6" iframe-src="iframe.html">
@@ -359,7 +359,7 @@
     <p>
       In case if navigation fails for any reason (e.g. if no route matched the
       given pathname), instead of the <code>vaadin-router-location-changed</code>
-      event Vaadin.Router dispatches <code>vaadin-router-error</code> and
+      event Vaadin Router dispatches <code>vaadin-router-error</code> and
       attaches the error object to the event as <code>event.detail.error</code>.
     </p>
 

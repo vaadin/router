@@ -23,8 +23,8 @@ function vaadinRouterGlobalPopstateHandler(event) {
 }
 
 /**
- * A navigation trigger for Vaadin.Router that translates popstate events into
- * Vaadin.Router navigation events.
+ * A navigation trigger for Vaadin Router that translates popstate events into
+ * Vaadin Router navigation events.
  *
  * @memberOf Vaadin.Router.Triggers
  * @type {NavigationTrigger}
