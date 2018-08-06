@@ -1,16 +1,16 @@
 /**
- * This interface describes the lifecycle callbacks supported by `Vaadin.Router`
+ * This interface describes the lifecycle callbacks supported by Vaadin Router
  * on view Web Components. It exists only for documentation purposes, i.e.
  * you _do not need_ to extend it in your code&mdash;defining a method with a
  * matching name is enough (this class does not exist at the run time).
  *
  * If any of the methods described below are defined in a view Web Component,
- * `Vaadin.Router` calls them at the corresponding points of the view
+ * Vaadin Router calls them at the corresponding points of the view
  * lifecycle. Each method can either be synchronous or asynchronous (i.e. return
- * a Promise). In the latter case `Vaadin.Router` waits until the promise is
+ * a Promise). In the latter case Vaadin Router waits until the promise is
  * resolved and continues the navigation after that.
  *
- * Check the [documentation on the Vaadin.Router class](#/classes/Vaadin.Router)
+ * Check the [documentation on the `Vaadin.Router` class](#/classes/Vaadin.Router)
  * to learn more.
  *
  * Lifecycle callbacks are executed after the new path is resolved and after all
@@ -75,7 +75,7 @@ export class WebComponentInterface {
    * Return values:
    *
    * * if `context.cancel()` is returned (immediately or as a Promise), the navigation is aborted and the outlet contents is not updated.
-   * * any other return value is ignored and Vaadin.Router proceeds with the navigation.
+   * * any other return value is ignored and Vaadin Router proceeds with the navigation.
    */
   onBeforeLeave(context) {
     // user implementation example:
@@ -103,8 +103,8 @@ export class WebComponentInterface {
    * Return values:
    *
    * * if a `context.cancel()` object is returned (immediately or as a Promise), the navigation is aborted and the outlet contents is not updated.
-   * * if a `context.redirect(path)` object is returned (immediately or as a Promise), Vaadin.Router ends navigation to the current path, and starts a new navigation cycle to the new path.
-   * * any other return value is ignored and Vaadin.Router proceeds with the navigation.
+   * * if a `context.redirect(path)` object is returned (immediately or as a Promise), Vaadin Router ends navigation to the current path, and starts a new navigation cycle to the new path.
+   * * any other return value is ignored and Vaadin Router proceeds with the navigation.
    */
   onBeforeEnter(context) {
     // user implementation example:
@@ -128,7 +128,7 @@ export class WebComponentInterface {
    * | `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
    * | `context.route`    | object that holds the route being rendered.
    *
-   * Return values: any return value is ignored and Vaadin.Router proceeds with the navigation.
+   * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
    */
   onAfterLeave(context) {
     // user implementation example:
@@ -152,7 +152,7 @@ export class WebComponentInterface {
    * | `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
    * | `context.route`    | object that holds the route being rendered.
    *
-   * Return values: any return value is ignored and Vaadin.Router proceeds with the navigation.
+   * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
    */
   onAfterEnter(context) {
     // user implementation example:

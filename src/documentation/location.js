@@ -6,10 +6,10 @@
  * `Location` describes the state of a router at a given point in time. It is
  * available for your application code in several ways:
  *  - as the `router.location` property
- *  - as the `location` property set by Vaadin.Router on every view Web Component
- *  - as the `location` argument passed by Vaadin.Router into view Web Component
+ *  - as the `location` property set by Vaadin Router on every view Web Component
+ *  - as the `location` argument passed by Vaadin Router into view Web Component
  *    lifecycle callbacks
- *  - as the `event.detail.location` of the global Vaadin.Router events
+ *  - as the `event.detail.location` of the global Vaadin Router events
  *
  * @memberof Vaadin.Router
  * @summary Type declaration for the `router.location` property.
@@ -53,7 +53,7 @@ export class Location {
      *
      * This property is defined in the `location` objects that are passed as
      * parameters into Web Component lifecycle callbacks, and the `location`
-     * property set by Vaadin.Router on the Web Components.
+     * property set by Vaadin Router on the Web Components.
      *
      * This property is undefined in the `location` objects that are available
      * as `router.location`, and in the `location` that is included into the
