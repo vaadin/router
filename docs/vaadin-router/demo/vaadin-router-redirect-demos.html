@@ -8,7 +8,7 @@
 
     <h3>Unconditional Redirects</h3>
     <p>
-      Vaadin.Router supports the <code>redirect</code> property on the route
+      Vaadin Router supports the <code>redirect</code> property on the route
       objects, allowing to unconditionally redirect users from one path to
       another. The valid values are a path string or a pattern in the same
       format as used for the <code>path</code> property.
@@ -27,9 +27,9 @@
     <p>
       Note: If a route has both the <code>redirect</code> and <code>action</code>
       properties, <code>action</code> is executed first and if it does not
-      return a result Vaadin.Router proceeds to check the <code>redirect</code>
+      return a result Vaadin Router proceeds to check the <code>redirect</code>
       property. Other route properties (if any) would be ignored. In that case
-      Vaadin.Router would also log a warning to the browser console.
+      Vaadin Router would also log a warning to the browser console.
     </p>
     <vaadin-demo-snippet id="vaadin-router-redirect-demos-1" iframe-src="iframe.html">
       <template preserve-content="">
@@ -55,7 +55,7 @@
 
     <h3>Dynamic Redirects</h3>
     <p>
-      Vaadin.Router allows redirecting to another path dynamically based on
+      Vaadin Router allows redirecting to another path dynamically based on
       a condition evaluated at the run time. In order to do that, <code>
       return commands.redirect('/new/path')</code> from the
       <a href="#vaadin-router-lifecycle-callbacks-demos"><code>onBeforeEnter()
