@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/vaadin/vaadin-router.svg?branch=master)](https://travis-ci.org/vaadin/vaadin-router)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vaadin/web-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-# Vaadin.Router
+# Vaadin Router
 
 [Live Demo ↗](https://vaadin.github.io/vaadin-router/vaadin-router/demo)
 |
@@ -14,9 +14,9 @@
   <h2 align="center">A client-side router for Web Components</h2>
 </p>
 
-Vaadin.Router is a small and powerful client-side router JS library. It uses the widely adopted express.js syntax for routes (`/users/:id`) to map URLs to Web Component views. All features one might expect from a modern router are supported: async route resolution, animated transitions, navigation guards, redirects, and more. It is framework-agnostic and works equally well with all Web Components regardless of how they are created (Polymer / SkateJS / Stencil / Angular / Vue / etc).
+Vaadin Router is a small and powerful client-side router JS library. It uses the widely adopted express.js syntax for routes (`/users/:id`) to map URLs to Web Component views. All features one might expect from a modern router are supported: async route resolution, animated transitions, navigation guards, redirects, and more. It is framework-agnostic and works equally well with all Web Components regardless of how they are created (Polymer / SkateJS / Stencil / Angular / Vue / etc).
 
-Vaadin.Router is a good fit for developers that do not want to go all-in with one framework, and prefer to have freedom in picking the components that work best for their specific needs.
+Vaadin Router is a good fit for developers that do not want to go all-in with one framework, and prefer to have freedom in picking the components that work best for their specific needs.
 
 ```
 npm install --save @vaadin/router

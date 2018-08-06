@@ -13,12 +13,12 @@
     </p>
     <p>
       There are several events that can trigger in-app navigation with
-      Vaadin.Router: popstate events, clicks on the <code>&lt;a&gt;</code>
+      Vaadin Router: popstate events, clicks on the <code>&lt;a&gt;</code>
       elements, imperative navigation triggered by JavaScript. In order to make
       a flexible solution that can be tweaked to particular app needs and remain
-      efficient, Vaadin.Router has a concept of pluggable <em>Navigation
+      efficient, Vaadin Router has a concept of pluggable <em>Navigation
       Triggers</em> that listen to specific browser events and convert them into
-      the Vaadin.Router navigation events.
+      the Vaadin Router navigation events.
     </p>
     <p>
       The <code>@vaadin/router</code> package comes with two Navigation
@@ -33,9 +33,9 @@
 
     <h3><code>NavigationTrigger.POPSTATE</code></h3>
     <p>
-      The default <code>POPSTATE</code> navigation trigger for Vaadin.Router
+      The default <code>POPSTATE</code> navigation trigger for Vaadin Router
       listens to <code>popstate</code> events on the current <code>window</code>
-      and for each of them dispatches a navigation event for Vaadin.Router
+      and for each of them dispatches a navigation event for Vaadin Router
       using the current <code>window.location.pathname</code> as the navigation
       target. This allows using the browser Forward and Back buttons for in-app
       navigation.
@@ -78,7 +78,7 @@
     <p>
       The <code>CLICK</code> navigation trigger intercepts clicks on
       <code>&lt;a&gt;</code> elements on the the page and converts them into
-      navigation events for Vaadin.Router if they refer to a
+      navigation events for Vaadin Router if they refer to a
       location within the app. That allows using regular <code>&lt;a&gt;</code>
       link elements for in-app navigation.
     </p>
@@ -151,7 +151,7 @@
 
     <h3>Unsubscribe from Navigation Events</h3>
     <p>
-      Each Vaadin.Router instance is automatically subscribed to navigation
+      Each Vaadin Router instance is automatically subscribed to navigation
       events upon creation. Sometimes it might be necessary to cancel this
       subscription so that the router would re-render only in response to the
       explicit <code>render()</code> method calls. Use the <code>unsubscribe()

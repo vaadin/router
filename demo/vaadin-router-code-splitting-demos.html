@@ -8,15 +8,15 @@
 
     <h3>Lazy Loading JS Bundles</h3>
     <p>
-      Vaadin.Router works great with code splitting. If your build tool allows
+      Vaadin Router works great with code splitting. If your build tool allows
       you to split your code into various bundles which can then be loaded on
-      demand, Vaadin.Router can load these bundled lazily just-in-time before
+      demand, Vaadin Router can load these bundled lazily just-in-time before
       rendering a route.
       In order to use this feature specify a bundle URL in the <code>bundle
       </code> property of the route object.
     </p>
     <p>
-      By default Vaadin.Router loads route bundles as regular JavaScript files (async),
+      By default Vaadin Router loads route bundles as regular JavaScript files (async),
       but it supports ES module bundles as well. In order to use a ES module as a route bundle,
       set the <code>bundle</code> property to an object with the following structure:
       <marked-element>
@@ -33,7 +33,7 @@
       </marked-element>
     <p>
       Note: If the bundle URL does not end with <code>.js</code> nor with <code>
-      .mjs</code>, Vaadin.Router throws an <code>Error</code> and does not
+      .mjs</code>, Vaadin Router throws an <code>Error</code> and does not
       attempt to load it. Use a custom route action as shown in the next demo if
       you need to load non-js bundles.
     </p>
@@ -112,7 +112,7 @@
 
     <h3>Using Dynamic Imports</h3>
     <p>
-      Vaadin.Router allows you to implement your own loading mechanism for bundles using
+      Vaadin Router allows you to implement your own loading mechanism for bundles using
       custom <a href="#vaadin-router-route-actions-demos">Route Actions</a>. In that case,
       you can use <a href="https://github.com/tc39/proposal-dynamic-import" target="_blank"
       rel="noopener">dynamic imports</a> and a module bundler to make the code work in browsers
@@ -145,7 +145,7 @@
 
     <h3>Splitting and Lazy-Loading the Routes Configuration</h3>
     <p>
-      Vaadin.Router supports splitting the routes configuration object into parts and lazily loading them on-demand,
+      Vaadin Router supports splitting the routes configuration object into parts and lazily loading them on-demand,
       enabling developers to create non-monolithic app structures. This might be useful for implementing a distributed
       sub routes configuration within a big project, so that multiple teams working on different parts of the app
       no longer have to merge their changes into the same file.

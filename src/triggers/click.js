@@ -86,8 +86,8 @@ function vaadinRouterGlobalClickHandler(event) {
 }
 
 /**
- * A navigation trigger for Vaadin.Router that translated clicks on `<a>` links
- * into Vaadin.Router navigation events.
+ * A navigation trigger for Vaadin Router that translated clicks on `<a>` links
+ * into Vaadin Router navigation events.
  *
  * Only regular clicks on in-app links are translated (primary mouse button, no
  * modifier keys, the target href is within the app's URL space).
