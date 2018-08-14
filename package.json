@@ -59,6 +59,7 @@
     "IE 11"
   ],
   "dependencies": {
+    "@vaadin/vaadin-usage-statistics": "^2.0.1",
     "path-to-regexp": "2.2.1"
   },
   "devDependencies": {

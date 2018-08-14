@@ -1457,6 +1457,16 @@
             expect(data[3].oldValue).to.equal('entering');
           });
         });
+
+        describe('window.Vaadin.registrations', () => {
+          it('should contain a single record for the Vaadin Router usage', () => {
+            const registrations = window.Vaadin.registrations.filter(
+              reg => reg.is === '@vaadin/router');
+
+            expect(registrations).to.have.lengthOf(1);
+            expect(registrations[0]).to.have.property('version').that.is.a.string;
+          });
+        });
       });
     });
 
