@@ -706,6 +706,32 @@
             expect(spy).to.have.been.called.once;
             expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/a');
           });
+
+          it('should re-render when Router.go is called for the same path but results in a new element', async() => {
+            var showOtherComponent = true;
+            router.setRoutes([
+              {
+                path: '/',
+                component: 'x-home-view',
+                action: (loc,cmd) => {
+                  if (showOtherComponent) {
+                    return cmd.component('x-login-view');
+                  }
+              }
+            },
+            ]);
+            Vaadin.Router.go('/');
+            await router.ready.then((location) => {
+              const elem = outlet.children[0];
+              expect(elem.tagName).to.equal("X-LOGIN-VIEW");
+            });
+            showOtherComponent = false;
+            Vaadin.Router.go('/');
+            await router.ready.then((location) => {
+              const elem = outlet.children[0];
+              expect(elem.tagName).to.equal("X-HOME-VIEW");
+            });
+          });
         });
 
         describe('route parameters', () => {
