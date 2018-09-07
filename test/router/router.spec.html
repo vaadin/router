@@ -1444,7 +1444,7 @@
             await router.render('/animate');
 
             // FIXME(web-padawan): force IE11 to pick up mutations
-            if (/Trident/.test(navigator.userAgent)) {
+            if (/Trident/.test(navigator.userAgent) && data.length !== 4) {
               data = observer.takeRecords();
             }
 
