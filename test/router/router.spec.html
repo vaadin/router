@@ -1265,6 +1265,28 @@
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
             expect(from).to.be.equal('/c');
           });
+
+          it('should be able to return different components for consecutive calls', async() => {
+            let anonymous = true;
+            router.setRoutes([
+              {
+                path: '/',
+                component: 'x-home-view',
+                action: (context, commands) => {
+                  if (anonymous) {
+                    return commands.component('x-login-view');
+                  }
+                }
+              },
+            ]);
+
+            await router.render('/');
+            expect(outlet.children[0].tagName).to.match(/x-login-view/i);
+
+            anonymous = false;
+            await router.render('/');
+            expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
         });
 
         describe('route.children (function)', () => {
