@@ -461,7 +461,8 @@ export class Router extends Resolver {
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if (previousChain[i].route !== newChain[i].route || previousChain[i].path !== newChain[i].path) {
+        if (previousChain[i].route !== newChain[i].route || previousChain[i].path !== newChain[i].path
+          || previousChain[i].element !== newChain[i].element) {
           break;
         }
       }
