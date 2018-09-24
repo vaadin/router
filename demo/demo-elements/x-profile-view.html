@@ -1,4 +1,5 @@
 <link rel="import" href="../../../polymer/polymer-element.html">
+<link rel="import" href="../../../vaadin-themable-mixin/vaadin-themable-mixin.html">
 
 <dom-module id="x-profile-view">
   <template preserve-content>
@@ -6,7 +7,7 @@
     <code>/user</code> or <code>/users</code>: [[location.params.0]]
   </template>
   <script>
-    class XProfileView extends Polymer.Element {
+    class XProfileView extends Vaadin.ThemableMixin(Polymer.Element) {
       static get is() {
         return 'x-profile-view';
       }

@@ -1,9 +1,12 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
+<link rel="import" href="../../../vaadin-themable-mixin/vaadin-themable-mixin.html">
+
 <dom-module id="x-knowledge-base">
   <template preserve-content>
     Knowledge base path: '[[location.params.path]]'
   </template>
   <script>
-    class XKnowledgeBase extends Polymer.Element {
+    class XKnowledgeBase extends Vaadin.ThemableMixin(Polymer.Element) {
       static get is() {
         return 'x-knowledge-base';
       }

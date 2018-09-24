@@ -7,15 +7,39 @@
   <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
   <link rel="import" href="demo-shell.html">
 
-  <style>
-    vaadin-router-link {
-      display: inline-block;
-    }
+  <custom-style>
+    <style include="lumo-typography lumo-color">
+      body {
+        margin: 1.25em;
+      }
 
-    vaadin-router-link:not(:last-child) {
-      margin-right: 1em;
-    }
-  </style>
+      h1 {
+        margin-top: 0.5em;
+        margin-bottom: 0.25em;
+        font-size: var(--lumo-font-size-xxl);
+      }
+
+      a {
+        display: inline-block;
+      }
+
+      a:not(:last-child) {
+        margin-right: 1em;
+      }
+    </style>
+  </custom-style>
+
+  <dom-module id="x-styles" theme-for="x-*">
+    <template>
+      <style include="lumo-typography lumo-color">
+        h1 {
+          margin-top: 0.5em;
+          margin-bottom: 0.25em;
+          font-size: var(--lumo-font-size-xxl);
+        }
+      </style>
+    </template>
+  </dom-module>
 </head>
 
 <body>
