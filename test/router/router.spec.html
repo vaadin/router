@@ -997,7 +997,7 @@
           });
 
           it('action with incorrect return throws before redirect', async() => {
-            await Promise.all([NaN, 0, false, '', 'thisIsAlsoIncorrect'].map(async(incorrectReturnValue) => {
+            await Promise.all([NaN, 0, false, '', 'thisIsAlsoIncorrect', Object.create(null)].map(async(incorrectReturnValue) => {
               const router = new Vaadin.Router(outlet);
               const erroneousPath = '/error';
               let actionExecuted = false;
@@ -1006,6 +1006,27 @@
                   path: erroneousPath, redirect: '/users', action: () => {
                     actionExecuted = true;
                     return incorrectReturnValue;
+                  }
+                },
+                {path: '/users', component: 'x-users-view'},
+              ]);
+
+              await expectException(router.render(erroneousPath), [erroneousPath, incorrectReturnValue]);
+              expect(actionExecuted).to.equal(true);
+              router.unsubscribe();
+            }));
+          });
+
+          it('should throw before redirect if action returns a Promise with incorrect value', async() => {
+            await Promise.all([NaN, 0, false, '', 'thisIsAlsoIncorrect', Object.create(null)].map(async(incorrectReturnValue) => {
+              const router = new Vaadin.Router(outlet);
+              const erroneousPath = '/error';
+              let actionExecuted = false;
+              router.setRoutes([
+                {
+                  path: erroneousPath, redirect: '/users', action: () => {
+                    actionExecuted = true;
+                    return new Promise(resolve => resolve(incorrectReturnValue));
                   }
                 },
                 {path: '/users', component: 'x-users-view'},
