@@ -1137,6 +1137,66 @@
         });
       });
 
+      describe('lifecycle events with bundle', () => {
+        const existingBundlePath = encodeURI('data:application/javascript,callbacksLog.push("bundle");//.js');
+        function getBundleScript() {
+          return document.head.querySelector('script[src="' + existingBundlePath + '"][async]');
+        }
+        afterEach(() => {
+          const bundleScript = getBundleScript();
+          if (bundleScript) {
+            bundleScript.parentNode.removeChild(bundleScript);
+          }
+        });
+
+        it('should invoke lifecycle events after bundle loading is complete', async() => {
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/x-spy', bundle: existingBundlePath, component: 'x-spy'}
+          ]);
+
+          await router.render('/');
+          callbacksLog = [];
+          await router.render('/x-spy');
+
+          verifyCallbacks([
+            'bundle',
+            'undefined.onBeforeEnter',
+            'undefined.connectedCallback',
+            'undefined.onAfterEnter'
+          ]);
+        });
+      });
+
+      describe('lifecycle events with async action', () => {
+        it('should invoke lifecycle events after action promise resolves', async() => {
+          let actionPromise;
+
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/x-spy', action: (context, commands) => {
+              return new Promise(resolve => {
+                setTimeout(() => {
+                  callbacksLog.push('action.promise');
+                  resolve();
+                }, 100);
+              });
+            }, component: 'x-spy'}
+          ]);
+
+          await router.render('/');
+          callbacksLog = [];
+          await router.render('/x-spy');
+
+          verifyCallbacks([
+            'action.promise',
+            'undefined.onBeforeEnter',
+            'undefined.connectedCallback',
+            'undefined.onAfterEnter'
+          ]);
+        });
+      });
+
       describe('the global `vaadin-router-location-changed` event', () => {
         it('should be triggered after a completed navigation', async() => {
           router.setRoutes([
