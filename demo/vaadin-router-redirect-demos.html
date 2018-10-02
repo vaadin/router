@@ -27,9 +27,10 @@
     <p>
       Note: If a route has both the <code>redirect</code> and <code>action</code>
       properties, <code>action</code> is executed first and if it does not
-      return a result Vaadin Router proceeds to check the <code>redirect</code>
-      property. Other route properties (if any) would be ignored. In that case
-      Vaadin Router would also log a warning to the browser console.
+      return a result or returns an <code>HTMLElement</code>, Vaadin Router
+      proceeds to check the <code>redirect</code> property. Other route
+      properties (if any) would be ignored. In that case Vaadin Router would
+      also log a warning to the browser console.
     </p>
     <vaadin-demo-snippet id="vaadin-router-redirect-demos-1" iframe-src="iframe.html">
       <template preserve-content>

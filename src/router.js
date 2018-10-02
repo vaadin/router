@@ -191,7 +191,7 @@ export class Router extends Resolver {
       component: component => renderComponent(context, component)
     };
     const actionResult = runCallbackIfPossible(route.action, [context, commands], route);
-    if (isResultNotEmpty(actionResult)) {
+    if (isResultNotEmpty(actionResult) && !(actionResult instanceof HTMLElement)) {
       return actionResult;
     }
 
@@ -222,7 +222,9 @@ export class Router extends Resolver {
     }
 
     return callbacks.then(() => {
-      if (isString(route.component)) {
+      if (actionResult instanceof HTMLElement) {
+        return actionResult;
+      } else if (isString(route.component)) {
         return commands.component(route.component);
       }
     });
@@ -264,9 +266,11 @@ export class Router extends Resolver {
    * [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
    *
    * * `action` – the action that is executed before the route is resolved.
-   * The value for this property should be a function, accepting a `context` parameter described below.
-   * If present, this function is always invoked first, disregarding of the other properties' presence.
-   * If the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.
+   * The value for this property should be a function, accepting a `context`
+   * parameter described below. If present, this function is always invoked
+   * first, disregarding of the other properties' presence. If the action
+   * returns a non-empty result that is not an `HTMLElement`, the current route
+   * resolution is finished and other route config properties are ignored.
    * See also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
    * * `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.
