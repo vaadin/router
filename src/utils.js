@@ -7,6 +7,19 @@ export function log(msg) {
   return `[Vaadin.Router] ${msg}`;
 }
 
+export function logValue(value) {
+  if (typeof value !== 'object') {
+    return String(value);
+  }
+
+  const stringType = Object.prototype.toString.call(value).match(/ (.*)\]$/)[1];
+  if (stringType === 'Object' || stringType === 'Array') {
+    return `${stringType} ${JSON.stringify(value)}`;
+  } else {
+    return stringType;
+  }
+}
+
 const MODULE = 'module';
 const NOMODULE = 'nomodule';
 const bundleKeys = [MODULE, NOMODULE];

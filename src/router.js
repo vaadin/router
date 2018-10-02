@@ -6,6 +6,7 @@ import {
   fireRouterEvent,
   loadBundle,
   log,
+  logValue,
   toArray,
   isFunction,
   isString,
@@ -433,7 +434,7 @@ export class Router extends Resolver {
         new Error(
           log(
             `Invalid route resolution result for path "${context.pathname}". ` +
-            `Expected redirect object or HTML element, but got: "${result}". ` +
+            `Expected redirect object or HTML element, but got: "${logValue(result)}". ` +
             `Double check the action return value for the route.`
           )
         ));
