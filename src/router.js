@@ -186,27 +186,7 @@ export class Router extends Resolver {
   __resolveRoute(context) {
     const route = context.route;
 
-    const commands = {
-      redirect: path => createRedirect(context, path),
-      component: component => renderComponent(context, component)
-    };
-    const actionResult = runCallbackIfPossible(route.action, [context, commands], route);
-    if (isResultNotEmpty(actionResult)) {
-      return actionResult;
-    }
-
-    if (isString(route.redirect)) {
-      return commands.redirect(route.redirect);
-    }
-
     let callbacks = Promise.resolve();
-
-    if (route.bundle) {
-      callbacks = callbacks.then(() => loadBundle(route.bundle))
-        .catch(() => {
-          throw new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`));
-        });
-    }
 
     if (isFunction(route.children)) {
       callbacks = callbacks
@@ -221,11 +201,40 @@ export class Router extends Resolver {
         });
     }
 
-    return callbacks.then(() => {
-      if (isString(route.component)) {
-        return commands.component(route.component);
-      }
-    });
+    const commands = {
+      redirect: path => createRedirect(context, path),
+      component: component => renderComponent(context, component)
+    };
+
+    return callbacks
+      .then(() => {
+        const actionResult = runCallbackIfPossible(route.action, [context, commands], route);
+        if (isResultNotEmpty(actionResult)) {
+          throw actionResult;
+        }
+
+        if (isString(route.redirect)) {
+          throw commands.redirect(route.redirect);
+        }
+
+        if (route.bundle) {
+          return loadBundle(route.bundle)
+            .catch(() => {
+              throw new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`));
+            });
+        }
+      })
+      .then(() => {
+        if (isString(route.component)) {
+          return commands.component(route.component);
+        }
+      }, rejectResult => {
+        if (rejectResult instanceof Error) {
+          throw rejectResult;
+        } else {
+          return rejectResult;
+        }
+      });
   }
 
   /**
