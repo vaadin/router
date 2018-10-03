@@ -977,23 +977,57 @@
             expect(actionExecuted).to.equal(true);
           });
 
-          it('action with return should be executed before children function and stop it from being executed', async() => {
-            let actionExecuted = false;
-            const children = sinon.spy();
-
+          it('action with HTMLElement return should prevent redirect', async() => {
             router.setRoutes([
-              {path: '/home', children, action: (context, commands) => {
-                actionExecuted = true;
-                return commands.redirect('/users');
-              }},
-              {path: '/users', component: 'x-users-view'},
+              {
+                path: '/',
+                action: (context, {component}) => {
+                  return component('x-main-layout');
+                },
+                redirect: '/users'
+              },
+              {path: '/users', component: 'x-users-view'}
+            ]);
+
+            await router.render('/');
+            checkOutlet(['x-main-layout']);
+          });
+
+          it('action with redirect return should prevent matching children', async() => {
+            router.setRoutes([
+              {
+                path: '/home',
+                action: (context, {redirect}) => {
+                  return redirect('/users');
+                },
+                component: 'x-main-layout',
+                children: () => [
+                  {path: '/', component: 'x-home-view'},
+                ]
+              },
+              {path: '/users', component: 'x-users-view'}
             ]);
 
             await router.render('/home');
+            checkOutlet(['x-users-view']);
+            expect(outlet.firstElementChild.firstElementChild).to.be.null;
+          });
 
-            expect(outlet.children[0].tagName).to.match(/x-users-view/i);
-            expect(actionExecuted).to.equal(true);
-            expect(children).to.not.have.been.called;
+          it('action with HTMLElement return should not prevent matching children', async() => {
+            router.setRoutes([
+              {
+                path: '/',
+                action: (context, {component}) => {
+                  return component('x-main-layout');
+                },
+                children: () => [
+                  {path: '/', component: 'x-home-view'},
+                ]
+              },
+            ]);
+
+            await router.render('/');
+            checkOutlet(['x-main-layout', 'x-home-view']);
           });
 
           it('action with incorrect return throws before redirect', async() => {
@@ -1438,23 +1472,6 @@
             await router.render('/a/b');
 
             expect(outlet.children[0].tagName).to.match(/x-c/i);
-          });
-
-          it('should work together with the route.action() function', async() => {
-            router.setRoutes([
-              {
-                path: '/',
-                action: (context, {component}) => {
-                  return component('x-main-layout');
-                },
-                children: () => [
-                  {path: '/', component: 'x-home-view'},
-                ]
-              },
-            ]);
-
-            await router.render('/');
-            checkOutlet(['x-main-layout', 'x-home-view']);
           });
         });
 
