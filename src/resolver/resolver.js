@@ -10,7 +10,7 @@
 import pathToRegexp from './path-to-regexp.js';
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
-import {toArray, ensureRoutes, isString, getNotFoundError} from '../utils.js';
+import {toArray, ensureRoutes, isString, getNotFoundError, notFoundResult} from '../utils.js';
 
 function isChildRoute(parentRoute, childRoute) {
   let route = childRoute;
@@ -150,7 +150,7 @@ class Resolver {
       if (!resume) {
         if (matches.done || !isChildRoute(parent, matches.value.route)) {
           nextMatches = matches;
-          return Promise.resolve(null);
+          return Promise.resolve(notFoundResult);
         }
       }
 
@@ -162,7 +162,7 @@ class Resolver {
       currentContext = Object.assign({}, context, matches.value);
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {
-        if (resolution !== null && resolution !== undefined) {
+        if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
           currentContext.result = resolution.result || resolution;
           return currentContext;
         }
