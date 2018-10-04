@@ -186,27 +186,7 @@ export class Router extends Resolver {
   __resolveRoute(context) {
     const route = context.route;
 
-    const commands = {
-      redirect: path => createRedirect(context, path),
-      component: component => renderComponent(context, component)
-    };
-    const actionResult = runCallbackIfPossible(route.action, [context, commands], route);
-    if (isResultNotEmpty(actionResult)) {
-      return actionResult;
-    }
-
-    if (isString(route.redirect)) {
-      return commands.redirect(route.redirect);
-    }
-
     let callbacks = Promise.resolve();
-
-    if (route.bundle) {
-      callbacks = callbacks.then(() => loadBundle(route.bundle))
-        .catch(() => {
-          throw new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`));
-        });
-    }
 
     if (isFunction(route.children)) {
       callbacks = callbacks
@@ -221,11 +201,40 @@ export class Router extends Resolver {
         });
     }
 
-    return callbacks.then(() => {
-      if (isString(route.component)) {
-        return commands.component(route.component);
-      }
-    });
+    const commands = {
+      redirect: path => createRedirect(context, path),
+      component: component => renderComponent(context, component)
+    };
+
+    return callbacks
+      .then(() => {
+        const actionResult = runCallbackIfPossible(route.action, [context, commands], route);
+        if (isResultNotEmpty(actionResult)) {
+          throw actionResult;
+        }
+
+        if (isString(route.redirect)) {
+          throw commands.redirect(route.redirect);
+        }
+
+        if (route.bundle) {
+          return loadBundle(route.bundle)
+            .catch(() => {
+              throw new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`));
+            });
+        }
+      })
+      .then(() => {
+        if (isString(route.component)) {
+          return commands.component(route.component);
+        }
+      }, rejectResult => {
+        if (rejectResult instanceof Error) {
+          throw rejectResult;
+        } else {
+          return rejectResult;
+        }
+      });
   }
 
   /**
@@ -263,6 +272,18 @@ export class Router extends Resolver {
    * * `path` – the route path (relative to the parent route if any) in the
    * [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
    *
+   * * `children` – an array of nested routes or a function that provides this
+   * array at the render time. The function can be synchronous or asynchronous:
+   * in the latter case the render is delayed until the returned promise is
+   * resolved. The `children` function is executed every time when this route is
+   * being rendered. This allows for dynamic route structures (e.g. backend-defined),
+   * but it might have a performance impact as well. In order to avoid calling
+   * the function on subsequent renders, you can override the `children` property
+   * of the route object and save the calculated array there
+   * (via `context.route.children = [ route1, route2, ...];`).
+   * Parent routes are fully resolved before resolving the children. Children
+   * 'path' values are relative to the parent ones.
+   *
    * * `action` – the action that is executed before the route is resolved.
    * The value for this property should be a function, accepting a `context` parameter described below.
    * If present, this function is always invoked first, disregarding of the other properties' presence.
@@ -280,18 +301,6 @@ export class Router extends Resolver {
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
    * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
    * See also **Code Splitting** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
-   *
-   * * `children` – an array of nested routes or a function that provides this
-   * array at the render time. The function can be synchronous or asynchronous:
-   * in the latter case the render is delayed until the returned promise is
-   * resolved. The `children` function is executed every time when this route is
-   * being rendered. This allows for dynamic route structures (e.g. backend-defined),
-   * but it might have a performance impact as well. In order to avoid calling
-   * the function on subsequent renders, you can override the `children` property
-   * of the route object and save the calculated array there
-   * (via `context.route.children = [ route1, route2, ...];`).
-   * Parent routes are fully resolved before resolving the children. Children
-   * 'path' values are relative to the parent ones.
    *
    * * `component` – the tag name of the Web Component to resolve the route to.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
