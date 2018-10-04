@@ -1141,8 +1141,24 @@
             expect(getBundleScripts(existingBundlePath).length).to.equal(0);
           });
 
-          it('redirect should be executed before children function', async() => {
-            const children = sinon.spy();
+          it('action should be executed after children function', async() => {
+            const children = sinon.stub().returns([]);
+            let actionExecuted = false;
+
+            router.setRoutes([
+              {path: '/test', children, component: 'x-test', action: () => {
+                actionExecuted = true;
+                expect(children).to.have.been.called;
+              }},
+            ]);
+
+            await router.render('/test');
+
+            expect(actionExecuted).to.be.true;
+          });
+
+          it('redirect should be executed after children function', async() => {
+            const children = sinon.stub().returns([]);
 
             router.setRoutes([
               {path: '/home', children, redirect: '/users'},
@@ -1152,15 +1168,15 @@
             await router.render('/home/1');
 
             expect(outlet.children[0].tagName).to.match(/x-users-view/i);
-            expect(children).to.not.have.been.called;
+            expect(children).to.have.been.called;
           });
 
-          it('bundle should be executed before children function', async() => {
+          it('bundle should be executed after children function', async() => {
             removeBundle();
 
             router.setRoutes([
               {path: '/test', bundle: existingBundlePath, children: () => {
-                expect(getBundleScripts(existingBundlePath).length).to.equal(1);
+                expect(getBundleScripts(existingBundlePath).length).to.equal(0);
                 return {path: '/child', component: 'x-test-child-view'};
               }},
             ]);
