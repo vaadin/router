@@ -206,33 +206,43 @@ export class Router extends Resolver {
       component: component => renderComponent(context, component)
     };
 
+    const fakeNextValue = {};
+    let nextArgs = [];
+    const contextCopyWithFakeNext = Object.assign({}, context, {
+      next: (...args) => {
+        nextArgs = args;
+        return fakeNextValue;
+      }
+    });
+
     return callbacks
-      .then(() => {
-        const actionResult = runCallbackIfPossible(route.action, [context, commands], route);
-        if (isResultNotEmpty(actionResult)) {
-          throw actionResult;
+      .then(() => runCallbackIfPossible(route.action, [contextCopyWithFakeNext, commands], route))
+      .then(result => {
+        if (isResultNotEmpty(result)) {
+          if (result instanceof HTMLElement ||
+              result === fakeNextValue ||
+              result.redirect) {
+            return result;
+          }
         }
 
         if (isString(route.redirect)) {
-          throw commands.redirect(route.redirect);
+          return commands.redirect(route.redirect);
         }
 
         if (route.bundle) {
           return loadBundle(route.bundle)
-            .catch(() => {
+            .then(() => {}, () => {
               throw new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`));
             });
         }
       })
-      .then(() => {
+      .then(result => {
+        if (isResultNotEmpty(result)) {
+          return result === fakeNextValue ? context.next(...nextArgs) : result;
+        }
         if (isString(route.component)) {
           return commands.component(route.component);
-        }
-      }, rejectResult => {
-        if (rejectResult instanceof Error) {
-          throw rejectResult;
-        } else {
-          return rejectResult;
         }
       });
   }
@@ -287,7 +297,11 @@ export class Router extends Resolver {
    * * `action` – the action that is executed before the route is resolved.
    * The value for this property should be a function, accepting a `context` parameter described below.
    * If present, this function is always invoked first, disregarding of the other properties' presence.
-   * If the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.
+   * The action can return a result directly or within a `Promise`, which
+   * resolves to the result. If the action result is an `HTMLElement` instance,
+   * a `commands.component(name)` result, a `commands.redirect(path)` result,
+   * or a `context.next()` result, the current route resolution is finished,
+   * and other route config properties are ignored.
    * See also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
    * * `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.

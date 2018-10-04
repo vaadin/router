@@ -1030,8 +1030,9 @@
             checkOutlet(['x-main-layout', 'x-home-view']);
           });
 
-          it('action with incorrect return throws before redirect', async() => {
-            await Promise.all([NaN, 0, false, '', 'thisIsAlsoIncorrect', Object.create(null)].map(async(incorrectReturnValue) => {
+          it('action with non-resolving return should not prevent route redirect', async() => {
+            await Promise.all([undefined, null, NaN, 0, false, '', 'thisIsAlsoNonResolving', {}, Object.create(null)].map(async(returnValue) => {
+              outlet = fixture('outlet');
               const router = new Vaadin.Router(outlet);
               const erroneousPath = '/error';
               let actionExecuted = false;
@@ -1039,20 +1040,21 @@
                 {
                   path: erroneousPath, redirect: '/users', action: () => {
                     actionExecuted = true;
-                    return incorrectReturnValue;
+                    return returnValue;
                   }
                 },
                 {path: '/users', component: 'x-users-view'},
               ]);
 
-              await expectException(router.render(erroneousPath), [erroneousPath, incorrectReturnValue]);
+              await router.render(erroneousPath);
               expect(actionExecuted).to.equal(true);
-              router.unsubscribe();
+              checkOutlet(['x-users-view']);
             }));
           });
 
-          it('should throw before redirect if action returns a Promise with incorrect value', async() => {
-            await Promise.all([NaN, 0, false, '', 'thisIsAlsoIncorrect', Object.create(null)].map(async(incorrectReturnValue) => {
+          it('should redirect if action returns a Promise with non-resolving value', async() => {
+            await Promise.all([undefined, null, NaN, 0, false, '', 'thisIsAlsoNonResolving', {}, Object.create(null)].map(async(returnValue) => {
+              outlet = fixture('outlet');
               const router = new Vaadin.Router(outlet);
               const erroneousPath = '/error';
               let actionExecuted = false;
@@ -1060,15 +1062,15 @@
                 {
                   path: erroneousPath, redirect: '/users', action: () => {
                     actionExecuted = true;
-                    return new Promise(resolve => resolve(incorrectReturnValue));
+                    return Promise.resolve(returnValue);
                   }
                 },
                 {path: '/users', component: 'x-users-view'},
               ]);
 
-              await expectException(router.render(erroneousPath), [erroneousPath, incorrectReturnValue]);
+              await router.render(erroneousPath);
               expect(actionExecuted).to.equal(true);
-              router.unsubscribe();
+              checkOutlet(['x-users-view']);
             }));
           });
 
