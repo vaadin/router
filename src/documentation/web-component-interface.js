@@ -57,11 +57,16 @@
  */
 export class WebComponentInterface {
   /**
-   * Method that gets executed when user navigates away from the component that had defined the method.
-   * The user can prevent the navigation by returning `context.cancel()` from the method or same value wrapped in `Promise`.
-   * This effectively means that the corresponding component should be resolved by the router before the method can be executed.
-   * If the router navigates to the same path twice in a row, in the second time the method is not called.
-   * The WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
+   * Method that gets executed when user navigates away from the component
+   * that had defined the method. The user can prevent the navigation
+   * by returning `context.cancel()` from the method or same value wrapped
+   * in `Promise`. This effectively means that the corresponding component
+   * should be resolved by the router before the method can be executed.
+   * If the router navigates to the same path twice in a row, and this results
+   * in rendering the same component name, in the second time the method
+   * is not called. The WebComponent instance on which the callback
+   * has been invoked is available inside the callback through
+   * the `this` reference.
    *
    * @param context the context object with the following properties:
    *
@@ -85,10 +90,14 @@ export class WebComponentInterface {
   }
 
   /**
-   * Method that gets executed before the outlet contents is updated with the new element.
-   * The user can prevent the navigation by returning `context.cancel()` from the method or same value wrapped in `Promise`.
-   * If the router navigates to the same path twice in a row, in the second time the method is not called.
-   * the WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
+   * Method that gets executed before the outlet contents is updated with
+   * the new element. The user can prevent the navigation by returning
+   * `context.cancel()` from the method or same value wrapped in `Promise`.
+   * If the router navigates to the same path twice in a row, and this results
+   * in rendering the same component name, in the second time the method
+   * is not called. The WebComponent instance on which the callback
+   * has been invoked is available inside the callback through
+   * the `this` reference.
    *
    * @param context the context object with the following properties:
    *
@@ -114,11 +123,17 @@ export class WebComponentInterface {
   }
 
   /**
-   * Method that gets executed when user navigates away from the component that had defined the method, just before the element is to be removed from the DOM.
-   * The difference between this method and `onBeforeLeave` is that when this method is executed, there is no way to abort the navigation.
-   * This effectively means that the corresponding component should be resolved by the router before the method can be executed.
-   * If the router navigates to the same path twice in a row, in the second time the method is not called.
-   * The WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
+   * Method that gets executed when user navigates away from the component that
+   * had defined the method, just before the element is to be removed
+   * from the DOM. The difference between this method and `onBeforeLeave`
+   * is that when this method is executed, there is no way to abort
+   * the navigation. This effectively means that the corresponding component
+   * should be resolved by the router before the method can be executed.
+   * If the router navigates to the same path twice in a row, and this results
+   * in rendering the same component name, in the second time the method
+   * is not called. The WebComponent instance on which the callback
+   * has been invoked is available inside the callback through
+   * the `this` reference.
    *
    * @param context the context object with the following properties:
    *
@@ -136,9 +151,12 @@ export class WebComponentInterface {
   }
 
   /**
-   * Method that gets executed after the outlet contents is updated with the new element.
-   * If the router navigates to the same path twice in a row, in the second time the method is not called.
-   * The WebComponent instance on which the callback has been invoked is available inside the callback through the `this` reference.
+   * Method that gets executed after the outlet contents is updated with the new
+   * element. If the router navigates to the same path twice in a row, and
+   * this results in rendering the same component name, in the second time
+   * the method is not called. The WebComponent instance on which the callback
+   * has been invoked is available inside the callback through
+   * the `this` reference.
    *
    * This callback is called asynchronously after the native
    * [`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)
