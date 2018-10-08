@@ -1,0 +1,162 @@
+<dom-module id="vaadin-router-custom-append-demos">
+  <template>
+    <style include="vaadin-component-demo-shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <h3>Moving a child component</h3>
+
+    <vaadin-demo-snippet id="vaadin-router-custom-append-demos-1" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/test">Test</a>
+        <div id="outlet"></div>
+        <script>
+          Polymer({
+            is: 'x-test',
+
+            onAfterEnter: function() {
+              console.log('onAfterEnter', this);
+              if (this.parentElement !== document.body) {
+                document.body.appendChild(this);
+              }
+            },
+
+            onAfterLeave: function() {
+              console.log('onAfterLeave', this);
+              if (this.parentElement) {
+                this.parentElement.removeChild(this);
+              }
+            }
+          });
+
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/test', component: 'x-test'}
+          ]);
+        </script>
+        <dom-module id="x-test">
+          <template>
+            <h1>Test!</h1>
+          </template>
+        </dom-module>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Subrouter</h3>
+
+    <vaadin-demo-snippet id="vaadin-router-custom-append-demos-2" iframe-src="iframe.html">
+      <template preserve-content>
+        <a href="/">Home</a>
+        <a href="/crud/">Crud index</a>
+        <a href="/crud/1">Crud 1 show</a>
+        <a href="/crud/1/edit">Crud 1 edit</a>
+        <div id="outlet"></div>
+        <script>
+          Polymer({
+            is: 'x-crud',
+
+            properties: {
+              _subrouter: Object,
+              subpath: String
+            },
+
+            observers: [
+              '_subNavigationHandler(_subrouter, location)'
+            ],
+
+            ready: function() {
+              this._subrouter = new Router(this.$.crudOutlet);
+
+              // FIXME(subrouter): Navigation is handled in the parent instance
+              this._subrouter.unsubscribe();
+
+              // FIXME(subrouter): Disable initial navigation on `setRoutes([...])`
+              this._subrouter.__onNavigationEvent = () => {};
+
+              this._subrouter.setRoutes([
+                {path: '', component: 'x-crud-index'},
+                {path: ':id', component: 'x-crud-show'}
+              ]);
+            },
+
+            _subNavigationHandler: function(_subrouter, location) {
+              if (_subrouter === undefined || location === undefined) {
+                return;
+              }
+
+              // FIXME(subrouter): Subpath is manually matched using params.
+              // There could be a better way.
+              this.subpath = Object.values(location.params).pop();
+              // console.log('subpath', this.subpath);
+
+              // FIXME(subrouter): Rendering a subpath is manual.
+              _subrouter.render(this.subpath);
+            }
+          });
+
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/crud/(.*)', component: 'x-crud'}
+          ]);
+        </script>
+        <dom-module id="x-crud">
+          <template>
+            <h1>Crud</h1>
+            <div id="crudOutlet"></div>
+          </template>
+        </dom-module>
+
+        <script>
+          Polymer({
+            is: 'x-crud-index'
+          });
+        </script>
+        <dom-module id="x-crud-index">
+          <template>
+            <h2>Index</h2>
+            <ul>
+              <li><a href="./1">Item 1</a></li>
+              <li><a href="./2">Item 2</a></li>
+              <li><a href="./3">Item 3</a></li>
+            </ul>
+          </template>
+        </dom-module>
+
+        <script>
+          Polymer({
+            is: 'x-crud-show',
+            properties: {
+              location: Object
+            }
+          });
+        </script>
+        <dom-module id="x-crud-show">
+          <template>
+            <h2>Item [[location.params.id]]</h2>
+            <p><a href="./[[location.params.id]]/edit">Edit item</a></p>
+            <p>← <a href="./">Back to index</a></p>
+          </template>
+        </dom-module>
+      </template>
+    </vaadin-demo-snippet>
+  </template>
+  <script>
+    class VaadinRouterCustomAppendDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
+      static get is() {
+        return 'vaadin-router-custom-append-demos';
+      }
+    }
+    customElements.define(VaadinRouterCustomAppendDemos.is, VaadinRouterCustomAppendDemos);
+  </script>
+</dom-module>

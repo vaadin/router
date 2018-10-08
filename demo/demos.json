@@ -80,6 +80,16 @@
         "description": "",
         "image": ""
       }
+    },
+    {
+      "name": "Custom Append",
+      "url": "vaadin-router-custom-append-demos",
+      "src": "vaadin-router-custom-append-demos.html",
+      "meta": {
+        "title": "Vaadin Router Custom Append Examples",
+        "description": "",
+        "image": ""
+      }
     }
   ]
 }

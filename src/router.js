@@ -471,8 +471,22 @@ export class Router extends Resolver {
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if (previousChain[i].route !== newChain[i].route || previousChain[i].path !== newChain[i].path) {
+        // FIXME(subrouter): should not restamp the same component, even when
+        // the path changes.
+        // FIXME(subrouter): Note: if the `preivousChain[i].element`
+        // is not connected, that means it was disconnected at some point,
+        // that might happen because of rendering a notFound result.
+        // Assume a chain has diverged to attach `newChain[i].element` then.
+        if (previousChain[i].route !== newChain[i].route ||
+            (previousChain[i].element && previousChain[i].element.isConnected && previousChain[i].element.localName)
+            !== (newChain[i].element && newChain[i].element.localName)) {
           break;
+        } else {
+          // FIXME(subrouter): update location for the same component
+          // on the same route
+          if (previousChain[i].element) {
+            previousChain[i].element.location = createLocation(newContext, newChain[i].route);
+          }
         }
       }
 
