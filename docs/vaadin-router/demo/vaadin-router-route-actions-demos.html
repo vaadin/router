@@ -24,11 +24,16 @@
       Vaadin Router provides a flexible API to customize the default route
       resolution rule. Each route may have an <code>action</code> functional
       property that defines how exactly that route is resolved. An <code>action
-      </code> function may or may not return a value. If it does, that completes
-      the resolution pass, and the returned value is what gets rendered.
-      Otherwise, the resolution process continues to check the other properties
-      of the route and apply the default resolution rules, and then further to
-      check other matching routes.
+      </code> function can return a result either directly, or within
+      a <code>Promise</code> resolving to the result. If the action result
+      is an <code>HTMLElement</code> instance,
+      a <code>commands.component(name)</code> result,
+      a <code>commands.redirect(path)</code> result,
+      or a <code>context.next()</code> result, the resolution pass, and
+      the returned value is what gets rendered. Otherwise, the resolution
+      process continues to check the other properties of the route and apply
+      the default resolution rules, and then further to check other
+      matching routes.
     </p>
     <p>
       The <code>action(context, commands)</code> function receives a <code>context</code>
@@ -67,26 +72,6 @@
           <code>component</code> route property: the action result will be
           rendered, if the action is in a child route, the result will be
           rendered as light dom child of the component from a parent route.
-        </li>
-      </ul>
-      The supported return values are
-      <ul>
-        <li>
-          an instance of <code>HTMLElement</code> (e.g. created with
-          <code>commands.component('tag-name')</code>
-        </li>
-        <li>
-          a <em>redirect</em> command created with
-          <code>commands.redirect('/new/path')</code>
-        </li>
-        <li>
-          a <em>prevent</em> command created with <code>commands.prevent()</code>
-        </li>
-        <li>
-          <code>null</code> or <code>undefined</code>
-        </li>
-        <li>
-          a promise that resolves to any of the above
         </li>
       </ul>
     <p></p>

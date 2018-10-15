@@ -59,7 +59,7 @@ export class WebComponentInterface {
   /**
    * Method that gets executed when user navigates away from the component
    * that had defined the method. The user can prevent the navigation
-   * by returning `context.cancel()` from the method or same value wrapped
+   * by returning `commands.cancel()` from the method or same value wrapped
    * in `Promise`. This effectively means that the corresponding component
    * should be resolved by the router before the method can be executed.
    * If the router navigates to the same path twice in a row, and this results
@@ -68,21 +68,23 @@ export class WebComponentInterface {
    * has been invoked is available inside the callback through
    * the `this` reference.
    *
-   * @param context the context object with the following properties:
+   * Return values:
+   *
+   * * if `commands.prevent()` is returned (immediately or as a Promise), the navigation is aborted and the outlet contents is not updated.
+   * * any other return value is ignored and Vaadin Router proceeds with the navigation.
+   *
+   * Arguments:
+   *
+   * @param location the `Router.Location` object
+   * @param commands the commands object with the following methods:
    *
    * | Property           | Description
    * | -------------------|-------------
-   * | `context.pathname` | string with the pathname being rendered.
-   * | `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
-   * | `context.route`    | object that holds the route being rendered.
-   * | `context.cancel()` | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.
+   * | `commands.prevent()` | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.
    *
-   * Return values:
-   *
-   * * if `context.cancel()` is returned (immediately or as a Promise), the navigation is aborted and the outlet contents is not updated.
-   * * any other return value is ignored and Vaadin Router proceeds with the navigation.
+   * @param router the `Router` instance
    */
-  onBeforeLeave(context) {
+  onBeforeLeave(location, commands, router) {
     // user implementation example:
     if (this.hasUnfinishedChanges()) {
       return context.cancel();
@@ -99,23 +101,25 @@ export class WebComponentInterface {
    * has been invoked is available inside the callback through
    * the `this` reference.
    *
-   * @param context the context object with the following properties:
-   *
-   * | Property                 | Description
-   * | -------------------------|-------------
-   * | `context.pathname`       | string with the pathname being rendered.
-   * | `context.params`         | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
-   * | `context.route`          | object that holds the route being rendered.
-   * | `context.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.
-   * | `context.cancel()`       | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.
-   *
    * Return values:
    *
    * * if a `context.cancel()` object is returned (immediately or as a Promise), the navigation is aborted and the outlet contents is not updated.
    * * if a `context.redirect(path)` object is returned (immediately or as a Promise), Vaadin Router ends navigation to the current path, and starts a new navigation cycle to the new path.
    * * any other return value is ignored and Vaadin Router proceeds with the navigation.
+   *
+   * Arguments:
+   *
+   * @param location the `Router.Location` object
+   * @param commands the commands object with the following methods:
+   *
+   * | Property                 | Description
+   * | -------------------------|-------------
+   * | `commands.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.
+   * | `commands.prevent()`       | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.
+   *
+   * @param router the `Router` instance
    */
-  onBeforeEnter(context) {
+  onBeforeEnter(location, commands, router) {
     // user implementation example:
     if (context.params.userName === 'admin') {
       return context.redirect(context.pathname + '?admin');
@@ -135,17 +139,15 @@ export class WebComponentInterface {
    * has been invoked is available inside the callback through
    * the `this` reference.
    *
-   * @param context the context object with the following properties:
-   *
-   * | Property           | Description
-   * | ------------------ |-------------
-   * | `context.pathname` | string with the pathname being rendered.
-   * | `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
-   * | `context.route`    | object that holds the route being rendered.
-   *
    * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
+   *
+   * Arguments:
+   *
+   * @param location the `Router.Location` object
+   * @param commands empty object
+   * @param router the `Router` instance
    */
-  onAfterLeave(context) {
+  onAfterLeave(location, commands, router) {
     // user implementation example:
     storeTimeSpentOnTheView();
   }
@@ -162,17 +164,15 @@ export class WebComponentInterface {
    * [`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)
    * defined by the Custom Elements spec.
    *
-   * @param context the context object with the following properties:
-   *
-   * | Property           | Description
-   * | ------------------ |-------------
-   * | `context.pathname` | string with the pathname being rendered.
-   * | `context.params`   | object with route parameters, contains string keys for named and numeric keys for unnamed parameters.
-   * | `context.route`    | object that holds the route being rendered.
-   *
    * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
+   *
+   * Arguments:
+   *
+   * @param location the `Router.Location` object
+   * @param commands empty object
+   * @param router the `Router` instance
    */
-  onAfterEnter(context) {
+  onAfterEnter(location, commands, router) {
     // user implementation example:
     sendVisitStatistics();
   }
