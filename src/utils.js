@@ -155,3 +155,5 @@ export function getNotFoundError(context) {
   error.code = 404;
   return error;
 }
+
+export const notFoundResult = new (class NotFoundResult {})();
