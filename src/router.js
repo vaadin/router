@@ -12,6 +12,7 @@ import {
   isString,
   isObject,
   getNotFoundError,
+  notFoundResult,
 } from './utils.js';
 
 const MAX_REDIRECT_COUNT = 256;
@@ -207,32 +208,36 @@ export class Router extends Resolver {
     };
 
     return callbacks
-      .then(() => {
-        const actionResult = runCallbackIfPossible(route.action, [context, commands], route);
-        if (isResultNotEmpty(actionResult)) {
-          throw actionResult;
+      .then(() => runCallbackIfPossible(route.action, [context, commands], route))
+      .then(result => {
+        if (isResultNotEmpty(result)) {
+          // Actions like `() => import('my-view.js')` are not expected to
+          // end the resolution, despite the result is not empty. Checking
+          // the result with a whitelist of values that end the resulution.
+          if (result instanceof HTMLElement ||
+              result.redirect ||
+              result === notFoundResult) {
+            return result;
+          }
         }
 
         if (isString(route.redirect)) {
-          throw commands.redirect(route.redirect);
+          return commands.redirect(route.redirect);
         }
 
         if (route.bundle) {
           return loadBundle(route.bundle)
-            .catch(() => {
+            .then(() => {}, () => {
               throw new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`));
             });
         }
       })
-      .then(() => {
+      .then(result => {
+        if (isResultNotEmpty(result)) {
+          return result;
+        }
         if (isString(route.component)) {
           return commands.component(route.component);
-        }
-      }, rejectResult => {
-        if (rejectResult instanceof Error) {
-          throw rejectResult;
-        } else {
-          return rejectResult;
         }
       });
   }
@@ -287,7 +292,11 @@ export class Router extends Resolver {
    * * `action` – the action that is executed before the route is resolved.
    * The value for this property should be a function, accepting a `context` parameter described below.
    * If present, this function is always invoked first, disregarding of the other properties' presence.
-   * If the action returns a non-empty result, current route resolution is finished and other route config properties are ignored.
+   * The action can return a result directly or within a `Promise`, which
+   * resolves to the result. If the action result is an `HTMLElement` instance,
+   * a `commands.component(name)` result, a `commands.redirect(path)` result,
+   * or a `context.next()` result, the current route resolution is finished,
+   * and other route config properties are ignored.
    * See also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
    *
    * * `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.
@@ -417,12 +426,12 @@ export class Router extends Resolver {
         const initialContext = amendedContext !== currentContext ? amendedContext : originalContext;
         return amendedContext.next()
           .then(nextContext => {
-            if (nextContext === null) {
+            if (nextContext === null || nextContext === notFoundResult) {
               if (amendedContext.pathname !== getMatchedPath(amendedContext.chain)) {
                 throw getNotFoundError(initialContext);
               }
             }
-            return nextContext
+            return nextContext && nextContext !== notFoundResult
               ? this.__fullyResolveChain(initialContext, nextContext)
               : this.__amendWithOnBeforeCallbacks(initialContext);
           });
