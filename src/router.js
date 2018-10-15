@@ -290,8 +290,9 @@ export class Router extends Resolver {
    * 'path' values are relative to the parent ones.
    *
    * * `action` – the action that is executed before the route is resolved.
-   * The value for this property should be a function, accepting a `context` parameter described below.
-   * If present, this function is always invoked first, disregarding of the other properties' presence.
+   * The value for this property should be a function, accepting `context`
+   * and `commands` parameters described below. If present, this function is
+   * always invoked first, disregarding of the other properties' presence.
    * The action can return a result directly or within a `Promise`, which
    * resolves to the result. If the action result is an `HTMLElement` instance,
    * a `commands.component(name)` result, a `commands.redirect(path)` result,
@@ -328,11 +329,17 @@ export class Router extends Resolver {
    *
    * * `context.route` – object that holds the route that is currently being rendered.
    *
-   * * `context.next()` – function for asynchronously getting the next route contents from the resolution chain (if any)
+   * * `context.next()` – function for asynchronously getting the next route
+   * contents from the resolution chain (if any)
    *
-   * * `context.redirect(path)` – function that creates a redirect data for the path specified.
+   * `commands` object that is passed to `action` function has
+   * the following methods:
    *
-   * * `context.component(component)` – function that creates a new HTMLElement with current context
+   * * `commands.redirect(path)` – function that creates a redirect data
+   * for the path specified.
+   *
+   * * `commands.component(component)` – function that creates a new HTMLElement
+   * with current context
    *
    * @param {!Array<!Object>|!Object} routes a single route or an array of those
    */
