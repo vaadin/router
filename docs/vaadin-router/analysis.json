@@ -644,7 +644,7 @@
                   "column": 2
                 },
                 "end": {
-                  "line": 1659,
+                  "line": 1662,
                   "column": 3
                 }
               },
@@ -664,11 +664,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1661,
+                  "line": 1664,
                   "column": 2
                 },
                 "end": {
-                  "line": 1665,
+                  "line": 1668,
                   "column": 3
                 }
               },
@@ -689,11 +689,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1667,
+                  "line": 1670,
                   "column": 2
                 },
                 "end": {
-                  "line": 1673,
+                  "line": 1676,
                   "column": 3
                 }
               },
@@ -716,11 +716,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1675,
+                  "line": 1678,
                   "column": 2
                 },
                 "end": {
-                  "line": 1718,
+                  "line": 1721,
                   "column": 3
                 }
               },
@@ -743,11 +743,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1720,
+                  "line": 1723,
                   "column": 2
                 },
                 "end": {
-                  "line": 1726,
+                  "line": 1729,
                   "column": 3
                 }
               },
@@ -763,11 +763,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1728,
+                  "line": 1731,
                   "column": 2
                 },
                 "end": {
-                  "line": 1734,
+                  "line": 1737,
                   "column": 3
                 }
               },
@@ -783,11 +783,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1736,
+                  "line": 1739,
                   "column": 2
                 },
                 "end": {
-                  "line": 1757,
+                  "line": 1760,
                   "column": 3
                 }
               },
@@ -810,11 +810,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1759,
+                  "line": 1762,
                   "column": 2
                 },
                 "end": {
-                  "line": 1769,
+                  "line": 1772,
                   "column": 3
                 }
               },
@@ -834,11 +834,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1771,
+                  "line": 1774,
                   "column": 2
                 },
                 "end": {
-                  "line": 1793,
+                  "line": 1796,
                   "column": 3
                 }
               },
@@ -855,11 +855,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1801,
+                  "line": 1804,
                   "column": 2
                 },
                 "end": {
-                  "line": 1803,
+                  "line": 1806,
                   "column": 3
                 }
               },
@@ -875,11 +875,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1809,
+                  "line": 1812,
                   "column": 2
                 },
                 "end": {
-                  "line": 1811,
+                  "line": 1814,
                   "column": 3
                 }
               },
@@ -895,11 +895,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1813,
+                  "line": 1816,
                   "column": 2
                 },
                 "end": {
-                  "line": 1816,
+                  "line": 1819,
                   "column": 3
                 }
               },
@@ -921,11 +921,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1834,
+                  "line": 1837,
                   "column": 2
                 },
                 "end": {
-                  "line": 1836,
+                  "line": 1839,
                   "column": 3
                 }
               },
@@ -942,16 +942,47 @@
               }
             },
             {
+              "name": "urlForPath",
+              "description": "Generates a URL for the given route path, optionally performing\nsubscription of parameters.",
+              "privacy": "public",
+              "sourceRange": {
+                "start": {
+                  "line": 1852,
+                  "column": 2
+                },
+                "end": {
+                  "line": 1854,
+                  "column": 3
+                }
+              },
+              "metadata": {},
+              "params": [
+                {
+                  "name": "path",
+                  "type": "!string",
+                  "description": "string route path declared in [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\")."
+                },
+                {
+                  "name": "parameters",
+                  "type": "?Object",
+                  "description": "Optional object with route path parameters,\nwhere keys are route parameter names or indicies, and values\nare parameter values."
+                }
+              ],
+              "return": {
+                "type": "string"
+              }
+            },
+            {
               "name": "go",
               "description": "Triggers navigation to a new path and returns without waiting until the\nnavigation is complete.",
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1844,
+                  "line": 1862,
                   "column": 2
                 },
                 "end": {
-                  "line": 1846,
+                  "line": 1864,
                   "column": 3
                 }
               },
@@ -985,7 +1016,7 @@
               "column": 0
             },
             "end": {
-              "line": 1847,
+              "line": 1865,
               "column": 1
             }
           },

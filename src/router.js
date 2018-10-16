@@ -532,7 +532,10 @@ export class Router extends Resolver {
     }
 
     return this.resolve({
-      pathname: Router.pathToRegexp.compile(redirectData.pathname)(redirectData.params),
+      pathname: this.constructor.urlForPath(
+        redirectData.pathname,
+        redirectData.params
+      ),
       redirectFrom: redirectData.from,
       __redirectCount: (counter || 0) + 1
     });
@@ -713,6 +716,21 @@ export class Router extends Resolver {
    */
   static setTriggers(...triggers) {
     setNavigationTriggers(triggers);
+  }
+
+  /**
+   * Generates a URL for the given route path, optionally performing
+   * subscription of parameters.
+   *
+   * @param {!string} path string route path declared in [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
+   * @param {?Object} parameters Optional object with route path parameters,
+   * where keys are route parameter names or indicies, and values
+   * are parameter values.
+   *
+   * @return {string}
+   */
+  static urlForPath(path, parameters) {
+    return Router.pathToRegexp.compile(path)(parameters);
   }
 
   /**
