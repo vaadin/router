@@ -22,6 +22,16 @@
       }
     },
     {
+      "name": "URL Generation",
+      "url": "vaadin-router-url-generation-demos",
+      "src": "vaadin-router-url-generation-demos.html",
+      "meta": {
+        "title": "Vaadin Router URL Generation Examples",
+        "description": "",
+        "image": ""
+      }
+    },
+    {
       "name": "Redirects",
       "url": "vaadin-router-redirect-demos",
       "src": "vaadin-router-redirect-demos.html",
