@@ -15,18 +15,21 @@ const cache = new Map();
 
 function cacheRoutes(routesByName, route, routes) {
   if (routesByName.has(route.name)) {
-    throw new Error(`Route "${route.name}" already exists`);
+    throw new Error(`Duplicate route name for name "${route.name}"`);
+  } else if (routesByName.has(route.component)) {
+    throw new Error(`Duplicate route name for component <${route.component}>`);
   }
 
-  if (route.name) {
-    routesByName.set(route.name, route);
+  const name = route.name || route.component;
+  if (name) {
+    routesByName.set(name, route);
   }
 
   if (routes) {
     for (let i = 0; i < routes.length; i++) {
       const childRoute = routes[i];
       childRoute.parent = route;
-      cacheRoutes(routesByName, childRoute, childRoute.__children);
+      cacheRoutes(routesByName, childRoute, childRoute.__children || childRoute.children);
     }
   }
 }

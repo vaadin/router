@@ -1,4 +1,5 @@
 import Resolver from './resolver/resolver.js';
+import generateUrls from './resolver/generateUrls.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
 import {
@@ -103,11 +104,13 @@ function removeDomNodes(nodes) {
 function getMatchedPath(chain) {
   return chain.map(item => item.path).reduce((prev, path) => {
     if (path.length) {
-      return prev + (prev.charAt(prev.length - 1) === '/' ? '' : '/') + path;
+      return prev + ((prev.charAt(prev.length - 1) === '/' || path.charAt(0) === '/') ? '' : '/') + path;
     }
     return prev;
   });
 }
+
+const subscribedSet = new Set();
 
 /**
  * A simple client-side router for single-page applications. It uses
@@ -317,6 +320,10 @@ export class Router extends Resolver {
    * If route contains the `component` property (or an action that return a component)
    * and its child route also contains the `component` property, child route's component
    * will be rendered as a light dom child of a parent component.
+   *
+   * * `name` – the string name of the route to use in the
+   * `[Router.urlForName(name, parameters)](#/classes/Vaadin.Router#staticmethod-urlForName)`
+   * navigation helper method.
    *
    * For any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback
    * through the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function
@@ -682,6 +689,7 @@ export class Router extends Resolver {
    * subscribed to navigation events, it won't be garbage collected.
    */
   subscribe() {
+    subscribedSet.add(this);
     window.addEventListener('vaadin-router-go', this.__navigationEventHandler);
   }
 
@@ -690,6 +698,7 @@ export class Router extends Resolver {
    * method.
    */
   unsubscribe() {
+    subscribedSet.delete(this);
     window.removeEventListener('vaadin-router-go', this.__navigationEventHandler);
   }
 
@@ -719,8 +728,44 @@ export class Router extends Resolver {
   }
 
   /**
+   * Generates a URL for the route with the given name, optionally performing
+   * substitution of parameters.
+   *
+   * The route is searched in all the Vaadin.Router instances subscribed to
+   * navigation events.
+   *
+   * @param {!string} name the route name or the route’s `component` name.
+   * @param {?Object} parameters Optional object with route path parameters,
+   * where keys are route parameter names or indicies, and values
+   * are parameter values.
+   *
+   * @return {string}
+   */
+  static urlForName(name, parameters) {
+    let url;
+
+    subscribedSet.forEach(router => {
+      try {
+        if (url === undefined) {
+          url = generateUrls(router)(name, parameters);
+        }
+      } catch(e) {
+        if (e.message !== `Route "${name}" not found`) {
+          throw e;
+        }
+      }
+    });
+
+    if (url !== undefined) {
+      return url;
+    } else {
+      throw new Error(`Route not found for name "${name}"`);
+    }
+  }
+
+  /**
    * Generates a URL for the given route path, optionally performing
-   * subscription of parameters.
+   * substitution of parameters.
    *
    * @param {!string} path string route path declared in [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
    * @param {?Object} parameters Optional object with route path parameters,
