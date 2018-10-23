@@ -27,13 +27,17 @@ function copyContextWithoutNext(context) {
   return copy;
 }
 
+
 function createLocation({pathname = '', chain = [], params = {}, redirectFrom}, route) {
+  const routes = chain.map(item => item.route);
   return {
     pathname,
-    routes: chain.map(item => item.route),
-    route: (!route && chain.length && chain[chain.length - 1].route) || route,
+    routes,
+    route: route || routes.length && routes[routes.length - 1] || null,
     params,
     redirectFrom,
+    getUrl: (userParams = {}) => Router.pathToRegexp
+      .compile(getMatchedPath(routes))(Object.assign({}, params, userParams))
   };
 }
 
