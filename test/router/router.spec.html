@@ -541,7 +541,7 @@
             expect(router.location.route).to.equal(routeC);
           });
 
-          it('should have an `undefined` route property after a failed render', async() => {
+          it('should have a `null` route property after a failed render', async() => {
             const routeC = {path: '/c', component: 'x-c'};
             const routeB = {path: '/b', component: 'x-b', children: [routeC]};
             const routeA = {path: '/a', component: 'x-a', children: [routeB]};
@@ -550,7 +550,7 @@
             await router.render('/a/b/c');
             await router.render('/non-existent').catch(() => {});
 
-            expect(router.location.route).to.not.be.defined;
+            expect(router.location.route).to.be.null;
           });
 
           it('should contain the parameters from the last completed render pass', async() => {
@@ -585,6 +585,58 @@
             await router.render('/non-existent-path').catch(() => {});
 
             expect(router.location.params).to.deep.equal({});
+          });
+
+          describe('getUrl() method', () => {
+            it('should exist', () => {
+              expect(router.location.getUrl).to.be.instanceof(Function);
+            });
+
+            it('should return current location url with empty arguments', async() => {
+              router.setRoutes([
+                {path: '/a/:id', component: 'x-a'}
+              ]);
+
+              await router.render('/a/42');
+
+              expect(router.location.getUrl()).to.equal('/a/42');
+            });
+
+            it('should substitute in route path when given parameters', async() => {
+              router.setRoutes([
+                {path: '/a/:id', component: 'x-a'}
+              ]);
+
+              await router.render('/a/42');
+
+              expect(router.location.getUrl({id: 'foo'})).to.equal('/a/foo');
+            });
+
+            it('should ignore unknown parameters', async() => {
+              router.setRoutes([
+                {path: '/a/:id', component: 'x-a'}
+              ]);
+
+              await router.render('/a/42');
+
+              expect(router.location.getUrl({foo: 'bar'})).to.equal('/a/42');
+            });
+
+            it('should invoke pathToRegexp', async() => {
+              router.setRoutes([
+                {path: '/a/:id', component: 'x-a'}
+              ]);
+
+              await router.render('/a/42');
+
+              const parse = sinon.spy(Vaadin.Router.pathToRegexp, 'compile');
+              try {
+                router.location.getUrl({id: 'foo'});
+                expect()
+              } finally {
+                Vaadin.Router.pathToRegexp.compile.restore();
+              }
+            });
           });
         });
 
