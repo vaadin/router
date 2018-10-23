@@ -92,4 +92,18 @@ export class Location {
      */
     this.params;
   }
+
+  /**
+    * Returns a URL corresponding to the route path and the parameters of this
+    * location. When the parameters object is given in the arguments,
+    * the argument parameters override the location ones.
+    *
+    * @public
+    * @type {Function}
+    * @param {?Object} parameters optional object with parameters to override,
+    * where keys are parameter names or indicies to substitute in the full path
+    * of the location’s route chain.
+    * @return {string}
+    */
+  getUrl(parameters) { }
 }
