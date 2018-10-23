@@ -586,6 +586,58 @@
 
             expect(router.location.params).to.deep.equal({});
           });
+
+          describe('getUrl() method', () => {
+            it('should exist', () => {
+              expect(router.location.getUrl).to.be.instanceof(Function);
+            });
+
+            it('should return current location url with empty arguments', async() => {
+              router.setRoutes([
+                {path: '/a/:id', component: 'x-a'}
+              ]);
+
+              await router.render('/a/42');
+
+              expect(router.location.getUrl()).to.equal('/a/42');
+            });
+
+            it('should substitute in route path when given parameters', async() => {
+              router.setRoutes([
+                {path: '/a/:id', component: 'x-a'}
+              ]);
+
+              await router.render('/a/42');
+
+              expect(router.location.getUrl({id: 'foo'})).to.equal('/a/foo');
+            });
+
+            it('should ignore unknown parameters', async() => {
+              router.setRoutes([
+                {path: '/a/:id', component: 'x-a'}
+              ]);
+
+              await router.render('/a/42');
+
+              expect(router.location.getUrl({foo: 'bar'})).to.equal('/a/42');
+            });
+
+            it('should invoke pathToRegexp', async() => {
+              router.setRoutes([
+                {path: '/a/:id', component: 'x-a'}
+              ]);
+
+              await router.render('/a/42');
+
+              const parse = sinon.spy(Vaadin.Router.pathToRegexp, 'compile');
+              try {
+                router.location.getUrl({id: 'foo'});
+                expect()
+              } finally {
+                Vaadin.Router.pathToRegexp.compile.restore();
+              }
+            });
+          });
         });
 
         describe('navigation events', () => {
@@ -603,7 +655,7 @@
             router.unsubscribe();
           });
 
-          it('should update the history state after navigation', async() => {
+          it('should update the history state kafter navigation', async() => {
             window.dispatchEvent(new CustomEvent('vaadin-router-go', {detail: {pathname: '/admin'}}));
             await router.ready;
             expect(window.location.pathname).to.equal('/admin');
