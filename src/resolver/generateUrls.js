@@ -34,6 +34,12 @@ function cacheRoutes(routesByName, route, routes) {
   }
 }
 
+function getRoutePath(route) {
+  let path = route.path;
+  path = Array.isArray(path) ? path[0] : path;
+  return path !== undefined ? path : '';
+}
+
 function generateUrls(router, options = {}) {
   if (!(router instanceof Resolver)) {
     throw new TypeError('An instance of Resolver is expected');
@@ -55,10 +61,10 @@ function generateUrls(router, options = {}) {
 
     let regexp = cache.get(route.fullPath);
     if (!regexp) {
-      let fullPath = Array.isArray(route.path) ? route.path[0] : route.path;
+      let fullPath = getRoutePath(route);
       let rt = route.parent;
       while (rt) {
-        const path = Array.isArray(rt.path) ? rt.path[0] : rt.path;
+        const path = getRoutePath(rt);
         if (path) {
           fullPath = path.replace(/\/$/, '') + '/' + fullPath.replace(/^\//, '');
         }
