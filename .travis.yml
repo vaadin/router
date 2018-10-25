@@ -9,7 +9,7 @@ cache:
     - node_modules
 
 addons:
-  firefox: latest
+  firefox: 62.0
   chrome: stable
 
 # limit the Travis 'build on push' feature to the master branch only
