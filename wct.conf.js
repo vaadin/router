@@ -68,7 +68,6 @@ module.exports = {
         ],
         exclude: [
           '**/dist/test-iife/resolver/path-to-regexp.js',
-          '**/dist/test-iife/resolver/generateUrls.js',
         ],
         thresholds: {
           global: {

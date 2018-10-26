@@ -15,20 +15,29 @@ const cache = new Map();
 
 function cacheRoutes(routesByName, route, routes) {
   if (routesByName.has(route.name)) {
-    throw new Error(`Route "${route.name}" already exists`);
+    throw new Error(`Duplicate route name for name "${route.name}"`);
+  } else if (routesByName.has(route.component)) {
+    throw new Error(`Duplicate route name for component <${route.component}>`);
   }
 
-  if (route.name) {
-    routesByName.set(route.name, route);
+  const name = route.name || route.component;
+  if (name) {
+    routesByName.set(name, route);
   }
 
-  if (routes) {
+  if (Array.isArray(routes)) {
     for (let i = 0; i < routes.length; i++) {
       const childRoute = routes[i];
       childRoute.parent = route;
-      cacheRoutes(routesByName, childRoute, childRoute.__children);
+      cacheRoutes(routesByName, childRoute, childRoute.__children || childRoute.children);
     }
   }
+}
+
+function getRoutePath(route) {
+  let path = route.path;
+  path = Array.isArray(path) ? path[0] : path;
+  return path !== undefined ? path : '';
 }
 
 function generateUrls(router, options = {}) {
@@ -36,15 +45,15 @@ function generateUrls(router, options = {}) {
     throw new TypeError('An instance of Resolver is expected');
   }
 
-  router.routesByName = router.routesByName || new Map();
+  const routesByName = new Map();
 
   return (routeName, params) => {
-    let route = router.routesByName.get(routeName);
+    let route = routesByName.get(routeName);
     if (!route) {
-      router.routesByName.clear(); // clear cache
-      cacheRoutes(router.routesByName, router.root, router.root.__children);
+      routesByName.clear(); // clear cache
+      cacheRoutes(routesByName, router.root, router.root.__children);
 
-      route = router.routesByName.get(routeName);
+      route = routesByName.get(routeName);
       if (!route) {
         throw new Error(`Route "${routeName}" not found`);
       }
@@ -52,12 +61,12 @@ function generateUrls(router, options = {}) {
 
     let regexp = cache.get(route.fullPath);
     if (!regexp) {
-      let fullPath = '';
-      let rt = route;
+      let fullPath = getRoutePath(route);
+      let rt = route.parent;
       while (rt) {
-        const path = Array.isArray(rt.path) ? rt.path[0] : rt.path;
+        const path = getRoutePath(rt);
         if (path) {
-          fullPath = path + fullPath;
+          fullPath = path.replace(/\/$/, '') + '/' + fullPath.replace(/^\//, '');
         }
         rt = rt.parent;
       }
