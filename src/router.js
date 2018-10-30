@@ -14,6 +14,8 @@ import {
   isObject,
   getNotFoundError,
   notFoundResult,
+  getNormalizedBaseForRouter,
+  normalizePathnameForRouter
 } from './utils.js';
 
 const MAX_REDIRECT_COUNT = 256;
@@ -28,17 +30,21 @@ function copyContextWithoutNext(context) {
   return copy;
 }
 
-
-function createLocation({pathname = '', chain = [], params = {}, redirectFrom}, route) {
+function createLocation({pathname = '', chain = [], params = {}, redirectFrom, resolver}, route) {
   const routes = chain.map(item => item.route);
   return {
+    baseUrl: resolver && resolver.baseUrl || '',
     pathname,
     routes,
     route: route || routes.length && routes[routes.length - 1] || null,
     params,
     redirectFrom,
-    getUrl: (userParams = {}) => Router.pathToRegexp
-      .compile(getMatchedPath(routes))(Object.assign({}, params, userParams))
+    getUrl: (userParams = {}) => getPathnameForRouter(
+      Router.pathToRegexp.compile(
+        getMatchedPath(routes)
+      )(Object.assign({}, params, userParams)),
+      resolver
+    )
   };
 }
 
@@ -105,12 +111,19 @@ function removeDomNodes(nodes) {
   }
 }
 
+function getPathnameForRouter(pathname, router) {
+  const base = getNormalizedBaseForRouter(router);
+  return base
+    ? Router.__createUrl(pathname.replace(/^\//, ''), base).pathname
+    : pathname;
+}
+
 function getMatchedPath(chain) {
-  return chain.map(item => item.path).reduce((prev, path) => {
-    if (path.length) {
-      return prev + ((prev.charAt(prev.length - 1) === '/' || path.charAt(0) === '/') ? '' : '/') + path;
+  return chain.map(item => item.path).reduce((a, b) => {
+    if (b.length) {
+      return a.replace(/\/$/, '') + '/' + b.replace(/^\//, '');
     }
-    return prev;
+    return a;
   });
 }
 
@@ -119,8 +132,19 @@ function getMatchedPath(chain) {
  * express-style middleware and has a first-class support for Web Components and
  * lazy-loading. Works great in Polymer and non-Polymer apps.
  *
- * Use `new Router(outlet)` to create a new Router instance. The `outlet` parameter is a reference to the DOM node
- * to render the content into. The Router instance is automatically subscribed to navigation events on `window`.
+ * Use `new Router(outlet, options)` to create a new Router instance.
+ *
+ * * The `outlet` parameter is a reference to the DOM node to render
+ *   the content into.
+ *
+ * * The `options` parameter is an optional object with options. The following
+ *   keys are supported:
+ *   * `baseUrl` — the initial value for [
+ *     the `baseUrl` property
+ *   ](#/classes/Vaadin.Router#property-baseUrl)
+ *
+ * The Router instance is automatically subscribed to navigation events
+ * on `window`.
  *
  * See [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.
  *
@@ -154,11 +178,26 @@ export class Router extends Resolver {
    * @param {?RouterOptions} options
    */
   constructor(outlet, options) {
-    super([], Object.assign({}, options));
+    const baseElement = document.head.querySelector('base');
+    super([], Object.assign({
+      // Default options
+      baseUrl: baseElement && baseElement.getAttribute('href')
+    }, options));
+
     this.resolveRoute = context => this.__resolveRoute(context);
 
     const triggers = Router.NavigationTrigger;
     Router.setTriggers.apply(Router, Object.keys(triggers).map(key => triggers[key]));
+
+    /**
+     * The base URL for all routes in the router instance. By default,
+     * takes the `<base href>` attribute value if the base element exists
+     * in the `<head>`.
+     *
+     * @public
+     * @type {string}
+     */
+    this.baseUrl;
 
     /**
      * A promise that is settled after the current render cycle completes. If
@@ -181,7 +220,7 @@ export class Router extends Resolver {
      * @type {!Vaadin.Router.Location}
      */
     this.location;
-    this.location = createLocation({});
+    this.location = createLocation({resolver: this});
 
     this.__lastStartedRenderId = 0;
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
@@ -429,7 +468,7 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(pathname);
           }
           removeDomNodes(this.__outlet && this.__outlet.children);
-          this.location = createLocation({pathname});
+          this.location = createLocation({pathname, resolver: this});
           fireRouterEvent('error', {router: this, error, pathname});
           throw error;
         }
@@ -444,7 +483,11 @@ export class Router extends Resolver {
         return amendedContext.next()
           .then(nextContext => {
             if (nextContext === null || nextContext === notFoundResult) {
-              if (amendedContext.pathname !== getMatchedPath(amendedContext.chain)) {
+              const matchedPath = getPathnameForRouter(
+                getMatchedPath(amendedContext.chain),
+                amendedContext.resolver
+              );
+              if (matchedPath !== amendedContext.pathname) {
                 throw getNotFoundError(initialContext);
               }
             }
@@ -542,7 +585,7 @@ export class Router extends Resolver {
     }
 
     return this.resolve({
-      pathname: this.constructor.urlForPath(
+      pathname: this.urlForPath(
         redirectData.pathname,
         redirectData.params
       ),
@@ -705,7 +748,12 @@ export class Router extends Resolver {
 
   __onNavigationEvent(event) {
     const pathname = event ? event.detail.pathname : window.location.pathname;
-    this.render(pathname, true);
+    if (isString(normalizePathnameForRouter(pathname, this))) {
+      if (event && event.preventDefault) {
+        event.preventDefault();
+      }
+      this.render(pathname, true);
+    }
   }
 
   /**
@@ -751,7 +799,10 @@ export class Router extends Resolver {
     if (!this.__urlForName) {
       this.__urlForName = generateUrls(this);
     }
-    return this.__urlForName(name, parameters);
+    return getPathnameForRouter(
+      this.__urlForName(name, parameters),
+      this
+    );
   }
 
   /**
@@ -765,17 +816,31 @@ export class Router extends Resolver {
    *
    * @return {string}
    */
-  static urlForPath(path, parameters) {
-    return Router.pathToRegexp.compile(path)(parameters);
+  urlForPath(path, parameters) {
+    return getPathnameForRouter(
+      Router.pathToRegexp.compile(path)(parameters),
+      this
+    );
   }
 
   /**
-   * Triggers navigation to a new path and returns without waiting until the
-   * navigation is complete.
+   * Triggers navigation to a new path. Returns a boolean without waiting until
+   * the navigation is complete. Returns `true` if at least one `Vaadin.Router`
+   * has handled the navigation (was subscribed and had `baseUrl` matching
+   * the `pathname` argument), otherwise returns `false`.
    *
    * @param {!string} pathname a new in-app path
+   * @return {boolean}
    */
   static go(pathname) {
-    fireRouterEvent('go', {pathname});
+    return fireRouterEvent('go', {pathname});
+  }
+
+  /**
+   * Creates an URL instance. May invoke a polyfill if URL constructor
+   * is not available.
+   */
+  static __createUrl(url, base) {
+    return new URL(url, base);
   }
 }

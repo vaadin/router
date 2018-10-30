@@ -17,6 +17,15 @@
 export class Location {
   constructor() {
     /**
+     * The base URL used in the router. See [the `baseUrl` property
+     * ](#/classes/Vaadin.Router#property-baseUrl) in the Vaadin.Router.
+     *
+     * @public
+     * @type {string}
+     */
+    this.baseUrl;
+
+    /**
      * The pathname as entered in the browser address bar
      * (e.g. `/users/42/messages/12/edit`). It always starts with a `/` (slash).
      *

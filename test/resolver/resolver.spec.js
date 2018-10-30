@@ -679,7 +679,7 @@
           },
         ],
       };
-      const resolver = new Resolver(routes, {baseUrl: '/base'});
+      const resolver = new Resolver(routes, {baseUrl: '/base/'});
       const context = await resolver.resolve('/base/a/b/c');
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.property('pathname', '/base/a/b/c');

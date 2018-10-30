@@ -131,9 +131,10 @@ export function loadBundle(bundle) {
 }
 
 export function fireRouterEvent(type, detail) {
-  window.dispatchEvent(
-    new CustomEvent(
-      `vaadin-router-${type}`, {detail}));
+  return !window.dispatchEvent(new CustomEvent(
+    `vaadin-router-${type}`,
+    {cancelable: type === 'go', detail}
+  ));
 }
 
 export function isObject(o) {
@@ -157,3 +158,45 @@ export function getNotFoundError(context) {
 }
 
 export const notFoundResult = new (class NotFoundResult {})();
+
+export function getNormalizedBaseForRouter(router) {
+  if (!router || !router.baseUrl) {
+    return '';
+  }
+
+  return router.constructor
+    .__createUrl(router.baseUrl, document.baseURI || document.URL).href
+    .replace(/[^\/]*$/, '');
+}
+
+/**
+ * If the router has baseUrl, matches the pathname with the router’s baseUrl,
+ * and returns the local pathname with the baseUrl stripped out.
+ *
+ * If the pathname does not match the baseUrl, returns undefined.
+ *
+ * If the `baseUrl` is not set, returns the unmodified pathname argument.
+ */
+export function normalizePathnameForRouter(pathname, router) {
+  if (!router.baseUrl) {
+    // No base URL, no need to transform the pathname.
+    return pathname;
+  }
+
+  if (!router.constructor.__createUrl) {
+    // Unable to match the pathname with baseUrl:
+    // the router.constructor.__createUrl hook is not available, probably
+    // because the Resolver is used directly. Fallback: use string replace
+    // to trim the baseUrl from the pathname instead.
+    return pathname.indexOf(router.baseUrl) === 0
+      ? pathname.slice(router.baseUrl.length)
+      : pathname;
+  }
+
+  const base = getNormalizedBaseForRouter(router);
+
+  const normalizedUrl = router.constructor.__createUrl(pathname, base).href;
+  if (normalizedUrl.slice(0, base.length) === base) {
+    return normalizedUrl.slice(base.length);
+  }
+}
