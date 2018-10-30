@@ -181,6 +181,17 @@
           }).to.throw('Duplicate');
         });
 
+        it('should prepend baseUrl', () => {
+          router.baseUrl = '/base/';
+          router.setRoutes([
+            {name: 'with-slash', path: '/foo', component: 'x-foo'},
+            {name: 'without-slash', path: 'bar', component: 'x-bar'}
+          ]);
+
+          expect(router.urlForName('with-slash')).to.equal('/base/foo');
+          expect(router.urlForName('without-slash')).to.equal('/base/bar');
+        });
+
         it('should use pathToRegexp', () => {
           const parse = sinon.spy(Vaadin.Router.pathToRegexp, 'parse');
 
@@ -199,37 +210,43 @@
         });
       });
 
-      describe('urlForPath static method', () => {
+      describe('urlForPath method', () => {
         it('should exist', () => {
-          expect(Vaadin.Router.urlForPath).to.be.instanceof(Function);
+          expect(router.urlForPath).to.be.instanceof(Function);
         });
 
         it('should accept path', () => {
-          expect(Vaadin.Router.urlForPath('/users')).to.equal('/users');
+          expect(router.urlForPath('/users')).to.equal('/users');
         });
 
         it('should support named parameters', () => {
-          expect(Vaadin.Router.urlForPath('/users/:userId', {userId: 42}))
+          expect(router.urlForPath('/users/:userId', {userId: 42}))
             .to.equal('/users/42');
         });
 
         it('should support unnamed parameters', () => {
-          expect(Vaadin.Router.urlForPath('/users/(.*)', {0: 42}))
+          expect(router.urlForPath('/users/(.*)', {0: 42}))
             .to.equal('/users/42');
         });
 
         it('should support named and unnamed parameters', () => {
-          expect(Vaadin.Router.urlForPath(
+          expect(router.urlForPath(
             '/users/:userId/(.*)',
             {userId: 42, 0: 'profile'}
           )).to.equal('/users/42/profile');
         });
 
         it('should ignore unknown params', () => {
-          expect(Vaadin.Router.urlForPath(
+          expect(router.urlForPath(
             '/users/:userId',
             {userId: 42, foo: 'bar'}
           )).to.equal('/users/42');
+        });
+
+        it('should prepend baseUrl', () => {
+          router.baseUrl = '/base/';
+          expect(router.urlForPath('foo')).to.equal('/base/foo');
+          expect(router.urlForPath('/bar')).to.equal('/base/bar');
         });
 
         it('should use pathToRegexp', () => {
@@ -239,7 +256,7 @@
           try {
             const path = '/users/:userId',
               parameters = {userId: 42, foo: 'bar'};
-            const result = Vaadin.Router.urlForPath(path, parameters);
+            const result = router.urlForPath(path, parameters);
 
             expect(compile).to.be.calledOnce;
             expect(compile).to.be.calledWith(path);

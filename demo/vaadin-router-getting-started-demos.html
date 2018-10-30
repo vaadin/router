@@ -200,11 +200,74 @@
 
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Base URL</h3>
+    <p>Vaadin Router supports cases when the app is deployed to a subpath, for
+      example, <code>example.com/shop/</code>. The
+      <a target="_parent" href="..#/classes/Vaadin.Router#property-baseUrl">
+        <code>baseUrl property</code>
+      </a> defines a common prefix for all URLs handled by a router instance.
+    </p>
+    <p>The <code>&lt;base href="..."&gt;</code> tag in
+      the <code>&lt;head&gt;</code>of the document is used to set the base URL
+      globally. Alternatively, the base URL can be configured on the router
+      instance using with the constructor option.
+    </p>
+    <p>When the base URL is set, only the links matching the base URL are
+      handled by the router. Links that do no match the base URL are considered
+      external, clicking such a link will result in a regular navigation.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-base-url" iframe-src="iframe.html">
+      <template preserve-content>
+        <base href="/ui/">
+
+        <nav>
+          <a href=".">Home</a>
+          <a href="users/guest">Profile</a>
+          <a href="/shop">Shop →</a> <!-- not handled because it points outside the base URL -->
+        </nav>
+
+        <main></main>
+
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          const router = new Router(
+            document.querySelector('main'),
+            {baseUrl: '/ui/'} // this is optional because it's exactly the same as the <base> tag
+          );
+          router.setRoutes([
+            {path: '', component: 'x-home-view'},
+            {path: 'users/:user', component: 'x-user-profile'},
+            {path: '(.*)', component: 'x-not-found-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
   </template>
   <script>
     class VaadinRouterGettingStartedDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
       static get is() {
         return 'vaadin-router-getting-started-demos';
+      }
+
+      ready() {
+        super.ready();
+
+        // The base URL demo should '/ui/' initially instead of the default '/'
+        // TODO(platosha): Remove the workaround below after)
+        // https://github.com/vaadin/vaadin-demo-helpers/issues/60 is fixed
+        const baseUrlDemoSnippet = this.$['vaadin-router-getting-started-demo-base-url'];
+        const origShowDemo = baseUrlDemoSnippet._showDemo;
+        baseUrlDemoSnippet._showDemo = function() {
+          origShowDemo.apply(this, arguments);
+          const iframeDemoRenderer = baseUrlDemoSnippet.$.demo.firstElementChild;
+          iframeDemoRenderer.__iframeReady.then(() => {
+            iframeDemoRenderer.url = '/ui/';
+            iframeDemoRenderer._postIframeMessage({type: 'set-url', url: '/ui/'});
+          });
+        };
       }
     }
     customElements.define(VaadinRouterGettingStartedDemos.is, VaadinRouterGettingStartedDemos);

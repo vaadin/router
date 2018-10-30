@@ -45,7 +45,7 @@ const config = [
   // UMD bundle, transpiled (for the browsers that do not support ES modules).
   // Also works in Node.
   {
-    input: 'index.js',
+    input: 'index.polyfilled.js',
     output: {
       format: 'umd',
       file: pkg.main.replace('.js', '.umd.js'),

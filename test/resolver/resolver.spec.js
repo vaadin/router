@@ -679,7 +679,7 @@
           },
         ],
       };
-      const resolver = new Resolver(routes, {baseUrl: '/base'});
+      const resolver = new Resolver(routes, {baseUrl: '/base/'});
       const context = await resolver.resolve('/base/a/b/c');
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.property('pathname', '/base/a/b/c');
@@ -761,6 +761,100 @@
       expect(context.result).to.be.equal(404);
       expect(action.calledOnce).to.be.true;
       expect(middleware.calledOnce).to.be.true;
+    });
+  });
+
+  describe('Resolver.__createUrl(path, base) hook', () => {
+    it('should exist', () => {
+      expect(Resolver.__createUrl).to.be.instanceof(Function);
+    });
+
+    it('should return URL-like object', () => {
+      const absolutePathUrl = Resolver.__createUrl('/absolute/', 'http://example.com/base/url');
+      expect(absolutePathUrl).to.have.property('href', 'http://example.com/absolute/');
+      expect(absolutePathUrl).to.have.property('origin', 'http://example.com');
+      expect(absolutePathUrl).to.have.property('pathname', '/absolute/');
+
+      const relativePathUrl = Resolver.__createUrl('relative', 'http://example.com/base/url');
+      expect(relativePathUrl).to.have.property('href', 'http://example.com/base/relative');
+      expect(relativePathUrl).to.have.property('origin', 'http://example.com');
+      expect(relativePathUrl).to.have.property('pathname', '/base/relative');
+    });
+  });
+
+  describe('resolver.__effectiveBaseUrl getter', () => {
+    it('should return empty string by default', () => {
+      expect(new Resolver([]).__effectiveBaseUrl).to.equal('');
+    });
+
+    it('should return full base when baseUrl is set', () => {
+      expect(
+        new Resolver([], {baseUrl: '/foo/'}).__effectiveBaseUrl
+      ).to.equal(location.origin + '/foo/');
+    });
+
+    it('should ignore everything after last slash', () => {
+      expect(
+        new Resolver([], {baseUrl: '/foo'}).__effectiveBaseUrl
+      ).to.equal(location.origin + '/');
+      expect(
+        new Resolver([], {baseUrl: '/foo/bar'}).__effectiveBaseUrl
+      ).to.equal(location.origin + '/foo/');
+    });
+
+    it('should invoke Resolver.__createUrl(path, base) hook', () => {
+      sinon.spy(Resolver, '__createUrl');
+      try {
+        new Resolver([], {baseUrl: '/foo/bar'}).__effectiveBaseUrl;
+        expect(Resolver.__createUrl).to.be.calledWith(
+          '/foo/bar',
+          document.baseURI || document.URL
+        );
+      } finally {
+        Resolver.__createUrl.restore();
+      }
+    });
+  });
+
+  describe('resolver.__normalizePathname(pathname) method', () => {
+    it('should return unmodified pathname by default', () => {
+      const resolver = new Resolver([]);
+      expect(resolver.__normalizePathname('foo')).to.equal('foo');
+      expect(resolver.__normalizePathname('/bar')).to.equal('/bar');
+    });
+
+    it('should undefined when pathname does not match baseUrl', () => {
+      const resolver = new Resolver([], {baseUrl: '/foo/'});
+      expect(resolver.__normalizePathname('/')).to.equal(undefined);
+      expect(resolver.__normalizePathname('/bar')).to.equal(undefined);
+    });
+
+    it('should local path when pathname matches baseUrl', () => {
+      const resolver = new Resolver([], {baseUrl: '/foo/'});
+      expect(resolver.__normalizePathname('/foo/')).to.equal('');
+      expect(resolver.__normalizePathname('/foo/bar')).to.equal('bar');
+      expect(resolver.__normalizePathname('baz')).to.equal('baz');
+    });
+
+    it('should use __effectiveBaseUrl', () => {
+      const resolver = new Resolver([], {baseUrl: '/foo/'});
+      const stub = sinon.stub().returns(location.origin + '/bar/');
+      Object.defineProperty(resolver, '__effectiveBaseUrl', {get: stub});
+      expect(resolver.__normalizePathname('/bar/')).to.equal('');
+      expect(stub).to.be.called;
+    });
+
+    it('should invoke Resolver.__createUrl(path, base) hook', () => {
+      sinon.spy(Resolver, '__createUrl');
+      try {
+        new Resolver([], {baseUrl: '/foo/bar'}).__normalizePathname('/baz/');
+        expect(Resolver.__createUrl).to.be.calledWith(
+          '/baz/',
+          location.origin + '/foo/'
+        );
+      } finally {
+        Resolver.__createUrl.restore();
+      }
     });
   });
 })(window.VaadinTestNamespace || window.Vaadin);

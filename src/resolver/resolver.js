@@ -135,7 +135,8 @@ class Resolver {
     );
     const match = matchRoute(
       this.root,
-      context.pathname.substr(this.baseUrl.length)
+      this.__normalizePathname(context.pathname),
+      this.baseUrl
     );
     const resolve = this.resolveRoute;
     let matches = null;
@@ -192,6 +193,50 @@ class Resolver {
         }
         throw error;
       });
+  }
+
+  /**
+   * URL constructor polyfill hook. Creates and returns an URL instance.
+   */
+  static __createUrl(url, base) {
+    return new URL(url, base);
+  }
+
+  /**
+   * If the baseUrl property is set, transforms the baseUrl and returns the full
+   * actual `base` string for using in the `new URL(path, base);` and for
+   * prepernding the paths with. The returned base ends with a trailing slash.
+   *
+   * Otherwise, returns empty string.
+   */
+  get __effectiveBaseUrl() {
+    return this.baseUrl
+      ? this.constructor.__createUrl(
+        this.baseUrl,
+        document.baseURI || document.URL
+      ).href.replace(/[^\/]*$/, '')
+      : '';
+  }
+
+  /**
+   * If the baseUrl is set, matches the pathname with the router’s baseUrl,
+   * and returns the local pathname with the baseUrl stripped out.
+   *
+   * If the pathname does not match the baseUrl, returns undefined.
+   *
+   * If the `baseUrl` is not set, returns the unmodified pathname argument.
+   */
+  __normalizePathname(pathname) {
+    if (!this.baseUrl) {
+      // No base URL, no need to transform the pathname.
+      return pathname;
+    }
+
+    const base = this.__effectiveBaseUrl;
+    const normalizedUrl = this.constructor.__createUrl(pathname, base).href;
+    if (normalizedUrl.slice(0, base.length) === base) {
+      return normalizedUrl.slice(base.length);
+    }
   }
 }
 

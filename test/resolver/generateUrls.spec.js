@@ -112,15 +112,18 @@
     });
 
     it('should respect baseUrl', async() => {
-      const options = {baseUrl: '/base'};
+      // NOTE(platosha): the baseUrl support is only available in Vaadin.Router,
+      // the generateUrls method should return clean urls without the base then.
+
+      const options = {baseUrl: '/base/'};
 
       const router1 = new Resolver({path: '', name: 'home'}, options);
       const url1 = generateUrls(router1);
-      expect(url1('home')).to.be.equal('/base');
+      expect(url1('home')).to.be.equal('/');
 
       const router2 = new Resolver({path: '/post/:id', name: 'post'}, options);
       const url2 = generateUrls(router2);
-      expect(url2('post', {id: 12, x: 'y'})).to.be.equal('/base/post/12');
+      expect(url2('post', {id: 12, x: 'y'})).to.be.equal('/post/12');
 
       const router3 = new Resolver(
         {
@@ -145,13 +148,13 @@
         options,
       );
       const url3 = generateUrls(router3);
-      expect(url3('a')).to.be.equal('/base');
-      expect(url3('b')).to.be.equal('/base');
-      expect(url3('c', {x: 'x'})).to.be.equal('/base/c/x');
-      expect(url3('d', {x: 'x', y: 'y'})).to.be.equal('/base/c/x/d/y');
+      expect(url3('a')).to.be.equal('/');
+      expect(url3('b')).to.be.equal('/');
+      expect(url3('c', {x: 'x'})).to.be.equal('/c/x');
+      expect(url3('d', {x: 'x', y: 'y'})).to.be.equal('/c/x/d/y');
 
       router3.root.__children.push({path: '/new', name: 'new'});
-      expect(url3('new')).to.be.equal('/base/new');
+      expect(url3('new')).to.be.equal('/new');
     });
 
     it('should generate url with trailing slash', async() => {
@@ -169,11 +172,13 @@
       expect(url('b')).to.be.equal('/parent/');
       expect(url('c')).to.be.equal('/parent/child/');
 
-      const baseRouter = new Resolver(routes, {baseUrl: '/base'});
+      // NOTE(platosha): the baseUrl support is only available in Vaadin.Router,
+      // the generateUrls method should return clean urls without the base then.
+      const baseRouter = new Resolver(routes, {baseUrl: '/base/'});
       const baseUrl = generateUrls(baseRouter);
-      expect(baseUrl('a')).to.be.equal('/base/');
-      expect(baseUrl('b')).to.be.equal('/base/parent/');
-      expect(baseUrl('c')).to.be.equal('/base/parent/child/');
+      expect(baseUrl('a')).to.be.equal('/');
+      expect(baseUrl('b')).to.be.equal('/parent/');
+      expect(baseUrl('c')).to.be.equal('/parent/child/');
     });
 
     it('should encode params', async() => {
