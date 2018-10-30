@@ -112,11 +112,11 @@
     });
 
     it('should respect baseUrl', async() => {
-      const options = {baseUrl: '/base'};
+      const options = {baseUrl: '/base/'};
 
       const router1 = new Resolver({path: '', name: 'home'}, options);
       const url1 = generateUrls(router1);
-      expect(url1('home')).to.be.equal('/base');
+      expect(url1('home')).to.be.equal('/base/');
 
       const router2 = new Resolver({path: '/post/:id', name: 'post'}, options);
       const url2 = generateUrls(router2);
@@ -145,8 +145,8 @@
         options,
       );
       const url3 = generateUrls(router3);
-      expect(url3('a')).to.be.equal('/base');
-      expect(url3('b')).to.be.equal('/base');
+      expect(url3('a')).to.be.equal('/base/');
+      expect(url3('b')).to.be.equal('/base/');
       expect(url3('c', {x: 'x'})).to.be.equal('/base/c/x');
       expect(url3('d', {x: 'x', y: 'y'})).to.be.equal('/base/c/x/d/y');
 
@@ -169,7 +169,7 @@
       expect(url('b')).to.be.equal('/parent/');
       expect(url('c')).to.be.equal('/parent/child/');
 
-      const baseRouter = new Resolver(routes, {baseUrl: '/base'});
+      const baseRouter = new Resolver(routes, {baseUrl: '/base/'});
       const baseUrl = generateUrls(baseRouter);
       expect(baseUrl('a')).to.be.equal('/base/');
       expect(baseUrl('b')).to.be.equal('/base/parent/');

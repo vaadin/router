@@ -73,13 +73,13 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3>The <code>Router.urlForPath</code> method</h3>
+    <h3>The <code>router.urlForPath</code> method</h3>
     <p>
       <b><code>
         <a target="_parent"
-           href="..#/classes/Vaadin.Router#staticmethod-urlForPath">
-          Router.urlForPath(path, parameters)</a>
-      </code></b> is a static helper method that generates a URL for
+           href="..#/classes/Vaadin.Router#method-urlForPath">
+          router.urlForPath(path, parameters)</a>
+      </code></b> is a helper method that generates a URL for
       the given route path, optionally performing substitution of parameters.
     </p>
     <p>
@@ -117,15 +117,15 @@
             is: 'x-main-layout',
 
             _getUrlForHome() {
-              return Router.urlForPath('/');
+              return router.urlForPath('/');
             },
 
             _getUrlForUserList() {
-              return Router.urlForPath('/users');
+              return router.urlForPath('/users');
             },
 
             _getUrlForUser(user) {
-              return Router.urlForPath('/users/:user', {user: user});
+              return router.urlForPath('/users/:user', {user: user});
             }
           });
 
@@ -179,11 +179,71 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Base URL in URL generation</h3>
+    <p>
+      When base URL is set, the URL generation helpers return absolute
+      pathnames, including the base.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-url-generation-demo-base-url" iframe-src="iframe.html">
+      <template preserve-content>
+        <div id="outlet"></div>
+        <dom-module id="x-user-layout">
+          <template>
+            <x-user-profile location="[[location]]"></x-user-profile>
+            <a href$="[[_urlForName('users', 'me')]]">My profile</a>
+            <a href$="[[_urlForPath('/users/:user', 'manager')]]">Manager profile</a>
+            <a href$="[[_getUrl('admin')]]">Admin profile</a>
+          </template>
+        </dom-module>
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+          const router = new Router(document.getElementById('outlet'), {baseUrl: '/ui/'});
+          router.setRoutes([
+            {path: '', redirect: 'users/me'},
+            {name: 'users', path: 'users/:user', component: 'x-user-layout'},
+          ]);
+
+          Polymer({
+            is: 'x-user-layout',
+
+            _urlForName(name, user) {
+              return router.urlForName(name, {user});
+            },
+
+            _urlForPath(path, user) {
+              return router.urlForPath(path, {user});
+            },
+
+            _getUrl(user) {
+              return this.location.getUrl({user});
+            }
+          });
+        </script>
+      </template>
+    </vaadin-demo-snippet>
   </template>
   <script>
     class VaadinRouterLinkGenerationDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
       static get is() {
         return 'vaadin-router-url-generation-demos';
+      }
+
+      ready() {
+        super.ready();
+
+        // The base URL demo should '/ui/' initially instead of the default '/'
+        const baseUrlDemoSnippet = this.$['vaadin-router-url-generation-demo-base-url'];
+        const origShowDemo = baseUrlDemoSnippet._showDemo;
+        baseUrlDemoSnippet._showDemo = function() {
+          origShowDemo.apply(this, arguments);
+          const iframeDemoRenderer = baseUrlDemoSnippet.$.demo.firstElementChild;
+          iframeDemoRenderer.__iframeReady.then(() => {
+            iframeDemoRenderer.url = '/ui/';
+            iframeDemoRenderer._postIframeMessage({type: 'set-url', url: '/ui/'});
+          });
+        };
       }
     }
     customElements.define(VaadinRouterLinkGenerationDemos.is, VaadinRouterLinkGenerationDemos);

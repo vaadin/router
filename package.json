@@ -19,6 +19,7 @@
   "homepage": "https://vaadin.com",
   "files": [
     "index.js",
+    "index.polyfilled.js",
     "src",
     "dist/vaadin-router.*"
   ],

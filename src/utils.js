@@ -131,9 +131,10 @@ export function loadBundle(bundle) {
 }
 
 export function fireRouterEvent(type, detail) {
-  window.dispatchEvent(
-    new CustomEvent(
-      `vaadin-router-${type}`, {detail}));
+  return !window.dispatchEvent(new CustomEvent(
+    `vaadin-router-${type}`,
+    {cancelable: type === 'go', detail}
+  ));
 }
 
 export function isObject(o) {
@@ -157,3 +158,33 @@ export function getNotFoundError(context) {
 }
 
 export const notFoundResult = new (class NotFoundResult {})();
+
+export function getNormalizedBaseForRouter(router) {
+  if (!router || !router.baseUrl) {
+    return '';
+  }
+
+  return router.constructor
+    .__createUrl(router.baseUrl, document.baseURI || document.URL).href
+    .replace(/[^\/]*$/, '');
+}
+
+export function normalizePathnameForRouter(pathname, router) {
+  if (!router.baseUrl) {
+    // No base URL, no need to transform the pathname.
+    return pathname;
+  }
+
+  if (!router.constructor.__createUrl) {
+    return pathname.indexOf(router.baseUrl) === 0
+      ? pathname.slice(router.baseUrl.length)
+      : pathname;
+  }
+
+  const base = getNormalizedBaseForRouter(router);
+
+  const normalizedUrl = router.constructor.__createUrl(pathname, base).href;
+  if (normalizedUrl.slice(0, base.length) === base) {
+    return normalizedUrl.slice(base.length);
+  }
+}

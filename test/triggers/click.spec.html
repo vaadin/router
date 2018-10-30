@@ -122,6 +122,8 @@
         // eslint-disable-next-line no-invalid-this
         this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
+        let preventNavigationDefault = true;
+
         const clicks = [];
         function onWindowClick(event) {
           clicks.push({defaultPrevented: event.defaultPrevented});
@@ -130,6 +132,10 @@
 
         const navigateEvents = [];
         function onWindowNavigate(event) {
+          if (preventNavigationDefault) {
+            event.preventDefault();
+          }
+
           navigateEvents.push({
             type: event.type,
             detail: event.detail
@@ -173,11 +179,31 @@
             expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
           });
 
-          it('should prevent the default action on the original `click` event', () => {
+          it('should have cancelable `vaadin-router-go` events on window', () => {
+            emulateClick(document.getElementById('in-app'));
+
+            expect(navigateEvents).to.have.lengthOf(1);
+            expect(navigateEvents[0]).to.have.property('cancelable', true);
+          });
+
+          it('should prevent the `click` event default action if the `vaadin-router-go` event is prevented', () => {
             emulateClick(document.getElementById('in-app'));
 
             expect(clicks).to.have.lengthOf(1);
             expect(clicks[0]).to.have.property('defaultPrevented', true);
+          });
+
+          it('should not prevent the `click` event default action if the `vaadin-router-go` event is not prevented', () => {
+            preventNavigationDefault = false;
+
+            try {
+              emulateClick(document.getElementById('in-app'));
+            } finally {
+              expect(clicks).to.have.lengthOf(1);
+              expect(clicks[0]).to.have.property('defaultPrevented', false);
+
+              preventNavigationDefault = true;
+            }
           });
 
           it('should set the `detail.pathname` property of the `vaadin-router-go` event to the pathname of the clicked link', () => {

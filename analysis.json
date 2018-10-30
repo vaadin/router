@@ -39,9 +39,9 @@
               "path": "src/documentation/location.js",
               "properties": [
                 {
-                  "name": "pathname",
-                  "type": "!string",
-                  "description": "The pathname as entered in the browser address bar\n(e.g. `/users/42/messages/12/edit`). It always starts with a `/` (slash).",
+                  "name": "baseUrl",
+                  "type": "string",
+                  "description": "The base URL used in the router. See [the `baseUrl` property\n](#/classes/Vaadin.Router#property-baseUrl) in the Vaadin.Router.",
                   "privacy": "public",
                   "sourceRange": {
                     "start": {
@@ -50,6 +50,23 @@
                     },
                     "end": {
                       "line": 25,
+                      "column": 17
+                    }
+                  },
+                  "metadata": {}
+                },
+                {
+                  "name": "pathname",
+                  "type": "!string",
+                  "description": "The pathname as entered in the browser address bar\n(e.g. `/users/42/messages/12/edit`). It always starts with a `/` (slash).",
+                  "privacy": "public",
+                  "sourceRange": {
+                    "start": {
+                      "line": 34,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 34,
                       "column": 18
                     }
                   },
@@ -62,11 +79,11 @@
                   "privacy": "public",
                   "sourceRange": {
                     "start": {
-                      "line": 48,
+                      "line": 57,
                       "column": 4
                     },
                     "end": {
-                      "line": 48,
+                      "line": 57,
                       "column": 22
                     }
                   },
@@ -79,11 +96,11 @@
                   "privacy": "public",
                   "sourceRange": {
                     "start": {
-                      "line": 64,
+                      "line": 73,
                       "column": 4
                     },
                     "end": {
-                      "line": 64,
+                      "line": 73,
                       "column": 15
                     }
                   },
@@ -96,11 +113,11 @@
                   "privacy": "public",
                   "sourceRange": {
                     "start": {
-                      "line": 78,
+                      "line": 87,
                       "column": 4
                     },
                     "end": {
-                      "line": 78,
+                      "line": 87,
                       "column": 16
                     }
                   },
@@ -113,11 +130,11 @@
                   "privacy": "public",
                   "sourceRange": {
                     "start": {
-                      "line": 92,
+                      "line": 101,
                       "column": 4
                     },
                     "end": {
-                      "line": 92,
+                      "line": 101,
                       "column": 16
                     }
                   },
@@ -131,11 +148,11 @@
                   "privacy": "public",
                   "sourceRange": {
                     "start": {
-                      "line": 107,
+                      "line": 116,
                       "column": 2
                     },
                     "end": {
-                      "line": 107,
+                      "line": 116,
                       "column": 24
                     }
                   },
@@ -161,7 +178,7 @@
                   "column": 7
                 },
                 "end": {
-                  "line": 108,
+                  "line": 117,
                   "column": 1
                 }
               },
@@ -184,11 +201,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 962,
+                  "line": 994,
                   "column": 2
                 },
                 "end": {
-                  "line": 964,
+                  "line": 996,
                   "column": 3
                 }
               },
@@ -204,11 +221,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 972,
+                  "line": 1004,
                   "column": 2
                 },
                 "end": {
-                  "line": 976,
+                  "line": 1008,
                   "column": 3
                 }
               },
@@ -230,11 +247,11 @@
               "privacy": "protected",
               "sourceRange": {
                 "start": {
-                  "line": 987,
+                  "line": 1019,
                   "column": 2
                 },
                 "end": {
-                  "line": 991,
+                  "line": 1023,
                   "column": 3
                 }
               },
@@ -256,11 +273,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 996,
+                  "line": 1028,
                   "column": 2
                 },
                 "end": {
-                  "line": 998,
+                  "line": 1030,
                   "column": 3
                 }
               },
@@ -276,11 +293,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1017,
+                  "line": 1049,
                   "column": 2
                 },
                 "end": {
-                  "line": 1082,
+                  "line": 1115,
                   "column": 3
                 }
               },
@@ -302,11 +319,11 @@
           "metadata": {},
           "sourceRange": {
             "start": {
-              "line": 941,
+              "line": 973,
               "column": 0
             },
             "end": {
-              "line": 1083,
+              "line": 1116,
               "column": 1
             }
           },
@@ -314,10 +331,27 @@
           "name": "Vaadin.Resolver"
         },
         {
-          "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\nUse `new Router(outlet)` to create a new Router instance. The `outlet` parameter is a reference to the DOM node\nto render the content into. The Router instance is automatically subscribed to navigation events on `window`.\n\nSee [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.\n\nSee also detailed API docs for the following methods, for the advanced usage:\n\n* [setOutlet](#/classes/Vaadin.Router#method-setOutlet) – should be used to configure the outlet.\n* [setTriggers](#/classes/Vaadin.Router#method-setTriggers) – should be used to configure the navigation events.\n* [setRoutes](#/classes/Vaadin.Router#method-setRoutes) – should be used to configure the routes.\n\nOnly `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.",
+          "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\nUse `new Router(outlet, options)` to create a new Router instance.\n\n* The `outlet` parameter is a reference to the DOM node to render\n  the content into.\n\n* The `options` parameter is an optional object with options. The following\n  keys are supported:\n  * `baseUrl` — the initial value for [\n    the `baseUrl` property\n  ](#/classes/Vaadin.Router#property-baseUrl)\n\nThe Router instance is automatically subscribed to navigation events\non `window`.\n\nSee [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.\n\nSee also detailed API docs for the following methods, for the advanced usage:\n\n* [setOutlet](#/classes/Vaadin.Router#method-setOutlet) – should be used to configure the outlet.\n* [setTriggers](#/classes/Vaadin.Router#method-setTriggers) – should be used to configure the navigation events.\n* [setRoutes](#/classes/Vaadin.Router#method-setRoutes) – should be used to configure the routes.\n\nOnly `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.",
           "summary": "JavaScript class that renders different DOM content depending on\n   a given path. It can re-render when triggered or automatically on\n   'popstate' and / or 'click' events.",
           "path": "dist/vaadin-router.js",
           "properties": [
+            {
+              "name": "baseUrl",
+              "type": "string",
+              "description": "The base URL for all routes in the router instance. By default,\ntakes the `<base href>` attribute value if the base element exists\nin the `<head>`.",
+              "privacy": "public",
+              "sourceRange": {
+                "start": {
+                  "line": 1453,
+                  "column": 4
+                },
+                "end": {
+                  "line": 1453,
+                  "column": 17
+                }
+              },
+              "metadata": {}
+            },
             {
               "name": "ready",
               "type": "!Promise.<!Vaadin.Router.Location>",
@@ -325,11 +359,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1393,
+                  "line": 1463,
                   "column": 4
                 },
                 "end": {
-                  "line": 1393,
+                  "line": 1463,
                   "column": 15
                 }
               },
@@ -342,11 +376,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1405,
+                  "line": 1475,
                   "column": 4
                 },
                 "end": {
-                  "line": 1405,
+                  "line": 1475,
                   "column": 18
                 }
               },
@@ -360,11 +394,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 962,
+                  "line": 994,
                   "column": 2
                 },
                 "end": {
-                  "line": 964,
+                  "line": 996,
                   "column": 3
                 }
               },
@@ -381,11 +415,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1577,
+                  "line": 1647,
                   "column": 2
                 },
                 "end": {
-                  "line": 1581,
+                  "line": 1651,
                   "column": 3
                 }
               },
@@ -407,11 +441,11 @@
               "privacy": "protected",
               "sourceRange": {
                 "start": {
-                  "line": 987,
+                  "line": 1019,
                   "column": 2
                 },
                 "end": {
-                  "line": 991,
+                  "line": 1023,
                   "column": 3
                 }
               },
@@ -434,11 +468,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 996,
+                  "line": 1028,
                   "column": 2
                 },
                 "end": {
-                  "line": 998,
+                  "line": 1030,
                   "column": 3
                 }
               },
@@ -455,11 +489,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1017,
+                  "line": 1049,
                   "column": 2
                 },
                 "end": {
-                  "line": 1082,
+                  "line": 1115,
                   "column": 3
                 }
               },
@@ -482,11 +516,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1414,
+                  "line": 1484,
                   "column": 2
                 },
                 "end": {
-                  "line": 1470,
+                  "line": 1540,
                   "column": 3
                 }
               },
@@ -503,11 +537,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1482,
+                  "line": 1552,
                   "column": 2
                 },
                 "end": {
-                  "line": 1487,
+                  "line": 1557,
                   "column": 3
                 }
               },
@@ -529,11 +563,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1494,
+                  "line": 1564,
                   "column": 2
                 },
                 "end": {
-                  "line": 1496,
+                  "line": 1566,
                   "column": 3
                 }
               },
@@ -550,11 +584,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1601,
+                  "line": 1671,
                   "column": 2
                 },
                 "end": {
-                  "line": 1660,
+                  "line": 1730,
                   "column": 3
                 }
               },
@@ -579,11 +613,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1662,
+                  "line": 1732,
                   "column": 2
                 },
                 "end": {
-                  "line": 1678,
+                  "line": 1752,
                   "column": 3
                 }
               },
@@ -604,11 +638,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1680,
+                  "line": 1754,
                   "column": 2
                 },
                 "end": {
-                  "line": 1699,
+                  "line": 1773,
                   "column": 3
                 }
               },
@@ -625,11 +659,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1701,
+                  "line": 1775,
                   "column": 2
                 },
                 "end": {
-                  "line": 1708,
+                  "line": 1782,
                   "column": 3
                 }
               },
@@ -646,11 +680,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1710,
+                  "line": 1784,
                   "column": 2
                 },
                 "end": {
-                  "line": 1759,
+                  "line": 1833,
                   "column": 3
                 }
               },
@@ -667,11 +701,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1761,
+                  "line": 1835,
                   "column": 2
                 },
                 "end": {
-                  "line": 1774,
+                  "line": 1848,
                   "column": 3
                 }
               },
@@ -691,11 +725,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1776,
+                  "line": 1850,
                   "column": 2
                 },
                 "end": {
-                  "line": 1780,
+                  "line": 1854,
                   "column": 3
                 }
               },
@@ -716,11 +750,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1782,
+                  "line": 1856,
                   "column": 2
                 },
                 "end": {
-                  "line": 1788,
+                  "line": 1862,
                   "column": 3
                 }
               },
@@ -743,11 +777,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1790,
+                  "line": 1864,
                   "column": 2
                 },
                 "end": {
-                  "line": 1833,
+                  "line": 1907,
                   "column": 3
                 }
               },
@@ -770,11 +804,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1835,
+                  "line": 1909,
                   "column": 2
                 },
                 "end": {
-                  "line": 1841,
+                  "line": 1915,
                   "column": 3
                 }
               },
@@ -790,11 +824,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1843,
+                  "line": 1917,
                   "column": 2
                 },
                 "end": {
-                  "line": 1849,
+                  "line": 1923,
                   "column": 3
                 }
               },
@@ -810,11 +844,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1851,
+                  "line": 1925,
                   "column": 2
                 },
                 "end": {
-                  "line": 1872,
+                  "line": 1946,
                   "column": 3
                 }
               },
@@ -837,11 +871,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1874,
+                  "line": 1948,
                   "column": 2
                 },
                 "end": {
-                  "line": 1884,
+                  "line": 1958,
                   "column": 3
                 }
               },
@@ -861,11 +895,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1886,
+                  "line": 1960,
                   "column": 2
                 },
                 "end": {
-                  "line": 1908,
+                  "line": 1982,
                   "column": 3
                 }
               },
@@ -882,11 +916,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1916,
+                  "line": 1990,
                   "column": 2
                 },
                 "end": {
-                  "line": 1918,
+                  "line": 1992,
                   "column": 3
                 }
               },
@@ -902,11 +936,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1924,
+                  "line": 1998,
                   "column": 2
                 },
                 "end": {
-                  "line": 1926,
+                  "line": 2000,
                   "column": 3
                 }
               },
@@ -922,11 +956,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1928,
+                  "line": 2002,
                   "column": 2
                 },
                 "end": {
-                  "line": 1931,
+                  "line": 2010,
                   "column": 3
                 }
               },
@@ -946,11 +980,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1972,
+                  "line": 2051,
                   "column": 2
                 },
                 "end": {
-                  "line": 1977,
+                  "line": 2059,
                   "column": 3
                 }
               },
@@ -970,34 +1004,6 @@
               "return": {
                 "type": "string"
               }
-            }
-          ],
-          "staticMethods": [
-            {
-              "name": "setTriggers",
-              "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nThis method is invoked with the pre-configured values when creating a new Router instance.\nBy default, both `POPSTATE` and `CLICK` are enabled. This setup is expected to cover most of the use cases.\n\nSee the `router-config.js` for the default navigation triggers config. Based on it, you can\ncreate the own one and only import the triggers you need, instead of pulling in all the code,\ne.g. if you want to handle `click` differently.\n\nSee also **Navigation Triggers** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1949,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1951,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "triggers",
-                  "type": "...NavigationTrigger",
-                  "rest": true
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
             },
             {
               "name": "urlForPath",
@@ -1005,11 +1011,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1990,
+                  "line": 2072,
                   "column": 2
                 },
                 "end": {
-                  "line": 1992,
+                  "line": 2077,
                   "column": 3
                 }
               },
@@ -1029,18 +1035,46 @@
               "return": {
                 "type": "string"
               }
-            },
+            }
+          ],
+          "staticMethods": [
             {
-              "name": "go",
-              "description": "Triggers navigation to a new path and returns without waiting until the\nnavigation is complete.",
+              "name": "setTriggers",
+              "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nThis method is invoked with the pre-configured values when creating a new Router instance.\nBy default, both `POPSTATE` and `CLICK` are enabled. This setup is expected to cover most of the use cases.\n\nSee the `router-config.js` for the default navigation triggers config. Based on it, you can\ncreate the own one and only import the triggers you need, instead of pulling in all the code,\ne.g. if you want to handle `click` differently.\n\nSee also **Navigation Triggers** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).",
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2000,
+                  "line": 2028,
                   "column": 2
                 },
                 "end": {
-                  "line": 2002,
+                  "line": 2030,
+                  "column": 3
+                }
+              },
+              "metadata": {},
+              "params": [
+                {
+                  "name": "triggers",
+                  "type": "...NavigationTrigger",
+                  "rest": true
+                }
+              ],
+              "return": {
+                "type": "void"
+              }
+            },
+            {
+              "name": "go",
+              "description": "Triggers navigation to a new path. Returns a boolean without waiting until\nthe navigation is complete. Returns `true` if at least one `Vaadin.Router`\nhas handled the navigation (was subscribed and had `baseUrl` matching\nthe `pathname` argument), otherwise returns `false`.",
+              "privacy": "public",
+              "sourceRange": {
+                "start": {
+                  "line": 2088,
+                  "column": 2
+                },
+                "end": {
+                  "line": 2090,
                   "column": 3
                 }
               },
@@ -1053,8 +1087,32 @@
                 }
               ],
               "return": {
-                "type": "void"
+                "type": "boolean"
               }
+            },
+            {
+              "name": "__createUrl",
+              "description": "Creates an URL instance. May invoke a polyfill if URL constructor\nis not available.",
+              "privacy": "private",
+              "sourceRange": {
+                "start": {
+                  "line": 2096,
+                  "column": 2
+                },
+                "end": {
+                  "line": 2098,
+                  "column": 3
+                }
+              },
+              "metadata": {},
+              "params": [
+                {
+                  "name": "url"
+                },
+                {
+                  "name": "base"
+                }
+              ]
             }
           ],
           "demos": [
@@ -1070,11 +1128,11 @@
           "metadata": {},
           "sourceRange": {
             "start": {
-              "line": 1364,
+              "line": 1419,
               "column": 0
             },
             "end": {
-              "line": 2003,
+              "line": 2099,
               "column": 1
             }
           },
@@ -1246,11 +1304,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 158,
+          "line": 159,
           "column": 28
         },
         "end": {
-          "line": 158,
+          "line": 159,
           "column": 51
         }
       },

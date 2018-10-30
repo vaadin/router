@@ -10,7 +10,7 @@
 import pathToRegexp from './path-to-regexp.js';
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
-import {toArray, ensureRoutes, isString, getNotFoundError, notFoundResult} from '../utils.js';
+import {toArray, ensureRoutes, isString, getNotFoundError, notFoundResult, normalizePathnameForRouter} from '../utils.js';
 
 function isChildRoute(parentRoute, childRoute) {
   let route = childRoute;
@@ -135,7 +135,8 @@ class Resolver {
     );
     const match = matchRoute(
       this.root,
-      context.pathname.substr(this.baseUrl.length)
+      normalizePathnameForRouter(context.pathname, this),
+      this.baseUrl
     );
     const resolve = this.resolveRoute;
     let matches = null;

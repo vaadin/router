@@ -200,6 +200,47 @@
 
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Base URL</h3>
+    <p>Vaadin Router supports configuring a base URL, that defines the location
+      for all the routes.
+    </p>
+    <p>The <code>&lt;base href="..."&gt;</code> tag in the head is used to
+      set the base URL globally. Alternatively, the base URL can be
+      configured on the router instance using with the constructor option.
+    </p>
+    <p>When the base URL is set, only the links matching the base URL are
+      handled by the router. Links that do no match the base URL are considered
+      external, clicking such a link will result in a regular navigation.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-base-url" iframe-src="iframe.html">
+      <template preserve-content="">
+        <base href="/ui/">
+
+        <nav>
+          <a href=".">Home</a>
+          <a href="users/guest">Profile</a>
+          <a href="/shop">Shop →</a> <!-- not handled because it points outside the base URL -->
+        </nav>
+
+        <main></main>
+
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          const router = new Router(
+            document.querySelector('main'),
+            {baseUrl: '/ui/'} // this is optional because it's exactly the same as the <base> tag
+          );
+          router.setRoutes([
+            {path: '', component: 'x-home-view'},
+            {path: 'users/:user', component: 'x-user-profile'},
+            {path: '(.*)', component: 'x-not-found-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
   </template>
-  <script>var VaadinRouterGettingStartedDemos=function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterGettingStartedDemos,_DemoReadyEventEmitte);function VaadinRouterGettingStartedDemos(){babelHelpers.classCallCheck(this,VaadinRouterGettingStartedDemos);return babelHelpers.possibleConstructorReturn(this,(VaadinRouterGettingStartedDemos.__proto__||Object.getPrototypeOf(VaadinRouterGettingStartedDemos)).apply(this,arguments))}babelHelpers.createClass(VaadinRouterGettingStartedDemos,null,[{key:"is",get:function get(){return"vaadin-router-getting-started-demos"}}]);return VaadinRouterGettingStartedDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterGettingStartedDemos.is,VaadinRouterGettingStartedDemos);</script>
+  <script>var VaadinRouterGettingStartedDemos=function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterGettingStartedDemos,_DemoReadyEventEmitte);function VaadinRouterGettingStartedDemos(){babelHelpers.classCallCheck(this,VaadinRouterGettingStartedDemos);return babelHelpers.possibleConstructorReturn(this,(VaadinRouterGettingStartedDemos.__proto__||Object.getPrototypeOf(VaadinRouterGettingStartedDemos)).apply(this,arguments))}babelHelpers.createClass(VaadinRouterGettingStartedDemos,[{key:"ready",value:function ready(){babelHelpers.get(VaadinRouterGettingStartedDemos.prototype.__proto__||Object.getPrototypeOf(VaadinRouterGettingStartedDemos.prototype),"ready",this).call(this);var baseUrlDemoSnippet=this.$["vaadin-router-getting-started-demo-base-url"],origShowDemo=baseUrlDemoSnippet._showDemo;baseUrlDemoSnippet._showDemo=function(){origShowDemo.apply(this,arguments);var iframeDemoRenderer=baseUrlDemoSnippet.$.demo.firstElementChild;iframeDemoRenderer.__iframeReady.then(function(){iframeDemoRenderer.url="/ui/";iframeDemoRenderer._postIframeMessage({type:"set-url",url:"/ui/"})})}}}],[{key:"is",get:function get(){return"vaadin-router-getting-started-demos"}}]);return VaadinRouterGettingStartedDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterGettingStartedDemos.is,VaadinRouterGettingStartedDemos);</script>
 </dom-module>
