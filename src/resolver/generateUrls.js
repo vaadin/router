@@ -83,7 +83,7 @@ function generateUrls(router, options = {}) {
       route.fullPath = fullPath;
     }
 
-    let url = router.baseUrl + regexp.toPath(params, options) || '/';
+    let url = regexp.toPath(params, options) || '/';
 
     if (options.stringifyQueryParams && params) {
       const queryParams = {};

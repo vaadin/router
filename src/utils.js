@@ -131,9 +131,10 @@ export function loadBundle(bundle) {
 }
 
 export function fireRouterEvent(type, detail) {
-  window.dispatchEvent(
-    new CustomEvent(
-      `vaadin-router-${type}`, {detail}));
+  return !window.dispatchEvent(new CustomEvent(
+    `vaadin-router-${type}`,
+    {cancelable: type === 'go', detail}
+  ));
 }
 
 export function isObject(o) {

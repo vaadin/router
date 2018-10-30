@@ -44,14 +44,18 @@
       });
 
       describe('JS API (basic functionality)', () => {
+        let router;
+
+        afterEach(() => router && router.unsubscribe());
+
         describe('new Router(outlet?, options?)', () => {
           it('should work without arguments', () => {
-            const router = new Vaadin.Router();
+            router = new Vaadin.Router();
             expect(router).to.be.ok;
           });
 
           it('should accept a router outlet DOM Node as the 1st argument', () => {
-            const router = new Vaadin.Router(outlet);
+            router = new Vaadin.Router(outlet);
             const actual = router.getOutlet();
             expect(actual).to.equal(outlet);
           });
@@ -70,37 +74,32 @@
           });
 
           it('route should throw when created with only path property', () => {
-            const router = new Vaadin.Router(outlet);
+            router = new Vaadin.Router(outlet);
             expect(() => router.setRoutes([{path: '/'}])).to.throw(Error);
           });
 
           it('route should throw when created with unknown bundle type', () => {
-            const router = new Vaadin.Router(outlet);
+            router = new Vaadin.Router(outlet);
             expect(() => router.setRoutes([{path: '/', bundle: () => {}}])).to.throw(Error);
           });
 
           it('route should throw when created with bundle object without required keys', () => {
-            const router = new Vaadin.Router(outlet);
+            router = new Vaadin.Router(outlet);
             expect(() => router.setRoutes([{path: '/', bundle: {}}])).to.throw(Error);
           });
 
           it('route should throw when created with unknown bundle extension', () => {
-            const router = new Vaadin.Router(outlet);
+            router = new Vaadin.Router(outlet);
             expect(() => router.setRoutes([{path: '/', bundle: 'test.html'}])).to.throw(Error);
           });
 
           it('route should throw when created with bundle object having keys with unknown extension', () => {
-            const router = new Vaadin.Router(outlet);
+            router = new Vaadin.Router(outlet);
             expect(() => router.setRoutes([{path: '/', bundle: {module: 'test.html'}}])).to.throw(Error);
           });
 
-          it('should accept an options object as the 2nd argument', () => {
-            const router = new Vaadin.Router(null, {baseUrl: '/users'});
-            expect(router).to.have.property('baseUrl', '/users');
-          });
-
           it('should not fail silently if not configured (both routes and outlet missing)', async() => {
-            const router = new Vaadin.Router();
+            router = new Vaadin.Router();
             const onError = sinon.spy();
             const link = document.getElementById('admin-anchor');
             link.click();
@@ -114,7 +113,7 @@
           });
 
           it('should not fail silently if not configured (outlet is set but routes are missing)', async() => {
-            const router = new Vaadin.Router(outlet);
+            router = new Vaadin.Router(outlet);
             const onError = sinon.spy();
             const link = document.getElementById('admin-anchor');
             link.click();
@@ -125,6 +124,54 @@
             const error = onError.args[0][0];
             expect(error).to.be.an('error');
             expect(error.message).to.match(/page not found/i);
+          });
+        });
+
+        describe('baseUrl', () => {
+          it('should accept baseUrl in options object as the 2nd argument', () => {
+            router = new Vaadin.Router(null, {baseUrl: '/users/'});
+            expect(router).to.have.property('baseUrl', '/users/');
+          });
+
+          it('should use <base href> as default baseUrl', () => {
+            const baseElement = document.createElement('base');
+            baseElement.setAttribute('href', '/foo/');
+            document.head.appendChild(baseElement);
+
+            router = new Vaadin.Router(null);
+            expect(router).to.have.property('baseUrl', '/foo/');
+
+            document.head.removeChild(baseElement);
+          });
+
+          it('should use baseUrl when matching relative routes', async() => {
+            router = new Vaadin.Router(outlet, {baseUrl: '/foo/'});
+            router.setRoutes([
+              {path: 'home', component: 'x-home-view'}
+            ]);
+            try {
+              await router.ready;
+            } catch (e) {
+              // eslint-disable-line no-empty
+            }
+
+            await router.render('/foo/home');
+            checkOutlet(['x-home-view']);
+          });
+
+          it('should use baseUrl when matching absolute routes', async() => {
+            router = new Vaadin.Router(outlet, {baseUrl: '/foo/'});
+            router.setRoutes([
+              {path: '/home', component: 'x-home-view'}
+            ]);
+            try {
+              await router.ready;
+            } catch (e) {
+              // eslint-disable-line no-empty
+            }
+
+            await router.render('/foo/home');
+            checkOutlet(['x-home-view']);
           });
         });
 
@@ -451,6 +498,24 @@
               .that.is.deep.equal({});
           });
 
+          it('should contain the baseUrl property', async() => {
+            router.unsubscribe();
+            router = new Vaadin.Router(outlet, {baseUrl: '/foo/'});
+
+            router.setRoutes([
+              {path: '', component: 'x-root'},
+            ]);
+            try {
+              await router.ready;
+            } catch (e) {
+              // eslint-disable-line no-empty
+            }
+
+            await router.render('/foo/');
+
+            expect(router.location.baseUrl).to.equal('/foo/');
+          });
+
           it('should contain the pathname from the last completed render pass', async() => {
             router.setRoutes([
               {path: '/', component: 'x-root'},
@@ -622,6 +687,20 @@
               expect(router.location.getUrl({foo: 'bar'})).to.equal('/a/42');
             });
 
+            it('should prepend baseUrl', async() => {
+              router.baseUrl = '/base/';
+              router.setRoutes([
+                {path: '/a', component: 'x-a'},
+                {path: 'b', component: 'x-b'},
+              ]);
+
+              await router.render('/base/a');
+              expect(router.location.getUrl()).to.equal('/base/a');
+
+              await router.render('/base/b');
+              expect(router.location.getUrl()).to.equal('/base/b');
+            });
+
             it('should invoke pathToRegexp', async() => {
               router.setRoutes([
                 {path: '/a/:id', component: 'x-a'}
@@ -734,29 +813,97 @@
             expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
           });
 
-          it('should expose a static Router.go() method for navigation', async() => {
-            Vaadin.Router.go('/admin');
-            await router.ready;
-            expect(outlet.children).to.have.lengthOf(1);
-            expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
+          describe('Router.go() static method for navigation', () => {
+            it('should be exposed', async() => {
+              Vaadin.Router.go('/admin');
+              await router.ready;
+              expect(outlet.children).to.have.lengthOf(1);
+              expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
+            });
+
+            it('should trigger a `vaadin-router-go` event on the `window`', () => {
+              const spy = sinon.spy();
+              window.addEventListener('vaadin-router-go', spy);
+              Vaadin.Router.go('');
+              window.removeEventListener('vaadin-router-go', spy);
+              expect(spy).to.have.been.called.once;
+              expect(spy.args[0][0]).to.have.property('type', 'vaadin-router-go');
+            });
+
+            it('should pass the given pathname in the `detail.pathname` property of the triggered event when Router.go() is called', () => {
+              const spy = sinon.spy();
+              window.addEventListener('vaadin-router-go', spy);
+              Vaadin.Router.go('/a');
+              window.removeEventListener('vaadin-router-go', spy);
+              expect(spy).to.have.been.called.once;
+              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/a');
+            });
+
+            it('should return false by default', () => {
+              router.unsubscribe();
+
+              const navigated = Vaadin.Router.go('/a');
+              expect(navigated).to.equal(false);
+
+              router.subscribe();
+            });
+
+            it('should return true if `vaadin-router-go` default is prevented', () => {
+              router.unsubscribe();
+
+              const eventPreventDefault = e => e.preventDefault();
+              window.addEventListener('vaadin-router-go', eventPreventDefault);
+
+              const navigated = Vaadin.Router.go('/a');
+              expect(navigated).to.equal(true);
+
+              window.removeEventListener('vaadin-router-go', eventPreventDefault);
+              router.subscribe();
+            });
           });
 
-          it('should trigger a `vaadin-router-go` event on the `window` when Router.go() is called', () => {
-            const spy = sinon.spy();
-            window.addEventListener('vaadin-router-go', spy);
-            Vaadin.Router.go('');
-            window.removeEventListener('vaadin-router-go', spy);
-            expect(spy).to.have.been.called.once;
-            expect(spy.args[0][0]).to.have.property('type', 'vaadin-router-go');
-          });
+          describe('default action', () => {
+            it('should be prevented from router by default', () => {
+              expect(!window.dispatchEvent(
+                new CustomEvent('vaadin-router-go', {
+                  cancelable: true,
+                  detail: {pathname: '/a'}
+                })
+              )).to.be.true;
+            });
 
-          it('should pass the given pathname in the `detail.pathname` property of the triggered event when Router.go() is called', () => {
-            const spy = sinon.spy();
-            window.addEventListener('vaadin-router-go', spy);
-            Vaadin.Router.go('/a');
-            window.removeEventListener('vaadin-router-go', spy);
-            expect(spy).to.have.been.called.once;
-            expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/a');
+            it('should not be prevented when no router is subscribed', () => {
+              router.unsubscribe();
+
+              expect(!window.dispatchEvent(
+                new CustomEvent('vaadin-router-go', {
+                  cancelable: true,
+                  detail: {pathname: '/a'}
+                })
+              )).to.be.false;
+
+              router.subscribe();
+            });
+
+            it('should be prevented for pathnames matching baseUrl', () => {
+              router.baseUrl = '/app/';
+              expect(!window.dispatchEvent(
+                new CustomEvent('vaadin-router-go', {
+                  cancelable: true,
+                  detail: {pathname: '/app/admin'}
+                })
+              )).to.be.true;
+            });
+
+            it('should not be prevented for pathnames not matching baseUrl', () => {
+              router.baseUrl = '/app/';
+              expect(!window.dispatchEvent(
+                new CustomEvent('vaadin-router-go', {
+                  cancelable: true,
+                  detail: {pathname: '/other-app/home'}
+                })
+              )).to.be.false;
+            });
           });
         });
 
