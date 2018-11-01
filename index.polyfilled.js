@@ -26,14 +26,21 @@ Resolver.__ensureUrlAvailableOrPolyfilled = () => {
           get: () => {
             // IE11: on HTTP and HTTPS the default port is not included into
             // window.location.origin, so won't include it here either.
-            const port = urlAnchor.port;
             const protocol = urlAnchor.protocol;
+            const port = urlAnchor.port;
             const defaultHttp = protocol === 'http:' && port === '80';
             const defaultHttps = protocol === 'https:' && port === '443';
             const host = (defaultHttp || defaultHttps)
               ? urlAnchor.hostname
               : urlAnchor.host;
             return `${protocol}//${host}`;
+          }
+        });
+
+        // IE11: HTMLAnchorElement pathname does not start with a leading slash
+        Object.defineProperty(urlAnchor, 'pathname', {
+          get: () => {
+            return urlAnchor.href.slice(urlAnchor.origin.length);
           }
         });
       }
@@ -49,6 +56,9 @@ Resolver.__createUrl = (path, base) => {
 
   urlBase.href = base;
   urlAnchor.href = path.replace(/ /g, '%20');
+  // IE11: only absolute href setting results in correct part properties
+  // (`protocol`, `host`, `port`, and such), otherwise they are empty.
+  urlAnchor.href = urlAnchor.href;
   return urlAnchor;
 };
 
