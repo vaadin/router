@@ -55,6 +55,11 @@
  * `onAfter...` callbacks are considered as non-preventable, and their return
  * value is ignored.
  *
+ * **Note:** Lifecycle callbacks are not executed when the router navigates
+ * to the same route and is rendering the same component name. In that case,
+ * the `location` object property is updated on the previously rendered
+ * component instead.
+ *
  * Other examples can be found in the
  * [live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.
  *

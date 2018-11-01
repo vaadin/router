@@ -424,6 +424,12 @@
       property is used later when processing the <code>vaadin-router-location-changed
       </code> events.
     </p>
+    <p>
+      <strong>Note:</strong> when the router navigates to the same route with
+      the same component name to render, the lifecycle callbacks are not called.
+      In that case, the <code>location</code> object property is updated on
+      the previously rendered component instance instead.
+    </p>
   </template>
   <script>
     class VaadinRouterLifecycleCallbacksDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {

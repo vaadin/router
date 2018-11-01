@@ -997,7 +997,7 @@
             expect(elem.location.params.id).to.equal('1');
           });
 
-          it('should create new component instance for the same route with different parameters', async() => {
+          it('should not create new component instance for the same route with different parameters', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/users/:id', component: 'x-users-view'},
@@ -1011,8 +1011,7 @@
 
             await router.render('/users/2');
             const elemTwo = outlet.children[0];
-            expect(elemTwo.tagName).to.match(/x-users-view/i);
-            expect(elemTwo).to.not.equal(elemOne);
+            expect(elemTwo).to.equal(elemOne);
             expect(elemTwo.location.params).to.be.object;
             expect(elemTwo.location.params.id).to.equal('2');
           });

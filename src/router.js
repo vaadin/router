@@ -538,12 +538,16 @@ export class Router extends Resolver {
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if (previousChain[i].route !== newChain[i].route
-          || previousChain[i].path !== newChain[i].path
-          || (previousChain[i].element && previousChain[i].element.localName)
-            !== (newChain[i].element && newChain[i].element.localName)
+        const p = previousChain[i], n = newChain[i];
+        if (
+          p.route !== n.route
+          || (p.element && p.element.isConnected && p.element.localName)
+          !== (n.element && n.element.localName)
         ) {
           break;
+        } else if (p.element) {
+          // update location instead of re-instanciating
+          p.element.location = createLocation(newContext, n.route);
         }
       }
 

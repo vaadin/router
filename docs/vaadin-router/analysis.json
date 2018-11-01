@@ -788,7 +788,7 @@
                   "column": 2
                 },
                 "end": {
-                  "line": 1847,
+                  "line": 1851,
                   "column": 3
                 }
               },
@@ -805,11 +805,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1849,
+                  "line": 1853,
                   "column": 2
                 },
                 "end": {
-                  "line": 1862,
+                  "line": 1866,
                   "column": 3
                 }
               },
@@ -829,11 +829,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1864,
+                  "line": 1868,
                   "column": 2
                 },
                 "end": {
-                  "line": 1868,
+                  "line": 1872,
                   "column": 3
                 }
               },
@@ -854,11 +854,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1870,
+                  "line": 1874,
                   "column": 2
                 },
                 "end": {
-                  "line": 1876,
+                  "line": 1880,
                   "column": 3
                 }
               },
@@ -881,11 +881,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1878,
+                  "line": 1882,
                   "column": 2
                 },
                 "end": {
-                  "line": 1921,
+                  "line": 1925,
                   "column": 3
                 }
               },
@@ -908,11 +908,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1923,
+                  "line": 1927,
                   "column": 2
                 },
                 "end": {
-                  "line": 1929,
+                  "line": 1933,
                   "column": 3
                 }
               },
@@ -928,11 +928,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1931,
+                  "line": 1935,
                   "column": 2
                 },
                 "end": {
-                  "line": 1937,
+                  "line": 1941,
                   "column": 3
                 }
               },
@@ -948,11 +948,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1939,
+                  "line": 1943,
                   "column": 2
                 },
                 "end": {
-                  "line": 1960,
+                  "line": 1964,
                   "column": 3
                 }
               },
@@ -975,11 +975,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1962,
+                  "line": 1966,
                   "column": 2
                 },
                 "end": {
-                  "line": 1972,
+                  "line": 1976,
                   "column": 3
                 }
               },
@@ -999,11 +999,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1974,
+                  "line": 1978,
                   "column": 2
                 },
                 "end": {
-                  "line": 1996,
+                  "line": 2000,
                   "column": 3
                 }
               },
@@ -1020,11 +1020,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2004,
+                  "line": 2008,
                   "column": 2
                 },
                 "end": {
-                  "line": 2006,
+                  "line": 2010,
                   "column": 3
                 }
               },
@@ -1040,11 +1040,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2012,
+                  "line": 2016,
                   "column": 2
                 },
                 "end": {
-                  "line": 2014,
+                  "line": 2018,
                   "column": 3
                 }
               },
@@ -1060,11 +1060,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 2016,
+                  "line": 2020,
                   "column": 2
                 },
                 "end": {
-                  "line": 2024,
+                  "line": 2028,
                   "column": 3
                 }
               },
@@ -1084,11 +1084,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2065,
+                  "line": 2069,
                   "column": 2
                 },
                 "end": {
-                  "line": 2073,
+                  "line": 2077,
                   "column": 3
                 }
               },
@@ -1115,11 +1115,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2086,
+                  "line": 2090,
                   "column": 2
                 },
                 "end": {
-                  "line": 2091,
+                  "line": 2095,
                   "column": 3
                 }
               },
@@ -1173,11 +1173,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2042,
+                  "line": 2046,
                   "column": 2
                 },
                 "end": {
-                  "line": 2044,
+                  "line": 2048,
                   "column": 3
                 }
               },
@@ -1199,11 +1199,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2102,
+                  "line": 2106,
                   "column": 2
                 },
                 "end": {
-                  "line": 2104,
+                  "line": 2108,
                   "column": 3
                 }
               },
@@ -1237,7 +1237,7 @@
               "column": 0
             },
             "end": {
-              "line": 2105,
+              "line": 2109,
               "column": 1
             }
           },
@@ -1246,7 +1246,7 @@
           "name": "Vaadin.Router"
         },
         {
-          "description": "This interface describes the lifecycle callbacks supported by Vaadin Router\non view Web Components. It exists only for documentation purposes, i.e.\nyou _do not need_ to extend it in your code&mdash;defining a method with a\nmatching name is enough (this class does not exist at the run time).\n\nIf any of the methods described below are defined in a view Web Component,\nVaadin Router calls them at the corresponding points of the view\nlifecycle. Each method can either be synchronous or asynchronous (i.e. return\na Promise). In the latter case Vaadin Router waits until the promise is\nresolved and continues the navigation after that.\n\nCheck the [documentation on the `Vaadin.Router` class](#/classes/Vaadin.Router)\nto learn more.\n\nLifecycle callbacks are executed after the new path is resolved and after all\n`action` callbacks of the routes in the new path are executed.\n\nExample:\n\nFor the following routes definition,\n```\n// router and action declarations are omitted for brevity\nrouter.setRoutes([\n {path: '/a', action: actionA, children: [\n   {path: '/b', action: actionB, component: 'component-b'},\n   {path: '/c', action: actionC, component: 'component-c'}\n ]}\n]);\n```\nif the router first navigates to `/a/b` path and there was no view rendered\nbefore, the following events happen:\n* actionA\n* actionB\n* onBeforeEnterB (if defined in component-b)\n* outlet contents updated with component-b\n* onAfterEnterB (if defined in component-b)\n\nthen, if the router navigates to `/a/c`, the following events take place:\n* actionA\n* actionC\n* onBeforeLeaveB  (if defined in component-b)\n* onBeforeEnterC (if defined in component-c)\n* onAfterLeaveB  (if defined in component-b)\n* outlet contents updated with component-c\n* onAfterEnterC (if defined in component-c)\n\nIf a `Promise` is returned by any of the callbacks, it is resolved before\nproceeding further.\n\nAny of the `onBefore...` callbacks have a possibility to prevent\nthe navigation and fall back to the previous navigation result. If there is\nno result and this is the first resolution, an exception is thrown.\n\n`onAfter...` callbacks are considered as non-preventable, and their return\nvalue is ignored.\n\nOther examples can be found in the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.",
+          "description": "This interface describes the lifecycle callbacks supported by Vaadin Router\non view Web Components. It exists only for documentation purposes, i.e.\nyou _do not need_ to extend it in your code&mdash;defining a method with a\nmatching name is enough (this class does not exist at the run time).\n\nIf any of the methods described below are defined in a view Web Component,\nVaadin Router calls them at the corresponding points of the view\nlifecycle. Each method can either be synchronous or asynchronous (i.e. return\na Promise). In the latter case Vaadin Router waits until the promise is\nresolved and continues the navigation after that.\n\nCheck the [documentation on the `Vaadin.Router` class](#/classes/Vaadin.Router)\nto learn more.\n\nLifecycle callbacks are executed after the new path is resolved and after all\n`action` callbacks of the routes in the new path are executed.\n\nExample:\n\nFor the following routes definition,\n```\n// router and action declarations are omitted for brevity\nrouter.setRoutes([\n {path: '/a', action: actionA, children: [\n   {path: '/b', action: actionB, component: 'component-b'},\n   {path: '/c', action: actionC, component: 'component-c'}\n ]}\n]);\n```\nif the router first navigates to `/a/b` path and there was no view rendered\nbefore, the following events happen:\n* actionA\n* actionB\n* onBeforeEnterB (if defined in component-b)\n* outlet contents updated with component-b\n* onAfterEnterB (if defined in component-b)\n\nthen, if the router navigates to `/a/c`, the following events take place:\n* actionA\n* actionC\n* onBeforeLeaveB  (if defined in component-b)\n* onBeforeEnterC (if defined in component-c)\n* onAfterLeaveB  (if defined in component-b)\n* outlet contents updated with component-c\n* onAfterEnterC (if defined in component-c)\n\nIf a `Promise` is returned by any of the callbacks, it is resolved before\nproceeding further.\n\nAny of the `onBefore...` callbacks have a possibility to prevent\nthe navigation and fall back to the previous navigation result. If there is\nno result and this is the first resolution, an exception is thrown.\n\n`onAfter...` callbacks are considered as non-preventable, and their return\nvalue is ignored.\n\n**Note:** Lifecycle callbacks are not executed when the router navigates\nto the same route and is rendering the same component name. In that case,\nthe `location` object property is updated on the previously rendered\ncomponent instead.\n\nOther examples can be found in the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.",
           "summary": "",
           "path": "src/documentation/web-component-interface.js",
           "properties": [],
@@ -1257,11 +1257,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 94,
+                  "line": 99,
                   "column": 2
                 },
                 "end": {
-                  "line": 99,
+                  "line": 104,
                   "column": 3
                 }
               },
@@ -1287,11 +1287,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 134,
+                  "line": 139,
                   "column": 2
                 },
                 "end": {
-                  "line": 139,
+                  "line": 144,
                   "column": 3
                 }
               },
@@ -1317,11 +1317,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 162,
+                  "line": 167,
                   "column": 2
                 },
                 "end": {
-                  "line": 165,
+                  "line": 170,
                   "column": 3
                 }
               },
@@ -1350,11 +1350,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 187,
+                  "line": 192,
                   "column": 2
                 },
                 "end": {
-                  "line": 190,
+                  "line": 195,
                   "column": 3
                 }
               },
@@ -1383,11 +1383,11 @@
           "metadata": {},
           "sourceRange": {
             "start": {
-              "line": 62,
+              "line": 67,
               "column": 7
             },
             "end": {
-              "line": 191,
+              "line": 196,
               "column": 1
             }
           },

@@ -39,6 +39,11 @@
       onAfterLeave() {
         callbacksLog.push(`${this.name}.onAfterLeave`);
       }
+      set location(location) {
+        // Note: initially, command.component(elementName) invokes location
+        // setter, but `this.name` is `undefined` at the moment, and so it logs.
+        callbacksLog.push(`${this.name}.location setter`);
+      }
     }
     customElements.define('x-spy', XSpy);
 
@@ -259,6 +264,7 @@
           await router.render('/a');
 
           verifyCallbacks([
+            'undefined.location setter',
             'a.onBeforeEnter',
             'a.onBeforeEnter.promise',
             'a.connectedCallback',
@@ -402,6 +408,7 @@
 
           verifyCallbacks([
             'b.action',
+            'undefined.location setter',
             'a.onBeforeLeave',
             'a.onBeforeLeave.promise',
             'b.onBeforeEnter',
@@ -600,6 +607,7 @@
 
           verifyCallbacks([
             'a.action',
+            'undefined.location setter',
             'a.onBeforeEnter',
             'a.connectedCallback',
             'a.onAfterEnter',
@@ -618,6 +626,7 @@
 
           verifyCallbacks([
             'b.action',
+            'undefined.location setter',
             'a.onBeforeLeave',
             'b.onBeforeEnter',
             'b.connectedCallback',
@@ -647,6 +656,7 @@
           verifyCallbacks([
             'a.action',
             'b.action',
+            'undefined.location setter',
             'b.onBeforeEnter',
             'b.connectedCallback',
             'b.onAfterEnter',
@@ -674,6 +684,7 @@
           verifyCallbacks([
             'a.action',
             'c.action',
+            'undefined.location setter',
             'b.onBeforeLeave',
             'c.onBeforeEnter',
             'c.connectedCallback',
@@ -705,6 +716,7 @@
           verifyCallbacks([
             'a.action',
             'asterisk.action',
+            'undefined.location setter',
             'asterisk.onBeforeEnter',
             'asterisk.connectedCallback',
             'asterisk.onAfterEnter',
@@ -732,6 +744,7 @@
           verifyCallbacks([
             'a.action',
             'asterisk.action',
+            'undefined.location setter',
             'b.onBeforeLeave',
             'asterisk.onBeforeEnter',
             'asterisk.connectedCallback',
@@ -768,6 +781,7 @@
           verifyCallbacks([
             'a.action',
             'ad.action',
+            'undefined.location setter',
             'ac.onBeforeLeave',
             'ad.onBeforeEnter',
             'ad.connectedCallback',
@@ -777,7 +791,7 @@
           ]);
         });
 
-        it('/users/jane -> /users/john (when parameters are changed, all callbacks are called again)', async() => {
+        it('/users/jane -> /users/john (when parameters are changed, all callbacks are not called again, only location setters are)', async() => {
           router.setRoutes([
             {path: '/users/:user', action: elementWithUserParameter()}
           ]);
@@ -788,12 +802,8 @@
 
           verifyCallbacks([
             'x-user-john.action',
-            'x-user-jane.onBeforeLeave',
-            'x-user-john.onBeforeEnter',
-            'x-user-john.connectedCallback',
-            'x-user-john.onAfterEnter',
-            'x-user-jane.onAfterLeave',
-            'x-user-jane.disconnectedCallback',
+            'undefined.location setter',
+            'x-user-jane.location setter',
           ]);
         });
       });
@@ -820,7 +830,9 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-a.onBeforeEnter',
             'x-b.onBeforeEnter',
             'x-a.connectedCallback',
@@ -835,7 +847,11 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
+            'x-a.location setter',
+            'x-b.location setter',
           ]);
           checkOutlet(['x-a', 'x-b']);
         });
@@ -845,7 +861,9 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-a.onBeforeEnter',
             'x-b.onBeforeEnter',
             'x-a.connectedCallback',
@@ -860,6 +878,7 @@
 
           verifyCallbacks([
             'x-c.action',
+            'undefined.location setter',
             'x-b.onBeforeLeave',
             'x-a.onBeforeLeave',
             'x-c.onBeforeEnter',
@@ -878,7 +897,9 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-a.onBeforeEnter',
             'x-b.onBeforeEnter',
             'x-a.connectedCallback',
@@ -893,7 +914,10 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-d.action',
+            'undefined.location setter',
+            'x-a.location setter',
             'x-b.onBeforeLeave',
             'x-d.onBeforeEnter',
             'x-d.connectedCallback',
@@ -909,7 +933,9 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-a.onBeforeEnter',
             'x-b.onBeforeEnter',
             'x-a.connectedCallback',
@@ -924,8 +950,13 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-e.action',
+            'undefined.location setter',
+            'x-a.location setter',
+            'x-b.location setter',
             'x-e.onBeforeEnter',
             'x-e.connectedCallback',
             'x-e.onAfterEnter',
@@ -950,8 +981,11 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-b-root.action',
+            'undefined.location setter',
             'x-a.onBeforeEnter',
             'x-b.onBeforeEnter',
             'x-b-root.onBeforeEnter',
@@ -969,8 +1003,13 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-e.action',
+            'undefined.location setter',
+            'x-a.location setter',
+            'x-b.location setter',
             'x-b-root.onBeforeLeave',
             'x-e.onBeforeEnter',
             'x-e.connectedCallback',
@@ -986,8 +1025,11 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-e.action',
+            'undefined.location setter',
             'x-a.onBeforeEnter',
             'x-b.onBeforeEnter',
             'x-e.onBeforeEnter',
@@ -1005,7 +1047,11 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
+            'x-a.location setter',
+            'x-b.location setter',
             'x-e.onBeforeLeave',
             'x-e.onAfterLeave',
             'x-e.disconnectedCallback',
@@ -1030,8 +1076,11 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-e.action',
+            'undefined.location setter',
             'x-a.onBeforeEnter',
             'x-b.onBeforeEnter',
             'x-e.onBeforeEnter',
@@ -1049,8 +1098,13 @@
 
           verifyCallbacks([
             'x-a.action',
+            'undefined.location setter',
             'x-b.action',
+            'undefined.location setter',
             'x-b-root.action',
+            'undefined.location setter',
+            'x-a.location setter',
+            'x-b.location setter',
             'x-e.onBeforeLeave',
             'x-b-root.onBeforeEnter',
             'x-b-root.connectedCallback',
@@ -1074,6 +1128,7 @@
 
           verifyCallbacks([
             'x-b.action',
+            'undefined.location setter',
             'x-b.onBeforeEnter',
             'x-b.connectedCallback',
             'x-b.onAfterEnter',
@@ -1089,7 +1144,7 @@
           ]);
         });
 
-        it('/users/jane/edit -> /users/john/edit (when parameters changed, callbacks for nested routes are called)', async() => {
+        it('/users/jane/edit -> /users/john/edit (when parameters changed, callbacks for nested routes are not called, only location setter is)', async() => {
           router.setRoutes([
             {path: '/users', action: elementWithAllLifecycleCallbacks('x-users'), children: [
               {path: '/:user', action: elementWithUserParameter(), children: [
@@ -1101,8 +1156,11 @@
           await router.render('/users/jane/edit');
           verifyCallbacks([
             'x-users.action',
+            'undefined.location setter',
             'x-user-jane.action',
+            'undefined.location setter',
             'x-user-edit.action',
+            'undefined.location setter',
             'x-users.onBeforeEnter',
             'x-user-jane.onBeforeEnter',
             'x-user-edit.onBeforeEnter',
@@ -1119,20 +1177,14 @@
 
           verifyCallbacks([
             'x-users.action',
+            'undefined.location setter',
             'x-user-john.action',
+            'undefined.location setter',
             'x-user-edit.action',
-            'x-user-edit.onBeforeLeave',
-            'x-user-jane.onBeforeLeave',
-            'x-user-john.onBeforeEnter',
-            'x-user-edit.onBeforeEnter',
-            'x-user-john.connectedCallback',
-            'x-user-edit.connectedCallback',
-            'x-user-john.onAfterEnter',
-            'x-user-edit.onAfterEnter',
-            'x-user-edit.onAfterLeave',
-            'x-user-jane.onAfterLeave',
-            'x-user-edit.disconnectedCallback',
-            'x-user-jane.disconnectedCallback',
+            'undefined.location setter',
+            'x-users.location setter',
+            'x-user-jane.location setter',
+            'x-user-edit.location setter',
           ]);
         });
       });
@@ -1161,6 +1213,7 @@
 
           verifyCallbacks([
             'bundle',
+            'undefined.location setter',
             'undefined.onBeforeEnter',
             'undefined.connectedCallback',
             'undefined.onAfterEnter'
@@ -1188,6 +1241,7 @@
 
           verifyCallbacks([
             'action.promise',
+            'undefined.location setter',
             'undefined.onBeforeEnter',
             'undefined.connectedCallback',
             'undefined.onAfterEnter'
