@@ -122,7 +122,7 @@ function getMatchedPath(chain) {
       return a.replace(/\/$/, '') + '/' + b.replace(/^\//, '');
     }
     return a;
-  });
+  }, '');
 }
 
 /**
@@ -435,6 +435,9 @@ export class Router extends Resolver {
             return this.location;
           }
 
+          this.location = createLocation(context);
+          fireRouterEvent('location-changed', {router: this, location: this.location});
+
           if (shouldUpdateHistory) {
             this.__updateBrowserHistory(context.pathname, context.redirectFrom);
           }
@@ -453,8 +456,6 @@ export class Router extends Resolver {
               this.__removeDisappearingContent();
 
               this.__previousContext = context;
-              this.location = createLocation(context);
-              fireRouterEvent('location-changed', {router: this, location: this.location});
               return this.location;
             }
           });
