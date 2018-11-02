@@ -652,6 +652,19 @@
             expect(router.location.params).to.deep.equal({});
           });
 
+          it('should update on router before component is connected', async() => {
+            customElements.define('x-connected-location-test', class extends HTMLElement {
+              connectedCallback() {
+                expect(this.location.getUrl()).to.equal('/x-connected-location-test');
+                expect(router.location.getUrl()).to.equal('/x-connected-location-test');
+              }
+            });
+            router.setRoutes([
+              {path: '/x-connected-location-test', component: 'x-connected-location-test'},
+            ]);
+            await router.render('/x-connected-location-test');
+          });
+
           describe('getUrl() method', () => {
             it('should exist', () => {
               expect(router.location.getUrl).to.be.instanceof(Function);
@@ -699,6 +712,18 @@
 
               await router.render('/base/b');
               expect(router.location.getUrl()).to.equal('/base/b');
+            });
+
+            it('should work in onBeforeEnter lifecycle method', async() => {
+              const {onBeforeEnterAction} = VaadinTestNamespace;
+              router.setRoutes([
+                {path: '/', action: onBeforeEnterAction('x-foo', () => {
+                  expect(() => {
+                    router.location.getUrl();
+                  }).to.not.throw();
+                })},
+              ]);
+              await router.ready;
             });
 
             it('should invoke pathToRegexp', async() => {
