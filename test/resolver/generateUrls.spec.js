@@ -42,7 +42,17 @@
         {path: '/b', name: 'example'},
       ]);
       const url = generateUrls(router);
-      expect(() => url('example')).to.throw(Error, /Duplicate route name for name "example"/);
+      expect(() => url('example')).to.throw(Error, /Duplicate route with name "example"/);
+    });
+
+    it('should not throw an error for unique route name', async() => {
+      const router = new Resolver([
+        {path: '/a', name: 'example'},
+        {path: '/b', name: 'example'},
+        {path: '/c', name: 'unique'},
+      ]);
+      const url = generateUrls(router);
+      expect(() => url('unique')).to.not.throw();
     });
 
     it('should generate url for named routes', async() => {

@@ -142,43 +142,50 @@
         });
 
         it('should throw for route name duplicating route name', () => {
-          expect(() => {
-            router.setRoutes([
-              {name: 'foo', path: '/', component: 'x-foo-1'},
-              {name: 'foo', path: '/', component: 'x-foo-2'}
-            ]);
-            router.urlForName('foo');
-          }).to.throw('Duplicate');
+          router.setRoutes([
+            {name: 'foo', path: '/', component: 'x-foo-1'},
+            {name: 'foo', path: '/', component: 'x-foo-2'},
+            {name: 'x-unique', path: '/', component: 'x-unique'},
+          ]);
+          expect(() => router.urlForName('foo')).to.throw('Duplicate');
+          expect(() => router.urlForName('x-unique')).to.not.throw();
         });
 
         it('should throw for component name duplicating route name', () => {
-          expect(() => {
-            router.setRoutes([
-              {name: 'x-foo', path: '/', component: 'x-foo-1'},
-              {path: '/', component: 'x-foo'}
-            ]);
-            router.urlForName('x-foo');
-          }).to.throw('Duplicate');
+          router.setRoutes([
+            {name: 'x-foo', path: '/', component: 'x-foo-1'},
+            {path: '/', component: 'x-foo'},
+            {path: '/', component: 'x-unique'},
+          ]);
+          expect(() => router.urlForName('x-foo')).to.throw('Duplicate');
+          expect(() => router.urlForName('x-unique')).to.not.throw();
         });
 
         it('should throw for route name duplicating component name', () => {
-          expect(() => {
-            router.setRoutes([
-              {path: '/', component: 'x-foo'},
-              {name: 'x-foo', path: '/', component: 'x-foo-2'}
-            ]);
-            router.urlForName('x-foo');
-          }).to.throw('Duplicate');
+          router.setRoutes([
+            {path: '/', component: 'x-foo'},
+            {name: 'x-foo', path: '/', component: 'x-foo-2'},
+            {name: 'x-unique', path: '/', component: 'x-unique'},
+          ]);
+          expect(() => router.urlForName('x-foo')).to.throw('Duplicate');
+          expect(() => router.urlForName('x-unique')).to.not.throw('not found');
         });
 
         it('should throw for component name duplicating component name', () => {
-          expect(() => {
-            router.setRoutes([
-              {path: '/', component: 'x-foo'},
-              {path: '/', component: 'x-foo'}
-            ]);
-            router.urlForName('x-foo');
-          }).to.throw('Duplicate');
+          router.setRoutes([
+            {path: '/', component: 'x-foo'},
+            {path: '/', component: 'x-foo'},
+            {path: '/', component: 'x-unique'},
+          ]);
+          expect(() => router.urlForName('x-foo')).to.throw('Duplicate');
+          expect(() => router.urlForName('x-unique')).to.not.throw();
+        });
+
+        it('should not use component name when name is assigned', () => {
+          router.setRoutes([
+            {name: 'foo', path: '/', component: 'x-foo'},
+          ]);
+          expect(() => router.urlForName('x-foo')).to.throw('');
         });
 
         it('should prepend baseUrl', () => {
