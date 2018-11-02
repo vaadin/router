@@ -14,15 +14,13 @@ const {pathToRegexp} = Resolver;
 const cache = new Map();
 
 function cacheRoutes(routesByName, route, routes) {
-  if (routesByName.has(route.name)) {
-    throw new Error(`Duplicate route name for name "${route.name}"`);
-  } else if (routesByName.has(route.component)) {
-    throw new Error(`Duplicate route name for component <${route.component}>`);
-  }
-
   const name = route.name || route.component;
   if (name) {
-    routesByName.set(name, route);
+    if (routesByName.has(name)) {
+      routesByName.get(name).push(route);
+    } else {
+      routesByName.set(name, [route]);
+    }
   }
 
   if (Array.isArray(routes)) {
@@ -32,6 +30,17 @@ function cacheRoutes(routesByName, route, routes) {
       cacheRoutes(routesByName, childRoute, childRoute.__children || childRoute.children);
     }
   }
+}
+
+function getRouteByName(routesByName, routeName) {
+  let routes = routesByName.get(routeName);
+  if (routes && routes.length > 1) {
+    throw new Error(
+      `Duplicate route with name "${routeName}".`
+      + ` Try seting unique 'name' route properties.`
+    );
+  }
+  return routes && routes[0];
 }
 
 function getRoutePath(route) {
@@ -48,12 +57,12 @@ function generateUrls(router, options = {}) {
   const routesByName = new Map();
 
   return (routeName, params) => {
-    let route = routesByName.get(routeName);
+    let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache
       cacheRoutes(routesByName, router.root, router.root.__children);
 
-      route = routesByName.get(routeName);
+      route = getRouteByName(routesByName, routeName);
       if (!route) {
         throw new Error(`Route "${routeName}" not found`);
       }
