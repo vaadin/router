@@ -109,10 +109,10 @@ export class Location {
     *
     * @public
     * @type {Function}
-    * @param {?Object} parameters optional object with parameters to override,
-    * where keys are parameter names or indicies to substitute in the full path
-    * of the location’s route chain.
+    * @param {?Object} params optional object with parameters to override.
+    * Named parameters are passed by name (`params[name] = value`), unnamed
+    * parameters are passed by index (`params[index] = value`).
     * @return {string}
     */
-  getUrl(parameters) { }
+  getUrl(params) { }
 }

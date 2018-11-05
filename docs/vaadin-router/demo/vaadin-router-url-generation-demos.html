@@ -55,15 +55,15 @@
           Polymer({
             is: 'x-main-layout',
 
-            _getUrlForHome() {
+            _getUrlForHome: function() {
               return router.urlForName('home');
             },
 
-            _getUrlForUserList() {
+            _getUrlForUserList: function() {
               return router.urlForName('x-user-list');
             },
 
-            _getUrlForUser(user) {
+            _getUrlForUser: function(user) {
               return router.urlForName('x-user-profile', {user: user});
             }
           });
@@ -114,15 +114,15 @@
           Polymer({
             is: 'x-main-layout',
 
-            _getUrlForHome() {
+            _getUrlForHome: function() {
               return router.urlForPath('/');
             },
 
-            _getUrlForUserList() {
+            _getUrlForUserList: function() {
               return router.urlForPath('/users');
             },
 
-            _getUrlForUser(user) {
+            _getUrlForUser: function(user) {
               return router.urlForPath('/users/:user', {user: user});
             }
           });
@@ -169,8 +169,8 @@
           Polymer({
             is: 'x-user-layout',
 
-            _getUrlForUser(user) {
-              return this.location.getUrl({user});
+            _getUrlForUser: function(user) {
+              return this.location.getUrl({user: user});
             }
           });
         </script>
@@ -205,16 +205,16 @@
           Polymer({
             is: 'x-user-layout',
 
-            _urlForName(name, user) {
-              return router.urlForName(name, {user});
+            _urlForName: function(name, user) {
+              return router.urlForName(name, {user: user});
             },
 
-            _urlForPath(path, user) {
-              return router.urlForPath(path, {user});
+            _urlForPath: function(path, user) {
+              return router.urlForPath(path, {user: user});
             },
 
-            _getUrl(user) {
-              return this.location.getUrl({user});
+            _getUrl: function(user) {
+              return this.location.getUrl({user: user});
             }
           });
         </script>
