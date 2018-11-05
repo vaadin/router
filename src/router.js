@@ -361,7 +361,7 @@ export class Router extends Resolver {
    * will be rendered as a light dom child of a parent component.
    *
    * * `name` – the string name of the route to use in the
-   * `[Router.urlForName(name, parameters)](#/classes/Vaadin.Router#staticmethod-urlForName)`
+   * [`router.urlForName(name, params)`](#/classes/Vaadin.Router#method-urlForName)
    * navigation helper method.
    *
    * For any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback
@@ -788,18 +788,18 @@ export class Router extends Resolver {
    *
    * @function urlForName
    * @param {!string} name the route name or the route’s `component` name.
-   * @param {?Object} parameters Optional object with route path parameters,
-   * where keys are route parameter names or indicies, and values
-   * are parameter values.
+   * @param {?Object} params Optional object with route path parameters.
+   * Named parameters are passed by name (`params[name] = value`), unnamed
+   * parameters are passed by index (`params[index] = value`).
    *
    * @return {string}
    */
-  urlForName(name, parameters) {
+  urlForName(name, params) {
     if (!this.__urlForName) {
       this.__urlForName = generateUrls(this);
     }
     return getPathnameForRouter(
-      this.__urlForName(name, parameters),
+      this.__urlForName(name, params),
       this
     );
   }
@@ -809,15 +809,15 @@ export class Router extends Resolver {
    * substitution of parameters.
    *
    * @param {!string} path string route path declared in [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
-   * @param {?Object} parameters Optional object with route path parameters,
-   * where keys are route parameter names or indicies, and values
-   * are parameter values.
+   * @param {?Object} params Optional object with route path parameters.
+   * Named parameters are passed by name (`params[name] = value`), unnamed
+   * parameters are passed by index (`params[index] = value`).
    *
    * @return {string}
    */
-  urlForPath(path, parameters) {
+  urlForPath(path, params) {
     return getPathnameForRouter(
-      Router.pathToRegexp.compile(path)(parameters),
+      Router.pathToRegexp.compile(path)(params),
       this
     );
   }
