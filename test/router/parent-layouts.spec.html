@@ -143,6 +143,30 @@
         checkOutlet(['x-a', 'x-b', 'x-c']);
       });
 
+      it('should render the matching child route even if it is not under the first matching parent', async() => {
+        router.setRoutes([
+          {
+            path: '/',
+            component: 'x-layout-a',
+            children: [
+              { path: '/a', component: 'x-a' },
+            ]
+          },
+          {
+            path: '/',
+            component: 'x-layout-b',
+            children: [
+              { path: '/b', component: 'x-b', }
+            ]
+          },
+        ]);
+
+        await router.render('/b');
+
+        verifyActiveRoutes(router, ['/', '/b']);
+        checkOutlet(['x-layout-b', 'x-b']);
+      });
+
       it('should not render the root component, if path does not match', async() => {
         router.setRoutes([
           {path: '/', component: 'x-root', children: [
