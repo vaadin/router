@@ -475,35 +475,51 @@ export class Router extends Resolver {
     return this.ready;
   }
 
-  __fullyResolveChain(originalContext, currentContext = originalContext) {
-    return this.__amendWithResolutionResult(currentContext)
-      .then(amendedContext => {
-        const initialContext = amendedContext !== currentContext ? amendedContext : originalContext;
-        return amendedContext.next()
-          .then(nextContext => {
-            if (nextContext === null || nextContext === notFoundResult) {
+  // `topOfTheChainContextBeforeRedirects` is a context coming from Resolver.resolve().
+  // It would contain a 'redirect' route or the first 'component' route that
+  // matched the pathname. There might be more child 'component' routes to be
+  // resolved and added into the chain. This method would find and add them.
+  // `contextBeforeRedirects` is the context containing such a child component
+  // route. It's only necessary when this method is called recursively (otherwise
+  // it's the same as the 'top of the chain' context).
+  //
+  // Apart from building the chain of child components, this method would also
+  // handle 'redirect' routes, call 'onBefore' callbacks and handle 'prevent'
+  // and 'redirect' callback results.
+  __fullyResolveChain(topOfTheChainContextBeforeRedirects,
+    contextBeforeRedirects = topOfTheChainContextBeforeRedirects) {
+    return this.__findComponentContextAfterAllRedirects(contextBeforeRedirects)
+      // `contextAfterRedirects` is always a context with an `HTMLElement` result
+      // In other cases the promise gets rejected and .then() is not called
+      .then(contextAfterRedirects => {
+        const redirectsHappened = contextAfterRedirects !== contextBeforeRedirects;
+        const topOfTheChainContextAfterRedirects =
+          redirectsHappened ? contextAfterRedirects : topOfTheChainContextBeforeRedirects;
+        return contextAfterRedirects.next()
+          .then(nextChildContext => {
+            if (nextChildContext === null || nextChildContext === notFoundResult) {
               const matchedPath = getPathnameForRouter(
-                getMatchedPath(amendedContext.chain),
-                amendedContext.resolver
+                getMatchedPath(contextAfterRedirects.chain),
+                contextAfterRedirects.resolver
               );
-              if (matchedPath !== amendedContext.pathname) {
-                throw getNotFoundError(initialContext);
+              if (matchedPath !== contextAfterRedirects.pathname) {
+                throw getNotFoundError(topOfTheChainContextAfterRedirects);
               }
             }
-            return nextContext && nextContext !== notFoundResult
-              ? this.__fullyResolveChain(initialContext, nextContext)
-              : this.__amendWithOnBeforeCallbacks(initialContext);
+            return nextChildContext && nextChildContext !== notFoundResult
+              ? this.__fullyResolveChain(topOfTheChainContextAfterRedirects, nextChildContext)
+              : this.__amendWithOnBeforeCallbacks(topOfTheChainContextAfterRedirects);
           });
       });
   }
 
-  __amendWithResolutionResult(context) {
+  __findComponentContextAfterAllRedirects(context) {
     const result = context.result;
     if (result instanceof HTMLElement) {
       return Promise.resolve(context);
     } else if (result.redirect) {
       return this.__redirect(result.redirect, context.__redirectCount)
-        .then(context => this.__amendWithResolutionResult(context));
+        .then(context => this.__findComponentContextAfterAllRedirects(context));
     } else if (result instanceof Error) {
       return Promise.reject(result);
     } else {
