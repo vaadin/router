@@ -508,7 +508,7 @@ export class Router extends Resolver {
             }
             return nextChildContext && nextChildContext !== notFoundResult
               ? this.__fullyResolveChain(topOfTheChainContextAfterRedirects, nextChildContext)
-              : this.__amendWithOnBeforeCallbacks(topOfTheChainContextAfterRedirects);
+              : this.__amendWithOnBeforeCallbacks(contextAfterRedirects);
           });
       });
   }
