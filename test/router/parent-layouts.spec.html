@@ -50,6 +50,7 @@
       const {
         verifyActiveRoutes,
         onBeforeEnterAction,
+        onAfterEnterAction,
         onBeforeLeaveAction,
         checkOutletContents
       } = VaadinTestNamespace;
@@ -232,6 +233,28 @@
 
         verifyActiveRoutes(router, ['/d', '/e']);
         checkOutlet(['x-d', 'x-e']);
+      });
+
+      it('child layout: onAfterEnter should receive correct route parameters', async() => {
+        const onAfterEnter = sinon.spy();
+        router.setRoutes([
+          {path: '/a', component: 'x-a', children: [
+            {path: '/b/:id', action: onAfterEnterAction('x-b', onAfterEnter)}
+          ]}
+        ]);
+
+        await router.render('/a/b/123');
+
+        expect(onAfterEnter).to.have.been.called.once;
+        expect(onAfterEnter.args[0].length).to.equal(3);
+
+        const location = onAfterEnter.args[0][0];
+        expect(location.pathname).to.equal('/a/b/123');
+        expect(location.route.path).to.equal('/b/:id');
+        expect(location.params).to.have.property('id', '123');
+
+        verifyActiveRoutes(router, ['/a', '/b/:id']);
+        checkOutlet(['x-a', 'x-b']);
       });
 
       it('child layout: onBeforeEnter with redirect result amends previous path', async() => {
