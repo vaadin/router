@@ -431,7 +431,7 @@ export class Router extends Resolver {
           const previousContext = this.__previousContext;
 
           // Check if the render was prevented and make an early return in that case
-          if (context === previousContext) {
+          if (previousContext && context && context.pathname === previousContext.pathname) {
             return this.location;
           }
 
