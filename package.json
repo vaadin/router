@@ -3,6 +3,7 @@
   "version": "1.2.0",
   "description": "Small and powerful client-side router for Web Components. Framework-agnostic.",
   "main": "dist/vaadin-router.js",
+  "module": "dist/vaadin-router.js",
   "repository": "vaadin/vaadin-router",
   "keywords": [
     "Vaadin",
