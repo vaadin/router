@@ -38,8 +38,8 @@ module.exports = {
         'macOS 10.12/safari@10.1',
 
         // last 2 iOS major versions (mobile Safari)
+        'iOS Simulator/iphone@12.0',
         'iOS Simulator/iphone@11.0',
-        'iOS Simulator/iphone@10.0',
 
         // Safari 9 on desktop and mobile
         'OS X 10.11/safari@9.0',
