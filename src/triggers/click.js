@@ -81,7 +81,8 @@ function vaadinRouterGlobalClickHandler(event) {
   }
 
   // if none of the above, convert the click into a navigation event
-  if (fireRouterEvent('go', {pathname: anchor.pathname})) {
+  const {pathname, search, hash} = anchor;
+  if (fireRouterEvent('go', {pathname, search, hash})) {
     event.preventDefault();
   }
 }
