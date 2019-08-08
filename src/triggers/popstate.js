@@ -19,7 +19,8 @@ function vaadinRouterGlobalPopstateHandler(event) {
   if (event.state === 'vaadin-router-ignore') {
     return;
   }
-  fireRouterEvent('go', {pathname: window.location.pathname});
+  const {pathname, search, hash} = window.location;
+  fireRouterEvent('go', {pathname, search, hash});
 }
 
 /**
