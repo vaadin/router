@@ -371,6 +371,10 @@ export class Router extends Resolver {
    * `context` object that is passed to `action` function holds the following properties:
    * * `context.pathname` – string with the pathname being resolved
    *
+   * * `context.search` – search query string
+   *
+   * * `context.hash` – hash string
+   *
    * * `context.params` – object with route parameters
    *
    * * `context.route` – object that holds the route that is currently being rendered.
@@ -408,17 +412,20 @@ export class Router extends Resolver {
    * If another render pass is started before the previous one is completed, the
    * result of the previous render pass is ignored.
    *
-   * @param {!string|!{pathname: !string}} pathnameOrContext the pathname to
-   *    render or a context object with a `pathname` property and other
-   *    properties to pass to the resolver.
+   * @param {!string|!{pathname: !string, search: ?string, hash: ?string}} pathnameOrContext
+   *    the pathname to render or a context object with a `pathname` property,
+   *    optional `search` and `hash` properties, and other properties
+   *    to pass to the resolver.
    * @return {!Promise<!Node>}
    */
   render(pathnameOrContext, shouldUpdateHistory) {
     const renderId = ++this.__lastStartedRenderId;
     const pathname = pathnameOrContext.pathname || pathnameOrContext;
+    const search = pathnameOrContext.search || '';
+    const hash = pathnameOrContext.hash || '';
 
     // Find the first route that resolves to a non-empty result
-    this.ready = this.resolve(pathnameOrContext)
+    this.ready = this.resolve({pathname, search, hash})
 
       // Process the result of this.resolve() and handle all special commands:
       // (redirect / prevent / component). If the result is a 'component',
@@ -439,7 +446,7 @@ export class Router extends Resolver {
           fireRouterEvent('location-changed', {router: this, location: this.location});
 
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(context.pathname, context.redirectFrom);
+            this.__updateBrowserHistory(context, context.redirectFrom);
           }
 
           this.__addAppearingContent(context, previousContext);
@@ -464,7 +471,7 @@ export class Router extends Resolver {
       .catch(error => {
         if (renderId === this.__lastStartedRenderId) {
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(pathname);
+            this.__updateBrowserHistory({pathname, search, hash});
           }
           removeDomNodes(this.__outlet && this.__outlet.children);
           this.location = createLocation({pathname, resolver: this});
@@ -599,10 +606,13 @@ export class Router extends Resolver {
     }
   }
 
-  __updateBrowserHistory(pathname, replace) {
-    if (window.location.pathname !== pathname) {
+  __updateBrowserHistory({pathname, search = '', hash = ''}, replace) {
+    if (window.location.pathname !== pathname
+        || window.location.search !== search
+        || window.location.hash !== hash
+    ) {
       const changeState = replace ? 'replaceState' : 'pushState';
-      window.history[changeState](null, document.title, pathname);
+      window.history[changeState](null, document.title, pathname + search + hash);
       window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router-ignore'}));
     }
   }
@@ -751,7 +761,7 @@ export class Router extends Resolver {
       if (event && event.preventDefault) {
         event.preventDefault();
       }
-      this.render(pathname, true);
+      this.render(event ? event.detail : {pathname}, true);
     }
   }
 
