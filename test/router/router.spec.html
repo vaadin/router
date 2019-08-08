@@ -838,6 +838,24 @@
             expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
           });
 
+          it('should respect search detail property of `vaadin-router-go` event', async() => {
+            window.dispatchEvent(new CustomEvent('vaadin-router-go', {detail: {
+              pathname: '/admin',
+              search: '?search'
+            }}));
+            await router.ready;
+            expect(window.location.search).to.equal('?search');
+          });
+
+          it('should respect hash detail property of `vaadin-router-go` event', async() => {
+            window.dispatchEvent(new CustomEvent('vaadin-router-go', {detail: {
+              pathname: '/admin',
+              hash: '#hash'
+            }}));
+            await router.ready;
+            expect(window.location.hash).to.equal('#hash');
+          });
+
           describe('Router.go() static method for navigation', () => {
             it('should be exposed', async() => {
               Vaadin.Router.go('/admin');
