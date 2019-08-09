@@ -201,11 +201,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1101,
+                  "line": 1103,
                   "column": 2
                 },
                 "end": {
-                  "line": 1108,
+                  "line": 1110,
                   "column": 3
                 }
               },
@@ -219,11 +219,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 964,
+                  "line": 966,
                   "column": 2
                 },
                 "end": {
-                  "line": 966,
+                  "line": 968,
                   "column": 3
                 }
               },
@@ -239,11 +239,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 974,
+                  "line": 976,
                   "column": 2
                 },
                 "end": {
-                  "line": 978,
+                  "line": 980,
                   "column": 3
                 }
               },
@@ -265,11 +265,11 @@
               "privacy": "protected",
               "sourceRange": {
                 "start": {
-                  "line": 989,
+                  "line": 991,
                   "column": 2
                 },
                 "end": {
-                  "line": 993,
+                  "line": 995,
                   "column": 3
                 }
               },
@@ -291,11 +291,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 998,
+                  "line": 1000,
                   "column": 2
                 },
                 "end": {
-                  "line": 1000,
+                  "line": 1002,
                   "column": 3
                 }
               },
@@ -311,11 +311,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1019,
+                  "line": 1021,
                   "column": 2
                 },
                 "end": {
-                  "line": 1085,
+                  "line": 1087,
                   "column": 3
                 }
               },
@@ -337,11 +337,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1118,
+                  "line": 1120,
                   "column": 2
                 },
                 "end": {
-                  "line": 1129,
+                  "line": 1131,
                   "column": 3
                 }
               },
@@ -360,11 +360,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1090,
+                  "line": 1092,
                   "column": 2
                 },
                 "end": {
-                  "line": 1092,
+                  "line": 1094,
                   "column": 3
                 }
               },
@@ -383,11 +383,11 @@
           "metadata": {},
           "sourceRange": {
             "start": {
-              "line": 943,
+              "line": 945,
               "column": 0
             },
             "end": {
-              "line": 1130,
+              "line": 1132,
               "column": 1
             }
           },
@@ -406,11 +406,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1101,
+                  "line": 1103,
                   "column": 2
                 },
                 "end": {
-                  "line": 1108,
+                  "line": 1110,
                   "column": 3
                 }
               },
@@ -424,11 +424,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1476,
+                  "line": 1487,
                   "column": 4
                 },
                 "end": {
-                  "line": 1476,
+                  "line": 1487,
                   "column": 17
                 }
               },
@@ -441,11 +441,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1486,
+                  "line": 1497,
                   "column": 4
                 },
                 "end": {
-                  "line": 1486,
+                  "line": 1497,
                   "column": 15
                 }
               },
@@ -458,11 +458,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1498,
+                  "line": 1509,
                   "column": 4
                 },
                 "end": {
-                  "line": 1498,
+                  "line": 1509,
                   "column": 18
                 }
               },
@@ -476,11 +476,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 964,
+                  "line": 966,
                   "column": 2
                 },
                 "end": {
-                  "line": 966,
+                  "line": 968,
                   "column": 3
                 }
               },
@@ -493,15 +493,15 @@
             },
             {
               "name": "setRoutes",
-              "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `children` – an array of nested routes or a function that provides this\narray at the render time. The function can be synchronous or asynchronous:\nin the latter case the render is delayed until the returned promise is\nresolved. The `children` function is executed every time when this route is\nbeing rendered. This allows for dynamic route structures (e.g. backend-defined),\nbut it might have a performance impact as well. In order to avoid calling\nthe function on subsequent renders, you can override the `children` property\nof the route object and save the calculated array there\n(via `context.route.children = [ route1, route2, ...];`).\nParent routes are fully resolved before resolving the children. Children\n'path' values are relative to the parent ones.\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting `context`\nand `commands` parameters described below. If present, this function is\nalways invoked first, disregarding of the other properties' presence.\nThe action can return a result directly or within a `Promise`, which\nresolves to the result. If the action result is an `HTMLElement` instance,\na `commands.component(name)` result, a `commands.redirect(path)` result,\nor a `context.next()` result, the current route resolution is finished,\nand other route config properties are ignored.\nSee also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,\nor the object with \"module\" and \"nomodule\" keys referring to different bundles.\nEach bundle is only loaded once. If \"module\" and \"nomodule\" are set, only one bundle is loaded,\ndepending on whether the browser supports ES modules or not.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Code Splitting** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nIf route contains the `component` property (or an action that return a component)\nand its child route also contains the `component` property, child route's component\nwill be rendered as a light dom child of a parent component.\n\n* `name` – the string name of the route to use in the\n[`router.urlForName(name, params)`](#/classes/Vaadin.Router#method-urlForName)\nnavigation helper method.\n\nFor any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback\nthrough the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function\nbecause arrow functions do not have their own `this` reference.\n\n`context` object that is passed to `action` function holds the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.next()` – function for asynchronously getting the next route\ncontents from the resolution chain (if any)\n\n`commands` object that is passed to `action` function has\nthe following methods:\n\n* `commands.redirect(path)` – function that creates a redirect data\nfor the path specified.\n\n* `commands.component(component)` – function that creates a new HTMLElement\nwith current context",
+              "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `children` – an array of nested routes or a function that provides this\narray at the render time. The function can be synchronous or asynchronous:\nin the latter case the render is delayed until the returned promise is\nresolved. The `children` function is executed every time when this route is\nbeing rendered. This allows for dynamic route structures (e.g. backend-defined),\nbut it might have a performance impact as well. In order to avoid calling\nthe function on subsequent renders, you can override the `children` property\nof the route object and save the calculated array there\n(via `context.route.children = [ route1, route2, ...];`).\nParent routes are fully resolved before resolving the children. Children\n'path' values are relative to the parent ones.\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting `context`\nand `commands` parameters described below. If present, this function is\nalways invoked first, disregarding of the other properties' presence.\nThe action can return a result directly or within a `Promise`, which\nresolves to the result. If the action result is an `HTMLElement` instance,\na `commands.component(name)` result, a `commands.redirect(path)` result,\nor a `context.next()` result, the current route resolution is finished,\nand other route config properties are ignored.\nSee also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,\nor the object with \"module\" and \"nomodule\" keys referring to different bundles.\nEach bundle is only loaded once. If \"module\" and \"nomodule\" are set, only one bundle is loaded,\ndepending on whether the browser supports ES modules or not.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Code Splitting** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nIf route contains the `component` property (or an action that return a component)\nand its child route also contains the `component` property, child route's component\nwill be rendered as a light dom child of a parent component.\n\n* `name` – the string name of the route to use in the\n[`router.urlForName(name, params)`](#/classes/Vaadin.Router#method-urlForName)\nnavigation helper method.\n\nFor any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback\nthrough the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function\nbecause arrow functions do not have their own `this` reference.\n\n`context` object that is passed to `action` function holds the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.search` – search query string\n\n* `context.hash` – hash string\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.next()` – function for asynchronously getting the next route\ncontents from the resolution chain (if any)\n\n`commands` object that is passed to `action` function has\nthe following methods:\n\n* `commands.redirect(path)` – function that creates a redirect data\nfor the path specified.\n\n* `commands.component(component)` – function that creates a new HTMLElement\nwith current context",
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1670,
+                  "line": 1685,
                   "column": 2
                 },
                 "end": {
-                  "line": 1674,
+                  "line": 1689,
                   "column": 3
                 }
               },
@@ -523,11 +523,11 @@
               "privacy": "protected",
               "sourceRange": {
                 "start": {
-                  "line": 989,
+                  "line": 991,
                   "column": 2
                 },
                 "end": {
-                  "line": 993,
+                  "line": 995,
                   "column": 3
                 }
               },
@@ -550,11 +550,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 998,
+                  "line": 1000,
                   "column": 2
                 },
                 "end": {
-                  "line": 1000,
+                  "line": 1002,
                   "column": 3
                 }
               },
@@ -571,11 +571,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1019,
+                  "line": 1021,
                   "column": 2
                 },
                 "end": {
-                  "line": 1085,
+                  "line": 1087,
                   "column": 3
                 }
               },
@@ -598,11 +598,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1118,
+                  "line": 1120,
                   "column": 2
                 },
                 "end": {
-                  "line": 1129,
+                  "line": 1131,
                   "column": 3
                 }
               },
@@ -620,11 +620,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1507,
+                  "line": 1518,
                   "column": 2
                 },
                 "end": {
-                  "line": 1563,
+                  "line": 1574,
                   "column": 3
                 }
               },
@@ -641,11 +641,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1575,
+                  "line": 1586,
                   "column": 2
                 },
                 "end": {
-                  "line": 1580,
+                  "line": 1591,
                   "column": 3
                 }
               },
@@ -667,11 +667,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1587,
+                  "line": 1598,
                   "column": 2
                 },
                 "end": {
-                  "line": 1589,
+                  "line": 1600,
                   "column": 3
                 }
               },
@@ -688,11 +688,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1694,
+                  "line": 1710,
                   "column": 2
                 },
                 "end": {
-                  "line": 1754,
+                  "line": 1772,
                   "column": 3
                 }
               },
@@ -700,8 +700,8 @@
               "params": [
                 {
                   "name": "pathnameOrContext",
-                  "type": "(!string | !{pathname: !string})",
-                  "description": "the pathname to\n   render or a context object with a `pathname` property and other\n   properties to pass to the resolver."
+                  "type": "(!string | !{pathname: !string, search: ?string, hash: ?string})",
+                  "description": "the pathname to render or a context object with a `pathname` property,\n   optional `search` and `hash` properties, and other properties\n   to pass to the resolver."
                 },
                 {
                   "name": "shouldUpdateHistory"
@@ -717,11 +717,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1756,
+                  "line": 1774,
                   "column": 2
                 },
                 "end": {
-                  "line": 1776,
+                  "line": 1794,
                   "column": 3
                 }
               },
@@ -742,11 +742,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1778,
+                  "line": 1796,
                   "column": 2
                 },
                 "end": {
-                  "line": 1797,
+                  "line": 1815,
                   "column": 3
                 }
               },
@@ -763,11 +763,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1799,
+                  "line": 1817,
                   "column": 2
                 },
                 "end": {
-                  "line": 1806,
+                  "line": 1824,
                   "column": 3
                 }
               },
@@ -784,11 +784,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1808,
+                  "line": 1826,
                   "column": 2
                 },
                 "end": {
-                  "line": 1857,
+                  "line": 1875,
                   "column": 3
                 }
               },
@@ -805,11 +805,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1859,
+                  "line": 1877,
                   "column": 2
                 },
                 "end": {
-                  "line": 1872,
+                  "line": 1890,
                   "column": 3
                 }
               },
@@ -829,11 +829,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1874,
+                  "line": 1892,
                   "column": 2
                 },
                 "end": {
-                  "line": 1878,
+                  "line": 1896,
                   "column": 3
                 }
               },
@@ -854,18 +854,18 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1880,
+                  "line": 1898,
                   "column": 2
                 },
                 "end": {
-                  "line": 1886,
+                  "line": 1908,
                   "column": 3
                 }
               },
               "metadata": {},
               "params": [
                 {
-                  "name": "pathname"
+                  "name": "{\n  pathname,\n  search = '',\n  hash = ''\n}"
                 },
                 {
                   "name": "replace"
@@ -881,11 +881,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1888,
+                  "line": 1910,
                   "column": 2
                 },
                 "end": {
-                  "line": 1931,
+                  "line": 1953,
                   "column": 3
                 }
               },
@@ -908,11 +908,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1933,
+                  "line": 1955,
                   "column": 2
                 },
                 "end": {
-                  "line": 1939,
+                  "line": 1961,
                   "column": 3
                 }
               },
@@ -928,11 +928,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1941,
+                  "line": 1963,
                   "column": 2
                 },
                 "end": {
-                  "line": 1947,
+                  "line": 1969,
                   "column": 3
                 }
               },
@@ -948,11 +948,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1949,
+                  "line": 1971,
                   "column": 2
                 },
                 "end": {
-                  "line": 1970,
+                  "line": 1992,
                   "column": 3
                 }
               },
@@ -975,11 +975,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1972,
+                  "line": 1994,
                   "column": 2
                 },
                 "end": {
-                  "line": 1982,
+                  "line": 2004,
                   "column": 3
                 }
               },
@@ -999,11 +999,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1984,
+                  "line": 2006,
                   "column": 2
                 },
                 "end": {
-                  "line": 2006,
+                  "line": 2028,
                   "column": 3
                 }
               },
@@ -1020,11 +1020,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2014,
+                  "line": 2036,
                   "column": 2
                 },
                 "end": {
-                  "line": 2016,
+                  "line": 2038,
                   "column": 3
                 }
               },
@@ -1040,11 +1040,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2022,
+                  "line": 2044,
                   "column": 2
                 },
                 "end": {
-                  "line": 2024,
+                  "line": 2046,
                   "column": 3
                 }
               },
@@ -1060,11 +1060,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 2026,
+                  "line": 2048,
                   "column": 2
                 },
                 "end": {
-                  "line": 2034,
+                  "line": 2056,
                   "column": 3
                 }
               },
@@ -1084,11 +1084,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2075,
+                  "line": 2097,
                   "column": 2
                 },
                 "end": {
-                  "line": 2083,
+                  "line": 2105,
                   "column": 3
                 }
               },
@@ -1115,11 +1115,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2096,
+                  "line": 2118,
                   "column": 2
                 },
                 "end": {
-                  "line": 2101,
+                  "line": 2123,
                   "column": 3
                 }
               },
@@ -1148,11 +1148,11 @@
               "privacy": "private",
               "sourceRange": {
                 "start": {
-                  "line": 1090,
+                  "line": 1092,
                   "column": 2
                 },
                 "end": {
-                  "line": 1092,
+                  "line": 1094,
                   "column": 3
                 }
               },
@@ -1173,11 +1173,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2052,
+                  "line": 2074,
                   "column": 2
                 },
                 "end": {
-                  "line": 2054,
+                  "line": 2076,
                   "column": 3
                 }
               },
@@ -1199,11 +1199,11 @@
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 2112,
+                  "line": 2134,
                   "column": 2
                 },
                 "end": {
-                  "line": 2114,
+                  "line": 2136,
                   "column": 3
                 }
               },
@@ -1233,11 +1233,11 @@
           "metadata": {},
           "sourceRange": {
             "start": {
-              "line": 1442,
+              "line": 1453,
               "column": 0
             },
             "end": {
-              "line": 2115,
+              "line": 2137,
               "column": 1
             }
           },
