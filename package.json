@@ -62,7 +62,7 @@
   ],
   "dependencies": {
     "@vaadin/vaadin-usage-statistics": "^2.0.8",
-    "path-to-regexp": "3.0.0"
+    "path-to-regexp": "2.4.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
