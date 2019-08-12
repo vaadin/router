@@ -36,6 +36,8 @@
       <a id="in-app-prevented" href="in-app/link">in-app/link (default prevented)</a>
     </div>
     <a id="in-page-hash-link" href="#in-page">#in-page</a>
+    <a id="in-app-search" href="in-app/link?search">in-app/link?search</a>
+    <a id="in-app-hash" href="in-app/link#hash">in-app/link#hash</a>
   </div>
 
   <script>
@@ -211,6 +213,26 @@
             emulateClick(document.getElementById('in-app'));
 
             expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
+          });
+
+          it('should carry `detail.search` property on `vaadin-router-go` event', () => {
+            emulateClick(document.getElementById('in-app'));
+
+            expect(navigateEvents[0]).to.have.deep.property('detail.search', '');
+
+            emulateClick(document.getElementById('in-app-search'));
+
+            expect(navigateEvents[1]).to.have.deep.property('detail.search', '?search');
+          });
+
+          it('should carry `detail.hash` property on `vaadin-router-go` event', () => {
+            emulateClick(document.getElementById('in-app'));
+
+            expect(navigateEvents[0]).to.have.deep.property('detail.hash', '');
+
+            emulateClick(document.getElementById('in-app-hash'));
+
+            expect(navigateEvents[1]).to.have.deep.property('detail.hash', '#hash');
           });
 
           it('should translate `click` events inside <a> links into `vaadin-router-go` events on window', () => {
