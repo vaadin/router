@@ -58,7 +58,7 @@ Resolver.__createUrl = (path, base) => {
   urlAnchor.href = path.replace(/ /g, '%20');
   // IE11: only absolute href setting results in correct part properties
   // (`protocol`, `host`, `port`, and such), otherwise they are empty.
-  urlAnchor.href = urlAnchor.href;
+  urlAnchor.href = urlAnchor.href; // eslint-disable-line no-self-assign
   return urlAnchor;
 };
 
