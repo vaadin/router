@@ -56,6 +56,19 @@ const config = [
     plugins: [
       ...plugins,
       babel({
+        presets: [
+          ['@babel/preset-env', {
+            // Run `npm run browserslist` to see the percent of users covered
+            // by this browsers selection
+            targets: {
+              browsers: pkg.browserslist
+            },
+
+            // To see which browsers are targeted, and which JS features are
+            // polyfilled, uncomment the next line and run `npm run build`
+            // debug: true,
+          }]
+        ],
       })
     ]
   },
