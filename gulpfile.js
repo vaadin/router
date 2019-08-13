@@ -10,22 +10,26 @@ gulp.task('build:clean', () => {
   return fs.remove(path.join(__dirname, 'build'));
 });
 
-gulp.task('build:copy-sources', [
-  'build:copy-sources:bower',
-  'build:copy-sources:vaadin-router'
-]);
-
-gulp.task('build:copy-sources:bower', ['build:clean'], () => {
+gulp.task('build:copy-sources:bower', () => {
   return gulp.src(['bower_components/**/*'])
     .pipe(gulp.dest('build/bower_components'));
 });
 
-gulp.task('build:copy-sources:vaadin-router', ['build:clean'], () => {
+gulp.task('build:copy-sources:vaadin-router', () => {
   return gulp.src(['dist/vaadin-router.umd.js'])
     .pipe(gulp.dest('build/bower_components/vaadin-router/dist'));
 });
 
-gulp.task('docs', ['docs:clean', 'build:copy-sources'], async() => {
+gulp.task('build:copy-sources', gulp.series(
+  'build:clean',
+  gulp.parallel('build:copy-sources:bower', 'build:copy-sources:vaadin-router')
+));
+
+gulp.task('docs:clean', () => {
+  return fs.remove(path.join(__dirname, 'docs'));
+});
+
+gulp.task('docs:copy', async() => {
   // docs
   await Promise.all([
     fs.copy(
@@ -82,9 +86,7 @@ gulp.task('docs', ['docs:clean', 'build:copy-sources'], async() => {
     path.join(__dirname, 'docs', 'polymer', 'lib', 'utils', 'boot.html'));
 });
 
-gulp.task('docs:clean', () => {
-  return fs.remove(path.join(__dirname, 'docs'));
-});
+gulp.task('docs', gulp.series('docs:clean', 'build:copy-sources', 'docs:copy'));
 
 function polymerBuild() {
   return new Promise((resolve, reject) => {
