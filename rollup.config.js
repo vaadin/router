@@ -77,7 +77,8 @@ const config = [
             // debug: true,
           }]
         ],
-      })]
+      })
+    ]
   },
 ];
 
