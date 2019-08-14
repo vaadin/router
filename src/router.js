@@ -57,8 +57,7 @@ function createRedirect(context, pathname) {
   };
 }
 
-function renderComponent(context, component) {
-  const element = document.createElement(component);
+function renderElement(context, element) {
   element.location = createLocation(context);
   const index = context.chain.map(item => item.route).indexOf(context.route);
   context.chain[index].element = element;
@@ -246,7 +245,7 @@ export class Router extends Resolver {
 
     const commands = {
       redirect: path => createRedirect(context, path),
-      component: component => renderComponent(context, component)
+      component: component => document.createElement(component)
     };
 
     return callbacks
@@ -523,6 +522,7 @@ export class Router extends Resolver {
   __findComponentContextAfterAllRedirects(context) {
     const result = context.result;
     if (result instanceof HTMLElement) {
+      renderElement(context, result);
       return Promise.resolve(context);
     } else if (result.redirect) {
       return this.__redirect(result.redirect, context.__redirectCount)

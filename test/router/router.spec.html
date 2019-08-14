@@ -1380,6 +1380,32 @@
             expect(elem.location.params.id).to.equal('1');
           });
 
+          it('action can render components by returning HTMLElement directly', async() => {
+            router.setRoutes([
+              {path: '/users/:id', action: (context, commands) => document.createElement('x-users-view')},
+            ]);
+
+            await router.render('/users/1');
+
+            const elem = outlet.children[0];
+            expect(elem.tagName).to.match(/x-users-view/i);
+            expect(elem.location.params).to.be.object;
+            expect(elem.location.params.id).to.equal('1');
+          });
+
+          it('action can render components by returning Promise to HTMLElement', async() => {
+            router.setRoutes([
+              {path: '/users/:id', action: (context, commands) => Promise.resolve(document.createElement('x-users-view'))},
+            ]);
+
+            await router.render('/users/1');
+
+            const elem = outlet.children[0];
+            expect(elem.tagName).to.match(/x-users-view/i);
+            expect(elem.location.params).to.be.object;
+            expect(elem.location.params.id).to.equal('1');
+          });
+
           it('redirect should be executed before component and stop it from loading', async() => {
             router.setRoutes([
               {path: '/test', redirect: '/users', component: 'x-home-view'},
