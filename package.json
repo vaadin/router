@@ -67,7 +67,7 @@
   ],
   "dependencies": {
     "@vaadin/vaadin-usage-statistics": "^2.1.0",
-    "path-to-regexp": "2.4.0"
+    "path-to-regexp": "^6.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.0",
@@ -91,8 +91,6 @@
     "polyserve": "^0.27.0",
     "rollup": "^1.27.0",
     "rollup-plugin-babel": "^4.3.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
     "stylelint": "^11.1.0",
     "stylelint-config-vaadin": "^0.1.0",
     "typescript": "^3.7.0",
