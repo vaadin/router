@@ -49,7 +49,6 @@ function addRouteToChain(context, match) {
 }
 
 /**
- * @memberof Vaadin
  */
 class Resolver {
   constructor(routes, options = {}) {

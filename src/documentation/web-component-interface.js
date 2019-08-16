@@ -10,7 +10,7 @@
  * a Promise). In the latter case Vaadin Router waits until the promise is
  * resolved and continues the navigation after that.
  *
- * Check the [documentation on the `Vaadin.Router` class](#/classes/Vaadin.Router)
+ * Check the [documentation on the `Router` class](#/classes/Router)
  * to learn more.
  *
  * Lifecycle callbacks are executed after the new path is resolved and after all
@@ -56,9 +56,8 @@
  * value is ignored.
  *
  * Other examples can be found in the
- * [live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.
+ * [live demos](#/classes/Router/demos/demo/index.html) and tests.
  *
- * @memberof Vaadin
  */
 export class WebComponentInterface {
   /**
