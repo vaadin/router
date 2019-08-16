@@ -1,0 +1,26 @@
+{
+  "excludeFiles": [
+    "bower_components/**",
+    "build/**",
+    "demo/**",
+    "dist/*.min.js",
+    "dist/*.umd.*",
+    "dist/test-iife/**",
+    "docs/**",
+    "node_modules/**",
+    "test/**",
+    "src/**",
+    "bs-config.js",
+    "gulpfile.js",
+    "index.html",
+    "index.js",
+    "index.polyfilled.js",
+    "rollup.config.js",
+    "wct.conf.js"
+  ],
+  "addReferences": {
+    "dist/vaadin-router.d.ts": [
+      "./interfaces.d.ts"
+    ]
+  }
+}
