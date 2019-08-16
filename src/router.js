@@ -138,23 +138,22 @@ function getMatchedPath(chain) {
  *   keys are supported:
  *   * `baseUrl` — the initial value for [
  *     the `baseUrl` property
- *   ](#/classes/Vaadin.Router#property-baseUrl)
+ *   ](#/classes/Router#property-baseUrl)
  *
  * The Router instance is automatically subscribed to navigation events
  * on `window`.
  *
- * See [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.
+ * See [Live Examples](#/classes/Router/demos/demo/index.html) for the detailed usage demo and code snippets.
  *
  * See also detailed API docs for the following methods, for the advanced usage:
  *
- * * [setOutlet](#/classes/Vaadin.Router#method-setOutlet) – should be used to configure the outlet.
- * * [setTriggers](#/classes/Vaadin.Router#method-setTriggers) – should be used to configure the navigation events.
- * * [setRoutes](#/classes/Vaadin.Router#method-setRoutes) – should be used to configure the routes.
+ * * [setOutlet](#/classes/Router#method-setOutlet) – should be used to configure the outlet.
+ * * [setTriggers](#/classes/Router#method-setTriggers) – should be used to configure the navigation events.
+ * * [setRoutes](#/classes/Router#method-setRoutes) – should be used to configure the routes.
  *
  * Only `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
  *
- * @memberof Vaadin
- * @extends Vaadin.Resolver
+ * @extends Resolver
  * @demo demo/index.html
  * @summary JavaScript class that renders different DOM content depending on
  *    a given path. It can re-render when triggered or automatically on
@@ -168,11 +167,11 @@ export class Router extends Resolver {
    * Using a constructor argument or a setter for outlet is equivalent:
    *
    * ```
-   * const router = new Vaadin.Router();
+   * const router = new Router();
    * router.setOutlet(outlet);
    * ```
-   * @param {?Node} outlet
-   * @param {?RouterOptions} options
+   * @param {?Node=} outlet
+   * @param {?Router.Options=} options
    */
   constructor(outlet, options) {
     const baseElement = document.head.querySelector('base');
@@ -202,7 +201,7 @@ export class Router extends Resolver {
      * with the last render cycle result.
      *
      * @public
-     * @type {!Promise<!Vaadin.Router.Location>}
+     * @type {!Promise<!Router.Location>}
      */
     this.ready;
     this.ready = Promise.resolve(outlet);
@@ -210,11 +209,11 @@ export class Router extends Resolver {
     /**
      * Contains read-only information about the current router location:
      * pathname, active routes, parameters. See the
-     * [Location type declaration](#/classes/Vaadin.Router.Location)
+     * [Location type declaration](#/classes/Router.Location)
      * for more details.
      *
      * @public
-     * @type {!Vaadin.Router.Location}
+     * @type {!Router.Location}
      */
     this.location;
     this.location = createLocation({resolver: this});
@@ -339,11 +338,11 @@ export class Router extends Resolver {
    * a `commands.component(name)` result, a `commands.redirect(path)` result,
    * or a `context.next()` result, the current route resolution is finished,
    * and other route config properties are ignored.
-   * See also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+   * See also **Route Actions** section in [Live Examples](#/classes/Router/demos/demo/index.html).
    *
    * * `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.
    * The target route should also be defined.
-   * See also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+   * See also **Redirects** section in [Live Examples](#/classes/Router/demos/demo/index.html).
    *
    * * `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,
    * or the object with "module" and "nomodule" keys referring to different bundles.
@@ -351,7 +350,7 @@ export class Router extends Resolver {
    * depending on whether the browser supports ES modules or not.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
    * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
-   * See also **Code Splitting** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+   * See also **Code Splitting** section in [Live Examples](#/classes/Router/demos/demo/index.html).
    *
    * * `component` – the tag name of the Web Component to resolve the route to.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
@@ -360,7 +359,7 @@ export class Router extends Resolver {
    * will be rendered as a light dom child of a parent component.
    *
    * * `name` – the string name of the route to use in the
-   * [`router.urlForName(name, params)`](#/classes/Vaadin.Router#method-urlForName)
+   * [`router.urlForName(name, params)`](#/classes/Router#method-urlForName)
    * navigation helper method.
    *
    * For any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback
@@ -390,7 +389,7 @@ export class Router extends Resolver {
    * * `commands.component(component)` – function that creates a new HTMLElement
    * with current context
    *
-   * @param {!Array<!Object>|!Object} routes a single route or an array of those
+   * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
    */
   setRoutes(routes) {
     this.__urlForName = undefined;
@@ -415,6 +414,8 @@ export class Router extends Resolver {
    *    the pathname to render or a context object with a `pathname` property,
    *    optional `search` and `hash` properties, and other properties
    *    to pass to the resolver.
+   * @param {boolean=} shouldUpdateHistory
+   *    update browser history with the rendered location
    * @return {!Promise<!Node>}
    */
   render(pathnameOrContext, shouldUpdateHistory) {
@@ -782,7 +783,7 @@ export class Router extends Resolver {
   }
 
   /**
-   * Configures what triggers Vaadin.Router navigation events:
+   * Configures what triggers Router navigation events:
    *  - `POPSTATE`: popstate events on the current `window`
    *  - `CLICK`: click events on `<a>` links leading to the current page
    *
@@ -793,9 +794,9 @@ export class Router extends Resolver {
    * create the own one and only import the triggers you need, instead of pulling in all the code,
    * e.g. if you want to handle `click` differently.
    *
-   * See also **Navigation Triggers** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+   * See also **Navigation Triggers** section in [Live Examples](#/classes/Router/demos/demo/index.html).
    *
-   * @param {...NavigationTrigger} triggers
+   * @param {...Router.NavigationTrigger} triggers
    */
   static setTriggers(...triggers) {
     setNavigationTriggers(triggers);
@@ -805,7 +806,7 @@ export class Router extends Resolver {
    * Generates a URL for the route with the given name, optionally performing
    * substitution of parameters.
    *
-   * The route is searched in all the Vaadin.Router instances subscribed to
+   * The route is searched in all the Router instances subscribed to
    * navigation events.
    *
    * **Note:** For child route names, only array children are considered.
@@ -814,7 +815,7 @@ export class Router extends Resolver {
    *
    * @function urlForName
    * @param {!string} name the route name or the route’s `component` name.
-   * @param {?Object} params Optional object with route path parameters.
+   * @param {?Object=} params Optional object with route path parameters.
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    *
@@ -835,7 +836,7 @@ export class Router extends Resolver {
    * substitution of parameters.
    *
    * @param {!string} path string route path declared in [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
-   * @param {?Object} params Optional object with route path parameters.
+   * @param {?Object=} params Optional object with route path parameters.
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    *
@@ -850,7 +851,7 @@ export class Router extends Resolver {
 
   /**
    * Triggers navigation to a new path. Returns a boolean without waiting until
-   * the navigation is complete. Returns `true` if at least one `Vaadin.Router`
+   * the navigation is complete. Returns `true` if at least one `Router`
    * has handled the navigation (was subscribed and had `baseUrl` matching
    * the `pathname` argument), otherwise returns `false`.
    *
