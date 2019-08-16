@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "namespaces": [
     {
-      "name": "Vaadin",
+      "name": "Router",
       "description": "",
       "summary": "",
       "sourceRange": {
@@ -13,457 +13,113 @@
         },
         "end": {
           "line": 3,
-          "column": 19
+          "column": 18
         }
       },
-      "namespaces": [
-        {
-          "name": "Vaadin.Router",
-          "description": "",
-          "summary": "Type declaration for properties and method parameters of the\n  Vaadin.Router class.",
-          "sourceRange": {
-            "file": "src/documentation/namespace.js",
-            "start": {
-              "line": 11,
-              "column": 0
-            },
-            "end": {
-              "line": 11,
-              "column": 26
-            }
-          },
-          "classes": [
-            {
-              "description": "This is a type declaration. It exists for build-time type checking and\ndocumentation purposes. It should not be used in any source code, and it\ncertainly does not exist at the run time.\n\n`Location` describes the state of a router at a given point in time. It is\navailable for your application code in several ways:\n - as the `router.location` property\n - as the `location` property set by Vaadin Router on every view Web Component\n - as the `location` argument passed by Vaadin Router into view Web Component\n   lifecycle callbacks\n - as the `event.detail.location` of the global Vaadin Router events",
-              "summary": "Type declaration for the `router.location` property.",
-              "path": "src/documentation/location.js",
-              "properties": [
-                {
-                  "name": "baseUrl",
-                  "type": "string",
-                  "description": "The base URL used in the router. See [the `baseUrl` property\n](#/classes/Vaadin.Router#property-baseUrl) in the Vaadin.Router.",
-                  "privacy": "public",
-                  "sourceRange": {
-                    "start": {
-                      "line": 25,
-                      "column": 4
-                    },
-                    "end": {
-                      "line": 25,
-                      "column": 17
-                    }
-                  },
-                  "metadata": {}
-                },
-                {
-                  "name": "pathname",
-                  "type": "!string",
-                  "description": "The pathname as entered in the browser address bar\n(e.g. `/users/42/messages/12/edit`). It always starts with a `/` (slash).",
-                  "privacy": "public",
-                  "sourceRange": {
-                    "start": {
-                      "line": 34,
-                      "column": 4
-                    },
-                    "end": {
-                      "line": 34,
-                      "column": 18
-                    }
-                  },
-                  "metadata": {}
-                },
-                {
-                  "name": "redirectFrom",
-                  "type": "?string",
-                  "description": "(optional) The original pathname string in case if this location is a\nresult of a redirect.\n\nE.g. with the routes config as below a navigation to `/u/12` produces a\nlocation with `pathname: '/user/12'` and `redirectFrom: '/u/12'`.\n\n```javascript\nsetRoutes([\n  {path: '/u/:id', redirect: '/user/:id'},\n  {path: '/user/:id', component: 'x-user-view'},\n]);\n```\n\nSee the **Redirects** section of the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) for more\ndetails.",
-                  "privacy": "public",
-                  "sourceRange": {
-                    "start": {
-                      "line": 57,
-                      "column": 4
-                    },
-                    "end": {
-                      "line": 57,
-                      "column": 22
-                    }
-                  },
-                  "metadata": {}
-                },
-                {
-                  "name": "route",
-                  "type": "?Vaadin.Router.Route",
-                  "description": "(optional) The route object associated with `this` Web Component instance.\n\nThis property is defined in the `location` objects that are passed as\nparameters into Web Component lifecycle callbacks, and the `location`\nproperty set by Vaadin Router on the Web Components.\n\nThis property is undefined in the `location` objects that are available\nas `router.location`, and in the `location` that is included into the\nglobal router event details.",
-                  "privacy": "public",
-                  "sourceRange": {
-                    "start": {
-                      "line": 73,
-                      "column": 4
-                    },
-                    "end": {
-                      "line": 73,
-                      "column": 15
-                    }
-                  },
-                  "metadata": {}
-                },
-                {
-                  "name": "routes",
-                  "type": "!Array.<!Vaadin.Router.Route>",
-                  "description": "A list of route objects that match the current pathname. This list has\none element for each route that defines a parent layout, and then the\nelement for the route that defines the view.\n\nSee the **Getting Started** section of the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) for more\ndetails on child routes and nested layouts.",
-                  "privacy": "public",
-                  "sourceRange": {
-                    "start": {
-                      "line": 87,
-                      "column": 4
-                    },
-                    "end": {
-                      "line": 87,
-                      "column": 16
-                    }
-                  },
-                  "metadata": {}
-                },
-                {
-                  "name": "params",
-                  "type": "!Object",
-                  "description": "A bag of key-value pairs with parameters for the current location. Named\nparameters are available by name, unnamed ones - by index (e.g. for the\n`/users/:id` route the `:id` parameter is available as `location.params.id`).\n\nSee the **Route Parameters** section of the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) for more\ndetails.",
-                  "privacy": "public",
-                  "sourceRange": {
-                    "start": {
-                      "line": 101,
-                      "column": 4
-                    },
-                    "end": {
-                      "line": 101,
-                      "column": 16
-                    }
-                  },
-                  "metadata": {}
-                }
-              ],
-              "methods": [
-                {
-                  "name": "getUrl",
-                  "description": "Returns a URL corresponding to the route path and the parameters of this\nlocation. When the parameters object is given in the arguments,\nthe argument parameters override the location ones.",
-                  "privacy": "public",
-                  "sourceRange": {
-                    "start": {
-                      "line": 116,
-                      "column": 2
-                    },
-                    "end": {
-                      "line": 116,
-                      "column": 20
-                    }
-                  },
-                  "metadata": {},
-                  "params": [
-                    {
-                      "name": "params",
-                      "type": "?Object",
-                      "description": "optional object with parameters to override.\nNamed parameters are passed by name (`params[name] = value`), unnamed\nparameters are passed by index (`params[index] = value`)."
-                    }
-                  ],
-                  "return": {
-                    "type": "string"
-                  }
-                }
-              ],
-              "staticMethods": [],
-              "demos": [],
-              "metadata": {},
-              "sourceRange": {
-                "start": {
-                  "line": 16,
-                  "column": 7
-                },
-                "end": {
-                  "line": 117,
-                  "column": 1
-                }
-              },
-              "privacy": "public",
-              "name": "Vaadin.Router.Location"
-            }
-          ]
-        }
-      ],
       "classes": [
         {
-          "description": "",
-          "summary": "",
-          "path": "dist/vaadin-router.js",
+          "description": "This is a type declaration. It exists for build-time type checking and\ndocumentation purposes. It should not be used in any source code, and it\ncertainly does not exist at the run time.\n\n`Location` describes the state of a router at a given point in time. It is\navailable for your application code in several ways:\n - as the `router.location` property\n - as the `location` property set by Vaadin Router on every view Web Component\n - as the `location` argument passed by Vaadin Router into view Web Component\n   lifecycle callbacks\n - as the `event.detail.location` of the global Vaadin Router events",
+          "summary": "Type declaration for the `router.location` property.",
+          "path": "src/documentation/location.js",
           "properties": [
-            {
-              "name": "__effectiveBaseUrl",
-              "type": "?",
-              "description": "If the baseUrl property is set, transforms the baseUrl and returns the full\nactual `base` string for using in the `new URL(path, base);` and for\nprepernding the paths with. The returned base ends with a trailing slash.\n\nOtherwise, returns empty string.\n   ",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1103,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1110,
-                  "column": 3
-                }
-              },
-              "metadata": {}
-            }
-          ],
-          "methods": [
-            {
-              "name": "getRoutes",
-              "description": "Returns the current list of routes (as a shallow copy). Adding / removing\nroutes to / from the returned array does not affect the routing config,\nbut modifying the route objects does.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 966,
-                  "column": 2
-                },
-                "end": {
-                  "line": 968,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "!Array.<!Route>"
-              }
-            },
-            {
-              "name": "setRoutes",
-              "description": "Sets the routing config (replacing the existing one).",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 976,
-                  "column": 2
-                },
-                "end": {
-                  "line": 980,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes",
-                  "type": "(!Array.<!Route> | !Route)",
-                  "description": "a single route or an array of those\n   (the array is shallow copied)"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "addRoutes",
-              "description": "Appends one or several routes to the routing config and returns the\neffective routing config after the operation.",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 991,
-                  "column": 2
-                },
-                "end": {
-                  "line": 995,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes",
-                  "type": "(!Array.<!Route> | !Route)",
-                  "description": "a single route or an array of those\n   (the array is shallow copied)"
-                }
-              ],
-              "return": {
-                "type": "!Array.<!Route>"
-              }
-            },
-            {
-              "name": "removeRoutes",
-              "description": "Removes all existing routes from the routing config.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1000,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1002,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "resolve",
-              "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1021,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1087,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathnameOrContext",
-                  "type": "(!string | !{pathname: !string})",
-                  "description": "the pathname to\n   resolve or a context object with a `pathname` property and other\n   properties to pass to the route resolver functions."
-                }
-              ],
-              "return": {
-                "type": "!Promise.<any>"
-              }
-            },
-            {
-              "name": "__normalizePathname",
-              "description": "If the baseUrl is set, matches the pathname with the router’s baseUrl,\nand returns the local pathname with the baseUrl stripped out.\n\nIf the pathname does not match the baseUrl, returns undefined.\n\nIf the `baseUrl` is not set, returns the unmodified pathname argument.",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1120,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1131,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathname"
-                }
-              ]
-            }
-          ],
-          "staticMethods": [
-            {
-              "name": "__createUrl",
-              "description": "URL constructor polyfill hook. Creates and returns an URL instance.",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1092,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1094,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "url"
-                },
-                {
-                  "name": "base"
-                }
-              ]
-            }
-          ],
-          "demos": [],
-          "metadata": {},
-          "sourceRange": {
-            "start": {
-              "line": 945,
-              "column": 0
-            },
-            "end": {
-              "line": 1132,
-              "column": 1
-            }
-          },
-          "privacy": "public",
-          "name": "Vaadin.Resolver"
-        },
-        {
-          "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\nUse `new Router(outlet, options)` to create a new Router instance.\n\n* The `outlet` parameter is a reference to the DOM node to render\n  the content into.\n\n* The `options` parameter is an optional object with options. The following\n  keys are supported:\n  * `baseUrl` — the initial value for [\n    the `baseUrl` property\n  ](#/classes/Vaadin.Router#property-baseUrl)\n\nThe Router instance is automatically subscribed to navigation events\non `window`.\n\nSee [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.\n\nSee also detailed API docs for the following methods, for the advanced usage:\n\n* [setOutlet](#/classes/Vaadin.Router#method-setOutlet) – should be used to configure the outlet.\n* [setTriggers](#/classes/Vaadin.Router#method-setTriggers) – should be used to configure the navigation events.\n* [setRoutes](#/classes/Vaadin.Router#method-setRoutes) – should be used to configure the routes.\n\nOnly `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.",
-          "summary": "JavaScript class that renders different DOM content depending on\n   a given path. It can re-render when triggered or automatically on\n   'popstate' and / or 'click' events.",
-          "path": "dist/vaadin-router.js",
-          "properties": [
-            {
-              "name": "__effectiveBaseUrl",
-              "type": "?",
-              "description": "If the baseUrl property is set, transforms the baseUrl and returns the full\nactual `base` string for using in the `new URL(path, base);` and for\nprepernding the paths with. The returned base ends with a trailing slash.\n\nOtherwise, returns empty string.\n   ",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1103,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1110,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "inheritedFrom": "Vaadin.Resolver"
-            },
             {
               "name": "baseUrl",
               "type": "string",
-              "description": "The base URL for all routes in the router instance. By default,\ntakes the `<base href>` attribute value if the base element exists\nin the `<head>`.",
+              "description": "The base URL used in the router. See [the `baseUrl` property\n](#/classes/Router#property-baseUrl) in the Router.",
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1477,
+                  "line": 25,
                   "column": 4
                 },
                 "end": {
-                  "line": 1477,
+                  "line": 25,
                   "column": 17
                 }
               },
               "metadata": {}
             },
             {
-              "name": "ready",
-              "type": "!Promise.<!Vaadin.Router.Location>",
-              "description": "A promise that is settled after the current render cycle completes. If\nthere is no render cycle in progress the promise is immediately settled\nwith the last render cycle result.",
+              "name": "pathname",
+              "type": "!string",
+              "description": "The pathname as entered in the browser address bar\n(e.g. `/users/42/messages/12/edit`). It always starts with a `/` (slash).",
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1487,
+                  "line": 34,
                   "column": 4
                 },
                 "end": {
-                  "line": 1487,
+                  "line": 34,
+                  "column": 18
+                }
+              },
+              "metadata": {}
+            },
+            {
+              "name": "redirectFrom",
+              "type": "?string",
+              "description": "(optional) The original pathname string in case if this location is a\nresult of a redirect.\n\nE.g. with the routes config as below a navigation to `/u/12` produces a\nlocation with `pathname: '/user/12'` and `redirectFrom: '/u/12'`.\n\n```javascript\nsetRoutes([\n  {path: '/u/:id', redirect: '/user/:id'},\n  {path: '/user/:id', component: 'x-user-view'},\n]);\n```\n\nSee the **Redirects** section of the\n[live demos](#/classes/Router/demos/demo/index.html) for more\ndetails.",
+              "privacy": "public",
+              "sourceRange": {
+                "start": {
+                  "line": 57,
+                  "column": 4
+                },
+                "end": {
+                  "line": 57,
+                  "column": 22
+                }
+              },
+              "metadata": {}
+            },
+            {
+              "name": "route",
+              "type": "?Router.Route",
+              "description": "(optional) The route object associated with `this` Web Component instance.\n\nThis property is defined in the `location` objects that are passed as\nparameters into Web Component lifecycle callbacks, and the `location`\nproperty set by Vaadin Router on the Web Components.\n\nThis property is undefined in the `location` objects that are available\nas `router.location`, and in the `location` that is included into the\nglobal router event details.",
+              "privacy": "public",
+              "sourceRange": {
+                "start": {
+                  "line": 73,
+                  "column": 4
+                },
+                "end": {
+                  "line": 73,
                   "column": 15
                 }
               },
               "metadata": {}
             },
             {
-              "name": "location",
-              "type": "!Vaadin.Router.Location",
-              "description": "Contains read-only information about the current router location:\npathname, active routes, parameters. See the\n[Location type declaration](#/classes/Vaadin.Router.Location)\nfor more details.",
+              "name": "routes",
+              "type": "!Array.<!Router.Route>",
+              "description": "A list of route objects that match the current pathname. This list has\none element for each route that defines a parent layout, and then the\nelement for the route that defines the view.\n\nSee the **Getting Started** section of the\n[live demos](#/classes/Router/demos/demo/index.html) for more\ndetails on child routes and nested layouts.",
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 1499,
+                  "line": 87,
                   "column": 4
                 },
                 "end": {
-                  "line": 1499,
-                  "column": 18
+                  "line": 87,
+                  "column": 16
+                }
+              },
+              "metadata": {}
+            },
+            {
+              "name": "params",
+              "type": "!Object",
+              "description": "A bag of key-value pairs with parameters for the current location. Named\nparameters are available by name, unnamed ones - by index (e.g. for the\n`/users/:id` route the `:id` parameter is available as `location.params.id`).\n\nSee the **Route Parameters** section of the\n[live demos](#/classes/Router/demos/demo/index.html) for more\ndetails.",
+              "privacy": "public",
+              "sourceRange": {
+                "start": {
+                  "line": 101,
+                  "column": 4
+                },
+                "end": {
+                  "line": 101,
+                  "column": 16
                 }
               },
               "metadata": {}
@@ -471,910 +127,29 @@
           ],
           "methods": [
             {
-              "name": "getRoutes",
-              "description": "Returns the current list of routes (as a shallow copy). Adding / removing\nroutes to / from the returned array does not affect the routing config,\nbut modifying the route objects does.",
+              "name": "getUrl",
+              "description": "Returns a URL corresponding to the route path and the parameters of this\nlocation. When the parameters object is given in the arguments,\nthe argument parameters override the location ones.",
               "privacy": "public",
               "sourceRange": {
                 "start": {
-                  "line": 966,
+                  "line": 116,
                   "column": 2
                 },
                 "end": {
-                  "line": 968,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "!Array.<!Route>"
-              },
-              "inheritedFrom": "Vaadin.Resolver"
-            },
-            {
-              "name": "setRoutes",
-              "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `children` – an array of nested routes or a function that provides this\narray at the render time. The function can be synchronous or asynchronous:\nin the latter case the render is delayed until the returned promise is\nresolved. The `children` function is executed every time when this route is\nbeing rendered. This allows for dynamic route structures (e.g. backend-defined),\nbut it might have a performance impact as well. In order to avoid calling\nthe function on subsequent renders, you can override the `children` property\nof the route object and save the calculated array there\n(via `context.route.children = [ route1, route2, ...];`).\nParent routes are fully resolved before resolving the children. Children\n'path' values are relative to the parent ones.\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting `context`\nand `commands` parameters described below. If present, this function is\nalways invoked first, disregarding of the other properties' presence.\nThe action can return a result directly or within a `Promise`, which\nresolves to the result. If the action result is an `HTMLElement` instance,\na `commands.component(name)` result, a `commands.redirect(path)` result,\nor a `context.next()` result, the current route resolution is finished,\nand other route config properties are ignored.\nSee also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,\nor the object with \"module\" and \"nomodule\" keys referring to different bundles.\nEach bundle is only loaded once. If \"module\" and \"nomodule\" are set, only one bundle is loaded,\ndepending on whether the browser supports ES modules or not.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Code Splitting** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nIf route contains the `component` property (or an action that return a component)\nand its child route also contains the `component` property, child route's component\nwill be rendered as a light dom child of a parent component.\n\n* `name` – the string name of the route to use in the\n[`router.urlForName(name, params)`](#/classes/Vaadin.Router#method-urlForName)\nnavigation helper method.\n\nFor any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback\nthrough the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function\nbecause arrow functions do not have their own `this` reference.\n\n`context` object that is passed to `action` function holds the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.search` – search query string\n\n* `context.hash` – hash string\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.next()` – function for asynchronously getting the next route\ncontents from the resolution chain (if any)\n\n`commands` object that is passed to `action` function has\nthe following methods:\n\n* `commands.redirect(path)` – function that creates a redirect data\nfor the path specified.\n\n* `commands.component(component)` – function that creates a new HTMLElement\nwith current context",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1675,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1679,
-                  "column": 3
+                  "line": 116,
+                  "column": 20
                 }
               },
               "metadata": {},
               "params": [
-                {
-                  "name": "routes",
-                  "type": "(!Array.<!Object> | !Object)",
-                  "description": "a single route or an array of those"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "addRoutes",
-              "description": "Appends one or several routes to the routing config and returns the\neffective routing config after the operation.",
-              "privacy": "protected",
-              "sourceRange": {
-                "start": {
-                  "line": 991,
-                  "column": 2
-                },
-                "end": {
-                  "line": 995,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "routes",
-                  "type": "(!Array.<!Route> | !Route)",
-                  "description": "a single route or an array of those\n   (the array is shallow copied)"
-                }
-              ],
-              "return": {
-                "type": "!Array.<!Route>"
-              },
-              "inheritedFrom": "Vaadin.Resolver"
-            },
-            {
-              "name": "removeRoutes",
-              "description": "Removes all existing routes from the routing config.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1000,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1002,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              },
-              "inheritedFrom": "Vaadin.Resolver"
-            },
-            {
-              "name": "resolve",
-              "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1021,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1087,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathnameOrContext",
-                  "type": "(!string | !{pathname: !string})",
-                  "description": "the pathname to\n   resolve or a context object with a `pathname` property and other\n   properties to pass to the route resolver functions."
-                }
-              ],
-              "return": {
-                "type": "!Promise.<any>"
-              },
-              "inheritedFrom": "Vaadin.Resolver"
-            },
-            {
-              "name": "__normalizePathname",
-              "description": "If the baseUrl is set, matches the pathname with the router’s baseUrl,\nand returns the local pathname with the baseUrl stripped out.\n\nIf the pathname does not match the baseUrl, returns undefined.\n\nIf the `baseUrl` is not set, returns the unmodified pathname argument.",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1120,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1131,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathname"
-                }
-              ],
-              "inheritedFrom": "Vaadin.Resolver"
-            },
-            {
-              "name": "__resolveRoute",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1508,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1564,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "context"
-                }
-              ]
-            },
-            {
-              "name": "setOutlet",
-              "description": "Sets the router outlet (the DOM node where the content for the current\nroute is inserted). Any content pre-existing in the router outlet is\nremoved at the end of each render pass.\n\nNOTE: this method is automatically invoked first time when creating a new Router instance.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1576,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1581,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "outlet",
-                  "type": "?Node",
-                  "description": "the DOM node where the content for the current route\n    is inserted."
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "getOutlet",
-              "description": "Returns the current router outlet. The initial value is `undefined`.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1588,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1590,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "?Node",
-                "desc": "the current router outlet (or `undefined`)"
-              }
-            },
-            {
-              "name": "render",
-              "description": "Asynchronously resolves the given pathname and renders the resolved route\ncomponent into the router outlet. If no router outlet is set at the time of\ncalling this method, or at the time when the route resolution is completed,\na `TypeError` is thrown.\n\nReturns a promise that is fulfilled with the router outlet DOM Node after\nthe route component is created and inserted into the router outlet, or\nrejected if no route matches the given path.\n\nIf another render pass is started before the previous one is completed, the\nresult of the previous render pass is ignored.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 1700,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1762,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathnameOrContext",
-                  "type": "(!string | !{pathname: !string, search: ?string, hash: ?string})",
-                  "description": "the pathname to render or a context object with a `pathname` property,\n   optional `search` and `hash` properties, and other properties\n   to pass to the resolver."
-                },
-                {
-                  "name": "shouldUpdateHistory"
-                }
-              ],
-              "return": {
-                "type": "!Promise.<!Node>"
-              }
-            },
-            {
-              "name": "__fullyResolveChain",
-              "description": "and 'redirect' callback results.",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1775,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1800,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "topOfTheChainContextBeforeRedirects"
-                },
-                {
-                  "name": "contextBeforeRedirects",
-                  "defaultValue": "topOfTheChainContextBeforeRedirects"
-                }
-              ]
-            },
-            {
-              "name": "__findComponentContextAfterAllRedirects",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1802,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1822,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "context"
-                }
-              ]
-            },
-            {
-              "name": "__amendWithOnBeforeCallbacks",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1824,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1831,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "contextWithFullChain"
-                }
-              ]
-            },
-            {
-              "name": "__runOnBeforeCallbacks",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1833,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1882,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "newContext"
-                }
-              ]
-            },
-            {
-              "name": "__redirect",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1884,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1897,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "redirectData"
-                },
-                {
-                  "name": "counter"
-                }
-              ]
-            },
-            {
-              "name": "__ensureOutlet",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1899,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1903,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "outlet",
-                  "defaultValue": "this.__outlet"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "__updateBrowserHistory",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1905,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1914,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "{\n  pathname,\n  search = '',\n  hash = ''\n}"
-                },
-                {
-                  "name": "replace"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "__addAppearingContent",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1916,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1959,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "context"
-                },
-                {
-                  "name": "previousContext"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "__removeDisappearingContent",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1961,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1967,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "__removeAppearingContent",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1969,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1975,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "__runOnAfterLeaveCallbacks",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1977,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1998,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "currentContext"
-                },
-                {
-                  "name": "targetContext"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "__runOnAfterEnterCallbacks",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 2000,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2010,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "currentContext"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "__animateIfNeeded",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 2012,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2034,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "context"
-                }
-              ]
-            },
-            {
-              "name": "subscribe",
-              "description": "Subscribes this instance to navigation events on the `window`.\n\nNOTE: beware of resource leaks. For as long as a router instance is\nsubscribed to navigation events, it won't be garbage collected.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 2042,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2044,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "unsubscribe",
-              "description": "Removes the subscription to navigation events created in the `subscribe()`\nmethod.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 2050,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2052,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "__onNavigationEvent",
-              "description": "",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 2054,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2062,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "event"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "urlForName",
-              "description": "Generates a URL for the route with the given name, optionally performing\nsubstitution of parameters.\n\nThe route is searched in all the Vaadin.Router instances subscribed to\nnavigation events.\n\n**Note:** For child route names, only array children are considered.\nIt is not possible to generate URLs using a name for routes set with\na children function.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 2103,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2111,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "name",
-                  "type": "!string",
-                  "description": "the route name or the route’s `component` name."
-                },
                 {
                   "name": "params",
                   "type": "?Object",
-                  "description": "Optional object with route path parameters.\nNamed parameters are passed by name (`params[name] = value`), unnamed\nparameters are passed by index (`params[index] = value`)."
+                  "description": "optional object with parameters to override.\nNamed parameters are passed by name (`params[name] = value`), unnamed\nparameters are passed by index (`params[index] = value`)."
                 }
               ],
               "return": {
                 "type": "string"
-              }
-            },
-            {
-              "name": "urlForPath",
-              "description": "Generates a URL for the given route path, optionally performing\nsubstitution of parameters.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 2124,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2129,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "path",
-                  "type": "!string",
-                  "description": "string route path declared in [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\")."
-                },
-                {
-                  "name": "params",
-                  "type": "?Object",
-                  "description": "Optional object with route path parameters.\nNamed parameters are passed by name (`params[name] = value`), unnamed\nparameters are passed by index (`params[index] = value`)."
-                }
-              ],
-              "return": {
-                "type": "string"
-              }
-            }
-          ],
-          "staticMethods": [
-            {
-              "name": "__createUrl",
-              "description": "URL constructor polyfill hook. Creates and returns an URL instance.",
-              "privacy": "private",
-              "sourceRange": {
-                "start": {
-                  "line": 1092,
-                  "column": 2
-                },
-                "end": {
-                  "line": 1094,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "url"
-                },
-                {
-                  "name": "base"
-                }
-              ],
-              "inheritedFrom": "Vaadin.Resolver"
-            },
-            {
-              "name": "setTriggers",
-              "description": "Configures what triggers Vaadin.Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nThis method is invoked with the pre-configured values when creating a new Router instance.\nBy default, both `POPSTATE` and `CLICK` are enabled. This setup is expected to cover most of the use cases.\n\nSee the `router-config.js` for the default navigation triggers config. Based on it, you can\ncreate the own one and only import the triggers you need, instead of pulling in all the code,\ne.g. if you want to handle `click` differently.\n\nSee also **Navigation Triggers** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 2080,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2082,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "triggers",
-                  "type": "...NavigationTrigger",
-                  "rest": true
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "go",
-              "description": "Triggers navigation to a new path. Returns a boolean without waiting until\nthe navigation is complete. Returns `true` if at least one `Vaadin.Router`\nhas handled the navigation (was subscribed and had `baseUrl` matching\nthe `pathname` argument), otherwise returns `false`.",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 2140,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2142,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "pathname",
-                  "type": "!string",
-                  "description": "a new in-app path"
-                }
-              ],
-              "return": {
-                "type": "boolean"
-              }
-            }
-          ],
-          "demos": [
-            {
-              "url": "demo/index.html",
-              "description": ""
-            },
-            {
-              "url": "demo/index.html",
-              "description": ""
-            }
-          ],
-          "metadata": {},
-          "sourceRange": {
-            "start": {
-              "line": 1443,
-              "column": 0
-            },
-            "end": {
-              "line": 2143,
-              "column": 1
-            }
-          },
-          "privacy": "public",
-          "superclass": "Vaadin.Resolver",
-          "name": "Vaadin.Router"
-        },
-        {
-          "description": "This interface describes the lifecycle callbacks supported by Vaadin Router\non view Web Components. It exists only for documentation purposes, i.e.\nyou _do not need_ to extend it in your code&mdash;defining a method with a\nmatching name is enough (this class does not exist at the run time).\n\nIf any of the methods described below are defined in a view Web Component,\nVaadin Router calls them at the corresponding points of the view\nlifecycle. Each method can either be synchronous or asynchronous (i.e. return\na Promise). In the latter case Vaadin Router waits until the promise is\nresolved and continues the navigation after that.\n\nCheck the [documentation on the `Vaadin.Router` class](#/classes/Vaadin.Router)\nto learn more.\n\nLifecycle callbacks are executed after the new path is resolved and after all\n`action` callbacks of the routes in the new path are executed.\n\nExample:\n\nFor the following routes definition,\n```\n// router and action declarations are omitted for brevity\nrouter.setRoutes([\n {path: '/a', action: actionA, children: [\n   {path: '/b', action: actionB, component: 'component-b'},\n   {path: '/c', action: actionC, component: 'component-c'}\n ]}\n]);\n```\nif the router first navigates to `/a/b` path and there was no view rendered\nbefore, the following events happen:\n* actionA\n* actionB\n* onBeforeEnterB (if defined in component-b)\n* outlet contents updated with component-b\n* onAfterEnterB (if defined in component-b)\n\nthen, if the router navigates to `/a/c`, the following events take place:\n* actionA\n* actionC\n* onBeforeLeaveB  (if defined in component-b)\n* onBeforeEnterC (if defined in component-c)\n* onAfterLeaveB  (if defined in component-b)\n* outlet contents updated with component-c\n* onAfterEnterC (if defined in component-c)\n\nIf a `Promise` is returned by any of the callbacks, it is resolved before\nproceeding further.\n\nAny of the `onBefore...` callbacks have a possibility to prevent\nthe navigation and fall back to the previous navigation result. If there is\nno result and this is the first resolution, an exception is thrown.\n\n`onAfter...` callbacks are considered as non-preventable, and their return\nvalue is ignored.\n\nOther examples can be found in the\n[live demos](#/classes/Vaadin.Router/demos/demo/index.html) and tests.",
-          "summary": "",
-          "path": "src/documentation/web-component-interface.js",
-          "properties": [],
-          "methods": [
-            {
-              "name": "onBeforeLeave",
-              "description": "Method that gets executed when user navigates away from the component\nthat had defined the method. The user can prevent the navigation\nby returning `commands.prevent()` from the method or same value wrapped\nin `Promise`. This effectively means that the corresponding component\nshould be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name, in the second time the method\nis not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values:\n\n* if the `commands.prevent()` result is returned (immediately or\nas a Promise), the navigation is aborted and the outlet contents\nis not updated.\n* any other return value is ignored and Vaadin Router proceeds with\nthe navigation.\n\nArguments:",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 94,
-                  "column": 2
-                },
-                "end": {
-                  "line": 99,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "location",
-                  "description": "the `Router.Location` object"
-                },
-                {
-                  "name": "commands",
-                  "description": "the commands object with the following methods:\n\n| Property           | Description\n| -------------------|-------------\n| `commands.prevent()` | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown."
-                },
-                {
-                  "name": "router",
-                  "description": "the `Router` instance"
-                }
-              ]
-            },
-            {
-              "name": "onBeforeEnter",
-              "description": "Method that gets executed before the outlet contents is updated with\nthe new element. The user can prevent the navigation by returning\n`commands.prevent()` from the method or same value wrapped in `Promise`.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name, in the second time the method\nis not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values:\n\n* if the `commands.prevent()` result is returned (immediately or\nas a Promise), the navigation is aborted and the outlet contents\nis not updated.\n* if the `commands.redirect(path)` result is returned (immediately or\nas a Promise), Vaadin Router ends navigation to the current path, and\nstarts a new navigation cycle to the new path.\n* any other return value is ignored and Vaadin Router proceeds with\nthe navigation.\n\nArguments:",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 134,
-                  "column": 2
-                },
-                "end": {
-                  "line": 139,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "location",
-                  "description": "the `Router.Location` object"
-                },
-                {
-                  "name": "commands",
-                  "description": "the commands object with the following methods:\n\n| Property                 | Description\n| -------------------------|-------------\n| `commands.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.\n| `commands.prevent()`       | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown."
-                },
-                {
-                  "name": "router",
-                  "description": "the `Router` instance"
-                }
-              ]
-            },
-            {
-              "name": "onAfterLeave",
-              "description": "Method that gets executed when user navigates away from the component that\nhad defined the method, just before the element is to be removed\nfrom the DOM. The difference between this method and `onBeforeLeave`\nis that when this method is executed, there is no way to abort\nthe navigation. This effectively means that the corresponding component\nshould be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name, in the second time the method\nis not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values: any return value is ignored and Vaadin Router proceeds with the navigation.\n\nArguments:",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 162,
-                  "column": 2
-                },
-                "end": {
-                  "line": 165,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "location",
-                  "description": "the `Router.Location` object"
-                },
-                {
-                  "name": "commands",
-                  "description": "empty object"
-                },
-                {
-                  "name": "router",
-                  "description": "the `Router` instance"
-                }
-              ],
-              "return": {
-                "type": "void"
-              }
-            },
-            {
-              "name": "onAfterEnter",
-              "description": "Method that gets executed after the outlet contents is updated with the new\nelement. If the router navigates to the same path twice in a row, and\nthis results in rendering the same component name, in the second time\nthe method is not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nThis callback is called asynchronously after the native\n[`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)\ndefined by the Custom Elements spec.\n\nReturn values: any return value is ignored and Vaadin Router proceeds with the navigation.\n\nArguments:",
-              "privacy": "public",
-              "sourceRange": {
-                "start": {
-                  "line": 187,
-                  "column": 2
-                },
-                "end": {
-                  "line": 190,
-                  "column": 3
-                }
-              },
-              "metadata": {},
-              "params": [
-                {
-                  "name": "location",
-                  "description": "the `Router.Location` object"
-                },
-                {
-                  "name": "commands",
-                  "description": "empty object"
-                },
-                {
-                  "name": "router",
-                  "description": "the `Router` instance"
-                }
-              ],
-              "return": {
-                "type": "void"
               }
             }
           ],
@@ -1383,16 +158,16 @@
           "metadata": {},
           "sourceRange": {
             "start": {
-              "line": 62,
+              "line": 16,
               "column": 7
             },
             "end": {
-              "line": 191,
+              "line": 117,
               "column": 1
             }
           },
           "privacy": "public",
-          "name": "Vaadin.WebComponentInterface"
+          "name": "Router.Location"
         }
       ]
     }
@@ -1419,6 +194,1211 @@
       },
       "privacy": "public",
       "name": "NotFoundResult"
+    },
+    {
+      "description": "",
+      "summary": "",
+      "path": "dist/vaadin-router.js",
+      "properties": [
+        {
+          "name": "__effectiveBaseUrl",
+          "type": "?",
+          "description": "If the baseUrl property is set, transforms the baseUrl and returns the full\nactual `base` string for using in the `new URL(path, base);` and for\nprepernding the paths with. The returned base ends with a trailing slash.\n\nOtherwise, returns empty string.\n   ",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1102,
+              "column": 2
+            },
+            "end": {
+              "line": 1109,
+              "column": 3
+            }
+          },
+          "metadata": {}
+        }
+      ],
+      "methods": [
+        {
+          "name": "getRoutes",
+          "description": "Returns the current list of routes (as a shallow copy). Adding / removing\nroutes to / from the returned array does not affect the routing config,\nbut modifying the route objects does.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 965,
+              "column": 2
+            },
+            "end": {
+              "line": 967,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "!Array.<!Router.Route>"
+          }
+        },
+        {
+          "name": "setRoutes",
+          "description": "Sets the routing config (replacing the existing one).",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 975,
+              "column": 2
+            },
+            "end": {
+              "line": 979,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "routes",
+              "type": "(!Array.<!Router.Route> | !Router.Route)",
+              "description": "a single route or an array of those\n   (the array is shallow copied)"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "addRoutes",
+          "description": "Appends one or several routes to the routing config and returns the\neffective routing config after the operation.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 990,
+              "column": 2
+            },
+            "end": {
+              "line": 994,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "routes",
+              "type": "(!Array.<!Router.Route> | !Router.Route)",
+              "description": "a single route or an array of those\n   (the array is shallow copied)"
+            }
+          ],
+          "return": {
+            "type": "!Array.<!Router.Route>"
+          }
+        },
+        {
+          "name": "removeRoutes",
+          "description": "Removes all existing routes from the routing config.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 999,
+              "column": 2
+            },
+            "end": {
+              "line": 1001,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "resolve",
+          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1020,
+              "column": 2
+            },
+            "end": {
+              "line": 1086,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathnameOrContext",
+              "type": "(!string | !{pathname: !string})",
+              "description": "the pathname to\n   resolve or a context object with a `pathname` property and other\n   properties to pass to the route resolver functions."
+            }
+          ],
+          "return": {
+            "type": "!Promise.<any>"
+          }
+        },
+        {
+          "name": "__normalizePathname",
+          "description": "If the baseUrl is set, matches the pathname with the router’s baseUrl,\nand returns the local pathname with the baseUrl stripped out.\n\nIf the pathname does not match the baseUrl, returns undefined.\n\nIf the `baseUrl` is not set, returns the unmodified pathname argument.",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1119,
+              "column": 2
+            },
+            "end": {
+              "line": 1130,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathname"
+            }
+          ]
+        }
+      ],
+      "staticMethods": [
+        {
+          "name": "__createUrl",
+          "description": "URL constructor polyfill hook. Creates and returns an URL instance.",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1091,
+              "column": 2
+            },
+            "end": {
+              "line": 1093,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "url"
+            },
+            {
+              "name": "base"
+            }
+          ]
+        }
+      ],
+      "demos": [],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 944,
+          "column": 0
+        },
+        "end": {
+          "line": 1131,
+          "column": 1
+        }
+      },
+      "privacy": "public",
+      "name": "Resolver"
+    },
+    {
+      "description": "A simple client-side router for single-page applications. It uses\nexpress-style middleware and has a first-class support for Web Components and\nlazy-loading. Works great in Polymer and non-Polymer apps.\n\nUse `new Router(outlet, options)` to create a new Router instance.\n\n* The `outlet` parameter is a reference to the DOM node to render\n  the content into.\n\n* The `options` parameter is an optional object with options. The following\n  keys are supported:\n  * `baseUrl` — the initial value for [\n    the `baseUrl` property\n  ](#/classes/Router#property-baseUrl)\n\nThe Router instance is automatically subscribed to navigation events\non `window`.\n\nSee [Live Examples](#/classes/Router/demos/demo/index.html) for the detailed usage demo and code snippets.\n\nSee also detailed API docs for the following methods, for the advanced usage:\n\n* [setOutlet](#/classes/Router#method-setOutlet) – should be used to configure the outlet.\n* [setTriggers](#/classes/Router#method-setTriggers) – should be used to configure the navigation events.\n* [setRoutes](#/classes/Router#method-setRoutes) – should be used to configure the routes.\n\nOnly `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.",
+      "summary": "JavaScript class that renders different DOM content depending on\n   a given path. It can re-render when triggered or automatically on\n   'popstate' and / or 'click' events.",
+      "path": "dist/vaadin-router.js",
+      "properties": [
+        {
+          "name": "__effectiveBaseUrl",
+          "type": "?",
+          "description": "If the baseUrl property is set, transforms the baseUrl and returns the full\nactual `base` string for using in the `new URL(path, base);` and for\nprepernding the paths with. The returned base ends with a trailing slash.\n\nOtherwise, returns empty string.\n   ",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1102,
+              "column": 2
+            },
+            "end": {
+              "line": 1109,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "inheritedFrom": "Resolver"
+        },
+        {
+          "name": "baseUrl",
+          "type": "string",
+          "description": "The base URL for all routes in the router instance. By default,\ntakes the `<base href>` attribute value if the base element exists\nin the `<head>`.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1475,
+              "column": 4
+            },
+            "end": {
+              "line": 1475,
+              "column": 17
+            }
+          },
+          "metadata": {}
+        },
+        {
+          "name": "ready",
+          "type": "!Promise.<!Router.Location>",
+          "description": "A promise that is settled after the current render cycle completes. If\nthere is no render cycle in progress the promise is immediately settled\nwith the last render cycle result.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1485,
+              "column": 4
+            },
+            "end": {
+              "line": 1485,
+              "column": 15
+            }
+          },
+          "metadata": {}
+        },
+        {
+          "name": "location",
+          "type": "!Router.Location",
+          "description": "Contains read-only information about the current router location:\npathname, active routes, parameters. See the\n[Location type declaration](#/classes/Router.Location)\nfor more details.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1497,
+              "column": 4
+            },
+            "end": {
+              "line": 1497,
+              "column": 18
+            }
+          },
+          "metadata": {}
+        }
+      ],
+      "methods": [
+        {
+          "name": "getRoutes",
+          "description": "Returns the current list of routes (as a shallow copy). Adding / removing\nroutes to / from the returned array does not affect the routing config,\nbut modifying the route objects does.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 965,
+              "column": 2
+            },
+            "end": {
+              "line": 967,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "!Array.<!Router.Route>"
+          },
+          "inheritedFrom": "Resolver"
+        },
+        {
+          "name": "setRoutes",
+          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `children` – an array of nested routes or a function that provides this\narray at the render time. The function can be synchronous or asynchronous:\nin the latter case the render is delayed until the returned promise is\nresolved. The `children` function is executed every time when this route is\nbeing rendered. This allows for dynamic route structures (e.g. backend-defined),\nbut it might have a performance impact as well. In order to avoid calling\nthe function on subsequent renders, you can override the `children` property\nof the route object and save the calculated array there\n(via `context.route.children = [ route1, route2, ...];`).\nParent routes are fully resolved before resolving the children. Children\n'path' values are relative to the parent ones.\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting `context`\nand `commands` parameters described below. If present, this function is\nalways invoked first, disregarding of the other properties' presence.\nThe action can return a result directly or within a `Promise`, which\nresolves to the result. If the action result is an `HTMLElement` instance,\na `commands.component(name)` result, a `commands.redirect(path)` result,\nor a `context.next()` result, the current route resolution is finished,\nand other route config properties are ignored.\nSee also **Route Actions** section in [Live Examples](#/classes/Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Router/demos/demo/index.html).\n\n* `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,\nor the object with \"module\" and \"nomodule\" keys referring to different bundles.\nEach bundle is only loaded once. If \"module\" and \"nomodule\" are set, only one bundle is loaded,\ndepending on whether the browser supports ES modules or not.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Code Splitting** section in [Live Examples](#/classes/Router/demos/demo/index.html).\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nIf route contains the `component` property (or an action that return a component)\nand its child route also contains the `component` property, child route's component\nwill be rendered as a light dom child of a parent component.\n\n* `name` – the string name of the route to use in the\n[`router.urlForName(name, params)`](#/classes/Router#method-urlForName)\nnavigation helper method.\n\nFor any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback\nthrough the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function\nbecause arrow functions do not have their own `this` reference.\n\n`context` object that is passed to `action` function holds the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.search` – search query string\n\n* `context.hash` – hash string\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.next()` – function for asynchronously getting the next route\ncontents from the resolution chain (if any)\n\n`commands` object that is passed to `action` function has\nthe following methods:\n\n* `commands.redirect(path)` – function that creates a redirect data\nfor the path specified.\n\n* `commands.component(component)` – function that creates a new HTMLElement\nwith current context",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1673,
+              "column": 2
+            },
+            "end": {
+              "line": 1677,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "routes",
+              "type": "(!Array.<!Router.Route> | !Router.Route)",
+              "description": "a single route or an array of those"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "addRoutes",
+          "description": "Appends one or several routes to the routing config and returns the\neffective routing config after the operation.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 990,
+              "column": 2
+            },
+            "end": {
+              "line": 994,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "routes",
+              "type": "(!Array.<!Router.Route> | !Router.Route)",
+              "description": "a single route or an array of those\n   (the array is shallow copied)"
+            }
+          ],
+          "return": {
+            "type": "!Array.<!Router.Route>"
+          },
+          "inheritedFrom": "Resolver"
+        },
+        {
+          "name": "removeRoutes",
+          "description": "Removes all existing routes from the routing config.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 999,
+              "column": 2
+            },
+            "end": {
+              "line": 1001,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          },
+          "inheritedFrom": "Resolver"
+        },
+        {
+          "name": "resolve",
+          "description": "Asynchronously resolves the given pathname, i.e. finds all routes matching\nthe pathname and tries resolving them one after another in the order they\nare listed in the routes config until the first non-null result.\n\nReturns a promise that is fulfilled with the return value of an object that consists of the first\nroute handler result that returns something other than `null` or `undefined` and context used to get this result.\n\nIf no route handlers return a non-null result, or if no route matches the\ngiven pathname the returned promise is rejected with a 'page not found'\n`Error`.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1020,
+              "column": 2
+            },
+            "end": {
+              "line": 1086,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathnameOrContext",
+              "type": "(!string | !{pathname: !string})",
+              "description": "the pathname to\n   resolve or a context object with a `pathname` property and other\n   properties to pass to the route resolver functions."
+            }
+          ],
+          "return": {
+            "type": "!Promise.<any>"
+          },
+          "inheritedFrom": "Resolver"
+        },
+        {
+          "name": "__normalizePathname",
+          "description": "If the baseUrl is set, matches the pathname with the router’s baseUrl,\nand returns the local pathname with the baseUrl stripped out.\n\nIf the pathname does not match the baseUrl, returns undefined.\n\nIf the `baseUrl` is not set, returns the unmodified pathname argument.",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1119,
+              "column": 2
+            },
+            "end": {
+              "line": 1130,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathname"
+            }
+          ],
+          "inheritedFrom": "Resolver"
+        },
+        {
+          "name": "__resolveRoute",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1506,
+              "column": 2
+            },
+            "end": {
+              "line": 1562,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context"
+            }
+          ]
+        },
+        {
+          "name": "setOutlet",
+          "description": "Sets the router outlet (the DOM node where the content for the current\nroute is inserted). Any content pre-existing in the router outlet is\nremoved at the end of each render pass.\n\nNOTE: this method is automatically invoked first time when creating a new Router instance.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1574,
+              "column": 2
+            },
+            "end": {
+              "line": 1579,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "outlet",
+              "type": "?Node",
+              "description": "the DOM node where the content for the current route\n    is inserted."
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "getOutlet",
+          "description": "Returns the current router outlet. The initial value is `undefined`.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1586,
+              "column": 2
+            },
+            "end": {
+              "line": 1588,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "?Node",
+            "desc": "the current router outlet (or `undefined`)"
+          }
+        },
+        {
+          "name": "render",
+          "description": "Asynchronously resolves the given pathname and renders the resolved route\ncomponent into the router outlet. If no router outlet is set at the time of\ncalling this method, or at the time when the route resolution is completed,\na `TypeError` is thrown.\n\nReturns a promise that is fulfilled with the router outlet DOM Node after\nthe route component is created and inserted into the router outlet, or\nrejected if no route matches the given path.\n\nIf another render pass is started before the previous one is completed, the\nresult of the previous render pass is ignored.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 1698,
+              "column": 2
+            },
+            "end": {
+              "line": 1760,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathnameOrContext",
+              "type": "(!string | !{pathname: !string, search: ?string, hash: ?string})",
+              "description": "the pathname to render or a context object with a `pathname` property,\n   optional `search` and `hash` properties, and other properties\n   to pass to the resolver."
+            },
+            {
+              "name": "shouldUpdateHistory"
+            }
+          ],
+          "return": {
+            "type": "!Promise.<!Node>"
+          }
+        },
+        {
+          "name": "__fullyResolveChain",
+          "description": "and 'redirect' callback results.",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1773,
+              "column": 2
+            },
+            "end": {
+              "line": 1798,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "topOfTheChainContextBeforeRedirects"
+            },
+            {
+              "name": "contextBeforeRedirects",
+              "defaultValue": "topOfTheChainContextBeforeRedirects"
+            }
+          ]
+        },
+        {
+          "name": "__findComponentContextAfterAllRedirects",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1800,
+              "column": 2
+            },
+            "end": {
+              "line": 1820,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context"
+            }
+          ]
+        },
+        {
+          "name": "__amendWithOnBeforeCallbacks",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1822,
+              "column": 2
+            },
+            "end": {
+              "line": 1829,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "contextWithFullChain"
+            }
+          ]
+        },
+        {
+          "name": "__runOnBeforeCallbacks",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1831,
+              "column": 2
+            },
+            "end": {
+              "line": 1880,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "newContext"
+            }
+          ]
+        },
+        {
+          "name": "__redirect",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1882,
+              "column": 2
+            },
+            "end": {
+              "line": 1895,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "redirectData"
+            },
+            {
+              "name": "counter"
+            }
+          ]
+        },
+        {
+          "name": "__ensureOutlet",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1897,
+              "column": 2
+            },
+            "end": {
+              "line": 1901,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "outlet",
+              "defaultValue": "this.__outlet"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__updateBrowserHistory",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1903,
+              "column": 2
+            },
+            "end": {
+              "line": 1912,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "{\n  pathname,\n  search = '',\n  hash = ''\n}"
+            },
+            {
+              "name": "replace"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__addAppearingContent",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1914,
+              "column": 2
+            },
+            "end": {
+              "line": 1957,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context"
+            },
+            {
+              "name": "previousContext"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__removeDisappearingContent",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1959,
+              "column": 2
+            },
+            "end": {
+              "line": 1965,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__removeAppearingContent",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1967,
+              "column": 2
+            },
+            "end": {
+              "line": 1973,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__runOnAfterLeaveCallbacks",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1975,
+              "column": 2
+            },
+            "end": {
+              "line": 1996,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "currentContext"
+            },
+            {
+              "name": "targetContext"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__runOnAfterEnterCallbacks",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1998,
+              "column": 2
+            },
+            "end": {
+              "line": 2008,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "currentContext"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__animateIfNeeded",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 2010,
+              "column": 2
+            },
+            "end": {
+              "line": 2032,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context"
+            }
+          ]
+        },
+        {
+          "name": "subscribe",
+          "description": "Subscribes this instance to navigation events on the `window`.\n\nNOTE: beware of resource leaks. For as long as a router instance is\nsubscribed to navigation events, it won't be garbage collected.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 2040,
+              "column": 2
+            },
+            "end": {
+              "line": 2042,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "unsubscribe",
+          "description": "Removes the subscription to navigation events created in the `subscribe()`\nmethod.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 2048,
+              "column": 2
+            },
+            "end": {
+              "line": 2050,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "__onNavigationEvent",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 2052,
+              "column": 2
+            },
+            "end": {
+              "line": 2060,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "event"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "urlForName",
+          "description": "Generates a URL for the route with the given name, optionally performing\nsubstitution of parameters.\n\nThe route is searched in all the Router instances subscribed to\nnavigation events.\n\n**Note:** For child route names, only array children are considered.\nIt is not possible to generate URLs using a name for routes set with\na children function.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 2101,
+              "column": 2
+            },
+            "end": {
+              "line": 2109,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "name",
+              "type": "!string",
+              "description": "the route name or the route’s `component` name."
+            },
+            {
+              "name": "params",
+              "type": "?Object",
+              "description": "Optional object with route path parameters.\nNamed parameters are passed by name (`params[name] = value`), unnamed\nparameters are passed by index (`params[index] = value`)."
+            }
+          ],
+          "return": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "urlForPath",
+          "description": "Generates a URL for the given route path, optionally performing\nsubstitution of parameters.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 2122,
+              "column": 2
+            },
+            "end": {
+              "line": 2127,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "path",
+              "type": "!string",
+              "description": "string route path declared in [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\")."
+            },
+            {
+              "name": "params",
+              "type": "?Object",
+              "description": "Optional object with route path parameters.\nNamed parameters are passed by name (`params[name] = value`), unnamed\nparameters are passed by index (`params[index] = value`)."
+            }
+          ],
+          "return": {
+            "type": "string"
+          }
+        }
+      ],
+      "staticMethods": [
+        {
+          "name": "__createUrl",
+          "description": "URL constructor polyfill hook. Creates and returns an URL instance.",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1091,
+              "column": 2
+            },
+            "end": {
+              "line": 1093,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "url"
+            },
+            {
+              "name": "base"
+            }
+          ],
+          "inheritedFrom": "Resolver"
+        },
+        {
+          "name": "setTriggers",
+          "description": "Configures what triggers Router navigation events:\n - `POPSTATE`: popstate events on the current `window`\n - `CLICK`: click events on `<a>` links leading to the current page\n\nThis method is invoked with the pre-configured values when creating a new Router instance.\nBy default, both `POPSTATE` and `CLICK` are enabled. This setup is expected to cover most of the use cases.\n\nSee the `router-config.js` for the default navigation triggers config. Based on it, you can\ncreate the own one and only import the triggers you need, instead of pulling in all the code,\ne.g. if you want to handle `click` differently.\n\nSee also **Navigation Triggers** section in [Live Examples](#/classes/Router/demos/demo/index.html).",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 2078,
+              "column": 2
+            },
+            "end": {
+              "line": 2080,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "triggers",
+              "type": "...Router.NavigationTrigger",
+              "rest": true
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "go",
+          "description": "Triggers navigation to a new path. Returns a boolean without waiting until\nthe navigation is complete. Returns `true` if at least one `Router`\nhas handled the navigation (was subscribed and had `baseUrl` matching\nthe `pathname` argument), otherwise returns `false`.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 2138,
+              "column": 2
+            },
+            "end": {
+              "line": 2140,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "pathname",
+              "type": "!string",
+              "description": "a new in-app path"
+            }
+          ],
+          "return": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "demos": [
+        {
+          "url": "demo/index.html",
+          "description": ""
+        },
+        {
+          "url": "demo/index.html",
+          "description": ""
+        }
+      ],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 1441,
+          "column": 0
+        },
+        "end": {
+          "line": 2141,
+          "column": 1
+        }
+      },
+      "privacy": "public",
+      "superclass": "Resolver",
+      "name": "Router"
+    },
+    {
+      "description": "This interface describes the lifecycle callbacks supported by Vaadin Router\non view Web Components. It exists only for documentation purposes, i.e.\nyou _do not need_ to extend it in your code&mdash;defining a method with a\nmatching name is enough (this class does not exist at the run time).\n\nIf any of the methods described below are defined in a view Web Component,\nVaadin Router calls them at the corresponding points of the view\nlifecycle. Each method can either be synchronous or asynchronous (i.e. return\na Promise). In the latter case Vaadin Router waits until the promise is\nresolved and continues the navigation after that.\n\nCheck the [documentation on the `Router` class](#/classes/Router)\nto learn more.\n\nLifecycle callbacks are executed after the new path is resolved and after all\n`action` callbacks of the routes in the new path are executed.\n\nExample:\n\nFor the following routes definition,\n```\n// router and action declarations are omitted for brevity\nrouter.setRoutes([\n {path: '/a', action: actionA, children: [\n   {path: '/b', action: actionB, component: 'component-b'},\n   {path: '/c', action: actionC, component: 'component-c'}\n ]}\n]);\n```\nif the router first navigates to `/a/b` path and there was no view rendered\nbefore, the following events happen:\n* actionA\n* actionB\n* onBeforeEnterB (if defined in component-b)\n* outlet contents updated with component-b\n* onAfterEnterB (if defined in component-b)\n\nthen, if the router navigates to `/a/c`, the following events take place:\n* actionA\n* actionC\n* onBeforeLeaveB  (if defined in component-b)\n* onBeforeEnterC (if defined in component-c)\n* onAfterLeaveB  (if defined in component-b)\n* outlet contents updated with component-c\n* onAfterEnterC (if defined in component-c)\n\nIf a `Promise` is returned by any of the callbacks, it is resolved before\nproceeding further.\n\nAny of the `onBefore...` callbacks have a possibility to prevent\nthe navigation and fall back to the previous navigation result. If there is\nno result and this is the first resolution, an exception is thrown.\n\n`onAfter...` callbacks are considered as non-preventable, and their return\nvalue is ignored.\n\nOther examples can be found in the\n[live demos](#/classes/Router/demos/demo/index.html) and tests.",
+      "summary": "",
+      "path": "src/documentation/web-component-interface.js",
+      "properties": [],
+      "methods": [
+        {
+          "name": "onBeforeLeave",
+          "description": "Method that gets executed when user navigates away from the component\nthat had defined the method. The user can prevent the navigation\nby returning `commands.prevent()` from the method or same value wrapped\nin `Promise`. This effectively means that the corresponding component\nshould be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name, in the second time the method\nis not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values:\n\n* if the `commands.prevent()` result is returned (immediately or\nas a Promise), the navigation is aborted and the outlet contents\nis not updated.\n* any other return value is ignored and Vaadin Router proceeds with\nthe navigation.\n\nArguments:",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 93,
+              "column": 2
+            },
+            "end": {
+              "line": 98,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "location",
+              "description": "the `Router.Location` object"
+            },
+            {
+              "name": "commands",
+              "description": "the commands object with the following methods:\n\n| Property           | Description\n| -------------------|-------------\n| `commands.prevent()` | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown."
+            },
+            {
+              "name": "router",
+              "description": "the `Router` instance"
+            }
+          ]
+        },
+        {
+          "name": "onBeforeEnter",
+          "description": "Method that gets executed before the outlet contents is updated with\nthe new element. The user can prevent the navigation by returning\n`commands.prevent()` from the method or same value wrapped in `Promise`.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name, in the second time the method\nis not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values:\n\n* if the `commands.prevent()` result is returned (immediately or\nas a Promise), the navigation is aborted and the outlet contents\nis not updated.\n* if the `commands.redirect(path)` result is returned (immediately or\nas a Promise), Vaadin Router ends navigation to the current path, and\nstarts a new navigation cycle to the new path.\n* any other return value is ignored and Vaadin Router proceeds with\nthe navigation.\n\nArguments:",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 133,
+              "column": 2
+            },
+            "end": {
+              "line": 138,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "location",
+              "description": "the `Router.Location` object"
+            },
+            {
+              "name": "commands",
+              "description": "the commands object with the following methods:\n\n| Property                 | Description\n| -------------------------|-------------\n| `commands.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.\n| `commands.prevent()`       | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown."
+            },
+            {
+              "name": "router",
+              "description": "the `Router` instance"
+            }
+          ]
+        },
+        {
+          "name": "onAfterLeave",
+          "description": "Method that gets executed when user navigates away from the component that\nhad defined the method, just before the element is to be removed\nfrom the DOM. The difference between this method and `onBeforeLeave`\nis that when this method is executed, there is no way to abort\nthe navigation. This effectively means that the corresponding component\nshould be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name, in the second time the method\nis not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values: any return value is ignored and Vaadin Router proceeds with the navigation.\n\nArguments:",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 161,
+              "column": 2
+            },
+            "end": {
+              "line": 164,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "location",
+              "description": "the `Router.Location` object"
+            },
+            {
+              "name": "commands",
+              "description": "empty object"
+            },
+            {
+              "name": "router",
+              "description": "the `Router` instance"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "onAfterEnter",
+          "description": "Method that gets executed after the outlet contents is updated with the new\nelement. If the router navigates to the same path twice in a row, and\nthis results in rendering the same component name, in the second time\nthe method is not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nThis callback is called asynchronously after the native\n[`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)\ndefined by the Custom Elements spec.\n\nReturn values: any return value is ignored and Vaadin Router proceeds with the navigation.\n\nArguments:",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 186,
+              "column": 2
+            },
+            "end": {
+              "line": 189,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "location",
+              "description": "the `Router.Location` object"
+            },
+            {
+              "name": "commands",
+              "description": "empty object"
+            },
+            {
+              "name": "router",
+              "description": "the `Router` instance"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        }
+      ],
+      "staticMethods": [],
+      "demos": [],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 61,
+          "column": 7
+        },
+        "end": {
+          "line": 190,
+          "column": 1
+        }
+      },
+      "privacy": "public",
+      "name": "WebComponentInterface"
     }
   ]
 }
