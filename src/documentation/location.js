@@ -11,14 +11,14 @@
  *    lifecycle callbacks
  *  - as the `event.detail.location` of the global Vaadin Router events
  *
- * @memberof Vaadin.Router
+ * @memberof Router
  * @summary Type declaration for the `router.location` property.
  */
 export class Location {
   constructor() {
     /**
      * The base URL used in the router. See [the `baseUrl` property
-     * ](#/classes/Vaadin.Router#property-baseUrl) in the Vaadin.Router.
+     * ](#/classes/Router#property-baseUrl) in the Router.
      *
      * @public
      * @type {string}
@@ -49,7 +49,7 @@ export class Location {
      * ```
      *
      * See the **Redirects** section of the
-     * [live demos](#/classes/Vaadin.Router/demos/demo/index.html) for more
+     * [live demos](#/classes/Router/demos/demo/index.html) for more
      * details.
      *
      * @public
@@ -69,7 +69,7 @@ export class Location {
      * global router event details.
      *
      * @public
-     * @type {?Vaadin.Router.Route}
+     * @type {?Router.Route}
      */
     this.route;
 
@@ -79,11 +79,11 @@ export class Location {
      * element for the route that defines the view.
      *
      * See the **Getting Started** section of the
-     * [live demos](#/classes/Vaadin.Router/demos/demo/index.html) for more
+     * [live demos](#/classes/Router/demos/demo/index.html) for more
      * details on child routes and nested layouts.
      *
      * @public
-     * @type {!Array<!Vaadin.Router.Route>}
+     * @type {!Array<!Router.Route>}
      */
     this.routes;
 
@@ -93,7 +93,7 @@ export class Location {
      * `/users/:id` route the `:id` parameter is available as `location.params.id`).
      *
      * See the **Route Parameters** section of the
-     * [live demos](#/classes/Vaadin.Router/demos/demo/index.html) for more
+     * [live demos](#/classes/Router/demos/demo/index.html) for more
      * details.
      *
      * @public

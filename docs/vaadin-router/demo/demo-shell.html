@@ -6729,13 +6729,13 @@ var _anchor=anchor,pathname=_anchor.pathname,search=_anchor.search,hash=_anchor.
    * Only regular clicks on in-app links are translated (primary mouse button, no
    * modifier keys, the target href is within the app's URL space).
    *
-   * @memberOf Vaadin.Router.Triggers
+   * @memberOf Router.Triggers
    * @type {NavigationTrigger}
    */var CLICK={activate:function activate(){window.document.addEventListener("click",vaadinRouterGlobalClickHandler)},inactivate:function inactivate(){window.document.removeEventListener("click",vaadinRouterGlobalClickHandler)}},isIE=/Trident/.test(navigator.userAgent);/* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */if(isIE&&!isFunction(window.PopStateEvent)){window.PopStateEvent=function(inType,params){params=params||{};var e=document.createEvent("Event");e.initEvent(inType,!!params.bubbles,!!params.cancelable);e.state=params.state||null;return e};window.PopStateEvent.prototype=window.Event.prototype}function vaadinRouterGlobalPopstateHandler(event){if("vaadin-router-ignore"===event.state){return}var _window$location=window.location,pathname=_window$location.pathname,search=_window$location.search,hash=_window$location.hash;fireRouterEvent("go",{pathname:pathname,search:search,hash:hash})}/**
    * A navigation trigger for Vaadin Router that translates popstate events into
    * Vaadin Router navigation events.
    *
-   * @memberOf Vaadin.Router.Triggers
+   * @memberOf Router.Triggers
    * @type {NavigationTrigger}
    */var POPSTATE={activate:function activate(){window.addEventListener("popstate",vaadinRouterGlobalPopstateHandler)},inactivate:function inactivate(){window.removeEventListener("popstate",vaadinRouterGlobalPopstateHandler)}},pathToRegexp_1=pathToRegexp,parse_1=parse,compile_1=compile,tokensToFunction_1=tokensToFunction,tokensToRegExp_1=tokensToRegExp,DEFAULT_DELIMITER="/",DEFAULT_DELIMITERS="./",PATH_REGEXP=new RegExp([// Match escaped characters that would otherwise appear in future matches.
 // This allows the user to escape special characters that won't transform.
@@ -6888,25 +6888,24 @@ cache.set("|false",{keys:[],pattern:/(?:)/});function decodeParam(val){try{retur
    * This source code is licensed under the MIT license found in the
    * LICENSE.txt file in the root directory of this source tree.
    */function resolveRoute(context){if(isFunction(context.route.action)){return context.route.action(context)}return void 0}function isChildRoute(parentRoute,childRoute){var route=childRoute;while(route){route=route.parent;if(route===parentRoute){return!0}}return!1}function generateErrorMessage(currentContext){var errorMessage="Path '".concat(currentContext.pathname,"' is not properly resolved due to an error."),routePath=(currentContext.route||{}).path;if(routePath){errorMessage+=" Resolution had failed on route: '".concat(routePath,"'")}return errorMessage}function addRouteToChain(context,match){var route=match.route,path=match.path;function shouldDiscardOldChain(oldChain,route){return!route.parent||!oldChain||!oldChain.length||oldChain[oldChain.length-1].route!==route.parent}if(route&&!route.__synthetic){var item={path:path,route:route};if(shouldDiscardOldChain(context.chain,route)){context.chain=[item]}else{context.chain.push(item)}}}/**
-   * @memberof Vaadin
    */var Resolver=/*#__PURE__*/function(){function Resolver(routes){var options=1<arguments.length&&arguments[1]!==void 0?arguments[1]:{};_classCallCheck(this,Resolver);if(Object(routes)!==routes){throw new TypeError("Invalid routes")}this.baseUrl=options.baseUrl||"";this.errorHandler=options.errorHandler;this.resolveRoute=options.resolveRoute||resolveRoute;this.context=Object.assign({resolver:this},options.context);this.root=Array.isArray(routes)?{path:"",__children:routes,parent:null,__synthetic:!0}:routes;this.root.parent=null}/**
      * Returns the current list of routes (as a shallow copy). Adding / removing
      * routes to / from the returned array does not affect the routing config,
      * but modifying the route objects does.
      *
-     * @return {!Array<!Route>}
+     * @return {!Array<!Router.Route>}
      */_createClass(Resolver,[{key:"getRoutes",value:function getRoutes(){return _toConsumableArray(this.root.__children)}/**
        * Sets the routing config (replacing the existing one).
        *
-       * @param {!Array<!Route>|!Route} routes a single route or an array of those
+       * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
        *    (the array is shallow copied)
        */},{key:"setRoutes",value:function setRoutes(routes){ensureRoutes(routes);var newRoutes=_toConsumableArray(toArray(routes));this.root.__children=newRoutes}/**
        * Appends one or several routes to the routing config and returns the
        * effective routing config after the operation.
        *
-       * @param {!Array<!Route>|!Route} routes a single route or an array of those
+       * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
        *    (the array is shallow copied)
-       * @return {!Array<!Route>}
+       * @return {!Array<!Router.Route>}
        * @protected
        */},{key:"addRoutes",value:function addRoutes(routes){var _this$root$__children;ensureRoutes(routes);(_this$root$__children=this.root.__children).push.apply(_this$root$__children,_toConsumableArray(toArray(routes)));return this.getRoutes()}/**
        * Removes all existing routes from the routing config.
@@ -6970,23 +6969,22 @@ cacheRoutes(routesByName,router.root,router.root.__children);route=getRouteByNam
    *   keys are supported:
    *   * `baseUrl` — the initial value for [
    *     the `baseUrl` property
-   *   ](#/classes/Vaadin.Router#property-baseUrl)
+   *   ](#/classes/Router#property-baseUrl)
    *
    * The Router instance is automatically subscribed to navigation events
    * on `window`.
    *
-   * See [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html) for the detailed usage demo and code snippets.
+   * See [Live Examples](#/classes/Router/demos/demo/index.html) for the detailed usage demo and code snippets.
    *
    * See also detailed API docs for the following methods, for the advanced usage:
    *
-   * * [setOutlet](#/classes/Vaadin.Router#method-setOutlet) – should be used to configure the outlet.
-   * * [setTriggers](#/classes/Vaadin.Router#method-setTriggers) – should be used to configure the navigation events.
-   * * [setRoutes](#/classes/Vaadin.Router#method-setRoutes) – should be used to configure the routes.
+   * * [setOutlet](#/classes/Router#method-setOutlet) – should be used to configure the outlet.
+   * * [setTriggers](#/classes/Router#method-setTriggers) – should be used to configure the navigation events.
+   * * [setRoutes](#/classes/Router#method-setRoutes) – should be used to configure the routes.
    *
    * Only `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
    *
-   * @memberof Vaadin
-   * @extends Vaadin.Resolver
+   * @extends Resolver
    * @demo demo/index.html
    * @summary JavaScript class that renders different DOM content depending on
    *    a given path. It can re-render when triggered or automatically on
@@ -6997,11 +6995,11 @@ cacheRoutes(routesByName,router.root,router.root.__children);route=getRouteByNam
      * Using a constructor argument or a setter for outlet is equivalent:
      *
      * ```
-     * const router = new Vaadin.Router();
+     * const router = new Router();
      * router.setOutlet(outlet);
      * ```
      * @param {?Node} outlet
-     * @param {?RouterOptions} options
+     * @param {?Router.Options} options
      */function Router(outlet,options){var _this;_classCallCheck(this,Router);var baseElement=document.head.querySelector("base");_this=_possibleConstructorReturn(this,_getPrototypeOf(Router).call(this,[],Object.assign({// Default options
 baseUrl:baseElement&&baseElement.getAttribute("href")},options)));_this.resolveRoute=function(context){return _this.__resolveRoute(context)};var triggers=Router.NavigationTrigger;Router.setTriggers.apply(Router,Object.keys(triggers).map(function(key){return triggers[key]}));/**
        * The base URL for all routes in the router instance. By default,
@@ -7016,15 +7014,15 @@ baseUrl:baseElement&&baseElement.getAttribute("href")},options)));_this.resolveR
        * with the last render cycle result.
        *
        * @public
-       * @type {!Promise<!Vaadin.Router.Location>}
+       * @type {!Promise<!Router.Location>}
        */_this.ready;_this.ready=Promise.resolve(outlet);/**
        * Contains read-only information about the current router location:
        * pathname, active routes, parameters. See the
-       * [Location type declaration](#/classes/Vaadin.Router.Location)
+       * [Location type declaration](#/classes/Router.Location)
        * for more details.
        *
        * @public
-       * @type {!Vaadin.Router.Location}
+       * @type {!Router.Location}
        */_this.location;_this.location=createLocation({resolver:_assertThisInitialized(_this)});_this.__lastStartedRenderId=0;_this.__navigationEventHandler=_this.__onNavigationEvent.bind(_assertThisInitialized(_this));_this.setOutlet(outlet);_this.subscribe();return _this}_createClass(Router,[{key:"__resolveRoute",value:function __resolveRoute(context){var route=context.route,callbacks=Promise.resolve();if(isFunction(route.children)){callbacks=callbacks.then(function(){return route.children(copyContextWithoutNext(context))}).then(function(children){// The route.children() callback might have re-written the
 // route.children property instead of returning a value
 if(!isResultNotEmpty(children)&&!isFunction(route.children)){children=route.children}processNewChildren(children,route)})}var commands={redirect:function redirect(path){return createRedirect(context,path)},component:function component(_component){return document.createElement(_component)}};return callbacks.then(function(){return runCallbackIfPossible(route.action,[context,commands],route)}).then(function(result){if(isResultNotEmpty(result)){// Actions like `() => import('my-view.js')` are not expected to
@@ -7073,11 +7071,11 @@ if(babelHelpers.instanceof(result,HTMLElement)||result.redirect||result===notFou
        * a `commands.component(name)` result, a `commands.redirect(path)` result,
        * or a `context.next()` result, the current route resolution is finished,
        * and other route config properties are ignored.
-       * See also **Route Actions** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+       * See also **Route Actions** section in [Live Examples](#/classes/Router/demos/demo/index.html).
        *
        * * `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.
        * The target route should also be defined.
-       * See also **Redirects** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+       * See also **Redirects** section in [Live Examples](#/classes/Router/demos/demo/index.html).
        *
        * * `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,
        * or the object with "module" and "nomodule" keys referring to different bundles.
@@ -7085,7 +7083,7 @@ if(babelHelpers.instanceof(result,HTMLElement)||result.redirect||result===notFou
        * depending on whether the browser supports ES modules or not.
        * The property is ignored when either an `action` returns the result or `redirect` property is present.
        * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
-       * See also **Code Splitting** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+       * See also **Code Splitting** section in [Live Examples](#/classes/Router/demos/demo/index.html).
        *
        * * `component` – the tag name of the Web Component to resolve the route to.
        * The property is ignored when either an `action` returns the result or `redirect` property is present.
@@ -7094,7 +7092,7 @@ if(babelHelpers.instanceof(result,HTMLElement)||result.redirect||result===notFou
        * will be rendered as a light dom child of a parent component.
        *
        * * `name` – the string name of the route to use in the
-       * [`router.urlForName(name, params)`](#/classes/Vaadin.Router#method-urlForName)
+       * [`router.urlForName(name, params)`](#/classes/Router#method-urlForName)
        * navigation helper method.
        *
        * For any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback
@@ -7124,7 +7122,7 @@ if(babelHelpers.instanceof(result,HTMLElement)||result.redirect||result===notFou
        * * `commands.component(component)` – function that creates a new HTMLElement
        * with current context
        *
-       * @param {!Array<!Object>|!Object} routes a single route or an array of those
+       * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
        */},{key:"setRoutes",value:function setRoutes(routes){this.__urlForName=void 0;_get(_getPrototypeOf(Router.prototype),"setRoutes",this).call(this,routes);this.__onNavigationEvent()}/**
        * Asynchronously resolves the given pathname and renders the resolved route
        * component into the router outlet. If no router outlet is set at the time of
@@ -7187,7 +7185,7 @@ for(var i=currentContext.__divergedChainIndex;i<currentContext.chain.length;i++)
        * Removes the subscription to navigation events created in the `subscribe()`
        * method.
        */},{key:"unsubscribe",value:function unsubscribe(){window.removeEventListener("vaadin-router-go",this.__navigationEventHandler)}},{key:"__onNavigationEvent",value:function __onNavigationEvent(event){var pathname=event?event.detail.pathname:window.location.pathname;if(isString(this.__normalizePathname(pathname))){if(event&&event.preventDefault){event.preventDefault()}this.render(event?event.detail:{pathname:pathname},!0)}}/**
-       * Configures what triggers Vaadin.Router navigation events:
+       * Configures what triggers Router navigation events:
        *  - `POPSTATE`: popstate events on the current `window`
        *  - `CLICK`: click events on `<a>` links leading to the current page
        *
@@ -7198,14 +7196,14 @@ for(var i=currentContext.__divergedChainIndex;i<currentContext.chain.length;i++)
        * create the own one and only import the triggers you need, instead of pulling in all the code,
        * e.g. if you want to handle `click` differently.
        *
-       * See also **Navigation Triggers** section in [Live Examples](#/classes/Vaadin.Router/demos/demo/index.html).
+       * See also **Navigation Triggers** section in [Live Examples](#/classes/Router/demos/demo/index.html).
        *
-       * @param {...NavigationTrigger} triggers
+       * @param {...Router.NavigationTrigger} triggers
        */},{key:"urlForName",/**
        * Generates a URL for the route with the given name, optionally performing
        * substitution of parameters.
        *
-       * The route is searched in all the Vaadin.Router instances subscribed to
+       * The route is searched in all the Router instances subscribed to
        * navigation events.
        *
        * **Note:** For child route names, only array children are considered.
@@ -7231,7 +7229,7 @@ for(var i=currentContext.__divergedChainIndex;i<currentContext.chain.length;i++)
        * @return {string}
        */},{key:"urlForPath",value:function urlForPath(path,params){return getPathnameForRouter(Router.pathToRegexp.compile(path)(params),this)}/**
        * Triggers navigation to a new path. Returns a boolean without waiting until
-       * the navigation is complete. Returns `true` if at least one `Vaadin.Router`
+       * the navigation is complete. Returns `true` if at least one `Router`
        * has handled the navigation (was subscribed and had `baseUrl` matching
        * the `pathname` argument), otherwise returns `false`.
        *
