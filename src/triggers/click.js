@@ -94,7 +94,7 @@ function vaadinRouterGlobalClickHandler(event) {
  * Only regular clicks on in-app links are translated (primary mouse button, no
  * modifier keys, the target href is within the app's URL space).
  *
- * @memberOf Vaadin.Router.Triggers
+ * @memberOf Router.Triggers
  * @type {NavigationTrigger}
  */
 const CLICK = {

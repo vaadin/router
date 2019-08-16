@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "inlineSources": true,
+    "module": "esNext",
+    "target": "es2015",
+    "moduleResolution": "node",
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "experimentalDecorators": true,
+    "outDir": "ts-dist",
+    "declaration": true,
+    "baseUrl": ".",
+    "paths": {
+      "@vaadin/router": ["dist/vaadin-router"]
+    }
+  },
+  "include": [
+    "test/typescript/**/*.ts"
+  ],
+  "exclude": []
+}
