@@ -412,6 +412,26 @@
           ]);
         });
 
+        it('should prevent calling action on the next route', async() => {
+          const actionB = sinon.spy();
+          router.setRoutes([
+            {
+              path: '/a',
+              action: onBeforeLeaveAction(
+                'x-spy',
+                function(location, commands) {
+                  return commands.prevent();
+                })
+            },
+            {path: '/b', action: actionB, component: 'x-b'},
+          ]);
+
+          await router.render('/a');
+          await router.render('/b');
+
+          expect(actionB).to.not.have.been.called;
+        });
+
         it('should not re-render the same component if `onBeforeEnter` prevented navigation', async() => {
           let counter = 0;
           customElements.define('x-root-view', class extends HTMLElement {
