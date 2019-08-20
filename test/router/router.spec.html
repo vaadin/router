@@ -744,6 +744,63 @@
           });
         });
 
+        describe('first render', () => {
+          let router;
+          let onVaadinRouterGo;
+          beforeEach(async() => {
+            onVaadinRouterGo = sinon.spy();
+            window.addEventListener('vaadin-router-go', onVaadinRouterGo);
+          });
+          it('should preserve pathname, search and hash', async() => {
+            window.history.pushState(null, null, '/admin?a=b#hash');
+            router = new Vaadin.Router(outlet);
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/admin', component: 'x-admin-view'},
+            ]);
+            await router.ready;
+            // There should be no 'go' event yet.
+            // The first navigation is called in `setRoutes()`
+            expect(onVaadinRouterGo).not.to.be.called;
+            expect(window.location.pathname).to.equal('/admin');
+            expect(window.location.search).to.equal('?a=b');
+            expect(window.location.hash).to.equal('#hash');
+          });
+
+          it('should preserve pathname and search', async() => {
+            window.history.pushState(null, null, '/admin?a=b');
+            router = new Vaadin.Router(outlet);
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/admin', component: 'x-admin-view'},
+            ]);
+            await router.ready;
+            expect(onVaadinRouterGo).not.to.be.called;
+            expect(window.location.pathname).to.equal('/admin');
+            expect(window.location.search).to.equal('?a=b');
+            expect(window.location.hash).to.equal('');
+
+          });
+
+          it('should preserve pathname', async() => {
+            window.history.pushState(null, null, '/admin');
+            router = new Vaadin.Router(outlet);
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/admin', component: 'x-admin-view'},
+            ]);
+            await router.ready;
+            expect(onVaadinRouterGo).not.to.be.called;
+            expect(window.location.pathname).to.equal('/admin');
+            expect(window.location.search).to.equal('');
+            expect(window.location.hash).to.equal('');
+          });
+
+          afterEach(() => {
+            router.unsubscribe();
+          });
+        });
+
         describe('navigation events', () => {
           let router;
           beforeEach(async() => {
