@@ -772,12 +772,12 @@ export class Router extends Resolver {
   }
 
   __onNavigationEvent(event) {
-    const pathname = event ? event.detail.pathname : window.location.pathname;
+    const {pathname, search, hash} = event ? event.detail : window.location;
     if (isString(this.__normalizePathname(pathname))) {
       if (event && event.preventDefault) {
         event.preventDefault();
       }
-      this.render(event ? event.detail : {pathname}, true);
+      this.render({pathname, search, hash}, true);
     }
   }
 
