@@ -166,6 +166,28 @@
           verifyActiveRoutes(router, ['/users']);
         });
 
+        it('should keep the location when route is prevented on before enter', async() => {
+          window.preventNavigation = false;
+          router.setRoutes([
+            {path: '/', action: onBeforeEnterAction('x-home-view', (location, commands) => window.preventNavigation && commands.prevent())},
+            {path: '/users', component: 'x-users-list'},
+          ]);
+          await router.ready;
+          expect(window.location.pathname).to.be.equal('/');
+
+          await router.render({pathname: '/users', search: '', hash: ''}, true);
+          expect(window.location.pathname).to.be.equal('/users');
+
+          window.preventNavigation = true;
+          window.history.back();
+          await router.ready;
+          expect(window.location.pathname).to.be.equal('/users');
+
+          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+          verifyActiveRoutes(router, ['/users']);
+          delete window.preventNavigation;
+        });
+
         it('should be able to return a `redirect` command to redirect navigation', async() => {
           router.setRoutes([
             {path: '/', action: onBeforeEnterAction('whatever', (location, commands) => commands.redirect('/users'))},
@@ -343,6 +365,29 @@
 
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           verifyActiveRoutes(router, ['/']);
+        });
+
+        it('should keep the location when route is prevented on before leave', async() => {
+          window.preventNavigation = false;
+          router.setRoutes([
+            {path: '/', action: onBeforeLeaveAction('x-home-view', (location, commands) => window.preventNavigation && commands.prevent())},
+            {path: '/users', component: 'x-users-list'},
+          ]);
+          await router.ready;
+          expect(window.location.pathname).to.be.equal('/');
+
+          await router.render({pathname: '/users', search: '', hash: ''}, true);
+          expect(window.location.pathname).to.be.equal('/users');
+
+          window.preventNavigation = true;
+          await router.render({pathname: '/', search: '', hash: ''}, true);
+          window.history.back();
+          await router.ready;
+          expect(window.location.pathname).to.be.equal('/');
+
+          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          verifyActiveRoutes(router, ['/']);
+          delete window.preventNavigation;
         });
 
         it('should ignore any other return value than `prevent`', async() => {

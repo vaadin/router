@@ -438,6 +438,9 @@ export class Router extends Resolver {
 
           // Check if the render was prevented and make an early return in that case
           if (context === previousContext) {
+            // Replace the history with the previous context
+            // to make sure the URL stays the same.
+            this.__updateBrowserHistory(previousContext, true);
             return this.location;
           }
 
