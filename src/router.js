@@ -28,11 +28,13 @@ function copyContextWithoutNext(context) {
   return copy;
 }
 
-function createLocation({pathname = '', chain = [], params = {}, redirectFrom, resolver}, route) {
+function createLocation({pathname = '', search = '', hash = '', chain = [], params = {}, redirectFrom, resolver}, route) {
   const routes = chain.map(item => item.route);
   return {
     baseUrl: resolver && resolver.baseUrl || '',
     pathname,
+    search,
+    hash,
     routes,
     route: route || routes.length && routes[routes.length - 1] || null,
     params,
@@ -253,7 +255,7 @@ export class Router extends Resolver {
         if (isResultNotEmpty(result)) {
           // Actions like `() => import('my-view.js')` are not expected to
           // end the resolution, despite the result is not empty. Checking
-          // the result with a whitelist of values that end the resulution.
+          // the result with a whitelist of values that end the resolution.
           if (result instanceof HTMLElement ||
               result.redirect ||
               result === notFoundResult) {
@@ -390,11 +392,17 @@ export class Router extends Resolver {
    * with current context
    *
    * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
+   * @param {?boolean} skipRender configure the router but skip rendering the
+   *     route corresponding to the current `window.location` values
+   *
+   * @return {!Promise<!Node>}
    */
-  setRoutes(routes) {
+  setRoutes(routes, skipRender = false) {
     this.__urlForName = undefined;
     super.setRoutes(routes);
-    this.__onNavigationEvent();
+    if (!skipRender) {
+      return this.__onNavigationEvent();
+    }
   }
 
   /**
@@ -421,7 +429,7 @@ export class Router extends Resolver {
   render(pathnameOrContext, shouldUpdateHistory) {
     const renderId = ++this.__lastStartedRenderId;
     const pathname = pathnameOrContext.pathname || pathnameOrContext;
-    const search = pathnameOrContext.search || '';
+    const search = pathnameOrContext.pathname && pathnameOrContext.search || '';
     const hash = pathnameOrContext.hash || '';
 
     // Find the first route that resolves to a non-empty result
@@ -781,7 +789,7 @@ export class Router extends Resolver {
       if (event && event.preventDefault) {
         event.preventDefault();
       }
-      this.render({pathname, search, hash}, true);
+      return this.render({pathname, search, hash}, true);
     }
   }
 
