@@ -419,10 +419,12 @@ export class Router extends Resolver {
    */
   render(pathnameOrContext, shouldUpdateHistory) {
     const renderId = ++this.__lastStartedRenderId;
-    const pathname = pathnameOrContext.pathname || pathnameOrContext;
-    const search = pathnameOrContext.search || '';
-    const hash = pathnameOrContext.hash || '';
 
+    const {
+      pathname,
+      search,
+      hash
+    } = isString(pathnameOrContext) ? {pathname: pathnameOrContext, search: '', hash: ''} : pathnameOrContext;
     // Find the first route that resolves to a non-empty result
     this.ready = this.resolve({pathname, search, hash})
 

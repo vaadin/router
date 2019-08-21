@@ -191,6 +191,14 @@
             router.unsubscribe();
           });
 
+          it('should set a correct location to history when receiving a string path', async() => {
+            router.setRoutes([{path: '/', component: 'x-home-view'}]);
+            await router.render('/', true);
+            expect(window.location.pathname).to.be.equal('/');
+            expect(window.location.search).to.be.equal('');
+            expect(window.location.hash).to.be.equal('');
+          });
+
           it('should throw if the router outlet is a not valid DOM Node (on finish)', async() => {
             await Promise.all([
               undefined,
