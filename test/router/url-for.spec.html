@@ -54,7 +54,7 @@
             {name: 'user-profile', path: '/users/:userId/(.*)', component: 'x-user-profile'},
             {path: '/users', component: 'x-user-list'}
           ]},
-        ]));
+        ], true));
 
         it('should exist', () => {
           expect(router.urlForName).to.be.instanceof(Function);

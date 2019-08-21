@@ -102,6 +102,8 @@ declare namespace Router {
     baseUrl: string;
     params: IndexedParams;
     pathname: string;
+    search: string;
+    hash: string;
     redirectFrom?: string;
     route: Route | null;
     routes: Array<Route>;
