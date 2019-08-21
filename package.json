@@ -41,7 +41,8 @@
     "size-control": "bundlesize",
     "docs": "npm run build && npm run docs:analyze && gulp docs",
     "docs:analyze": "polymer analyze dist/vaadin-router.js src/documentation/*.js > analysis.json",
-    "browserslist": "browserslist && browserslist --coverage"
+    "browserslist": "browserslist && browserslist --coverage",
+    "prepare": "npm run build"
   },
   "bundlesize": [
     {
