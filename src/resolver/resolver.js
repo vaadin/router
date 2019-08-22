@@ -49,7 +49,6 @@ function addRouteToChain(context, match) {
 }
 
 /**
- * @memberof Vaadin
  */
 class Resolver {
   constructor(routes, options = {}) {
@@ -70,7 +69,7 @@ class Resolver {
    * routes to / from the returned array does not affect the routing config,
    * but modifying the route objects does.
    *
-   * @return {!Array<!Route>}
+   * @return {!Array<!Router.Route>}
    */
   getRoutes() {
     return [...this.root.__children];
@@ -79,7 +78,7 @@ class Resolver {
   /**
    * Sets the routing config (replacing the existing one).
    *
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
    *    (the array is shallow copied)
    */
   setRoutes(routes) {
@@ -92,9 +91,9 @@ class Resolver {
    * Appends one or several routes to the routing config and returns the
    * effective routing config after the operation.
    *
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
+   * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
    *    (the array is shallow copied)
-   * @return {!Array<!Route>}
+   * @return {!Array<!Router.Route>}
    * @protected
    */
   addRoutes(routes) {
