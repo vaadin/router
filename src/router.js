@@ -439,6 +439,7 @@ export class Router extends Resolver {
       search,
       hash
     } = isString(pathnameOrContext) ? {pathname: pathnameOrContext, search: '', hash: ''} : pathnameOrContext;
+
     // Find the first route that resolves to a non-empty result
     this.ready = this.resolve({pathname, search, hash})
 
