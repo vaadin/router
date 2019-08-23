@@ -584,11 +584,21 @@ export class Router extends Resolver {
 
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
+      // Clone the previous chain before unchain it
+      // because it still holds the references to the current DOM tree.
+      const previousClonedChain = this.__cloneChain(previousChain);
+      // Unchain the previousChain because:
+      //   - the newChain is not combined yet at this point, it contains individual elements
+      //   - it is easier to compare non-connected chain than connected chain
+      //     because we also take `children` into account.
+      //     Without unchaining, the lastElement of newChain contains a new element will lead to
+      //     the first element of newChain and previousChain being different
+      this.__unchain(previousClonedChain);
+      newContext.__divergedChainIndex = 0;
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if (previousChain[i].route !== newChain[i].route
-          || previousChain[i].path !== newChain[i].path
-          || (previousChain[i].element && previousChain[i].element.localName)
-            !== (newChain[i].element && newChain[i].element.localName)
+        if (previousClonedChain[i].route !== newChain[i].route
+          || previousClonedChain[i].path !== newChain[i].path
+          || !this.__isEqualNode(previousClonedChain[i].element, newChain[i].element)
         ) {
           break;
         }
@@ -622,6 +632,46 @@ export class Router extends Resolver {
       }
       return newContext;
     });
+  }
+
+  __cloneChain(newChain) {
+    return newChain.map(chain => (
+      {
+        route: chain.route,
+        path: chain.path,
+        element: chain.element ? chain.element.cloneNode(true) : undefined
+      })
+    );
+  }
+
+  __unchain(chain) {
+    let lastEl = null;
+    for (let i = chain.length - 1; i >= 0; i--) {
+      const currentElement = chain[i].element;
+      if (currentElement && lastEl) {
+        const connectedPoint = Array.from(currentElement.childNodes).filter(n => n.isEqualNode(lastEl));
+        if (connectedPoint && connectedPoint.length == 1 && connectedPoint[0]) {
+          // Last element must be cloned before removing the connection
+          // so that we can compare it in next iteration
+          lastEl = currentElement.cloneNode(true);
+          currentElement.removeChild(connectedPoint[0]);
+        } else {
+          lastEl = currentElement.cloneNode(true);
+        }
+      } else if (currentElement) {
+        lastEl = currentElement.cloneNode(true);
+      }
+    }
+  }
+
+  __isEqualNode(first, second) {
+    if (first === second) {
+      return true;
+    }
+    if (typeof first !== typeof second) {
+      return false;
+    }
+    return first.isEqualNode(second);
   }
 
   __redirect(redirectData, counter) {
@@ -680,9 +730,21 @@ export class Router extends Resolver {
     // Keep two lists of DOM elements:
     //  - those that should be removed once the transition animation is over
     //  - and those that should remain
-    this.__disappearingContent = Array.from(deepestCommonParent.children);
     this.__appearingContent = [];
-
+    this.__disappearingContent = [];
+    if (!previousContext) {
+      // if there is no previous information, clear the outlet
+      this.__disappearingContent = Array.from(deepestCommonParent.children);
+    } else {
+      // Pick elements from previousChain because
+      // `deepestCommonParent` might contain light dom children which are not in the chain
+      for (let i = context.__divergedChainIndex; i < previousContext.chain.length; i++) {
+        if (previousContext.chain[i].element) {
+          this.__disappearingContent.push(previousContext.chain[i].element);
+          break;
+        }
+      }
+    }
     // Add new elements (starting after the deepest common parent) to the DOM.
     // That way only the components that are actually different between the two
     // locations are added to the DOM (and those that are common remain in the
@@ -734,7 +796,9 @@ export class Router extends Resolver {
           [location, {}, targetContext.resolver],
           currentComponent);
       } finally {
-        removeDomNodes(currentComponent.children);
+        if (this.__disappearingContent.includes(currentComponent)) {
+          removeDomNodes(currentComponent.children);
+        }
       }
     }
   }

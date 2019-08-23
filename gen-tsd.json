@@ -1,6 +1,6 @@
 {
   "excludeFiles": [
-    ".vscode/**",
+    ".*/**",
     "bower_components/**",
     "build/**",
     "demo/**",
