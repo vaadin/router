@@ -147,6 +147,11 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+    <p>
+      If dynamic imports are used both for parent and child routes, then the
+      example above may possibly slow down rendering because router would not
+      start importing a child component until its parent is imported.
+    </p>
 
     <h3>Splitting and Lazy-Loading the Routes Configuration</h3>
     <p>
