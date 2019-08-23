@@ -105,7 +105,7 @@
               {name: 'home', path: '/new-home', component: 'x-home-view'},
               {path: '/new-users', component: 'x-user-list'},
             ]},
-          ]);
+          ], true);
 
           expect(router.urlForName('app')).to.equal('/new-app');
           expect(router.urlForName('home')).to.equal('/new-app/new-home');
