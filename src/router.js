@@ -429,6 +429,7 @@ export class Router extends Resolver {
   render(pathnameOrContext, shouldUpdateHistory) {
     const renderId = ++this.__lastStartedRenderId;
     const pathname = pathnameOrContext.pathname || pathnameOrContext;
+    // skip the String.search native function
     const search = pathnameOrContext.pathname && pathnameOrContext.search || '';
     const hash = pathnameOrContext.hash || '';
 

@@ -222,6 +222,16 @@
             expect(actual).to.equal(router.location);
           });
 
+          it('should not set the String.search function to location when router.render(string)', async() => {
+            await router.setRoutes([{path: '/foo', component: 'x-home-view'}], true);
+            await router.render('/foo');
+
+            expect(router.location.search).to.equal('');
+
+            expect(router.location.pathname).to.equal('/foo');
+            expect(router.location.hash).to.equal('');
+          });
+
           it('should return a promise that resolves when the rendered content is appended to the DOM', async() => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             const promise = router.render('/');
@@ -797,6 +807,10 @@
             expect(window.location.pathname).to.equal('/admin');
             expect(window.location.search).to.equal('');
             expect(window.location.hash).to.equal('');
+
+            expect(router.location.pathname).to.equal('/admin');
+            expect(router.location.search).to.equal('');
+            expect(router.location.hash).to.equal('');
           });
 
           afterEach(() => {
@@ -937,6 +951,7 @@
             it('should pass the given pathname in the `detail.pathname` property of the triggered event when Router.go() is called', () => {
               const spy = sinon.spy();
               window.addEventListener('vaadin-router-go', spy);
+              // use a valid router
               Vaadin.Router.go('/admin');
               window.removeEventListener('vaadin-router-go', spy);
               expect(spy).to.have.been.called.once;
