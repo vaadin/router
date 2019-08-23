@@ -646,7 +646,6 @@ export class Router extends Resolver {
       window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router-ignore'}));
     }
   }
-
   __addAppearingContent(context, previousContext) {
     this.__ensureOutlet();
 
