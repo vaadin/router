@@ -808,7 +808,7 @@
           let router;
           beforeEach(async() => {
             router = new Vaadin.Router(outlet);
-            router.setRoutes([
+            await router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/admin', component: 'x-admin-view'},
             ]);
@@ -924,10 +924,11 @@
               expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
             });
 
-            it('should trigger a `vaadin-router-go` event on the `window`', () => {
+            it('should trigger a `vaadin-router-go` event on the `window`', async() => {
               const spy = sinon.spy();
               window.addEventListener('vaadin-router-go', spy);
-              Vaadin.Router.go('');
+              Vaadin.Router.go('/');
+              await router.ready;
               window.removeEventListener('vaadin-router-go', spy);
               expect(spy).to.have.been.called.once;
               expect(spy.args[0][0]).to.have.property('type', 'vaadin-router-go');
@@ -936,28 +937,30 @@
             it('should pass the given pathname in the `detail.pathname` property of the triggered event when Router.go() is called', () => {
               const spy = sinon.spy();
               window.addEventListener('vaadin-router-go', spy);
-              Vaadin.Router.go('/a');
+              Vaadin.Router.go('/admin');
               window.removeEventListener('vaadin-router-go', spy);
               expect(spy).to.have.been.called.once;
-              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/a');
+              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
             });
 
-            it('should return false by default', () => {
+            it('should return false by default', async() => {
               router.unsubscribe();
 
               const navigated = Vaadin.Router.go('/a');
+              await router.ready;
               expect(navigated).to.equal(false);
 
               router.subscribe();
             });
 
-            it('should return true if `vaadin-router-go` default is prevented', () => {
+            it('should return true if `vaadin-router-go` default is prevented', async() => {
               router.unsubscribe();
 
               const eventPreventDefault = e => e.preventDefault();
               window.addEventListener('vaadin-router-go', eventPreventDefault);
 
               const navigated = Vaadin.Router.go('/a');
+              await router.ready;
               expect(navigated).to.equal(true);
 
               window.removeEventListener('vaadin-router-go', eventPreventDefault);
@@ -970,7 +973,8 @@
               expect(!window.dispatchEvent(
                 new CustomEvent('vaadin-router-go', {
                   cancelable: true,
-                  detail: {pathname: '/a'}
+                  // use a valid route
+                  detail: {pathname: '/admin'}
                 })
               )).to.be.true;
             });
