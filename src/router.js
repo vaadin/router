@@ -572,6 +572,17 @@ export class Router extends Resolver {
 
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
+      // Clone the previous chain before unchain it
+      // because it still holds the references to the current DOM tree.
+      const previousClonedChain = this.__cloneChain(previousChain);
+      // Unchain the previousChain because:
+      //   - the newChain is not combined yet at this point, it contains individual elements
+      //   - it is easier to compare non-connected chain than connected chain
+      //     because we also take `children` into account.
+      //     Without unchaining, the lastElement of newChain contains a new element will lead to
+      //     the first element of newChain and previousChain being different
+      this.__unchain(previousClonedChain);
+      newContext.__divergedChainIndex = 0;
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
         if (previousChain[i].route !== newChain[i].route
           || previousChain[i].path !== newChain[i].path
