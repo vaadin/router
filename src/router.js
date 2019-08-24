@@ -468,6 +468,13 @@ export class Router extends Resolver {
             this.__updateBrowserHistory(context, context.redirectFrom);
           }
 
+          // Skip detaching/re-attaching the element it it didn't change from previous rendering
+          const sameElement = this.__previousContext && this.__previousContext.result == context.result;
+          if (sameElement) {
+            this.__previousContext = context;
+            return this.location;
+          }
+
           this.__addAppearingContent(context, previousContext);
           const animationDone = this.__animateIfNeeded(context);
 
@@ -579,6 +586,9 @@ export class Router extends Resolver {
     const prevent = () => ({cancel: true});
     const redirect = (pathname) => createRedirect(newContext, pathname);
 
+    // Skip callback executions if element does not change
+    const sameElement = this.__previousContext && this.__previousContext.result === newContext.result;
+
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
@@ -589,7 +599,7 @@ export class Router extends Resolver {
         }
       }
 
-      for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
+      for (let i = previousChain.length - 1; !sameElement && i >= newContext.__divergedChainIndex; i--) {
         const location = createLocation(newContext);
         callbacks = callbacks
           .then(amend('onBeforeLeave', [location, {prevent}, this], previousChain[i].element))
@@ -601,7 +611,7 @@ export class Router extends Resolver {
       }
     }
 
-    for (let i = newContext.__divergedChainIndex; i < newChain.length; i++) {
+    for (let i = newContext.__divergedChainIndex; !sameElement && i < newChain.length; i++) {
       const location = createLocation(newContext, newChain[i].route);
       callbacks = callbacks.then(amend('onBeforeEnter', [location, {prevent, redirect}, this], newChain[i].element));
     }
