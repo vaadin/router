@@ -403,6 +403,7 @@ export class Router extends Resolver {
    * @return {!Promise<!Node>}
    */
   setRoutes(routes, skipRender = false) {
+    this.__previousContext = undefined;
     this.__urlForName = undefined;
     super.setRoutes(routes);
     if (!skipRender) {
@@ -466,6 +467,11 @@ export class Router extends Resolver {
 
           if (shouldUpdateHistory) {
             this.__updateBrowserHistory(context, context.redirectFrom);
+          }
+
+          // Skip detaching/re-attaching there are no render changes
+          if (context.__skipAttach) {
+            return this.location;
           }
 
           this.__addAppearingContent(context, previousContext);
@@ -580,16 +586,24 @@ export class Router extends Resolver {
     const redirect = (pathname) => createRedirect(newContext, pathname);
 
     newContext.__divergedChainIndex = 0;
+    newContext.__skipAttach = false;
     if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
         if (previousChain[i].route !== newChain[i].route
-          || previousChain[i].path !== newChain[i].path
+          || previousChain[i].path !== newChain[i].path && previousChain[i].element !== newChain[i].element
           || !this.__isReusableElement(previousChain[i].element, newChain[i].element)) {
           break;
         }
       }
 
-      for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
+      // Skip re-attaching and notifications if element and chain do not change
+      newContext.__skipAttach =
+         // Same route chain
+         newChain.length === previousChain.length && newContext.__divergedChainIndex == newChain.length &&
+         // Same element
+         this.__isReusableElement(newContext.result, previousContext.result)
+
+      for (let i = previousChain.length - 1; !newContext.__skipAttach && i >= newContext.__divergedChainIndex; i--) {
         const location = createLocation(newContext);
         callbacks = callbacks
           .then(amend('onBeforeLeave', [location, {prevent}, this], previousChain[i].element))
@@ -601,7 +615,7 @@ export class Router extends Resolver {
       }
     }
 
-    for (let i = newContext.__divergedChainIndex; i < newChain.length; i++) {
+    for (let i = newContext.__divergedChainIndex; !newContext.__skipAttach && i < newChain.length; i++) {
       const location = createLocation(newContext, newChain[i].route);
       callbacks = callbacks.then(amend('onBeforeEnter', [location, {prevent, redirect}, this], newChain[i].element));
     }
@@ -659,6 +673,7 @@ export class Router extends Resolver {
       window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router-ignore'}));
     }
   }
+
   __addAppearingContent(context, previousContext) {
     this.__ensureOutlet();
 
@@ -685,8 +700,8 @@ export class Router extends Resolver {
     //  - those that should be removed once the transition animation is over
     //  - and those that should remain
     this.__appearingContent = [];
-    this.__disappearingContent =
-       deepestCommonParent === context.result ? [] : Array.from(deepestCommonParent.children);
+    this.__disappearingContent = Array.from(deepestCommonParent.children).filter(e => e !== context.result);
+
     // Add new elements (starting after the deepest common parent) to the DOM.
     // That way only the components that are actually different between the two
     // locations are added to the DOM (and those that are common remain in the
