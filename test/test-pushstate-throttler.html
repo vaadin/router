@@ -5,15 +5,37 @@
     <style>
       :host {
         display: block;
+        font-family: arial;
       }
 
       #safari-cooldown {
-        font-size: 18px;
+        font-size: 14px;
         max-width: 300px;
       }
 
       #safari-cooldown div {
         margin-bottom: 20px;
+      }
+
+      .bar {
+        border: 1px solid #cac7c7;
+        height: 10px;
+        width: 100%;
+      }
+
+      .in {
+        animation: fill 30s linear 1;
+        height: 100%;
+        background-color: #c4deff;
+      }
+
+      @keyframes fill {
+        0% {
+          width: 0%;
+        }
+        100% {
+          width: 100%;
+        }
       }
     </style>
 
@@ -23,8 +45,14 @@
         Safari and Chrome require a cooldown period before we call pushState/replaceState any more.
       </div>
       <div>Testing will resume after 30 seconds.</div>
+
+      <div class="bar">
+        <div class="in"></div>
+      </div>
+
       <div>
-        <a href="https://forums.developer.apple.com/thread/36650">More info Safari</a>
+        More info:
+        <a href="https://forums.developer.apple.com/thread/36650"> Safari</a>
         <a href="https://codereview.chromium.org/2972073002">Chrome</a>
       </div>
     </div>
