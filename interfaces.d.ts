@@ -110,6 +110,7 @@ declare namespace Router {
 
   interface Options {
     baseUrl?: string;
+    purgeOutlet?: boolean;
   }
 
   interface NavigationTrigger {

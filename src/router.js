@@ -139,6 +139,9 @@ function getMatchedPath(chain) {
  *   * `baseUrl` — the initial value for [
  *     the `baseUrl` property
  *   ](#/classes/Router#property-baseUrl)
+ *   * `purgeOutlet` — wheather to purge and rebuild all nodes within the outlet
+ *     on navigation. Defaults to `false` and will retain common parent nodes
+ *     within outlet.
  *
  * The Router instance is automatically subscribed to navigation events
  * on `window`.
@@ -218,6 +221,7 @@ export class Router extends Resolver {
     this.location;
     this.location = createLocation({resolver: this});
 
+    this.__purgeOutlet = (options && options.purgeOutlet) || false;
     this.__lastStartedRenderId = 0;
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
@@ -565,13 +569,15 @@ export class Router extends Resolver {
 
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
-      for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if (previousChain[i].route !== newChain[i].route
-          || previousChain[i].path !== newChain[i].path
-          || (previousChain[i].element && previousChain[i].element.localName)
-            !== (newChain[i].element && newChain[i].element.localName)
-        ) {
-          break;
+      if (!this.__purgeOutlet) {
+        for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
+          if (previousChain[i].route !== newChain[i].route
+            || previousChain[i].path !== newChain[i].path
+            || (previousChain[i].element && previousChain[i].element.localName)
+              !== (newChain[i].element && newChain[i].element.localName)
+          ) {
+            break;
+          }
         }
       }
 
