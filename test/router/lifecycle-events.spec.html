@@ -113,6 +113,8 @@
       });
 
       afterEach(() => {
+        outlet.innerHTML = '';
+        callbacksLog = [];
         router.unsubscribe();
       });
 
@@ -1225,7 +1227,7 @@
 
         router.setRoutes([
           {path: '/', component: 'bar'},
-          {path: '/(.)', action: (ctx) => {
+          {path: '/([ab])', action: (ctx) => {
             callbacksLog.push(`${view.name}.action`);
             const content = document.createElement('div');
             view.appendChild(content);
@@ -1261,6 +1263,59 @@
           'foo.action'
           // stop calling any callback if result is the same
           // stop detaching/re-attaching the element
+        ]);
+      });
+
+      it('lifecycle events when reusing element in different chains', async() => {
+        const view = document.createElement('x-spy');
+        view.name = 'bar';
+        const action = (ctx) => {
+          callbacksLog.push(`${view.name}.action`);
+          // add a new div in each call to check that content is not touched
+          const content = document.createElement('div');
+          view.appendChild(content);
+          // Returns always the same view
+          return view;
+        };
+
+        await router.setRoutes([
+          {path: '/1', component: 'foo1', children: [
+            {path: '/2', component: 'foo2', children: [{
+              path: '/a', action: action
+            }]}
+          ]},
+          {path: '/3', component: 'bar1', children: [
+            {path: '/4', component: 'bar2', children: [{
+              path: '/b', action: action
+            }]}
+          ]}
+        ], true);
+
+        await router.render('/1/2/a')
+        expect(outlet.children[0].tagName.toLowerCase()).to.be.equal('foo1');
+        expect(outlet.children[0].children[0].tagName.toLowerCase()).to.be.equal('foo2');
+        expect(outlet.children[0].children[0].children[0]).to.be.equal(view);
+        expect(outlet.children[0].children[0].children[0].children.length).to.be.equal(1);
+
+        await router.render('/3/4/b')
+
+        expect(outlet.children[0].tagName.toLowerCase()).to.be.equal('bar1');
+        expect(outlet.children[0].children[0].tagName.toLowerCase()).to.be.equal('bar2');
+        // Should reuse the same view
+        expect(outlet.children[0].children[0].children[0]).to.be.equal(view);
+        // Should not modify the view content
+        expect(outlet.children[0].children[0].children[0].children.length).to.be.equal(2);
+
+        verifyCallbacks([
+          'bar.action',
+          'bar.onBeforeEnter',
+          'bar.connectedCallback',
+          'bar.onAfterEnter',
+          // always call action of the new route
+          'bar.action',
+          // Disconnect and reconnect element but not run any other callback
+          'bar.disconnectedCallback',
+          'bar.connectedCallback'
         ]);
       });
 

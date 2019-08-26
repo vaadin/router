@@ -462,8 +462,9 @@ export class Router extends Resolver {
           }
 
           // Skip detaching/re-attaching the element it it didn't change from previous rendering
-          const sameElement = this.__previousContext && this.__previousContext.result == context.result;
-          if (sameElement) {
+          const sameElement = this.__previousContext && this.__previousContext.result === context.result;
+          const sameContainer = this.__sameContainer(context, this.__previousContext);
+          if (sameElement && sameContainer) {
             this.__previousContext = context;
             return this.location;
           }
@@ -471,15 +472,19 @@ export class Router extends Resolver {
           this.__addAppearingContent(context, previousContext);
           const animationDone = this.__animateIfNeeded(context);
 
-          this.__runOnAfterEnterCallbacks(context);
-          this.__runOnAfterLeaveCallbacks(context, previousContext);
+          if (!sameElement) {
+            this.__runOnAfterEnterCallbacks(context);
+            this.__runOnAfterLeaveCallbacks(context, previousContext);
+          }
 
           return animationDone.then(() => {
             if (renderId === this.__lastStartedRenderId) {
               // If there is another render pass started after this one,
               // the 'disappearing content' would be removed when the other
               // render pass calls `this.__addAppearingContent()`
-              this.__removeDisappearingContent();
+              if (!sameElement || !sameContainer) {
+                this.__removeDisappearingContent();
+              }
 
               this.__previousContext = context;
               return this.location;
@@ -499,6 +504,12 @@ export class Router extends Resolver {
         }
       });
     return this.ready;
+  }
+
+  __sameContainer(context, otherContext) {
+    const container = context && context.chain && context.chain[context.chain.length - 2];
+    const otherContainer = otherContext && otherContext.chain && otherContext.chain[otherContext.chain.length - 2];
+    return !container && !otherContainer || container === otherContainer;
   }
 
   // `topOfTheChainContextBeforeRedirects` is a context coming from Resolver.resolve().
