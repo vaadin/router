@@ -5,5 +5,11 @@
     "ElementDemo": false,
     "DemoReadyEventEmitter": false,
     "Router": false
-  }
+  },
+  "overrides": [{
+    "files": ["vaadin-router-code-splitting-demos.html"],
+    "parserOptions": {
+      "ecmaVersion": 2017
+    }
+  }]
 }

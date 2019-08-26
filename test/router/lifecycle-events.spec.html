@@ -1268,7 +1268,7 @@
             {
               path: '/a',
               component: parentTagname,
-              action: async (context) => {
+              action: async(context) => {
                 callbacksLog.push(`x-parent-layout.action`);
                 await registerSpyComponentAsync(parentTagname, 'x-parent-layout', 30);
               },
@@ -1276,7 +1276,7 @@
                 {
                   path: '/b',
                   component: childTagname,
-                  action: async () => {
+                  action: async() => {
                     callbacksLog.push(`x-child.action`);
                     await registerSpyComponentAsync(childTagname, 'x-child', 30);
                   }
