@@ -246,7 +246,11 @@ export class Router extends Resolver {
 
     const commands = {
       redirect: path => createRedirect(context, path),
-      component: component => document.createElement(component)
+      component: component => {
+        const elm = document.createElement(component);
+        elm.__reusable = true;
+        return elm;
+      }
     };
 
     return callbacks
@@ -581,6 +585,14 @@ export class Router extends Resolver {
     });
   }
 
+  __isReusableNode(chain, otherChain) {
+    if (chain.element && otherChain.element) {
+      return otherChain.element.__reusable
+        ? chain.element.localName === otherChain.element.localName
+        : chain.element === otherChain.element;
+    }
+  }
+
   __runOnBeforeCallbacks(newContext) {
     const previousContext = this.__previousContext || {};
     const previousChain = previousContext.chain || [];
@@ -598,9 +610,7 @@ export class Router extends Resolver {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
         if (previousChain[i].route !== newChain[i].route
           || previousChain[i].path !== newChain[i].path
-          || (previousChain[i].element && previousChain[i].element.localName)
-            !== (newChain[i].element && newChain[i].element.localName)
-        ) {
+          || !this.__isReusableNode(previousChain[i], newChain[i])) {
           break;
         }
       }

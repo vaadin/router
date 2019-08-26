@@ -1319,6 +1319,53 @@
         ]);
       });
 
+      it('lifecycle events for the same route when not reusing element', async () => {
+        const view1 = document.createElement('x-spy');
+        view1.textContent = 'view1';
+        view1.name = 'foo';
+        const view2 = document.createElement('x-spy');
+        view2.textContent = 'view2';
+        view2.name = 'bar';
+
+        let cont = 0;
+
+        await router.setRoutes([
+          { path: '/', component: 'bar' },
+          {
+            path: '/a', action: (ctx) => {
+              let view = cont++ % 2 ? view2 : view1;
+              callbacksLog.push(`${view.name}.action`);
+              const content = document.createElement('div');
+              content.textContent = 'content1';
+              view.appendChild(content);
+              return view;
+            }
+          }
+        ], true);
+
+        await router.render('/a')
+        expect(outlet.children[0]).to.be.equal(view1);
+        expect(outlet.children[0].children.length).to.be.equal(1);
+
+        await router.render('/a')
+        expect(outlet.children[0]).to.be.equal(view2);
+        expect(outlet.children[0].children.length).to.be.equal(1);
+
+        verifyCallbacks([
+          'foo.action',
+          'foo.onBeforeEnter',
+          'foo.connectedCallback',
+          'foo.onAfterEnter',
+          'bar.action',
+          'foo.onBeforeLeave',
+          'bar.onBeforeEnter',
+          'bar.connectedCallback',
+          'bar.onAfterEnter',
+          'foo.onAfterLeave',
+          'foo.disconnectedCallback',
+        ]);
+      });
+
       describe('lifecycle events with async action', () => {
         it('should invoke lifecycle events after action promise resolves', async() => {
           router.setRoutes([
