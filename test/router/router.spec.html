@@ -1686,6 +1686,121 @@
           });
         });
 
+        describe('route.action (function) return the same element tag with different content', () => {
+          let router;
+          beforeEach(() => {
+            router = new Vaadin.Router(outlet);
+          });
+
+          it('should work when reuse the same instance with different content', async() => {
+            let sharedElementInstance = null;
+            let dynamicContent = 'First content';
+            const action = (config) => {
+              const elm = sharedElementInstance || (sharedElementInstance = document.createElement('div'));
+              // clear content
+              elm.innerHTML = '';
+              // Add some new content to the element
+              const content = document.createElement('span');
+              content.textContent = dynamicContent;
+              elm.appendChild(content);
+              // Return always the same instance of the element
+              return elm;
+            };
+            router.setRoutes([
+              {path: '/', action: action}
+            ]);
+
+            await router.render('/');
+            expect(outlet.children[0]).to.be.equal(sharedElementInstance);
+            expect(outlet.textContent).to.be.equal(dynamicContent);
+
+            dynamicContent = 'Second content';
+            // It should not disappear on the secondtime
+            await router.render('/');
+            expect(outlet.children[0]).to.be.equal(sharedElementInstance);
+            expect(outlet.textContent).to.be.equal(dynamicContent);
+          });
+
+          it('should work when return a different instance but same tag name', async() => {
+            let dynamicContent = 'First content';
+            const action = (config) => {
+              const elm = document.createElement('hola');
+              elm.innerHTML = '';
+              // Add some new content to the element
+              const content = document.createElement('span');
+              content.textContent = dynamicContent;
+              elm.appendChild(content);
+              // Return always the same instance of the element
+              return elm;
+            };
+            await router.setRoutes([
+              {path: '/a', component: 'manolo', children: [
+                {path: 'b', action: action}
+              ]}
+            ], true);
+
+            await router.render('/a/b');
+            expect(outlet.textContent).to.be.equal(dynamicContent);
+
+            dynamicContent = 'Second content';
+            // It should not disappear on the secondtime
+            await router.render('/a/b');
+            expect(outlet.textContent).to.be.equal(dynamicContent);
+          });
+
+          it('should work when parent is different but child is the same instance', async() => {
+            const textContent = 'Text content';
+            let sharedElementInstance = null;
+            const action = (config) => {
+              const elm = sharedElementInstance || (sharedElementInstance = document.createElement('x-edit'));
+              // clear content
+              elm.innerHTML = '';
+              // Add some new content to the element
+              const content = document.createElement('span');
+              content.textContent = textContent;
+              elm.appendChild(content);
+              // Return always the same instance of the element
+              return elm;
+            };
+            router.setRoutes([
+              {
+                path: '/users/:name',
+                action: (context) => {
+                  const userEl = document.createElement('x-user');
+                  const avatarEl = document.createElement('x-fancy-name');
+                  avatarEl.textContent = context.params.name;
+                  userEl.appendChild(avatarEl);
+                  return userEl;
+                },
+                children: [
+                  {
+                    path: 'edit',
+                    action: action
+                  },
+                  {
+                    path: 'profile',
+                    component: 'x-profile'
+                  }
+                ]
+              },
+            ]);
+
+            await router.render('/users/john/edit');
+            expect(outlet.children[0].tagName).to.match(/x-user/i);
+            expect(outlet.children[0].children[0].tagName).to.match(/x-fancy-name/i);
+            expect(outlet.children[0].children[0].textContent).to.match(/john/i);
+            expect(outlet.children[0].children[1].tagName).to.match(/x-edit/i);
+            expect(outlet.children[0].children[1].textContent).to.be.equal(textContent);
+            // It should not disappear on the secondtime
+            await router.render('/users/cena/edit');
+            expect(outlet.children[0].tagName).to.match(/x-user/i);
+            expect(outlet.children[0].children[0].tagName).to.match(/x-fancy-name/i);
+            expect(outlet.children[0].children[0].textContent).to.match(/cena/i);
+            expect(outlet.children[0].children[1].tagName).to.match(/x-edit/i);
+            expect(outlet.children[0].children[1].textContent).to.be.equal(textContent);
+          });
+        });
+
         describe('route.children (function)', () => {
           let router;
           beforeEach(() => {
