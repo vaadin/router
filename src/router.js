@@ -222,6 +222,7 @@ export class Router extends Resolver {
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
     this.subscribe();
+    this.__renderedElements = new WeakSet();
   }
 
   __resolveRoute(context) {
@@ -244,7 +245,11 @@ export class Router extends Resolver {
 
     const commands = {
       redirect: path => createRedirect(context, path),
-      component: component => document.createElement(component)
+      component: (component) => {
+        const element = document.createElement(component);
+        this.__renderedElements.add(element);
+        return element;
+      }
     };
 
     return callbacks
@@ -570,9 +575,7 @@ export class Router extends Resolver {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
         if (previousChain[i].route !== newChain[i].route
           || previousChain[i].path !== newChain[i].path
-          || (previousChain[i].element && previousChain[i].element.localName)
-            !== (newChain[i].element && newChain[i].element.localName)
-        ) {
+          || !this.__isReusableElement(previousChain[i].element, newChain[i].element)) {
           break;
         }
       }
@@ -605,6 +608,15 @@ export class Router extends Resolver {
       }
       return newContext;
     });
+  }
+
+  __isReusableElement(element, otherElement) {
+    if (element && otherElement) {
+      return this.__renderedElements.has(otherElement)
+        ? element.localName === otherElement.localName
+        : element === otherElement;
+    }
+    return false;
   }
 
   __redirect(redirectData, counter) {
@@ -664,9 +676,9 @@ export class Router extends Resolver {
     // Keep two lists of DOM elements:
     //  - those that should be removed once the transition animation is over
     //  - and those that should remain
-    this.__disappearingContent = Array.from(deepestCommonParent.children);
     this.__appearingContent = [];
-
+    this.__disappearingContent =
+       deepestCommonParent === context.result ? [] : Array.from(deepestCommonParent.children);
     // Add new elements (starting after the deepest common parent) to the DOM.
     // That way only the components that are actually different between the two
     // locations are added to the DOM (and those that are common remain in the
@@ -718,7 +730,9 @@ export class Router extends Resolver {
           [location, {}, targetContext.resolver],
           currentComponent);
       } finally {
-        removeDomNodes(currentComponent.children);
+        if (this.__disappearingContent.includes(currentComponent)) {
+          removeDomNodes(currentComponent.children);
+        }
       }
     }
   }
