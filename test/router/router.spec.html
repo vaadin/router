@@ -1642,7 +1642,7 @@
             router = new Vaadin.Router(outlet);
           });
 
-          it('should work when reuse the same instance with different content', async() => {
+          it('should keep the element instance in the DOM when reuse the same instance with different content', async() => {
             let sharedElementInstance = null;
             let dynamicContent = 'First content';
             const action = (config) => {
@@ -1660,6 +1660,7 @@
               {path: '/', action: action}
             ]);
 
+            await router.ready;
             await router.render('/');
             expect(outlet.children[0]).to.be.equal(sharedElementInstance);
             expect(outlet.textContent).to.be.equal(dynamicContent);
@@ -1671,7 +1672,7 @@
             expect(outlet.textContent).to.be.equal(dynamicContent);
           });
 
-          it('should work when return a different instance but same tag name', async() => {
+          it('should show the new content correctly when return a different instance but same tag name', async() => {
             let dynamicContent = 'First content';
             const action = (config) => {
               const elm = document.createElement('div');
@@ -1697,7 +1698,7 @@
             expect(outlet.textContent).to.be.equal(dynamicContent);
           });
 
-          it('should work when parent is different but child is the same instance', async() => {
+          it('should change parent content when parent is different but child is the same instance', async() => {
             const textContent = 'Text content';
             let sharedElementInstance = null;
             const action = (config) => {
@@ -1713,7 +1714,11 @@
             };
             router.setRoutes([
               {
-                path: '/users/:name',
+                path: '/',
+                component: 'x-home'
+              },
+              {
+                path: '/users/:name/',
                 action: (context) => {
                   const userEl = document.createElement('x-user');
                   const avatarEl = document.createElement('x-fancy-name');
@@ -1731,16 +1736,16 @@
                     component: 'x-profile'
                   }
                 ]
-              },
+              }
             ]);
-
+            await router.ready;
             await router.render('/users/john/edit');
             expect(outlet.children[0].tagName).to.match(/x-user/i);
             expect(outlet.children[0].children[0].tagName).to.match(/x-fancy-name/i);
             expect(outlet.children[0].children[0].textContent).to.match(/john/i);
             expect(outlet.children[0].children[1].tagName).to.match(/x-edit/i);
             expect(outlet.children[0].children[1].textContent).to.be.equal(textContent);
-            // It should not disappear on the secondtime
+
             await router.render('/users/cena/edit');
             expect(outlet.children[0].tagName).to.match(/x-user/i);
             expect(outlet.children[0].children[0].tagName).to.match(/x-fancy-name/i);
@@ -1749,7 +1754,7 @@
             expect(outlet.children[0].children[1].textContent).to.be.equal(textContent);
           });
 
-          it('should work when using wild card route', async() => {
+          it('should reuse DOM instance even when route has completely different path', async() => {
             let sharedElementInstance = null;
             let serverSideComponentId = 0;
             const action = (context) => {
@@ -1778,6 +1783,7 @@
               ]
             }]);
 
+            await router.ready;
             await router.render('/client-view');
             expect(outlet.children[0].tagName).to.match(/x-client-view/i);
 
