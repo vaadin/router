@@ -222,7 +222,7 @@ export class Router extends Resolver {
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
     this.subscribe();
-    this.__reusableMap = new WeakMap();
+    this.__renderedElements = new WeakSet();
   }
 
   __resolveRoute(context) {
@@ -247,7 +247,7 @@ export class Router extends Resolver {
       redirect: path => createRedirect(context, path),
       component: (component) => {
         const element = document.createElement(component);
-        this.__reusableMap.set(element, true);
+        this.__renderedElements.add(element);
         return element;
       }
     };
@@ -573,7 +573,7 @@ export class Router extends Resolver {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
         if (previousChain[i].route !== newChain[i].route
           || previousChain[i].path !== newChain[i].path
-          || !this.__isReusableNode(previousChain[i], newChain[i])) {
+          || !this.__isReusableElement(previousChain[i].element, newChain[i].element)) {
           break;
         }
       }
@@ -608,11 +608,11 @@ export class Router extends Resolver {
     });
   }
 
-  __isReusableNode(chain, otherChain) {
-    if (chain.element && otherChain.element) {
-      return this.__reusableMap.get(otherChain.element) === true
-        ? chain.element.localName === otherChain.element.localName
-        : chain.element === otherChain.element;
+  __isReusableElement(element, otherElement) {
+    if (element && otherElement) {
+      return this.__renderedElements.has(otherElement)
+        ? element.localName === otherElement.localName
+        : element === otherElement;
     }
     return false;
   }
