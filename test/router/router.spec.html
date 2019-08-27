@@ -1754,7 +1754,7 @@
             expect(outlet.children[0].children[1].textContent).to.be.equal(textContent);
           });
 
-          it('should reuse DOM instance even when route has completely different path', async() => {
+          it('should be able to reuse DOM instance even when route has completely different path', async() => {
             let sharedElementInstance = null;
             let serverSideComponentId = 0;
             const action = (context) => {
