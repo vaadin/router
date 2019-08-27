@@ -730,7 +730,7 @@ export class Router extends Resolver {
           [location, {}, targetContext.resolver],
           currentComponent);
       } finally {
-        if (this.__disappearingContent.includes(currentComponent)) {
+        if (this.__disappearingContent.indexOf(currentComponent) > -1) {
           removeDomNodes(currentComponent.children);
         }
       }
