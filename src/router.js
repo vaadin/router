@@ -571,10 +571,9 @@ export class Router extends Resolver {
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if ((previousChain[i].route !== newChain[i].route
+        if (previousChain[i].route !== newChain[i].route
           || previousChain[i].path !== newChain[i].path
-          || !this.__isReusableNode(previousChain[i], newChain[i]))
-          && previousChain[i].element !== newChain[i].element) {
+          || !this.__isReusableNode(previousChain[i], newChain[i])) {
           break;
         }
       }
@@ -615,6 +614,7 @@ export class Router extends Resolver {
         ? chain.element.localName === otherChain.element.localName
         : chain.element === otherChain.element;
     }
+    return false;
   }
 
   __redirect(redirectData, counter) {
