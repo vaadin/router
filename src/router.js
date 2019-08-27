@@ -601,7 +601,7 @@ export class Router extends Resolver {
          // Same route chain
          newChain.length === previousChain.length && newContext.__divergedChainIndex == newChain.length &&
          // Same element
-         this.__isReusableElement(newContext.result, previousContext.result)
+         this.__isReusableElement(newContext.result, previousContext.result);
 
       for (let i = previousChain.length - 1; !newContext.__skipAttach && i >= newContext.__divergedChainIndex; i--) {
         const location = createLocation(newContext);

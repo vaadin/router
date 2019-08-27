@@ -22,22 +22,22 @@
   <script>
     class XSpy extends HTMLElement {
       connectedCallback() {
-        callbacksLog.push(`${this.name}.connectedCallback`);
+        callbacksLog.push(`${this.name || 'x-spy'}.connectedCallback`);
       }
       disconnectedCallback() {
-        callbacksLog.push(`${this.name}.disconnectedCallback`);
+        callbacksLog.push(`${this.name || 'x-spy'}.disconnectedCallback`);
       }
       onBeforeEnter() {
-        callbacksLog.push(`${this.name}.onBeforeEnter`);
+        callbacksLog.push(`${this.name || 'x-spy'}.onBeforeEnter`);
       }
       onAfterEnter() {
-        callbacksLog.push(`${this.name}.onAfterEnter`);
+        callbacksLog.push(`${this.name || 'x-spy'}.onAfterEnter`);
       }
       onBeforeLeave() {
-        callbacksLog.push(`${this.name}.onBeforeLeave`);
+        callbacksLog.push(`${this.name || 'x-spy'}.onBeforeLeave`);
       }
       onAfterLeave() {
-        callbacksLog.push(`${this.name}.onAfterLeave`);
+        callbacksLog.push(`${this.name || 'x-spy'}.onAfterLeave`);
       }
     }
     customElements.define('x-spy', XSpy);
@@ -863,8 +863,7 @@
               {path: '/d', action: elementWithAllLifecycleCallbacks('x-d')}
             ]},
             {path: '/c', action: elementWithAllLifecycleCallbacks('x-c')}
-          ]);
-          await router.ready;
+          ], true);
           callbacksLog = [];
         });
 
@@ -1149,7 +1148,7 @@
                 {path: '/edit', action: elementWithAllLifecycleCallbacks('x-user-edit')}
               ]}
             ]}
-          ]);
+          ], true);
 
           await router.render('/users/jane/edit');
           verifyCallbacks([
@@ -1214,108 +1213,265 @@
 
           verifyCallbacks([
             'bundle',
-            'undefined.onBeforeEnter',
-            'undefined.connectedCallback',
-            'undefined.onAfterEnter'
+            'x-spy.onBeforeEnter',
+            'x-spy.connectedCallback',
+            'x-spy.onAfterEnter'
           ]);
         });
       });
 
-      it('lifecycle events when reusing element', async() => {
-        const view = document.createElement('x-spy');
-        view.name = 'foo';
+      describe('lifecycle events with action', () => {
+        it('lifecycle events when reusing element (#355)', async() => {
+          const view = document.createElement('x-spy');
+          view.name = 'foo';
 
-        router.setRoutes([
-          {path: '/', component: 'bar'},
-          {path: '/([ab])', action: (ctx) => {
+          router.setRoutes([
+            {path: '/([ab])', action: (ctx) => {
+              callbacksLog.push(`${view.name}.action`);
+              const content = document.createElement('div');
+              content.textContent = ctx.pathname;
+              view.appendChild(content);
+              // Returns always the same view
+              return view;
+            }},
+          ], true);
+
+          await router.render('/a');
+          expect(outlet.children[0]).to.be.equal(view);
+          expect(outlet.children[0].children.length).to.be.equal(1);
+          expect(outlet.children[0].location.pathname).to.be.equal('/a');
+          expect(router.location.pathname).to.be.equal('/a');
+
+          await router.render('/b');
+          // Should reuse the same view
+          expect(outlet.children[0]).to.be.equal(view);
+          // Should not modify the view content
+          expect(outlet.children[0].children.length).to.be.equal(2);
+          // Should update locations
+          expect(outlet.children[0].location.pathname).to.be.equal('/b');
+          expect(router.location.pathname).to.be.equal('/b');
+
+          // See #355
+          verifyCallbacks([
+            'foo.action',
+            'foo.onBeforeEnter',
+            'foo.connectedCallback',
+            'foo.onAfterEnter',
+            // always call action
+            'foo.action'
+            // stop calling any callback if result is the same
+            // stop detaching/re-attaching the element
+          ]);
+        });
+
+        it('lifecycle when reusing element in different chains', async() => {
+          const view = document.createElement('x-spy');
+          view.name = 'bar';
+          const action = (ctx) => {
             callbacksLog.push(`${view.name}.action`);
+            // add a new div in each call to check that content is not touched
             const content = document.createElement('div');
             view.appendChild(content);
             // Returns always the same view
             return view;
-          }},
-        ]);
-        await router.ready;
+          };
 
-        await router.render('/a');
-        expect(outlet.children[0]).to.be.equal(view);
-        expect(outlet.children[0].children.length).to.be.equal(1);
-        expect(outlet.children[0].location.pathname).to.be.equal('/a');
-        expect(router.location.pathname).to.be.equal('/a');
+          await router.setRoutes([
+            {path: '/1', component: 'foo1', children: [
+              {path: '/2', component: 'foo2', children: [{
+                path: '/a', action: action
+              }]}
+            ]},
+            {path: '/3', component: 'bar1', children: [
+              {path: '/4', component: 'bar2', children: [{
+                path: '/b', action: action
+              }]}
+            ]}
+          ], true);
 
-        await router.render('/b');
-        // Should reuse the same view
-        expect(outlet.children[0]).to.be.equal(view);
-        // Should not modify the view content
-        expect(outlet.children[0].children.length).to.be.equal(2);
+          await router.render('/1/2/a');
+          expect(outlet.children[0].localName).to.be.equal('foo1');
+          expect(outlet.children[0].children[0].localName).to.be.equal('foo2');
+          expect(outlet.children[0].children[0].children[0]).to.be.equal(view);
+          expect(outlet.children[0].children[0].children[0].children.length).to.be.equal(1);
 
-        // Should update locations
-        expect(outlet.children[0].location.pathname).to.be.equal('/b');
-        expect(router.location.pathname).to.be.equal('/b');
+          await router.render('/3/4/b');
+          expect(outlet.children[0].localName).to.be.equal('bar1');
+          expect(outlet.children[0].children[0].localName).to.be.equal('bar2');
+          // Should reuse the same view
+          expect(outlet.children[0].children[0].children[0]).to.be.equal(view);
+          // Should not modify the view content
+          expect(outlet.children[0].children[0].children[0].children.length).to.be.equal(2);
 
-        // See #355
-        verifyCallbacks([
-          'foo.action',
-          'foo.onBeforeEnter',
-          'foo.connectedCallback',
-          'foo.onAfterEnter',
-          // always call action of the new route
-          'foo.action'
-          // stop calling any callback if result is the same
-          // stop detaching/re-attaching the element
-        ]);
-      });
+          verifyCallbacks([
+            'bar.action',
+            'bar.onBeforeEnter',
+            'bar.connectedCallback',
+            'bar.onAfterEnter',
+            'bar.action',
+            'bar.onBeforeLeave',
+            'bar.onBeforeEnter',
+            'bar.disconnectedCallback',
+            'bar.connectedCallback',
+            'bar.onAfterEnter',
+            'bar.onAfterLeave',
+          ]);
+        });
 
-      it('lifecycle events when reusing element in different chains', async() => {
-        const view = document.createElement('x-spy');
-        view.name = 'bar';
-        const action = (ctx) => {
-          callbacksLog.push(`${view.name}.action`);
-          // add a new div in each call to check that content is not touched
-          const content = document.createElement('div');
-          view.appendChild(content);
-          // Returns always the same view
-          return view;
-        };
+        it('lifecycle events for dynamic chains', async() => {
+          const view = document.createElement('x-spy');
+          view.name = 'x-spy';
 
-        await router.setRoutes([
-          {path: '/1', component: 'foo1', children: [
-            {path: '/2', component: 'foo2', children: [{
-              path: '/a', action: action
-            }]}
-          ]},
-          {path: '/3', component: 'bar1', children: [
-            {path: '/4', component: 'bar2', children: [{
-              path: '/b', action: action
-            }]}
-          ]}
-        ], true);
+          const action = (ctx) => {
+            callbacksLog.push(`${view.name}.action`);
+            // add a new div in each call to check that content is not touched
+            const content = document.createElement('div');
+            content.textContent = ctx.pathname;
+            view.appendChild(content);
+            // Returns always the same view
+            return view;
+          };
+          router.setRoutes([{
+            path: '/users/:name/',
+            action: (ctx) => document.createElement(`user-${ctx.params.name}`),
+            children: [
+              {path: 'edit', action: action},
+              {path: 'profile', action: action}
+            ]
+          }], true);
 
-        await router.render('/1/2/a');
-        expect(outlet.children[0].tagName.toLowerCase()).to.be.equal('foo1');
-        expect(outlet.children[0].children[0].tagName.toLowerCase()).to.be.equal('foo2');
-        expect(outlet.children[0].children[0].children[0]).to.be.equal(view);
-        expect(outlet.children[0].children[0].children[0].children.length).to.be.equal(1);
+          await router.render('/users/bunny/profile');
+          expect(outlet.children[0].localName).to.be.equal('user-bunny');
+          expect(outlet.children[0].children[0]).to.be.equal(view);
+          expect(outlet.children[0].children[0].children.length).to.be.equal(1);
 
-        await router.render('/3/4/b');
-        expect(outlet.children[0].tagName.toLowerCase()).to.be.equal('bar1');
-        expect(outlet.children[0].children[0].tagName.toLowerCase()).to.be.equal('bar2');
-        // Should reuse the same view
-        expect(outlet.children[0].children[0].children[0]).to.be.equal(view);
-        // Should not modify the view content
-        expect(outlet.children[0].children[0].children[0].children.length).to.be.equal(2);
+          await router.render('/users/donald/edit');
+          expect(outlet.children[0].localName).to.be.equal('user-donald');
+          expect(outlet.children[0].children[0]).to.be.equal(view);
+          expect(outlet.children[0].children[0].children.length).to.be.equal(2);
 
-        verifyCallbacks([
-          'bar.action',
-          'bar.onBeforeEnter',
-          'bar.connectedCallback',
-          'bar.onAfterEnter',
-          // always call action of the new route
-          'bar.action',
-          // Disconnect and reconnect element but not run any other callback
-          'bar.disconnectedCallback',
-          'bar.connectedCallback'
-        ]);
+          verifyCallbacks([
+            'x-spy.action',
+            'x-spy.onBeforeEnter',
+            'x-spy.connectedCallback',
+            'x-spy.onAfterEnter',
+            'x-spy.action',
+            'x-spy.onBeforeLeave',
+            'x-spy.onBeforeEnter',
+            'x-spy.disconnectedCallback',
+            'x-spy.connectedCallback',
+            'x-spy.onAfterEnter',
+            'x-spy.onAfterLeave'
+          ]);
+        });
+
+        it('lifecycle events for the same route when not reusing element (#361)', async() => {
+          const view1 = document.createElement('x-spy');
+          view1.textContent = 'view1';
+          view1.name = 'view1';
+
+          const view2 = document.createElement('x-spy');
+          view2.textContent = 'view2';
+          view2.name = 'view2';
+
+          let cont = 0;
+          router.setRoutes([
+            {path: '/a', action: (ctx) => {
+              const view = cont++ % 2 ? view2 : view1;
+              callbacksLog.push(`${view.name}.action`);
+              const content = document.createElement('div');
+              content.textContent = 'content-' + view.name;
+              view.appendChild(content);
+              return view;
+            }}
+          ], true);
+
+          await router.render('/a');
+          expect(outlet.children[0]).to.be.equal(view1);
+          expect(outlet.children[0].children.length).to.be.equal(1);
+          expect(outlet.children[0].children[0].textContent).to.be.equal('content-view1');
+
+          await router.render('/a');
+          expect(outlet.children[0]).to.be.equal(view2);
+          expect(outlet.children[0].children.length).to.be.equal(1);
+          expect(outlet.children[0].children[0].textContent).to.be.equal('content-view2');
+
+          verifyCallbacks([
+            'view1.action',
+            'view1.onBeforeEnter',
+            'view1.connectedCallback',
+            'view1.onAfterEnter',
+            'view2.action',
+            'view1.onBeforeLeave',
+            'view2.onBeforeEnter',
+            'view2.connectedCallback',
+            'view2.onAfterEnter',
+            'view1.onAfterLeave',
+            'view1.disconnectedCallback',
+          ]);
+        });
+
+        it('do not remove content when reusing element for same path (#362, #311, #331)', async() => {
+          const view = document.createElement('x-spy');
+          view.textContent = 'view';
+          view.name = 'view';
+
+          let cont = 0;
+          router.setRoutes([
+            {path: '/a', action: (ctx) => {
+              callbacksLog.push(`${view.name}.action.${cont % 2}`);
+              const content = document.createElement('div');
+              content.textContent = `content-${view.name}-${cont++ % 2}`;
+              view.appendChild(content);
+              return view;
+            }}
+          ], true);
+
+          await router.render('/a');
+          expect(outlet.children[0]).to.be.equal(view);
+          expect(outlet.children[0].children.length).to.be.equal(1);
+          expect(outlet.children[0].children[0].textContent).to.be.equal('content-view-0');
+
+          await router.render('/a');
+          expect(outlet.children[0]).to.be.equal(view);
+          expect(outlet.children[0].children.length).to.be.equal(2); // #362
+          expect(outlet.children[0].children[0].textContent).to.be.equal('content-view-0');
+          expect(outlet.children[0].children[1].textContent).to.be.equal('content-view-1');
+
+          verifyCallbacks([
+            'view.action.0',
+            'view.onBeforeEnter',
+            'view.connectedCallback',
+            'view.onAfterEnter',
+            // Action is always called
+            'view.action.1',
+            // No call events since nothing changed
+            // No detach/re-attach (#311 #331)
+          ]);
+        });
+
+        it('do not reattach component for same path (#311, #331)', async() => {
+          router.setRoutes([
+            {path: '/a', component: 'x-spy'}
+          ], true);
+
+          await router.render('/a');
+          verifyCallbacks([
+            // actions are not logged because using components
+            'x-spy.onBeforeEnter',
+            'x-spy.connectedCallback',
+            'x-spy.onAfterEnter'
+          ]);
+          const view = outlet.children[0];
+
+          callbacksLog = [];
+          await router.render('/a');
+          expect(outlet.children[0]).to.be.equal(view);
+
+          // Skip detach/re-attach and notifications (#311 #331)
+          verifyCallbacks([
+          ]);
+        });
       });
 
       describe('lifecycle events with async action', () => {
@@ -1338,9 +1494,9 @@
 
           verifyCallbacks([
             'action.promise',
-            'undefined.onBeforeEnter',
-            'undefined.connectedCallback',
-            'undefined.onAfterEnter'
+            'x-spy.onBeforeEnter',
+            'x-spy.connectedCallback',
+            'x-spy.onAfterEnter'
           ]);
         });
       });
