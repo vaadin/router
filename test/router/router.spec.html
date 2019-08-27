@@ -1761,6 +1761,51 @@
             expect(outlet.children[0].children[1].tagName).to.match(/x-edit/i);
             expect(outlet.children[0].children[1].textContent).to.be.equal(textContent);
           });
+
+          it('should work when using wild card route', async() => {
+            let sharedElementInstance = null;
+            let serverSideComponentId = 0;
+            const action = (context) => {
+              const elm = sharedElementInstance || (sharedElementInstance = document.createElement('flow-root-outlet'));
+              // clear content
+              elm.innerHTML = '';
+              // Assumed this is an element return by server
+              const content = document.createElement(`server-side-${context.pathname.substring(1)}`);
+              content.textContent = context.pathname;
+              content.id = 'flow' + ++serverSideComponentId;
+              elm.appendChild(content);
+              // Return always the same instance of flow-root-outlet
+              return elm;
+            };
+            router.setRoutes([{
+              path: '/',
+              children: [
+                {
+                  path: 'client-view',
+                  component: 'x-client-view',
+                },
+                {
+                  path: '(.*)',
+                  action: action
+                }
+              ]
+            }]);
+
+            await router.render('/client-view');
+            expect(outlet.children[0].tagName).to.match(/x-client-view/i);
+
+            await router.render('/server-view');
+            expect(outlet.children[0]).to.be.equal(sharedElementInstance);
+            expect(outlet.children[0].children[0].tagName).to.match(/server-side-server-view/i);
+            expect(outlet.children[0].children[0].id).to.be.equal(`flow${serverSideComponentId}`);
+            expect(outlet.children[0].children[0].textContent).to.be.equal('/server-view');
+
+            await router.render('/reviews-list');
+            expect(outlet.children[0]).to.be.equal(sharedElementInstance);
+            expect(outlet.children[0].children[0].tagName).to.match(/server-side-reviews-list/i);
+            expect(outlet.children[0].children[0].id).to.be.equal(`flow${serverSideComponentId}`);
+            expect(outlet.children[0].children[0].textContent).to.be.equal('/reviews-list');
+          });
         });
 
         describe('route.children (function)', () => {
