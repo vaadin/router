@@ -51,6 +51,11 @@
       </div>
 
       <div>
+        If you'd rather run tests without throttling, append the parameter <code>no-throttle</code> to the query string,
+        or click on <a href="#" on-click="noThrottle">disable throttling</a>
+      </div>
+
+      <div>
         More info:
         <a href="https://forums.developer.apple.com/thread/36650"> Safari</a>
         <a href="https://codereview.chromium.org/2972073002">Chrome</a>
@@ -67,6 +72,13 @@
     class TestPushstateThrottler extends Polymer.Element {
       static get is() {
         return 'test-pushstate-throttler';
+      }
+
+      noThrottle(e) {
+        e.preventDefault();
+        const location = window.parent.location;
+        window.parent.location = location.pathname
+          + (location.search ? location.search + '&' : '?') + 'no-throttle';
       }
     }
     customElements.define(TestPushstateThrottler.is, TestPushstateThrottler);
