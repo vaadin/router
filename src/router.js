@@ -245,9 +245,8 @@ export class Router extends Resolver {
     const commands = {
       redirect: path => createRedirect(context, path),
       component: component => {
-        const elm = document.createElement(component);
-        elm.__reusable = true;
-        return elm;
+        route.__createdElement = true;
+        return document.createElement(component);
       }
     };
 
@@ -609,7 +608,7 @@ export class Router extends Resolver {
 
   __isReusableNode(chain, otherChain) {
     if (chain.element && otherChain.element) {
-      return otherChain.element.__reusable
+      return otherChain.route.__createdElement
         ? chain.element.localName === otherChain.element.localName
         : chain.element === otherChain.element;
     }
