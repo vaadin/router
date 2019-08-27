@@ -649,11 +649,9 @@ export class Router extends Resolver {
 
   __addAppearingContent(context, previousContext) {
     this.__ensureOutlet();
-
     // If the previous 'entering' animation has not completed yet,
     // stop it and remove that content from the DOM before adding new one.
     this.__removeAppearingContent();
-
     // Find the deepest common parent between the last and the new component
     // chains. Update references for the unchanged elements in the new chain
     let deepestCommonParent = this.__outlet;
@@ -672,25 +670,10 @@ export class Router extends Resolver {
     // Keep two lists of DOM elements:
     //  - those that should be removed once the transition animation is over
     //  - and those that should remain
+    this.__disappearingContent =
+       deepestCommonParent === context.result ? [] : Array.from(deepestCommonParent.children);
+
     this.__appearingContent = [];
-    this.__disappearingContent = [];
-    if (!previousContext) {
-      // if there is no previous information, clear the outlet
-      this.__disappearingContent = Array.from(deepestCommonParent.children);
-    } else {
-      // Pick elements from previousChain because
-      // `deepestCommonParent` might contain light dom children which are not in the chain
-      for (let i = context.__divergedChainIndex; i < previousContext.chain.length; i++) {
-        if (previousContext.chain[i].element) {
-          this.__disappearingContent.push(previousContext.chain[i].element);
-          break;
-        }
-      }
-    }
-    // Add new elements (starting after the deepest common parent) to the DOM.
-    // That way only the components that are actually different between the two
-    // locations are added to the DOM (and those that are common remain in the
-    // DOM without first removing and then adding them again).
     let parentElement = deepestCommonParent;
     for (let i = context.__divergedChainIndex; i < context.chain.length; i++) {
       const elementToAdd = context.chain[i].element;
