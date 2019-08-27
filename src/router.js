@@ -222,6 +222,7 @@ export class Router extends Resolver {
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
     this.subscribe();
+    this.__reusableMap = new WeakMap();
   }
 
   __resolveRoute(context) {
@@ -244,7 +245,11 @@ export class Router extends Resolver {
 
     const commands = {
       redirect: path => createRedirect(context, path),
-      component: component => document.createElement(component)
+      component: (component) => {
+        const element = document.createElement(component);
+        this.__reusableMap.set(element, true);
+        return element;
+      }
     };
 
     return callbacks
@@ -565,22 +570,12 @@ export class Router extends Resolver {
 
     newContext.__divergedChainIndex = 0;
     if (previousChain.length) {
-      // Clone the previous chain before unchain it
-      // because it still holds the references to the current DOM tree.
-      const previousClonedChain = this.__cloneChain(previousChain);
-      // Unchain the previousChain because:
-      //   - the newChain is not combined yet at this point, it contains individual elements
-      //   - it is easier to compare non-connected chain than connected chain
-      //     because we also take `children` into account.
-      //     Without unchaining, the lastElement of newChain contains a new element will lead to
-      //     the first element of newChain and previousChain being different
-      this.__unchain(previousClonedChain);
       newContext.__divergedChainIndex = 0;
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
-        if (previousClonedChain[i].route !== newChain[i].route
-          || previousClonedChain[i].path !== newChain[i].path
-          || !this.__isEqualNode(previousClonedChain[i].element, newChain[i].element)
-        ) {
+        if ((previousChain[i].route !== newChain[i].route
+          || previousChain[i].path !== newChain[i].path
+          || !this.__isReusableNode(previousChain[i], newChain[i]))
+          && previousChain[i].element !== newChain[i].element) {
           break;
         }
       }
@@ -615,44 +610,12 @@ export class Router extends Resolver {
     });
   }
 
-  __cloneChain(newChain) {
-    return newChain.map(chain => (
-      {
-        route: chain.route,
-        path: chain.path,
-        element: chain.element ? chain.element.cloneNode(true) : undefined
-      })
-    );
-  }
-
-  __unchain(chain) {
-    let lastEl = null;
-    for (let i = chain.length - 1; i >= 0; i--) {
-      const currentElement = chain[i].element;
-      if (currentElement && lastEl) {
-        const connectedPoint = Array.from(currentElement.childNodes).filter(n => n.isEqualNode(lastEl));
-        if (connectedPoint && connectedPoint.length == 1 && connectedPoint[0]) {
-          // Last element must be cloned before removing the connection
-          // so that we can compare it in next iteration
-          lastEl = currentElement.cloneNode(true);
-          currentElement.removeChild(connectedPoint[0]);
-        } else {
-          lastEl = currentElement.cloneNode(true);
-        }
-      } else if (currentElement) {
-        lastEl = currentElement.cloneNode(true);
-      }
+  __isReusableNode(chain, otherChain) {
+    if (chain.element && otherChain.element) {
+      return this.__reusableMap.get(otherChain.element) === true
+        ? chain.element.localName === otherChain.element.localName
+        : chain.element === otherChain.element;
     }
-  }
-
-  __isEqualNode(first, second) {
-    if (first === second) {
-      return true;
-    }
-    if (typeof first !== typeof second) {
-      return false;
-    }
-    return first.isEqualNode(second);
   }
 
   __redirect(redirectData, counter) {
