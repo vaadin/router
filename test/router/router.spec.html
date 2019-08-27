@@ -1762,7 +1762,7 @@
             expect(outlet.children[0].children[1].textContent).to.be.equal(textContent);
           });
 
-          it('should work when using wild card route', async() => {
+          it('should reuse DOM instance even when route has completely different path', async() => {
             let sharedElementInstance = null;
             let serverSideComponentId = 0;
             const action = (context) => {
@@ -1791,6 +1791,7 @@
               ]
             }]);
 
+            await router.ready;
             await router.render('/client-view');
             expect(outlet.children[0].tagName).to.match(/x-client-view/i);
 
