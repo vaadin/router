@@ -222,7 +222,7 @@ export class Router extends Resolver {
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
     this.subscribe();
-    this.__renderedElements = new WeakSet();
+    this.__renderedElements = new WeakMap();
   }
 
   __resolveRoute(context) {
@@ -247,7 +247,7 @@ export class Router extends Resolver {
       redirect: path => createRedirect(context, path),
       component: (component) => {
         const element = document.createElement(component);
-        this.__renderedElements.add(element);
+        this.__renderedElements.set(element, true);
         return element;
       }
     };
@@ -612,7 +612,7 @@ export class Router extends Resolver {
 
   __isReusableElement(element, otherElement) {
     if (element && otherElement) {
-      return this.__renderedElements.has(otherElement)
+      return this.__renderedElements.get(otherElement)
         ? element.localName === otherElement.localName
         : element === otherElement;
     }
