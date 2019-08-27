@@ -675,20 +675,8 @@ export class Router extends Resolver {
     //  - those that should be removed once the transition animation is over
     //  - and those that should remain
     this.__appearingContent = [];
-    this.__disappearingContent = [];
-    if (!previousContext) {
-      // if there is no previous information, clear the outlet
-      this.__disappearingContent = Array.from(deepestCommonParent.children);
-    } else {
-      // Pick elements from previousChain because
-      // `deepestCommonParent` might contain light dom children which are not in the chain
-      for (let i = context.__divergedChainIndex; i < previousContext.chain.length; i++) {
-        if (previousContext.chain[i].element) {
-          this.__disappearingContent.push(previousContext.chain[i].element);
-          break;
-        }
-      }
-    }
+    this.__disappearingContent =
+       deepestCommonParent === context.result ? [] : Array.from(deepestCommonParent.children);
     // Add new elements (starting after the deepest common parent) to the DOM.
     // That way only the components that are actually different between the two
     // locations are added to the DOM (and those that are common remain in the
