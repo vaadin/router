@@ -224,7 +224,8 @@ export class Router extends Resolver {
     this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
     this.subscribe();
-    this.__renderedElements = new WeakMap();
+    // Using WeakMap instead of WeakSet because WeakSet is not supported by IE11
+    this.__createdByRouter = new WeakMap();
   }
 
   __resolveRoute(context) {
@@ -249,7 +250,7 @@ export class Router extends Resolver {
       redirect: path => createRedirect(context, path),
       component: (component) => {
         const element = document.createElement(component);
-        this.__renderedElements.set(element, true);
+        this.__createdByRouter.set(element, true);
         return element;
       }
     };
@@ -671,7 +672,7 @@ export class Router extends Resolver {
 
   __isReusableElement(element, otherElement) {
     if (element && otherElement) {
-      return this.__renderedElements.get(otherElement)
+      return this.__createdByRouter.get(element) && this.__createdByRouter.get(otherElement)
         ? element.localName === otherElement.localName
         : element === otherElement;
     }
