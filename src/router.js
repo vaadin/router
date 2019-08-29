@@ -28,11 +28,13 @@ function copyContextWithoutNext(context) {
   return copy;
 }
 
-function createLocation({pathname = '', chain = [], params = {}, redirectFrom, resolver}, route) {
+function createLocation({pathname = '', search = '', hash = '', chain = [], params = {}, redirectFrom, resolver}, route) {
   const routes = chain.map(item => item.route);
   return {
     baseUrl: resolver && resolver.baseUrl || '',
     pathname,
+    search,
+    hash,
     routes,
     route: route || routes.length && routes[routes.length - 1] || null,
     params,
@@ -258,7 +260,7 @@ export class Router extends Resolver {
         if (isResultNotEmpty(result)) {
           // Actions like `() => import('my-view.js')` are not expected to
           // end the resolution, despite the result is not empty. Checking
-          // the result with a whitelist of values that end the resulution.
+          // the result with a whitelist of values that end the resolution.
           if (result instanceof HTMLElement ||
               result.redirect ||
               result === notFoundResult) {
@@ -395,11 +397,19 @@ export class Router extends Resolver {
    * with current context
    *
    * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
+   * @param {?boolean} skipRender configure the router but skip rendering the
+   *     route corresponding to the current `window.location` values
+   *
+   * @return {!Promise<!Node>}
    */
-  setRoutes(routes) {
+  setRoutes(routes, skipRender = false) {
+    this.__previousContext = undefined;
     this.__urlForName = undefined;
     super.setRoutes(routes);
-    this.__onNavigationEvent();
+    if (!skipRender) {
+      this.__onNavigationEvent();
+    }
+    return this.ready;
   }
 
   /**
@@ -425,12 +435,12 @@ export class Router extends Resolver {
    */
   render(pathnameOrContext, shouldUpdateHistory) {
     const renderId = ++this.__lastStartedRenderId;
-
     const {
       pathname,
       search,
       hash
     } = isString(pathnameOrContext) ? {pathname: pathnameOrContext, search: '', hash: ''} : pathnameOrContext;
+
     // Find the first route that resolves to a non-empty result
     this.ready = this.resolve({pathname, search, hash})
 
@@ -457,6 +467,11 @@ export class Router extends Resolver {
 
           if (shouldUpdateHistory) {
             this.__updateBrowserHistory(context, context.redirectFrom);
+          }
+
+          // Skip detaching/re-attaching there are no render changes
+          if (context.__skipAttach) {
+            return this.location;
           }
 
           this.__addAppearingContent(context, previousContext);
@@ -571,16 +586,24 @@ export class Router extends Resolver {
     const redirect = (pathname) => createRedirect(newContext, pathname);
 
     newContext.__divergedChainIndex = 0;
+    newContext.__skipAttach = false;
     if (previousChain.length) {
       for (let i = 0; i < Math.min(previousChain.length, newChain.length); i = ++newContext.__divergedChainIndex) {
         if (previousChain[i].route !== newChain[i].route
-          || previousChain[i].path !== newChain[i].path
+          || previousChain[i].path !== newChain[i].path && previousChain[i].element !== newChain[i].element
           || !this.__isReusableElement(previousChain[i].element, newChain[i].element)) {
           break;
         }
       }
 
-      for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
+      // Skip re-attaching and notifications if element and chain do not change
+      newContext.__skipAttach =
+         // Same route chain
+         newChain.length === previousChain.length && newContext.__divergedChainIndex == newChain.length &&
+         // Same element
+         this.__isReusableElement(newContext.result, previousContext.result);
+
+      for (let i = previousChain.length - 1; !newContext.__skipAttach && i >= newContext.__divergedChainIndex; i--) {
         const location = createLocation(newContext);
         callbacks = callbacks
           .then(amend('onBeforeLeave', [location, {prevent}, this], previousChain[i].element))
@@ -592,7 +615,7 @@ export class Router extends Resolver {
       }
     }
 
-    for (let i = newContext.__divergedChainIndex; i < newChain.length; i++) {
+    for (let i = newContext.__divergedChainIndex; !newContext.__skipAttach && i < newChain.length; i++) {
       const location = createLocation(newContext, newChain[i].route);
       callbacks = callbacks.then(amend('onBeforeEnter', [location, {prevent, redirect}, this], newChain[i].element));
     }
@@ -677,8 +700,8 @@ export class Router extends Resolver {
     //  - those that should be removed once the transition animation is over
     //  - and those that should remain
     this.__appearingContent = [];
-    this.__disappearingContent =
-       deepestCommonParent === context.result ? [] : Array.from(deepestCommonParent.children);
+    this.__disappearingContent = Array.from(deepestCommonParent.children).filter(e => e !== context.result);
+
     // Add new elements (starting after the deepest common parent) to the DOM.
     // That way only the components that are actually different between the two
     // locations are added to the DOM (and those that are common remain in the

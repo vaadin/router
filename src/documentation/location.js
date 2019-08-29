@@ -35,6 +35,22 @@ export class Location {
     this.pathname;
 
     /**
+     * The query string portion of the current url.
+     *
+     * @public
+     * @type {!string}
+     */
+    this.search;
+
+    /**
+     * The fragment identifier (including hash character) for the current page.
+     *
+     * @public
+     * @type {!string}
+     */
+    this.hash;
+
+    /**
      * (optional) The original pathname string in case if this location is a
      * result of a redirect.
      *

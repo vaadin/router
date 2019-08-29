@@ -230,6 +230,16 @@
             expect(actual).to.equal(router.location);
           });
 
+          it('should not set the String.search function to location when router.render(string)', async() => {
+            await router.setRoutes([{path: '/foo', component: 'x-home-view'}], true);
+            await router.render('/foo');
+
+            expect(router.location.search).to.equal('');
+
+            expect(router.location.pathname).to.equal('/foo');
+            expect(router.location.hash).to.equal('');
+          });
+
           it('should return a promise that resolves when the rendered content is appended to the DOM', async() => {
             router.setRoutes([{path: '/', component: 'x-home-view'}]);
             const promise = router.render('/');
@@ -773,6 +783,10 @@
             expect(window.location.pathname).to.equal('/admin');
             expect(window.location.search).to.equal('?a=b');
             expect(window.location.hash).to.equal('#hash');
+
+            expect(router.location.pathname).to.equal('/admin');
+            expect(router.location.search).to.equal('?a=b');
+            expect(router.location.hash).to.equal('#hash');
           });
 
           it('should preserve pathname and search', async() => {
@@ -787,7 +801,6 @@
             expect(window.location.pathname).to.equal('/admin');
             expect(window.location.search).to.equal('?a=b');
             expect(window.location.hash).to.equal('');
-
           });
 
           it('should preserve pathname', async() => {
@@ -802,6 +815,10 @@
             expect(window.location.pathname).to.equal('/admin');
             expect(window.location.search).to.equal('');
             expect(window.location.hash).to.equal('');
+
+            expect(router.location.pathname).to.equal('/admin');
+            expect(router.location.search).to.equal('');
+            expect(router.location.hash).to.equal('');
           });
 
           afterEach(() => {
@@ -813,15 +830,17 @@
           let router;
           beforeEach(async() => {
             router = new Vaadin.Router(outlet);
-            router.setRoutes([
+            // configure router and let it render '/'
+            await router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/admin', component: 'x-admin-view'},
             ]);
-            await router.render('/');
           });
 
-          afterEach(() => {
+          afterEach(async() => {
             router.unsubscribe();
+            // wait for async tasks to finsish
+            await router.ready;
           });
 
           it('should update the history state after navigation', async() => {
@@ -929,10 +948,10 @@
               expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
             });
 
-            it('should trigger a `vaadin-router-go` event on the `window`', () => {
+            it('should trigger a `vaadin-router-go` event on the `window`', async() => {
               const spy = sinon.spy();
               window.addEventListener('vaadin-router-go', spy);
-              Vaadin.Router.go('');
+              Vaadin.Router.go('/');
               window.removeEventListener('vaadin-router-go', spy);
               expect(spy).to.have.been.called.once;
               expect(spy.args[0][0]).to.have.property('type', 'vaadin-router-go');
@@ -941,10 +960,11 @@
             it('should pass the given pathname in the `detail.pathname` property of the triggered event when Router.go() is called', () => {
               const spy = sinon.spy();
               window.addEventListener('vaadin-router-go', spy);
-              Vaadin.Router.go('/a');
+              // use a valid route
+              Vaadin.Router.go('/admin');
               window.removeEventListener('vaadin-router-go', spy);
               expect(spy).to.have.been.called.once;
-              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/a');
+              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
             });
 
             it('should return false by default', () => {
@@ -975,7 +995,8 @@
               expect(!window.dispatchEvent(
                 new CustomEvent('vaadin-router-go', {
                   cancelable: true,
-                  detail: {pathname: '/a'}
+                  // use a valid route
+                  detail: {pathname: '/admin'}
                 })
               )).to.be.true;
             });
@@ -1090,6 +1111,22 @@
             ]);
             await router.render('/non-existent/path');
             expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
+          });
+
+          it('should set the `location` properties on the route component', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/admin', component: 'x-admin-view'},
+              {path: '(.*)', component: 'x-not-found-view'},
+            ]);
+            await router.render({
+              pathname: '/non-existent/path',
+              search: 'foo=bar',
+              hash: '#baz'
+            });
+            expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
+            expect(outlet.children[0]).to.have.deep.property('location.search', 'foo=bar');
+            expect(outlet.children[0]).to.have.deep.property('location.hash', '#baz');
           });
 
           it('should keep route parameters when redirecting to different route', async() => {
@@ -1568,6 +1605,18 @@
             router = new Vaadin.Router(outlet);
           });
 
+          it('result element should remain when rendering the same route', async() => {
+            const result = document.createElement('div');
+
+            await router.setRoutes([
+              {path: '/', action: () => result}
+            ], true);
+
+            await router.render('/');
+            await router.render('/');
+            expect(outlet.children[0]).to.be.equal(result);
+          });
+
           it('commands.redirect() should work when invoked without the `this` context', async() => {
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
@@ -1633,7 +1682,7 @@
                   }
                 }
               },
-            ]);
+            ], true);
 
             await router.render('/');
             expect(outlet.children[0].tagName).to.match(/x-login-view/i);
@@ -1641,6 +1690,92 @@
             anonymous = false;
             await router.render('/');
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          });
+
+          it('should reuse DOM instance even when route has completely different path', async() => {
+            let sharedElementInstance = null;
+            let serverSideComponentId = 0;
+            const action = (context) => {
+              const elm = sharedElementInstance || (sharedElementInstance = document.createElement('flow-root-outlet'));
+              // clear content
+              elm.innerHTML = '';
+              // Assumed this is an element return by server
+              const content = document.createElement(`server-side-${context.pathname.substring(1)}`);
+              content.textContent = context.pathname;
+              content.id = 'flow' + ++serverSideComponentId;
+              elm.appendChild(content);
+              // Return always the same instance of flow-root-outlet
+              return elm;
+            };
+            router.setRoutes([{
+              path: '/',
+              children: [
+                {
+                  path: 'client-view',
+                  component: 'x-client-view',
+                },
+                {
+                  path: '(.*)',
+                  action: action
+                }
+              ]
+            }]);
+
+            await router.ready;
+            await router.render('/client-view');
+            expect(outlet.children[0].tagName).to.match(/x-client-view/i);
+
+            await router.render('/server-view');
+            expect(outlet.children[0]).to.be.equal(sharedElementInstance);
+            expect(outlet.children[0].children[0].tagName).to.match(/server-side-server-view/i);
+            expect(outlet.children[0].children[0].id).to.be.equal(`flow${serverSideComponentId}`);
+            expect(outlet.children[0].children[0].textContent).to.be.equal('/server-view');
+
+            await router.render('/reviews-list');
+            expect(outlet.children[0]).to.be.equal(sharedElementInstance);
+            expect(outlet.children[0].children[0].tagName).to.match(/server-side-reviews-list/i);
+            expect(outlet.children[0].children[0].id).to.be.equal(`flow${serverSideComponentId}`);
+            expect(outlet.children[0].children[0].textContent).to.be.equal('/reviews-list');
+          });
+
+          it('should keep tree structure and content when re-visiting the same route', async() => {
+            const view = document.createElement('span');
+            const action = ctx => {
+              view.textContent = ctx.pathname;
+              return view;
+            };
+            router.setRoutes([{
+              path: '/',
+              component: 'main-layout',
+              children: [
+                {
+                  path: '/categories',
+                  component: 'input'
+                },
+                {
+                  path: '(.*)',
+                  action: action
+                }
+              ]
+            }], true);
+
+            await router.render('/foo');
+            expect(outlet.children[0].localName).to.be.equal('main-layout');
+            expect(outlet.children[0].children[0].localName).to.be.equal('span');
+            expect(outlet.children[0].children[0].textContent).to.be.equal('/foo');
+
+            // Double click on the same route
+            await router.render('/categories');
+            expect(outlet.children[0].localName).to.be.equal('main-layout');
+            expect(outlet.children[0].children[0].localName).to.be.equal('input');
+            await router.render('/categories');
+            expect(outlet.children[0].localName).to.be.equal('main-layout');
+            expect(outlet.children[0].children[0].localName).to.be.equal('input');
+
+            await router.render('/foo');
+            expect(outlet.children[0].localName).to.be.equal('main-layout');
+            expect(outlet.children[0].children[0].localName).to.be.equal('span');
+            expect(outlet.children[0].children[0].textContent).to.be.equal('/foo');
           });
         });
 
