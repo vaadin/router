@@ -1499,6 +1499,66 @@
             'x-spy.onAfterEnter'
           ]);
         });
+
+        function registerSpyComponentAsync(tagname, name, delayms) {
+          return new Promise((resolve, reject) => {
+            setTimeout(() => {
+              callbacksLog.push(`${name}.define`);
+              window.customElements.define(tagname,
+                class extends XSpy {
+                  constructor() {
+                    super();
+                    this.name = name;
+                  }
+                });
+              resolve();
+            }, delayms);
+          });
+        }
+
+        it('should invoke lifecycle events for dynamically imported routes sequentially', async() => {
+          const unique = Math.floor(Math.random() * 100000);
+          const parentTagname = `x-parent-layout-${unique}`;
+          const childTagname = `x-child-${unique}`;
+
+          router.setRoutes([
+            {
+              path: '/a',
+              component: parentTagname,
+              action: async(context) => {
+                callbacksLog.push(`x-parent-layout.action`);
+                await registerSpyComponentAsync(parentTagname, 'x-parent-layout', 30);
+              },
+              children: [
+                {
+                  path: '/b',
+                  component: childTagname,
+                  action: async() => {
+                    callbacksLog.push(`x-child.action`);
+                    await registerSpyComponentAsync(childTagname, 'x-child', 30);
+                  }
+                }
+              ],
+            }
+          ]);
+
+          await router.ready.catch(() => {});
+          callbacksLog = [];
+          await router.render('/a/b');
+
+          verifyCallbacks([
+            `x-parent-layout.action`,
+            `x-parent-layout.define`,
+            `x-child.action`,
+            `x-child.define`,
+            `x-parent-layout.onBeforeEnter`,
+            `x-child.onBeforeEnter`,
+            `x-parent-layout.connectedCallback`,
+            `x-child.connectedCallback`,
+            `x-parent-layout.onAfterEnter`,
+            `x-child.onAfterEnter`,
+          ]);
+        });
       });
 
       describe('the global `vaadin-router-location-changed` event', () => {
