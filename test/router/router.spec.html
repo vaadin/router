@@ -1279,7 +1279,7 @@
             router.setRoutes([
               {path: '/', bundle: existingBundlePath, action: removeBundleAndReturn},
               {path: '/', component: 'x-home-view'},
-            ]);
+            ], true);
 
             await router.render('/');
 

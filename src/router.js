@@ -255,7 +255,11 @@ export class Router extends Resolver {
     };
 
     return callbacks
-      .then(() => runCallbackIfPossible(route.action, [context, commands], route))
+      .then(() => {
+        if (context.__renderId === this.__lastStartedRenderId) {
+          return runCallbackIfPossible(route.action, [context, commands], route);
+        }
+      })
       .then(result => {
         if (isResultNotEmpty(result)) {
           // Actions like `() => import('my-view.js')` are not expected to
@@ -442,7 +446,7 @@ export class Router extends Resolver {
     } = isString(pathnameOrContext) ? {pathname: pathnameOrContext, search: '', hash: ''} : pathnameOrContext;
 
     // Find the first route that resolves to a non-empty result
-    this.ready = this.resolve({pathname, search, hash})
+    this.ready = this.resolve({pathname, search, hash, __renderId: renderId})
 
       // Process the result of this.resolve() and handle all special commands:
       // (redirect / prevent / component). If the result is a 'component',
@@ -451,7 +455,7 @@ export class Router extends Resolver {
       .then(context => this.__fullyResolveChain(context))
 
       .then(context => {
-        if (renderId === this.__lastStartedRenderId) {
+        if (context.__renderId === this.__lastStartedRenderId) {
           const previousContext = this.__previousContext;
 
           // Check if the render was prevented and make an early return in that case
@@ -551,7 +555,7 @@ export class Router extends Resolver {
       renderElement(context, result);
       return Promise.resolve(context);
     } else if (result.redirect) {
-      return this.__redirect(result.redirect, context.__redirectCount)
+      return this.__redirect(result.redirect, context.__redirectCount, context.__renderId)
         .then(context => this.__findComponentContextAfterAllRedirects(context));
     } else if (result instanceof Error) {
       return Promise.reject(result);
@@ -605,19 +609,27 @@ export class Router extends Resolver {
 
       for (let i = previousChain.length - 1; !newContext.__skipAttach && i >= newContext.__divergedChainIndex; i--) {
         const location = createLocation(newContext);
-        callbacks = callbacks
-          .then(amend('onBeforeLeave', [location, {prevent}, this], previousChain[i].element))
-          .then(result => {
-            if (!(result || {}).redirect) {
-              return result;
-            }
-          });
+        callbacks = callbacks.then(result => {
+          if (newContext.__renderId === this.__lastStartedRenderId) {
+            const afterLeaveFunction = amend('onBeforeLeave', [location, {prevent}, this], previousChain[i].element);
+            return afterLeaveFunction(result);
+          }
+        }).then(result => {
+          if (!(result || {}).redirect) {
+            return result;
+          }
+        });
       }
     }
 
     for (let i = newContext.__divergedChainIndex; !newContext.__skipAttach && i < newChain.length; i++) {
       const location = createLocation(newContext, newChain[i].route);
-      callbacks = callbacks.then(amend('onBeforeEnter', [location, {prevent, redirect}, this], newChain[i].element));
+      callbacks = callbacks.then(result => {
+        if (newContext.__renderId === this.__lastStartedRenderId) {
+          const beforeEnterFunction = amend('onBeforeEnter', [location, {prevent, redirect}, this], newChain[i].element);
+          return beforeEnterFunction(result);
+        }
+      });
     }
 
     return callbacks.then(amendmentResult => {
@@ -626,7 +638,7 @@ export class Router extends Resolver {
           return this.__previousContext;
         }
         if (amendmentResult.redirect) {
-          return this.__redirect(amendmentResult.redirect, newContext.__redirectCount);
+          return this.__redirect(amendmentResult.redirect, newContext.__redirectCount, newContext.__renderId);
         }
       }
       return newContext;
@@ -642,7 +654,7 @@ export class Router extends Resolver {
     return false;
   }
 
-  __redirect(redirectData, counter) {
+  __redirect(redirectData, counter, renderId) {
     if (counter > MAX_REDIRECT_COUNT) {
       throw new Error(log(`Too many redirects when rendering ${redirectData.from}`));
     }
@@ -653,7 +665,8 @@ export class Router extends Resolver {
         redirectData.params
       ),
       redirectFrom: redirectData.from,
-      __redirectCount: (counter || 0) + 1
+      __redirectCount: (counter || 0) + 1,
+      __renderId: renderId
     });
   }
 
@@ -742,6 +755,9 @@ export class Router extends Resolver {
 
     // REVERSE iteration: from Z to A
     for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
+      if (currentContext.__renderId !== this.__lastStartedRenderId) {
+        break;
+      }
       const currentComponent = targetContext.chain[i].element;
       if (!currentComponent) {
         continue;
@@ -763,6 +779,9 @@ export class Router extends Resolver {
   __runOnAfterEnterCallbacks(currentContext) {
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
+      if (currentContext.__renderId !== this.__lastStartedRenderId) {
+        break;
+      }
       const currentComponent = currentContext.chain[i].element || {};
       const location = createLocation(currentContext, currentContext.chain[i].route);
       runCallbackIfPossible(
