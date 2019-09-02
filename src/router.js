@@ -635,6 +635,7 @@ export class Router extends Resolver {
     return callbacks.then(amendmentResult => {
       if (amendmentResult) {
         if (amendmentResult.cancel) {
+          this.__previousContext.__renderId = newContext.__renderId;
           return this.__previousContext;
         }
         if (amendmentResult.redirect) {
