@@ -1,6 +1,8 @@
 'use strict';
 
 var gulp = require('gulp');
+const git = require('gulp-git');
+const replace = require('gulp-replace');
 const path = require('path');
 const {exec} = require('child_process');
 const fs = require('fs-extra');
@@ -102,3 +104,20 @@ function polymerBuild() {
       });
   });
 }
+
+gulp.task('version:update', function() {
+  // Should be run from 'preversion'
+  // Assumes that the old version is in package.json and the new version in the `npm_package_version` environment variable
+  const oldversion = require('./package.json').version;
+  const newversion = process.env.npm_package_version;
+  if (!oldversion) {
+    throw new 'No old version found in package.json';
+  }
+  if (!newversion) {
+    throw new 'New version must be given as a npm_package_version environment variable.';
+  }
+  return gulp.src(['src/router-meta.js'])
+    .pipe(replace(oldversion, newversion))
+    .pipe(gulp.dest('src'))
+    .pipe(git.add());
+});
