@@ -45,7 +45,8 @@
     "docs": "npm run build && npm run docs:analyze && gulp docs",
     "docs:analyze": "polymer analyze dist/vaadin-router.js src/documentation/*.js > analysis.json",
     "browserslist": "browserslist && browserslist --coverage",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "preversion": "gulp version:update"
   },
   "bundlesize": [
     {
@@ -83,6 +84,8 @@
     "fs-extra": "^8.1.0",
     "gulp": "^4.0.0",
     "gulp-cli": "^2.2.0",
+    "gulp-git": "^2.9.0",
+    "gulp-replace": "^1.0.0",
     "npm-run-all": "^4.1.5",
     "polymer-cli": "^1.9.11",
     "polyserve": "0.27.15",
