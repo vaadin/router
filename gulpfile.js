@@ -116,7 +116,7 @@ gulp.task('version:update', function() {
   if (!newversion) {
     throw new 'New version must be given as a npm_package_version environment variable.';
   }
-  return gulp.src(['src/*.js'])
+  return gulp.src(['src/router-meta.js'])
     .pipe(replace(oldversion, newversion))
     .pipe(gulp.dest('src'))
     .pipe(git.add());
