@@ -256,7 +256,7 @@ export class Router extends Resolver {
 
     return callbacks
       .then(() => {
-        if (context.__renderId === this.__lastStartedRenderId) {
+        if (this.__isLatestRender(context)) {
           return runCallbackIfPossible(route.action, [context, commands], route);
         }
       })
@@ -455,7 +455,7 @@ export class Router extends Resolver {
       .then(context => this.__fullyResolveChain(context))
 
       .then(context => {
-        if (context.__renderId === this.__lastStartedRenderId) {
+        if (this.__isLatestRender(context)) {
           const previousContext = this.__previousContext;
 
           // Check if the render was prevented and make an early return in that case
@@ -485,7 +485,7 @@ export class Router extends Resolver {
           this.__runOnAfterLeaveCallbacks(context, previousContext);
 
           return animationDone.then(() => {
-            if (renderId === this.__lastStartedRenderId) {
+            if (this.__isLatestRender(context)) {
               // If there is another render pass started after this one,
               // the 'disappearing content' would be removed when the other
               // render pass calls `this.__addAppearingContent()`
@@ -610,7 +610,7 @@ export class Router extends Resolver {
       for (let i = previousChain.length - 1; !newContext.__skipAttach && i >= newContext.__divergedChainIndex; i--) {
         const location = createLocation(newContext);
         callbacks = callbacks.then(result => {
-          if (newContext.__renderId === this.__lastStartedRenderId) {
+          if (this.__isLatestRender(newContext)) {
             const afterLeaveFunction = amend('onBeforeLeave', [location, {prevent}, this], previousChain[i].element);
             return afterLeaveFunction(result);
           }
@@ -625,7 +625,7 @@ export class Router extends Resolver {
     for (let i = newContext.__divergedChainIndex; !newContext.__skipAttach && i < newChain.length; i++) {
       const location = createLocation(newContext, newChain[i].route);
       callbacks = callbacks.then(result => {
-        if (newContext.__renderId === this.__lastStartedRenderId) {
+        if (this.__isLatestRender(newContext)) {
           const beforeEnterFunction = amend('onBeforeEnter', [location, {prevent, redirect}, this], newChain[i].element);
           return beforeEnterFunction(result);
         }
@@ -653,6 +653,10 @@ export class Router extends Resolver {
         : element === otherElement;
     }
     return false;
+  }
+
+  __isLatestRender(context) {
+    return context.__renderId === this.__lastStartedRenderId;
   }
 
   __redirect(redirectData, counter, renderId) {
@@ -756,7 +760,7 @@ export class Router extends Resolver {
 
     // REVERSE iteration: from Z to A
     for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
-      if (currentContext.__renderId !== this.__lastStartedRenderId) {
+      if (!this.__isLatestRender(currentContext)) {
         break;
       }
       const currentComponent = targetContext.chain[i].element;
@@ -780,7 +784,7 @@ export class Router extends Resolver {
   __runOnAfterEnterCallbacks(currentContext) {
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
-      if (currentContext.__renderId !== this.__lastStartedRenderId) {
+      if (!this.__isLatestRender(currentContext)) {
         break;
       }
       const currentComponent = currentContext.chain[i].element || {};
