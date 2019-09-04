@@ -123,7 +123,7 @@
           const onBeforeEnter = sinon.spy();
           router.setRoutes([
             {path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter)}
-          ]);
+          ], true);
 
           await router.render('/');
 
@@ -1707,6 +1707,298 @@
 
           const event = onError.args[0][0];
           expect(event.detail.pathname).to.equal('/non-existent');
+        });
+      });
+
+      describe('Simultaneous renders', async() => {
+        const PAUSE_TIME = 100; // in ms
+        const sleep = async(ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        const elementWithAction = elementName => {
+          callbacksLog.push(`${elementName}.action`);
+          const el = document.createElement('x-spy');
+          el.name = elementName;
+          return el;
+        };
+        const elementWithSlowBeforeEnter = elementName => async(context, commands) => {
+          const el = elementWithAction(`${elementName}-render-${context.__renderId}`);
+          el.onBeforeEnter = async() => {
+            callbacksLog.push(`${el.name}.onBeforeEnter`);
+            await sleep(PAUSE_TIME);
+          };
+          return el;
+        };
+        const elementWithSlowBeforeLeave = elementName => async(context, commands) => {
+          const el = elementWithAction(`${elementName}-render-${context.__renderId}`);
+          el.onBeforeLeave = async() => {
+            callbacksLog.push(`${el.name}.onBeforeLeave`);
+            await sleep(PAUSE_TIME);
+          };
+          return el;
+        };
+
+        const elementWithRenderId = elementName => async(context) => {
+          return elementWithAction(`${elementName}-render-${context.__renderId}`);
+        };
+
+
+        it('should only run action when it is the last render', async() => {
+          router.setRoutes([
+            {
+              path: '/',
+              action: async(context) => {
+                const el = elementWithAction(`x-parent-layout-render-${context.__renderId}`);
+                await sleep(PAUSE_TIME);
+                return el;
+              },
+              children: [
+                {
+                  path: 'a',
+                  action: context => elementWithAction(`x-a-render-${context.__renderId}`)
+                },
+                {
+                  path: 'b',
+                  action: context => elementWithAction(`x-b-render-${context.__renderId}`)
+                }
+              ]
+            }
+          ], true);
+          callbacksLog = [];
+          router.render('/a');
+          // render another path just before it runs action of `a`
+          await sleep(PAUSE_TIME * 0.9);
+          await router.render('/b');
+
+          verifyCallbacks([
+            'x-parent-layout-render-1.action',
+            'x-parent-layout-render-2.action',
+            'x-b-render-2.action',
+            'x-parent-layout-render-2.onBeforeEnter',
+            'x-b-render-2.onBeforeEnter',
+            'x-parent-layout-render-2.connectedCallback',
+            'x-b-render-2.connectedCallback',
+            'x-parent-layout-render-2.onAfterEnter',
+            'x-b-render-2.onAfterEnter'
+          ]);
+        });
+
+        it('should only run onBeforeEnter events when it is the last render', async() => {
+          router.setRoutes([
+            {
+              path: '/',
+              action: elementWithSlowBeforeEnter('x-parent-layout'),
+              children: [
+                {
+                  path: 'a',
+                  action: elementWithSlowBeforeEnter('x-a')
+                },
+                {
+                  path: 'b',
+                  action: elementWithSlowBeforeEnter('x-b')
+                }
+              ]
+            }
+          ], true);
+          callbacksLog = [];
+          router.render('/a');
+          // wait until the end of parent.onBeforeEnter
+          // then trigger a new render
+          // so that `x-a.onBeforeEnter` won't be executed
+          await sleep(PAUSE_TIME * 0.9);
+          await router.render('/b');
+          await router.ready;
+          verifyCallbacks([
+            'x-parent-layout-render-1.action',
+            'x-a-render-1.action',
+            'x-parent-layout-render-1.onBeforeEnter',
+            'x-parent-layout-render-2.action',
+            'x-b-render-2.action',
+            'x-parent-layout-render-2.onBeforeEnter',
+            'x-b-render-2.onBeforeEnter',
+            'x-parent-layout-render-2.connectedCallback',
+            'x-b-render-2.connectedCallback',
+            'x-parent-layout-render-2.onAfterEnter',
+            'x-b-render-2.onAfterEnter'
+          ]);
+        });
+
+        it('should stop running onBeforeEnter events immediately when there is a new render', async() => {
+          router.setRoutes([
+            {
+              path: '/',
+              action: elementWithSlowBeforeEnter('x-parent-layout'),
+              children: [
+                {
+                  path: 'a',
+                  action: elementWithSlowBeforeEnter('x-a'),
+                  children: [
+                    {
+                      path: 'a-child',
+                      action: elementWithSlowBeforeEnter('x-a-child'),
+                    }
+                  ]
+                },
+                {
+                  path: 'b',
+                  action: elementWithSlowBeforeEnter('x-b')
+                }
+              ]
+            }
+          ], true);
+          callbacksLog = [];
+          router.render('/a/a-child');
+          // give it enough time for running `parent.onBeforeEnter` and `x-a.onBeforeEnter`
+          // then start a new render,
+          // so `a-child.onBeforeEnter` shouldn't run at all
+          await sleep(PAUSE_TIME * 1.5);
+          await router.render('/b');
+          verifyCallbacks([
+            'x-parent-layout-render-1.action',
+            'x-a-render-1.action',
+            'x-a-child-render-1.action',
+            'x-parent-layout-render-1.onBeforeEnter',
+            'x-a-render-1.onBeforeEnter',
+            'x-parent-layout-render-2.action',
+            'x-b-render-2.action',
+            'x-parent-layout-render-2.onBeforeEnter',
+            'x-b-render-2.onBeforeEnter',
+            'x-parent-layout-render-2.connectedCallback',
+            'x-b-render-2.connectedCallback',
+            'x-parent-layout-render-2.onAfterEnter',
+            'x-b-render-2.onAfterEnter'
+          ]);
+        });
+        it('should only run onBeforeLeave events when it is the last render', async() => {
+          router.setRoutes([
+            {
+              path: '/',
+              action: elementWithSlowBeforeLeave('x-parent-layout'),
+              children: [
+                {
+                  path: 'a',
+                  action: elementWithSlowBeforeLeave('x-a'),
+                  children: [
+                    {
+                      path: 'a-child',
+                      action: elementWithSlowBeforeLeave('x-a-child')
+                    }
+                  ]
+                },
+                {
+                  path: 'b',
+                  action: elementWithSlowBeforeLeave('x-b')
+                }
+              ]
+            }
+          ], true);
+          await router.render('/a/a-child');
+          callbacksLog = [];
+          router.render('/b');
+          await sleep(PAUSE_TIME * 0.9);
+          await router.render('/a/a-child');
+          verifyActiveRoutes(router, ['/', 'a', 'a-child']);
+          verifyCallbacks([
+            'x-parent-layout-render-2.action',
+            'x-b-render-2.action',
+            'x-a-child-render-1.onBeforeLeave',
+            'x-parent-layout-render-3.action',
+            'x-a-render-3.action',
+            'x-a-child-render-3.action',
+            'x-a-child-render-1.onBeforeLeave',
+            'x-a-render-1.onBeforeLeave',
+            'x-parent-layout-render-1.onBeforeLeave',
+            'x-parent-layout-render-3.onBeforeEnter',
+            'x-a-render-3.onBeforeEnter',
+            'x-a-child-render-3.onBeforeEnter',
+            'x-parent-layout-render-3.connectedCallback',
+            'x-a-render-3.connectedCallback',
+            'x-a-child-render-3.connectedCallback',
+            'x-parent-layout-render-3.onAfterEnter',
+            'x-a-render-3.onAfterEnter',
+            'x-a-child-render-3.onAfterEnter',
+            'x-a-child-render-1.onAfterLeave',
+            'x-a-render-1.onAfterLeave',
+            'x-parent-layout-render-1.onAfterLeave',
+            'x-a-render-1.disconnectedCallback',
+            'x-a-child-render-1.disconnectedCallback',
+            'x-parent-layout-render-1.disconnectedCallback'
+          ]);
+        });
+
+        it('should only run onAfterEnter/onAfterLeave events when it is the last render', (done) => {
+          router.setRoutes([
+            {
+              path: '/',
+              action: elementWithRenderId('x-parent-layout'),
+              children: [
+                {
+                  path: 'a',
+                  action: elementWithRenderId('x-a'),
+                  children: [
+                    {
+                      path: 'a-child',
+                      action: elementWithRenderId('x-a-child'),
+                    }
+                  ]
+                },
+                {
+                  path: 'b',
+                  action: elementWithRenderId('x-b')
+                }
+              ]
+            }
+          ], true);
+          const waitForLocation = async(event) => {
+            if (event.detail.location.pathname === '/b') {
+              window.removeEventListener('vaadin-router-location-changed', waitForLocation);
+              await router.render('/a/a-child');
+              try {
+                verifyActiveRoutes(router, ['/', 'a', 'a-child']);
+                verifyCallbacks([
+                  'x-parent-layout-render-2.action',
+                  'x-b-render-2.action',
+                  'x-a-render-1.onBeforeLeave',
+                  'x-parent-layout-render-1.onBeforeLeave',
+                  'x-parent-layout-render-2.onBeforeEnter',
+                  'x-b-render-2.onBeforeEnter',
+                  'x-parent-layout-render-2.connectedCallback',
+                  'x-b-render-2.connectedCallback',
+                  // x-b-render-2.onAfterEnter is not executed here
+                  // because the 3rd render already started
+                  'x-parent-layout-render-3.action',
+                  'x-a-render-3.action',
+                  'x-a-child-render-3.action',
+                  'x-a-render-1.onBeforeLeave',
+                  'x-parent-layout-render-1.onBeforeLeave',
+                  'x-parent-layout-render-3.onBeforeEnter',
+                  'x-a-render-3.onBeforeEnter',
+                  'x-a-child-render-3.onBeforeEnter',
+                  'x-parent-layout-render-2.disconnectedCallback',
+                  'x-b-render-2.disconnectedCallback',
+                  'x-parent-layout-render-3.connectedCallback',
+                  'x-a-render-3.connectedCallback',
+                  'x-a-child-render-3.connectedCallback',
+                  'x-parent-layout-render-3.onAfterEnter',
+                  'x-a-render-3.onAfterEnter',
+                  'x-a-child-render-3.onAfterEnter',
+                  'x-a-render-1.onAfterLeave',
+                  'x-parent-layout-render-1.onAfterLeave',
+                  'x-a-render-1.disconnectedCallback',
+                  'x-parent-layout-render-1.disconnectedCallback',
+                ]);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            }
+          };
+          // Attach a listener to `location-changed` event to trigger another render
+          // because the event happens just before 'onAfterEnter'/'onAfterLeave'.
+          window.addEventListener('vaadin-router-location-changed', waitForLocation);
+          router.render('/a').then(() => {
+            callbacksLog = [];
+            router.render('/b');
+          });
         });
       });
     });

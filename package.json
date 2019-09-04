@@ -51,7 +51,7 @@
   "bundlesize": [
     {
       "path": "dist/vaadin-router.min.js",
-      "maxSize": "7.5 kB"
+      "maxSize": "7.6 kB"
     }
   ],
   "browserslist": [
