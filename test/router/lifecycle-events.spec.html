@@ -1258,8 +1258,105 @@
             'foo.connectedCallback',
             'foo.onAfterEnter',
             // always call action
-            'foo.action'
-            // stop calling any callback if result is the same
+            'foo.action',
+            'foo.onBeforeLeave',
+            'foo.onBeforeEnter'
+            // stop calling any other callbacks if result is the same
+            // stop detaching/re-attaching the element
+          ]);
+        });
+
+        it('lifecycle events when changing first segment', async() => {
+          const view = document.createElement('x-spy');
+          view.name = 'foo';
+          const userView = document.createElement('x-spy');
+          userView.name = 'x-user';
+          router.setRoutes(
+            {
+              path: '/users/:id',
+              action: () => {
+                callbacksLog.push(userView.name + '.action');
+                return userView;
+              },
+              children: [
+                {
+                  path: 'edit',
+                  action: elementWithAllLifecycleCallbacks('x-edit')
+                },
+              ]
+            }, true);
+          callbacksLog = [];
+          await router.render('/users/1/edit');
+          expect(outlet.children[0]).to.be.equal(userView);
+          expect(outlet.children[0].children.length).to.be.equal(1);
+
+          await router.render('/users/2/edit');
+          // Should reuse the same view
+          expect(outlet.children[0]).to.be.equal(userView);
+
+          verifyCallbacks([
+            'x-user.action',
+            'x-edit.action',
+            'x-user.onBeforeEnter',
+            'x-edit.onBeforeEnter',
+            'x-user.connectedCallback',
+            'x-edit.connectedCallback',
+            'x-user.onAfterEnter',
+            'x-edit.onAfterEnter',
+            // always call action
+            'x-user.action',
+            'x-edit.action',
+            // only call changed segment events
+            'x-user.onBeforeLeave',
+            'x-user.onBeforeEnter',
+          ]);
+        });
+
+        it('lifecycle events when changing the last segment with parent layout', async() => {
+          const view = document.createElement('x-spy');
+          view.name = 'x-foo';
+          router.setRoutes(
+            {
+              path: '/',
+              action: elementWithAllLifecycleCallbacks('x-layout'),
+              children: [
+                {
+                  path: '(.*)',
+                  action: (ctx) => {
+                    callbacksLog.push(`${view.name}.action`);
+                    const content = document.createElement('div');
+                    content.textContent = ctx.pathname;
+                    view.appendChild(content);
+                    // Returns always the same view
+                    return view;
+                  }
+                },
+              ]
+            }, true);
+          callbacksLog = [];
+          await router.render('/b');
+          expect(outlet.children[0].localName).to.be.equal('x-spy');
+          expect(outlet.children[0].children[0]).to.be.equal(view);
+
+          await router.render('/a');
+          // Should reuse the same view
+          expect(outlet.children[0].children[0]).to.be.equal(view);
+
+          verifyCallbacks([
+            'x-layout.action',
+            'x-foo.action',
+            'x-layout.onBeforeEnter',
+            'x-foo.onBeforeEnter',
+            'x-layout.connectedCallback',
+            'x-foo.connectedCallback',
+            'x-layout.onAfterEnter',
+            'x-foo.onAfterEnter',
+            // always call action
+            'x-layout.action',
+            'x-foo.action',
+            'x-foo.onBeforeLeave',
+            'x-foo.onBeforeEnter'
+            // stop calling any other callbacks if result is the same
             // stop detaching/re-attaching the element
           ]);
         });
@@ -2004,3 +2101,4 @@
     });
   </script>
 </body>
+

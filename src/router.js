@@ -607,31 +607,29 @@ export class Router extends Resolver {
          // Same element
          this.__isReusableElement(newContext.result, previousContext.result);
 
-      for (let i = previousChain.length - 1; !newContext.__skipAttach && i >= newContext.__divergedChainIndex; i--) {
-        const location = createLocation(newContext);
-        callbacks = callbacks.then(result => {
-          if (this.__isLatestRender(newContext)) {
-            const afterLeaveFunction = amend('onBeforeLeave', [location, {prevent}, this], previousChain[i].element);
-            return afterLeaveFunction(result);
+      if (newContext.__skipAttach) {
+        // execute onBeforeLeave for changed segment element
+        for (let i = newChain.length - 1; i >= 0; i--) {
+          if (previousChain[i].path !== newChain[i].path) {
+            callbacks = this.__runOnBeforeLeaveCallbacks(callbacks, newContext, {prevent}, previousChain[i]);
           }
-        }).then(result => {
-          if (!(result || {}).redirect) {
-            return result;
+        }
+        // execute onBeforeEnter for changed segment element
+        for (let i = 0; i < newChain.length; i++) {
+          if (previousChain[i].path !== newChain[i].path) {
+            callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
           }
-        });
+        }
+      } else {
+        for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
+          callbacks = this.__runOnBeforeLeaveCallbacks(callbacks, newContext, {prevent}, previousChain[i]);
+        }
       }
     }
 
     for (let i = newContext.__divergedChainIndex; !newContext.__skipAttach && i < newChain.length; i++) {
-      const location = createLocation(newContext, newChain[i].route);
-      callbacks = callbacks.then(result => {
-        if (this.__isLatestRender(newContext)) {
-          const beforeEnterFunction = amend('onBeforeEnter', [location, {prevent, redirect}, this], newChain[i].element);
-          return beforeEnterFunction(result);
-        }
-      });
+      callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
     }
-
     return callbacks.then(amendmentResult => {
       if (amendmentResult) {
         if (amendmentResult.cancel) {
@@ -643,6 +641,30 @@ export class Router extends Resolver {
         }
       }
       return newContext;
+    });
+  }
+
+  __runOnBeforeLeaveCallbacks(callbacks, newContext, commands, chain) {
+    const location = createLocation(newContext);
+    return callbacks.then(result => {
+      if (this.__isLatestRender(newContext)) {
+        const afterLeaveFunction = amend('onBeforeLeave', [location, commands, this], chain.element);
+        return afterLeaveFunction(result);
+      }
+    }).then(result => {
+      if (!(result || {}).redirect) {
+        return result;
+      }
+    });
+  }
+
+  __runOnBeforeEnterCallbacks(callbacks, newContext, commands, chain) {
+    const location = createLocation(newContext, chain.route);
+    return callbacks.then(result => {
+      if (this.__isLatestRender(newContext)) {
+        const beforeEnterFunction = amend('onBeforeEnter', [location, commands, this], chain.element);
+        return beforeEnterFunction(result);
+      }
     });
   }
 
