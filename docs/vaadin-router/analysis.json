@@ -533,15 +533,15 @@
         },
         {
           "name": "setRoutes",
-          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `children` – an array of nested routes or a function that provides this\narray at the render time. The function can be synchronous or asynchronous:\nin the latter case the render is delayed until the returned promise is\nresolved. The `children` function is executed every time when this route is\nbeing rendered. This allows for dynamic route structures (e.g. backend-defined),\nbut it might have a performance impact as well. In order to avoid calling\nthe function on subsequent renders, you can override the `children` property\nof the route object and save the calculated array there\n(via `context.route.children = [ route1, route2, ...];`).\nParent routes are fully resolved before resolving the children. Children\n'path' values are relative to the parent ones.\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting `context`\nand `commands` parameters described below. If present, this function is\nalways invoked first, disregarding of the other properties' presence.\nThe action can return a result directly or within a `Promise`, which\nresolves to the result. If the action result is an `HTMLElement` instance,\na `commands.component(name)` result, a `commands.redirect(path)` result,\nor a `context.next()` result, the current route resolution is finished,\nand other route config properties are ignored.\nSee also **Route Actions** section in [Live Examples](#/classes/Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Router/demos/demo/index.html).\n\n* `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,\nor the object with \"module\" and \"nomodule\" keys referring to different bundles.\nEach bundle is only loaded once. If \"module\" and \"nomodule\" are set, only one bundle is loaded,\ndepending on whether the browser supports ES modules or not.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Code Splitting** section in [Live Examples](#/classes/Router/demos/demo/index.html).\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nIf route contains the `component` property (or an action that return a component)\nand its child route also contains the `component` property, child route's component\nwill be rendered as a light dom child of a parent component.\n\n* `name` – the string name of the route to use in the\n[`router.urlForName(name, params)`](#/classes/Router#method-urlForName)\nnavigation helper method.\n\nFor any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback\nthrough the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function\nbecause arrow functions do not have their own `this` reference.\n\n`context` object that is passed to `action` function holds the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.search` – search query string\n\n* `context.hash` – hash string\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.next()` – function for asynchronously getting the next route\ncontents from the resolution chain (if any)\n\n`commands` object that is passed to `action` function has\nthe following methods:\n\n* `commands.redirect(path)` – function that creates a redirect data\nfor the path specified.\n\n* `commands.component(component)` – function that creates a new HTMLElement\nwith current context",
+          "description": "Sets the routing config (replacing the existing one) and triggers a\nnavigation event so that the router outlet is refreshed according to the\ncurrent `window.location` and the new routing config.\n\nEach route object may have the following properties, listed here in the processing order:\n* `path` – the route path (relative to the parent route if any) in the\n[express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths\").\n\n* `children` – an array of nested routes or a function that provides this\narray at the render time. The function can be synchronous or asynchronous:\nin the latter case the render is delayed until the returned promise is\nresolved. The `children` function is executed every time when this route is\nbeing rendered. This allows for dynamic route structures (e.g. backend-defined),\nbut it might have a performance impact as well. In order to avoid calling\nthe function on subsequent renders, you can override the `children` property\nof the route object and save the calculated array there\n(via `context.route.children = [ route1, route2, ...];`).\nParent routes are fully resolved before resolving the children. Children\n'path' values are relative to the parent ones.\n\n* `action` – the action that is executed before the route is resolved.\nThe value for this property should be a function, accepting `context`\nand `commands` parameters described below. If present, this function is\nalways invoked first, disregarding of the other properties' presence.\nThe action can return a result directly or within a `Promise`, which\nresolves to the result. If the action result is an `HTMLElement` instance,\na `commands.component(name)` result, a `commands.redirect(path)` result,\nor a `context.next()` result, the current route resolution is finished,\nand other route config properties are ignored.\nSee also **Route Actions** section in [Live Examples](#/classes/Router/demos/demo/index.html).\n\n* `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.\nThe target route should also be defined.\nSee also **Redirects** section in [Live Examples](#/classes/Router/demos/demo/index.html).\n\n* `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,\nor the object with \"module\" and \"nomodule\" keys referring to different bundles.\nEach bundle is only loaded once. If \"module\" and \"nomodule\" are set, only one bundle is loaded,\ndepending on whether the browser supports ES modules or not.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nAny error, e.g. 404 while loading bundle will cause route resolution to throw.\nSee also **Code Splitting** section in [Live Examples](#/classes/Router/demos/demo/index.html).\n\n* `component` – the tag name of the Web Component to resolve the route to.\nThe property is ignored when either an `action` returns the result or `redirect` property is present.\nIf route contains the `component` property (or an action that return a component)\nand its child route also contains the `component` property, child route's component\nwill be rendered as a light dom child of a parent component.\n\n* `name` – the string name of the route to use in the\n[`router.urlForName(name, params)`](#/classes/Router#method-urlForName)\nnavigation helper method.\n\nFor any route function (`action`, `children`) defined, the corresponding `route` object is available inside the callback\nthrough the `this` reference. If you need to access it, make sure you define the callback as a non-arrow function\nbecause arrow functions do not have their own `this` reference.\n\n`context` object that is passed to `action` function holds the following properties:\n* `context.pathname` – string with the pathname being resolved\n\n* `context.search` – search query string\n\n* `context.hash` – hash string\n\n* `context.params` – object with route parameters\n\n* `context.route` – object that holds the route that is currently being rendered.\n\n* `context.next()` – function for asynchronously getting the next route\ncontents from the resolution chain (if any)\n\n`commands` object that is passed to `action` function has\nthe following methods:\n\n* `commands.redirect(path)` – function that creates a redirect data\nfor the path specified.\n\n* `commands.component(component)` – function that creates a new HTMLElement\nwith current context. Note: the component created by this function is reused if visiting the same path twice in row.",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1684,
+              "line": 1690,
               "column": 2
             },
             "end": {
-              "line": 1692,
+              "line": 1698,
               "column": 3
             }
           },
@@ -666,11 +666,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1509,
+              "line": 1510,
               "column": 2
             },
             "end": {
-              "line": 1569,
+              "line": 1574,
               "column": 3
             }
           },
@@ -687,11 +687,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1581,
+              "line": 1586,
               "column": 2
             },
             "end": {
-              "line": 1586,
+              "line": 1591,
               "column": 3
             }
           },
@@ -713,11 +713,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1593,
+              "line": 1598,
               "column": 2
             },
             "end": {
-              "line": 1595,
+              "line": 1600,
               "column": 3
             }
           },
@@ -734,11 +734,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 1715,
+              "line": 1721,
               "column": 2
             },
             "end": {
-              "line": 1787,
+              "line": 1793,
               "column": 3
             }
           },
@@ -765,11 +765,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1800,
+              "line": 1806,
               "column": 2
             },
             "end": {
-              "line": 1825,
+              "line": 1831,
               "column": 3
             }
           },
@@ -790,11 +790,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1827,
+              "line": 1833,
               "column": 2
             },
             "end": {
-              "line": 1847,
+              "line": 1853,
               "column": 3
             }
           },
@@ -811,11 +811,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1849,
+              "line": 1855,
               "column": 2
             },
             "end": {
-              "line": 1856,
+              "line": 1862,
               "column": 3
             }
           },
@@ -832,11 +832,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1858,
+              "line": 1864,
               "column": 2
             },
             "end": {
-              "line": 1913,
+              "line": 1927,
               "column": 3
             }
           },
@@ -848,16 +848,76 @@
           ]
         },
         {
+          "name": "__runOnBeforeLeaveCallbacks",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1929,
+              "column": 2
+            },
+            "end": {
+              "line": 1941,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "callbacks"
+            },
+            {
+              "name": "newContext"
+            },
+            {
+              "name": "commands"
+            },
+            {
+              "name": "chainElement"
+            }
+          ]
+        },
+        {
+          "name": "__runOnBeforeEnterCallbacks",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1943,
+              "column": 2
+            },
+            "end": {
+              "line": 1951,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "callbacks"
+            },
+            {
+              "name": "newContext"
+            },
+            {
+              "name": "commands"
+            },
+            {
+              "name": "chainElement"
+            }
+          ]
+        },
+        {
           "name": "__isReusableElement",
           "description": "",
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1915,
+              "line": 1953,
               "column": 2
             },
             "end": {
-              "line": 1922,
+              "line": 1960,
               "column": 3
             }
           },
@@ -872,16 +932,37 @@
           ]
         },
         {
+          "name": "__isLatestRender",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 1962,
+              "column": 2
+            },
+            "end": {
+              "line": 1964,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "context"
+            }
+          ]
+        },
+        {
           "name": "__redirect",
           "description": "",
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1924,
+              "line": 1966,
               "column": 2
             },
             "end": {
-              "line": 1937,
+              "line": 1980,
               "column": 3
             }
           },
@@ -892,6 +973,9 @@
             },
             {
               "name": "counter"
+            },
+            {
+              "name": "renderId"
             }
           ]
         },
@@ -901,11 +985,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1939,
+              "line": 1982,
               "column": 2
             },
             "end": {
-              "line": 1943,
+              "line": 1986,
               "column": 3
             }
           },
@@ -926,11 +1010,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1945,
+              "line": 1988,
               "column": 2
             },
             "end": {
-              "line": 1954,
+              "line": 1997,
               "column": 3
             }
           },
@@ -953,11 +1037,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 1956,
+              "line": 1999,
               "column": 2
             },
             "end": {
-              "line": 1999,
+              "line": 2042,
               "column": 3
             }
           },
@@ -980,11 +1064,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 2001,
+              "line": 2044,
               "column": 2
             },
             "end": {
-              "line": 2007,
+              "line": 2050,
               "column": 3
             }
           },
@@ -1000,11 +1084,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 2009,
+              "line": 2052,
               "column": 2
             },
             "end": {
-              "line": 2015,
+              "line": 2058,
               "column": 3
             }
           },
@@ -1020,11 +1104,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 2017,
+              "line": 2060,
               "column": 2
             },
             "end": {
-              "line": 2040,
+              "line": 2086,
               "column": 3
             }
           },
@@ -1047,11 +1131,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 2042,
+              "line": 2088,
               "column": 2
             },
             "end": {
-              "line": 2052,
+              "line": 2101,
               "column": 3
             }
           },
@@ -1071,11 +1155,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 2054,
+              "line": 2103,
               "column": 2
             },
             "end": {
-              "line": 2076,
+              "line": 2125,
               "column": 3
             }
           },
@@ -1092,11 +1176,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 2084,
+              "line": 2133,
               "column": 2
             },
             "end": {
-              "line": 2086,
+              "line": 2135,
               "column": 3
             }
           },
@@ -1112,11 +1196,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 2092,
+              "line": 2141,
               "column": 2
             },
             "end": {
-              "line": 2094,
+              "line": 2143,
               "column": 3
             }
           },
@@ -1132,11 +1216,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 2096,
+              "line": 2145,
               "column": 2
             },
             "end": {
-              "line": 2104,
+              "line": 2153,
               "column": 3
             }
           },
@@ -1156,11 +1240,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 2145,
+              "line": 2194,
               "column": 2
             },
             "end": {
-              "line": 2153,
+              "line": 2202,
               "column": 3
             }
           },
@@ -1187,11 +1271,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 2166,
+              "line": 2215,
               "column": 2
             },
             "end": {
-              "line": 2171,
+              "line": 2220,
               "column": 3
             }
           },
@@ -1245,11 +1329,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 2122,
+              "line": 2171,
               "column": 2
             },
             "end": {
-              "line": 2124,
+              "line": 2173,
               "column": 3
             }
           },
@@ -1271,11 +1355,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 2182,
+              "line": 2231,
               "column": 2
             },
             "end": {
-              "line": 2184,
+              "line": 2233,
               "column": 3
             }
           },
@@ -1309,7 +1393,7 @@
           "column": 0
         },
         "end": {
-          "line": 2185,
+          "line": 2234,
           "column": 1
         }
       },
@@ -1325,15 +1409,15 @@
       "methods": [
         {
           "name": "onBeforeLeave",
-          "description": "Method that gets executed when user navigates away from the component\nthat had defined the method. The user can prevent the navigation\nby returning `commands.prevent()` from the method or same value wrapped\nin `Promise`. This effectively means that the corresponding component\nshould be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name, in the second time the method\nis not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values:\n\n* if the `commands.prevent()` result is returned (immediately or\nas a Promise), the navigation is aborted and the outlet contents\nis not updated.\n* any other return value is ignored and Vaadin Router proceeds with\nthe navigation.\n\nArguments:",
+          "description": "Method that gets executed when user navigates away from the component\nthat had defined the method. The user can prevent the navigation\nby returning `commands.prevent()` from the method or same value wrapped\nin `Promise`. This effectively means that the corresponding component\nshould be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name (if the component is created\nusing `component` property in the route object) or the same component instance\n(if the component is created and returned inside `action` property of the route object),\nin the second time the method is not called. In case of navigating to a different path\nbut within the same route object, e.g. the path has parameter or wildcard,\nand this results in rendering the same component instance, the method is called if available.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values:\n\n* if the `commands.prevent()` result is returned (immediately or\nas a Promise), the navigation is aborted and the outlet contents\nis not updated.\n* any other return value is ignored and Vaadin Router proceeds with\nthe navigation.\n\nArguments:",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 93,
+              "line": 97,
               "column": 2
             },
             "end": {
-              "line": 98,
+              "line": 102,
               "column": 3
             }
           },
@@ -1355,15 +1439,15 @@
         },
         {
           "name": "onBeforeEnter",
-          "description": "Method that gets executed before the outlet contents is updated with\nthe new element. The user can prevent the navigation by returning\n`commands.prevent()` from the method or same value wrapped in `Promise`.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name, in the second time the method\nis not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values:\n\n* if the `commands.prevent()` result is returned (immediately or\nas a Promise), the navigation is aborted and the outlet contents\nis not updated.\n* if the `commands.redirect(path)` result is returned (immediately or\nas a Promise), Vaadin Router ends navigation to the current path, and\nstarts a new navigation cycle to the new path.\n* any other return value is ignored and Vaadin Router proceeds with\nthe navigation.\n\nArguments:",
+          "description": "Method that gets executed before the outlet contents is updated with\nthe new element. The user can prevent the navigation by returning\n`commands.prevent()` from the method or same value wrapped in `Promise`.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name (if the component is created\nusing `component` property in the route object) or the same component instance\n(if the component is created and returned inside `action` property of the route object),\nin the second time the method is not called. In case of navigating to a different path\nbut within the same route object, e.g. the path has parameter or wildcard,\nand this results in rendering the same component instance, the method is called if available.\nThe WebComponent instance on which the callback has been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values:\n\n* if the `commands.prevent()` result is returned (immediately or\nas a Promise), the navigation is aborted and the outlet contents\nis not updated.\n* if the `commands.redirect(path)` result is returned (immediately or\nas a Promise), Vaadin Router ends navigation to the current path, and\nstarts a new navigation cycle to the new path.\n* any other return value is ignored and Vaadin Router proceeds with\nthe navigation.\n\nArguments:",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 133,
+              "line": 141,
               "column": 2
             },
             "end": {
-              "line": 138,
+              "line": 146,
               "column": 3
             }
           },
@@ -1385,15 +1469,15 @@
         },
         {
           "name": "onAfterLeave",
-          "description": "Method that gets executed when user navigates away from the component that\nhad defined the method, just before the element is to be removed\nfrom the DOM. The difference between this method and `onBeforeLeave`\nis that when this method is executed, there is no way to abort\nthe navigation. This effectively means that the corresponding component\nshould be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name, in the second time the method\nis not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values: any return value is ignored and Vaadin Router proceeds with the navigation.\n\nArguments:",
+          "description": "Method that gets executed when user navigates away from the component that\nhad defined the method, just before the element is to be removed\nfrom the DOM. The difference between this method and `onBeforeLeave`\nis that when this method is executed, there is no way to abort\nthe navigation. This effectively means that the corresponding component\nshould be resolved by the router before the method can be executed.\nIf the router navigates to the same path twice in a row, and this results\nin rendering the same component name (if the component is created\nusing `component` property in the route object) or the same component instance\n(if the component is created and returned inside `action` property of the route object),\nin the second time the method is not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nReturn values: any return value is ignored and Vaadin Router proceeds with the navigation.\n\nArguments:",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 161,
+              "line": 171,
               "column": 2
             },
             "end": {
-              "line": 164,
+              "line": 174,
               "column": 3
             }
           },
@@ -1418,15 +1502,15 @@
         },
         {
           "name": "onAfterEnter",
-          "description": "Method that gets executed after the outlet contents is updated with the new\nelement. If the router navigates to the same path twice in a row, and\nthis results in rendering the same component name, in the second time\nthe method is not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nThis callback is called asynchronously after the native\n[`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)\ndefined by the Custom Elements spec.\n\nReturn values: any return value is ignored and Vaadin Router proceeds with the navigation.\n\nArguments:",
+          "description": "Method that gets executed after the outlet contents is updated with the new\nelement. If the router navigates to the same path twice in a row, and this results\nin rendering the same component name (if the component is created\nusing `component` property in the route object) or the same component instance\n(if the component is created and returned inside `action` property of the route object),\nin the second time the method is not called. The WebComponent instance on which the callback\nhas been invoked is available inside the callback through\nthe `this` reference.\n\nThis callback is called asynchronously after the native\n[`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)\ndefined by the Custom Elements spec.\n\nReturn values: any return value is ignored and Vaadin Router proceeds with the navigation.\n\nArguments:",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 186,
+              "line": 198,
               "column": 2
             },
             "end": {
-              "line": 189,
+              "line": 201,
               "column": 3
             }
           },
@@ -1459,7 +1543,7 @@
           "column": 7
         },
         "end": {
-          "line": 190,
+          "line": 202,
           "column": 1
         }
       },
