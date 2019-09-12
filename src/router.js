@@ -399,7 +399,8 @@ export class Router extends Resolver {
    * for the path specified.
    *
    * * `commands.component(component)` – function that creates a new HTMLElement
-   * with current context
+   * with current context. Note: the component created by this function is reused if visiting the same path twice in row.
+   *
    *
    * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
    * @param {?boolean} skipRender configure the router but skip rendering the
