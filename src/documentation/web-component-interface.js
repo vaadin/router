@@ -67,9 +67,13 @@ export class WebComponentInterface {
    * in `Promise`. This effectively means that the corresponding component
    * should be resolved by the router before the method can be executed.
    * If the router navigates to the same path twice in a row, and this results
-   * in rendering the same component name, in the second time the method
-   * is not called. The WebComponent instance on which the callback
-   * has been invoked is available inside the callback through
+   * in rendering the same component name (if the component is created
+   * using `component` property in the route object) or the same component instance
+   * (if the component is created and returned inside `action` property of the route object),
+   * in the second time the method is not called. In case of navigating to a different path
+   * but within the same route object, e.g. the path has parameter or wildcard,
+   * and this results in rendering the same component instance, the method is called if available.
+   * The WebComponent instance on which the callback has been invoked is available inside the callback through
    * the `this` reference.
    *
    * Return values:
@@ -103,9 +107,13 @@ export class WebComponentInterface {
    * the new element. The user can prevent the navigation by returning
    * `commands.prevent()` from the method or same value wrapped in `Promise`.
    * If the router navigates to the same path twice in a row, and this results
-   * in rendering the same component name, in the second time the method
-   * is not called. The WebComponent instance on which the callback
-   * has been invoked is available inside the callback through
+   * in rendering the same component name (if the component is created
+   * using `component` property in the route object) or the same component instance
+   * (if the component is created and returned inside `action` property of the route object),
+   * in the second time the method is not called. In case of navigating to a different path
+   * but within the same route object, e.g. the path has parameter or wildcard,
+   * and this results in rendering the same component instance, the method is called if available.
+   * The WebComponent instance on which the callback has been invoked is available inside the callback through
    * the `this` reference.
    *
    * Return values:
@@ -146,8 +154,10 @@ export class WebComponentInterface {
    * the navigation. This effectively means that the corresponding component
    * should be resolved by the router before the method can be executed.
    * If the router navigates to the same path twice in a row, and this results
-   * in rendering the same component name, in the second time the method
-   * is not called. The WebComponent instance on which the callback
+   * in rendering the same component name (if the component is created
+   * using `component` property in the route object) or the same component instance
+   * (if the component is created and returned inside `action` property of the route object),
+   * in the second time the method is not called. The WebComponent instance on which the callback
    * has been invoked is available inside the callback through
    * the `this` reference.
    *
@@ -166,9 +176,11 @@ export class WebComponentInterface {
 
   /**
    * Method that gets executed after the outlet contents is updated with the new
-   * element. If the router navigates to the same path twice in a row, and
-   * this results in rendering the same component name, in the second time
-   * the method is not called. The WebComponent instance on which the callback
+   * element. If the router navigates to the same path twice in a row, and this results
+   * in rendering the same component name (if the component is created
+   * using `component` property in the route object) or the same component instance
+   * (if the component is created and returned inside `action` property of the route object),
+   * in the second time the method is not called. The WebComponent instance on which the callback
    * has been invoked is available inside the callback through
    * the `this` reference.
    *
