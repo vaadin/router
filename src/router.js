@@ -608,25 +608,26 @@ export class Router extends Resolver {
          this.__isReusableElement(newContext.result, previousContext.result);
 
       if (newContext.__skipAttach) {
-        // execute onBeforeLeave for changed segment element
+        // execute onBeforeLeave for changed segment element when skipping attach
         for (let i = newChain.length - 1; i >= 0; i--) {
           if (previousChain[i].path !== newChain[i].path) {
             callbacks = this.__runOnBeforeLeaveCallbacks(callbacks, newContext, {prevent}, previousChain[i]);
           }
         }
-        // execute onBeforeEnter for changed segment element
+        // execute onBeforeEnter for changed segment element when skipping attach
         for (let i = 0; i < newChain.length; i++) {
           if (previousChain[i].path !== newChain[i].path) {
             callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
           }
         }
       } else {
+        // execute onBeforeLeave when NOT skipping attach
         for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
           callbacks = this.__runOnBeforeLeaveCallbacks(callbacks, newContext, {prevent}, previousChain[i]);
         }
       }
     }
-
+    // execute onBeforeEnter when NOT skipping attach
     for (let i = newContext.__divergedChainIndex; !newContext.__skipAttach && i < newChain.length; i++) {
       callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
     }
@@ -644,11 +645,11 @@ export class Router extends Resolver {
     });
   }
 
-  __runOnBeforeLeaveCallbacks(callbacks, newContext, commands, chain) {
+  __runOnBeforeLeaveCallbacks(callbacks, newContext, commands, chainElement) {
     const location = createLocation(newContext);
     return callbacks.then(result => {
       if (this.__isLatestRender(newContext)) {
-        const afterLeaveFunction = amend('onBeforeLeave', [location, commands, this], chain.element);
+        const afterLeaveFunction = amend('onBeforeLeave', [location, commands, this], chainElement.element);
         return afterLeaveFunction(result);
       }
     }).then(result => {
@@ -658,11 +659,11 @@ export class Router extends Resolver {
     });
   }
 
-  __runOnBeforeEnterCallbacks(callbacks, newContext, commands, chain) {
-    const location = createLocation(newContext, chain.route);
+  __runOnBeforeEnterCallbacks(callbacks, newContext, commands, chainElement) {
+    const location = createLocation(newContext, chainElement.route);
     return callbacks.then(result => {
       if (this.__isLatestRender(newContext)) {
-        const beforeEnterFunction = amend('onBeforeEnter', [location, commands, this], chain.element);
+        const beforeEnterFunction = amend('onBeforeEnter', [location, commands, this], chainElement.element);
         return beforeEnterFunction(result);
       }
     });
