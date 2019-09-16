@@ -83,7 +83,7 @@
           await router.render('/');
 
           verifyActiveRoutes(router, ['/a']);
-          expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+          expect(outlet.lastChild.tagName).to.match(/x-users-view/i);
         });
 
         it('should be able to have multiple action redirects', async() => {
@@ -95,11 +95,15 @@
 
           await router.render('/');
 
-          expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+          expect(outlet.lastChild.tagName).to.match(/x-users-list/i);
           verifyActiveRoutes(router, ['/users']);
         });
 
         it('should fail on recursive action redirects', async() => {
+
+          // Assure that outlet is emptied.
+          outlet.innerHTML = '';
+
           router.setRoutes([
             {path: '/a', action: (context, commands) => commands.redirect('/b')},
             {path: '/b', action: (context, commands) => commands.redirect('/c')},

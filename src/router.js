@@ -226,6 +226,7 @@ export class Router extends Resolver {
     this.subscribe();
     // Using WeakMap instead of WeakSet because WeakSet is not supported by IE11
     this.__createdByRouter = new WeakMap();
+    this.__addedByRouter = new WeakMap();
   }
 
   __resolveRoute(context) {
@@ -745,13 +746,19 @@ export class Router extends Resolver {
     this.__removeAppearingContent();
 
     // Copy reusable elements from the previousContext to current
-    let deepestCommonParent = this.__copyUnchangedElements(context, previousContext);
+    const deepestCommonParent = this.__copyUnchangedElements(context, previousContext);
 
     // Keep two lists of DOM elements:
     //  - those that should be removed once the transition animation is over
     //  - and those that should remain
     this.__appearingContent = [];
-    this.__disappearingContent = Array.from(deepestCommonParent.children).filter(e => e !== context.result);
+    this.__disappearingContent = Array
+      .from(deepestCommonParent.children)
+      .filter(
+        // Only remove layout content that was added by router
+        e => this.__addedByRouter.get(e) &&
+        // Do not remove the result element to avoid flickering
+        e !== context.result);
 
     // Add new elements (starting after the deepest common parent) to the DOM.
     // That way only the components that are actually different between the two
@@ -762,6 +769,7 @@ export class Router extends Resolver {
       const elementToAdd = context.chain[i].element;
       if (elementToAdd) {
         parentElement.appendChild(elementToAdd);
+        this.__addedByRouter.set(elementToAdd, true);
         if (parentElement === deepestCommonParent) {
           this.__appearingContent.push(elementToAdd);
         }
