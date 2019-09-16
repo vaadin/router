@@ -477,6 +477,8 @@ export class Router extends Resolver {
 
           // Skip detaching/re-attaching there are no render changes
           if (context.__skipAttach) {
+            this.__copyUnchangedElements(context, previousContext);
+            this.__previousContext = context;
             return this.location;
           }
 
@@ -717,13 +719,7 @@ export class Router extends Resolver {
     }
   }
 
-  __addAppearingContent(context, previousContext) {
-    this.__ensureOutlet();
-
-    // If the previous 'entering' animation has not completed yet,
-    // stop it and remove that content from the DOM before adding new one.
-    this.__removeAppearingContent();
-
+  __copyUnchangedElements(context, previousContext) {
     // Find the deepest common parent between the last and the new component
     // chains. Update references for the unchanged elements in the new chain
     let deepestCommonParent = this.__outlet;
@@ -738,6 +734,18 @@ export class Router extends Resolver {
         }
       }
     }
+    return deepestCommonParent;
+  }
+
+  __addAppearingContent(context, previousContext) {
+    this.__ensureOutlet();
+
+    // If the previous 'entering' animation has not completed yet,
+    // stop it and remove that content from the DOM before adding new one.
+    this.__removeAppearingContent();
+
+    // Copy reusable elements from the previousContext to current
+    let deepestCommonParent = this.__copyUnchangedElements(context, previousContext);
 
     // Keep two lists of DOM elements:
     //  - those that should be removed once the transition animation is over

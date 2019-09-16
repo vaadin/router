@@ -1569,6 +1569,54 @@
           verifyCallbacks([
           ]);
         });
+
+        it('should update previousContext when attach is skipped (#391)', async () => {
+          const container = document.createElement('x-spy');
+          const layout = document.createElement('div');
+
+          router.setRoutes([
+            {
+              path: '/',
+              action: () => layout,
+              children: [
+                {
+                  path: '(.*)',
+                  action: (ctx) => {
+                    container.name = `${ctx.pathname}-container`
+                    callbacksLog.push(`${container.name}.action`);
+                    return container;
+                  }
+                },
+              ]
+            }
+          ], true);
+
+          callbacksLog = [];
+          await router.render('/server1');
+          verifyCallbacks([
+            '/server1-container.action',
+            '/server1-container.onBeforeEnter',
+            '/server1-container.connectedCallback',
+            '/server1-container.onAfterEnter'
+          ]);
+
+          callbacksLog = [];
+          await router.render('/server2');
+          verifyCallbacks([
+            '/server2-container.action',
+            '/server2-container.onBeforeLeave',
+            '/server2-container.onBeforeEnter'
+          ]);
+
+          // This fails if previousContext is not updated (#391)
+          callbacksLog = [];
+          await router.render('/server1');
+          verifyCallbacks([
+            '/server1-container.action',
+            '/server1-container.onBeforeLeave',
+            '/server1-container.onBeforeEnter'
+          ]);
+        });
       });
 
       describe('lifecycle events with async action', () => {
