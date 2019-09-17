@@ -55,7 +55,7 @@
         checkOutletContents
       } = VaadinTestNamespace;
 
-      const checkOutlet = values => checkOutletContents(outlet.children[0], 'tagName', values);
+      const checkOutlet = values => checkOutletContents(outlet.lastChild, 'tagName', values);
 
       it('each of the nested route components are rendered as children to each other in the same hierarchy', async() => {
         router.setRoutes([
@@ -82,16 +82,16 @@
         ]);
 
         await router.render('/a/b');
-        const first = outlet.children[0];
+        const first = outlet.lastChild;
         expect(first.firstElementChild.tagName).to.match(/x-b/i);
 
         await router.render('/a/c');
-        const second = outlet.children[0];
+        const second = outlet.lastChild;
         expect(second).to.equal(first);
         expect(second.firstElementChild.tagName).to.match(/x-c/i);
 
         await router.render('/a/d');
-        const third = outlet.children[0];
+        const third = outlet.lastChild;
         expect(third).to.equal(second);
         expect(third.firstElementChild.tagName).to.match(/x-d/i);
       });

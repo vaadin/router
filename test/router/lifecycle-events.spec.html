@@ -1569,6 +1569,93 @@
           verifyCallbacks([
           ]);
         });
+
+        it('should update previousContext when attach is skipped (#391)', async() => {
+          const container = document.createElement('x-spy');
+          const layout = document.createElement('div');
+
+          router.setRoutes([
+            {
+              path: '/',
+              action: () => layout,
+              children: [
+                {
+                  path: '(.*)',
+                  action: (ctx) => {
+                    container.name = `${ctx.pathname}-container`;
+                    callbacksLog.push(`${container.name}.action`);
+                    return container;
+                  }
+                },
+              ]
+            }
+          ], true);
+
+          callbacksLog = [];
+          await router.render('/server1');
+          verifyCallbacks([
+            '/server1-container.action',
+            '/server1-container.onBeforeEnter',
+            '/server1-container.connectedCallback',
+            '/server1-container.onAfterEnter'
+          ]);
+
+          callbacksLog = [];
+          await router.render('/server2');
+          verifyCallbacks([
+            '/server2-container.action',
+            '/server2-container.onBeforeLeave',
+            '/server2-container.onBeforeEnter'
+          ]);
+
+          // This fails if previousContext is not updated (#391)
+          callbacksLog = [];
+          await router.render('/server1');
+          verifyCallbacks([
+            '/server1-container.action',
+            '/server1-container.onBeforeLeave',
+            '/server1-container.onBeforeEnter'
+          ]);
+        });
+
+
+        it('should not remove layout contents when it is reused (#392)', async() => {
+          // A reusable layout with some content
+          const layout = document.createElement('span');
+          const layoutContent = document.createElement('a');
+          layoutContent.textContent = 'layout-link';
+          layout.appendChild(layoutContent);
+
+          // Two different reusable views for client and server routes
+          const clientContainer = document.createElement('h1');
+          clientContainer.textContent = 'client';
+          const serverContainer = document.createElement('h2');
+          serverContainer.textContent = 'server';
+
+          router.setRoutes([
+            {
+              path: '/',
+              action: () => layout,
+              children: [
+                {
+                  path: 'client',
+                  action: ctx => clientContainer
+                },
+                {
+                  path: 'server',
+                  action: ctx => serverContainer
+                }
+
+              ]
+            }
+          ], true);
+
+          await router.render('/server');
+          expect(outlet.innerHTML.toLowerCase()).to.be.equal('<span><a>layout-link</a><h2>server</h2></span>');
+
+          await router.render('/client');
+          expect(outlet.innerHTML.toLowerCase()).to.be.equal('<span><a>layout-link</a><h1>client</h1></span>');
+        });
       });
 
       describe('lifecycle events with async action', () => {
