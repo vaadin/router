@@ -442,14 +442,19 @@ export class Router extends Resolver {
    */
   render(pathnameOrContext, shouldUpdateHistory) {
     const renderId = ++this.__lastStartedRenderId;
-    const {
-      pathname,
-      search,
-      hash
-    } = isString(pathnameOrContext) ? {pathname: pathnameOrContext, search: '', hash: ''} : pathnameOrContext;
+    const context = {
+      search: '',
+      hash: '',
+      ...(
+        isString(pathnameOrContext)
+          ? {pathname: pathnameOrContext}
+          : pathnameOrContext
+      ),
+      __renderId: renderId
+    };
 
     // Find the first route that resolves to a non-empty result
-    this.ready = this.resolve({pathname, search, hash, __renderId: renderId})
+    this.ready = this.resolve(context)
 
       // Process the result of this.resolve() and handle all special commands:
       // (redirect / prevent / component). If the result is a 'component',
@@ -505,11 +510,11 @@ export class Router extends Resolver {
       .catch(error => {
         if (renderId === this.__lastStartedRenderId) {
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory({pathname, search, hash});
+            this.__updateBrowserHistory(context);
           }
           removeDomNodes(this.__outlet && this.__outlet.children);
-          this.location = createLocation({pathname, resolver: this});
-          fireRouterEvent('error', {router: this, error, pathname});
+          this.location = createLocation({...context, resolver: this});
+          fireRouterEvent('error', {router: this, error, ...context});
           throw error;
         }
       });
@@ -607,10 +612,10 @@ export class Router extends Resolver {
 
       // Skip re-attaching and notifications if element and chain do not change
       newContext.__skipAttach =
-         // Same route chain
-         newChain.length === previousChain.length && newContext.__divergedChainIndex == newChain.length &&
-         // Same element
-         this.__isReusableElement(newContext.result, previousContext.result);
+        // Same route chain
+        newChain.length === previousChain.length && newContext.__divergedChainIndex == newChain.length &&
+        // Same element
+        this.__isReusableElement(newContext.result, previousContext.result);
 
       if (newContext.__skipAttach) {
         // execute onBeforeLeave for changed segment element when skipping attach
@@ -624,7 +629,9 @@ export class Router extends Resolver {
           if (previousChain[i].path !== newChain[i].path) {
             callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
           }
+          previousChain[i].element.location = createLocation(newContext, previousChain[i].route);
         }
+
       } else {
         // execute onBeforeLeave when NOT skipping attach
         for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
