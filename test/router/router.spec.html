@@ -1121,12 +1121,46 @@
             ]);
             await router.render({
               pathname: '/non-existent/path',
-              search: 'foo=bar',
+              search: '?foo=bar',
               hash: '#baz'
             });
             expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
-            expect(outlet.children[0]).to.have.deep.property('location.search', 'foo=bar');
+            expect(outlet.children[0]).to.have.deep.property('location.search', '?foo=bar');
             expect(outlet.children[0]).to.have.deep.property('location.hash', '#baz');
+          });
+
+          it('should update the `location` properties on the route component', async() => {
+            router.setRoutes([
+              {path: '(.*)', component: 'x-not-found-view'},
+            ]);
+            await router.render({
+              pathname: '/non-existent/path',
+              search: '?foo=bar',
+              hash: '#baz'
+            });
+            await router.render({
+              pathname: '/non-existent/path',
+              search: '?foo=qux',
+              hash: '#quz'
+            });
+            expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
+            expect(outlet.children[0]).to.have.deep.property('location.search', '?foo=qux');
+            expect(outlet.children[0]).to.have.deep.property('location.hash', '#quz');
+          });
+
+          it('should update the `location` properties on the route component on router.render(pathname)', async() => {
+            router.setRoutes([
+              {path: '(.*)', component: 'x-not-found-view'},
+            ]);
+            await router.render({
+              pathname: '/non-existent/path',
+              search: '?foo=bar',
+              hash: '#baz'
+            });
+            await router.render('/non-existent/path');
+            expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
+            expect(outlet.children[0]).to.have.deep.property('location.search', '');
+            expect(outlet.children[0]).to.have.deep.property('location.hash', '');
           });
 
           it('should keep route parameters when redirecting to different route', async() => {
@@ -1214,8 +1248,10 @@
             expect(action).to.have.been.called.once;
             expect(action.args[0].length).to.equal(2);
 
-            const contextParam = action.args[0][0];
+            let contextParam = action.args[0][0];
             expect(contextParam.pathname).to.equal('/');
+            expect(contextParam.search).to.equal('');
+            expect(contextParam.hash).to.equal('');
             expect(contextParam.route.path).to.equal('/');
             expect(contextParam.route.component).to.equal('x-home-view');
 
@@ -1223,6 +1259,22 @@
             expect(commandsParam.prevent).to.be.an('undefined');
             expect(commandsParam.redirect).to.be.a('function');
             expect(commandsParam.component).to.be.a('function');
+
+            action.reset();
+            await router.render({pathname: '/'});
+
+            contextParam = action.args[0][0];
+            expect(contextParam.pathname).to.equal('/');
+            expect(contextParam.search).to.equal('');
+            expect(contextParam.hash).to.equal('');
+
+            action.reset();
+            await router.render({pathname: '/', search: '?foo=bar', hash: '#baz'});
+
+            contextParam = action.args[0][0];
+            expect(contextParam.pathname).to.equal('/');
+            expect(contextParam.search).to.equal('?foo=bar');
+            expect(contextParam.hash).to.equal('#baz');
           });
 
           it('action.this points to the route that defines action', async() => {

@@ -1618,7 +1618,6 @@
           ]);
         });
 
-
         it('should not remove layout contents when it is reused (#392)', async() => {
           // A reusable layout with some content
           const layout = document.createElement('span');
@@ -1655,6 +1654,64 @@
 
           await router.render('/client');
           expect(outlet.innerHTML.toLowerCase()).to.be.equal('<span><a>layout-link</a><h1>client</h1></span>');
+        });
+
+        it('should skip lifecycle when path remains same and search string remains empty', async() => {
+          router.setRoutes([
+            {path: '/a', component: 'x-spy'}
+          ], true);
+
+          // Pathname only means empty search string
+          await router.render('/a');
+          const view = outlet.children[0];
+
+          callbacksLog = [];
+
+          // No search in context means empty search string
+          await router.render({pathname: '/a'});
+          expect(outlet.children[0]).to.be.equal(view);
+
+          // Search remains empty, skip lifecycle
+          verifyCallbacks([
+          ]);
+
+          // Explicit empty search string
+          await router.render({pathname: '/a', search: ''});
+          expect(outlet.children[0]).to.be.equal(view);
+
+          // Search remains empty, skip lifecycle
+          verifyCallbacks([
+          ]);
+        });
+
+        it('should call lifecycle when path remains same and search string changes', async() => {
+          router.setRoutes([
+            {path: '/a', component: 'x-spy'}
+          ], true);
+
+          // Pathname only means empty search string
+          await router.render('/a');
+          const view = outlet.children[0];
+
+          callbacksLog = [];
+          await router.render({pathname: '/a', search: '?foo=bar'});
+          expect(outlet.children[0]).to.be.equal(view);
+
+          // Search string changed, call short lifecycle without reattach
+          verifyCallbacks([
+            'x-spy.onBeforeLeave',
+            'x-spy.onBeforeEnter',
+          ]);
+
+          callbacksLog = [];
+          await router.render({pathname: '/a', search: '?foo=baz'});
+          expect(outlet.children[0]).to.be.equal(view);
+
+          // Search string changed again, call short lifecycle without reattach
+          verifyCallbacks([
+            'x-spy.onBeforeLeave',
+            'x-spy.onBeforeEnter',
+          ]);
         });
       });
 
