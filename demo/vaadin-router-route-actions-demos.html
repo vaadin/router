@@ -41,6 +41,8 @@
       <ul>
         <li><code>context.pathname</code> [string] the pathname being resolved
           </li>
+        <li><code>context.search</code> [string] the search query string</li>
+        <li><code>context.hash</code> [string] the hash string</li>
         <li><code>context.params</code> [object] the route parameters</li>
         <li><code>context.route</code> [object] the route that is currently being rendered</li>
         <li><code>context.next()</code> [function] function for asynchronously getting the next route contents from the resolution chain (if any)</li>
@@ -251,6 +253,52 @@
             {path: '/', component: 'x-home-view'},
             // current route parameters are automatically transferred to rendered element
             {path: '/users/:user', action: render},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Routing With Search Query and Hash</h3>
+    <p>
+      Route action function can access <code>context.search</code> and
+      <code>context.hash</code> URL parts, even though they are not involved
+      in matching route paths.
+    </p>
+    <p>
+      For example, an action can change the route behavior depending on
+      a search parameter, and optionally render, skip to next route or redirect.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-route-actions-demo-5" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/?view=login">Login</a>
+        </nav>
+        <div id="outlet"></div>
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {
+              path: '/',
+              action: (context, commands) => {
+                // Extract the `?view=` parameter value and decide upon it
+                const view = new URLSearchParams(context.search).get('view');
+                if (view === 'login') {
+                  return commands.component('x-login-view');
+                } else if (view) {
+                  // Redirect home for unkown values
+                  return commands.redirect('/');
+                } else {
+                  // Skip to next route if parameter is absent
+                  return context.next();
+                }
+              }
+            },
+            // Same path, only matches if the action above skips
+            {path: '/', component: 'x-home-view'}
           ]);
         </script>
       </template>
