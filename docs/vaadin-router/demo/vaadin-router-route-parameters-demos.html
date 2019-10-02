@@ -175,6 +175,97 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Search Query Parameters</h3>
+    <p>
+      The search query string (<code>?example</code>) URL part is considered
+      separate from the pathname. Hence, it does not participate in matching
+      the route <code>path</code>, and <code>location.params</code> does not
+      contain search query string parameters.
+    </p>
+    <p>
+      Use <code>location.search</code> to access the raw search query string.
+      For parsing the parameters, use <code>URLSearchParams</code> native API.
+    </p>
+    <p>
+      Note: The <code>URLSearchParams</code> API is absent in IE 11, make sure
+      to have <a href="#">the <code>URLSearchParams</code> polyfill</a>.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-5" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <a href="/">Start page</a>
+          <a href="/?page=1">Page 1</a>
+          <a href="/?page=2">Page 2</a>
+        </nav>
+        <div id="outlet"></div>
+
+        <dom-module id="page-number-view">
+          <template>
+            Page number: [[getPageNumber(location)]]
+          </template>
+        </dom-module>
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          class PageNumberViewElement extends Polymer.Element {
+            static get is() {
+              return 'page-number-view';
+            }
+
+            getPageNumber(location) {
+              return new URLSearchParams(location.search).get('page') || 'none';
+            }
+          }
+          customElements.define(PageNumberViewElement.is, PageNumberViewElement);
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'page-number-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <h3>Hash String</h3>
+    <p>
+      Likewise with the search query, the hash string (<code>#example</code>)
+      is separate from the pathname as well. Use <code>location.hash</code>
+      to access the hash string in the view component.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-6" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <a href="/#preface">Preface</a>
+          <a href="/#chapter_one">Chapter one</a>
+          <a href="/#chapter_two">Chapter two</a>
+        </nav>
+        <div id="outlet"></div>
+
+        <dom-module id="hash-view">
+          <template>
+            Current hash: [[location.hash]]
+          </template>
+        </dom-module>
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          class HashViewElement extends Polymer.Element {
+            static get is() {
+              return 'hash-view';
+            }
+          }
+          customElements.define(HashViewElement.is, HashViewElement);
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'hash-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
   </template>
   <script>var VaadinRouterRouteParametersDemos=/*#__PURE__*/function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterRouteParametersDemos,_DemoReadyEventEmitte);function VaadinRouterRouteParametersDemos(){babelHelpers.classCallCheck(this,VaadinRouterRouteParametersDemos);return babelHelpers.possibleConstructorReturn(this,babelHelpers.getPrototypeOf(VaadinRouterRouteParametersDemos).apply(this,arguments))}babelHelpers.createClass(VaadinRouterRouteParametersDemos,null,[{key:"is",get:function get(){return"vaadin-router-route-parameters-demos"}}]);return VaadinRouterRouteParametersDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterRouteParametersDemos.is,VaadinRouterRouteParametersDemos);</script>
 </dom-module>

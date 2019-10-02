@@ -967,6 +967,71 @@
               expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
             });
 
+            it('should support url with search string', () => {
+              const spy = sinon.spy();
+              window.addEventListener('vaadin-router-go', spy);
+              Vaadin.Router.go('/admin?foo=bar');
+              window.removeEventListener('vaadin-router-go', spy);
+
+              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.deep.property('detail.search', '?foo=bar');
+              expect(spy.args[0][0]).to.have.deep.property('detail.hash', '');
+            });
+
+            it('should support url with hash string', () => {
+              const spy = sinon.spy();
+              window.addEventListener('vaadin-router-go', spy);
+              // use a valid route
+              Vaadin.Router.go('/admin#foo');
+              window.removeEventListener('vaadin-router-go', spy);
+
+              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.deep.property('detail.search', '');
+              expect(spy.args[0][0]).to.have.deep.property('detail.hash', '#foo');
+            });
+
+            it('should support url with search and hash strings', () => {
+              const spy = sinon.spy();
+              window.addEventListener('vaadin-router-go', spy);
+              // use a valid route
+              Vaadin.Router.go('/admin?foo=bar#baz');
+              window.removeEventListener('vaadin-router-go', spy);
+
+              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.deep.property('detail.search', '?foo=bar');
+              expect(spy.args[0][0]).to.have.deep.property('detail.hash', '#baz');
+            });
+
+            it('should support object argument with pathname, optional search, and optional hash', () => {
+              const spy = sinon.spy();
+              window.addEventListener('vaadin-router-go', spy);
+
+              Vaadin.Router.go({pathname: '/admin'});
+              console.log(spy.args[0][0].detail);
+
+              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.deep.property('detail.search', undefined);
+              expect(spy.args[0][0]).to.have.deep.property('detail.hash', undefined);
+
+              spy.reset();
+              Vaadin.Router.go({pathname: '/admin', search: '?foo=bar'});
+              console.log(spy.args[0][0].detail);
+
+              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.deep.property('detail.search', '?foo=bar');
+              expect(spy.args[0][0]).to.have.deep.property('detail.hash', undefined);
+
+              spy.reset();
+              Vaadin.Router.go({pathname: '/admin', hash: '#baz'});
+              console.log(spy.args[0][0].detail);
+
+              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.deep.property('detail.search', undefined);
+              expect(spy.args[0][0]).to.have.deep.property('detail.hash', '#baz');
+
+              window.removeEventListener('vaadin-router-go', spy);
+            });
+
             it('should return false by default', () => {
               router.unsubscribe();
 
