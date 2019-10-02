@@ -35,6 +35,9 @@ Router.setTriggers(
   {activate() {}, inactivate() {}}
 );
 expectTypeOfValue<boolean>(Router.go('/'));
+expectTypeOfValue<boolean>(Router.go({pathname: '/'}));
+expectTypeOfValue<boolean>(Router.go({pathname: '/', search: '?foo=bar'}));
+expectTypeOfValue<boolean>(Router.go({pathname: '/', hash: '#baz'}));
 
 // Basic properties
 expectTypeOfValue<string>(router.baseUrl);
