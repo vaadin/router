@@ -220,6 +220,69 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Generating URLs with search query parameters and hash string</h3>
+    <p>
+      At the moment, Vaadin Router does not provide URL generation APIs for
+      appending search query parameters or hash strings to the generated URLs.
+      However, you could append those with string concatenation.
+    </p>
+    <p>
+      For serialising parameters into a query string, use the native
+      <code>URLSearchParams</code> API.
+    </p>
+    <p>
+      Note: The <code>URLSearchParams</code> API is absent in IE 11, make sure
+      to have <a href="#">the <code>URLSearchParams</code> polyfill</a>.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-url-generation-demo-search-hash" iframe-src="iframe.html">
+      <template preserve-content="">
+        <div id="outlet"></div>
+        <dom-module id="pages-menu">
+          <template>
+            <nav>
+              Pages:
+              <dom-repeat items="[1, 2, 3, 4, 5]" as="pageNumber">
+                <template>
+                  <a href="[[_urlForPageNumber(location, pageNumber)]]">[[pageNumber]]</a>
+                </template>
+              </dom-repeat>
+            </nav>
+            <nav>
+              Sections:
+              <a href="[[_urlForSection(location, 'summary')]]">Summary</a>
+              <a href="[[_urlForSection(location, 'footnotes')]]">Footnotes</a>
+            </nav>
+          </template>
+        </dom-module>
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          class PagesMenuElement extends Polymer.Element {
+            static get is() {
+              return 'pages-menu';
+            }
+
+            _urlForPageNumber(location, pageNumber) {
+              const query = new URLSearchParams({page: pageNumber}).toString();
+              return location.getUrl() + '?' + query;
+            }
+
+            _urlForSection(location, section) {
+              return location.getUrl() + '#' + section;
+            }
+          }
+          customElements.define(PagesMenuElement.is, PagesMenuElement);
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'pages-menu'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
   </template>
   <script>var VaadinRouterLinkGenerationDemos=/*#__PURE__*/function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterLinkGenerationDemos,_DemoReadyEventEmitte);function VaadinRouterLinkGenerationDemos(){babelHelpers.classCallCheck(this,VaadinRouterLinkGenerationDemos);return babelHelpers.possibleConstructorReturn(this,babelHelpers.getPrototypeOf(VaadinRouterLinkGenerationDemos).apply(this,arguments))}babelHelpers.createClass(VaadinRouterLinkGenerationDemos,[{key:"ready",value:function ready(){babelHelpers.get(babelHelpers.getPrototypeOf(VaadinRouterLinkGenerationDemos.prototype),"ready",this).call(this);// The base URL demo should '/ui/' initially instead of the default '/'
 // TODO(platosha): Remove the workaround below after

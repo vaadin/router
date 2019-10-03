@@ -115,6 +115,32 @@
       static <a target="_parent" href="..#/classes/Router#staticmethod-go"><code>
       Router.go('/to/path')</code></a> method on the Vaadin.Router class.
     </p>
+    <p>
+      You can optionally pass search query string and hash to the method, either
+      as in-app URL string:
+    </p>
+    <marked-element>
+      <script type="text/markdown">
+        ```js
+        Router.go('/to/path?paramName=value#sectionName');
+        ```
+      </script>
+    </marked-element>
+      ... or using an object with named parameters:
+    <p></p>
+    <marked-element>
+      <script type="text/markdown">
+        ```js
+        Router.go({
+          pathname: '/to/path',
+          // optional
+          search: '?paramName=value',
+          // optional
+          hash: '#sectionName'
+        });
+        ```
+      </script>
+    </marked-element>
     <vaadin-demo-snippet id="vaadin-router-redirect-demos-3" iframe-src="iframe.html">
       <template preserve-content="">
         <button id="trigger">Open <code>/user/you-know-who</code></button>
@@ -139,13 +165,22 @@
     <p>
       NOTE: the same effect can be achieved by dispatching a <code>
       vaadin-router-go</code> custom event on the <code>window</code>. The
-      target path should be provided as <code>event.detail.pathname</code>.
+      target path should be provided as <code>event.detail.pathname</code>,
+      the search and hash strings can be optionally provided
+      with <code>event.detail.search</code> and <code>event.detail.hash</code>
+      properties respectively.
     </p>
     <marked-element>
       <script type="text/markdown">
         ```js
         window.dispatchEvent(
-          new CustomEvent('vaadin-router-go', {detail: {pathname: '/to/path'}}));
+          new CustomEvent('vaadin-router-go', {detail: {
+            pathname: '/to/path',
+            // optional search query string
+            search: '?paramName=value',
+            // optional hash string
+            hash: '#sectionName'
+          }}));
         ```
       </script>
     </marked-element>

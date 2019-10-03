@@ -969,12 +969,17 @@ export class Router extends Resolver {
    * Triggers navigation to a new path. Returns a boolean without waiting until
    * the navigation is complete. Returns `true` if at least one `Router`
    * has handled the navigation (was subscribed and had `baseUrl` matching
-   * the `pathname` argument), otherwise returns `false`.
+   * the `path` argument), otherwise returns `false`.
    *
-   * @param {!string} pathname a new in-app path
+   * @param {!string|!{pathname: !string, search: (string|undefined), hash: (string|undefined)}} path
+   *   a new in-app path string, or an URL-like object with `pathname`
+   *   string property, and optional `search` and `hash` string properties.
    * @return {boolean}
    */
-  static go(pathname) {
-    return fireRouterEvent('go', {pathname});
+  static go(path) {
+    const {pathname, search, hash} = isString(path)
+      ? this.__createUrl(path, 'http://a') // some base to omit origin
+      : path;
+    return fireRouterEvent('go', {pathname, search, hash});
   }
 }
