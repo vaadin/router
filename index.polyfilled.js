@@ -38,9 +38,16 @@ Resolver.__ensureUrlAvailableOrPolyfilled = () => {
         });
 
         // IE11: HTMLAnchorElement pathname does not start with a leading slash
+        const getPathnameOrig = Object.getOwnPropertyDescriptor(
+          Object.getPrototypeOf(urlAnchor),
+          'pathname'
+        ).get;
         Object.defineProperty(urlAnchor, 'pathname', {
           get: () => {
-            return urlAnchor.href.slice(urlAnchor.origin.length);
+            const pathname = getPathnameOrig.apply(urlAnchor);
+            return pathname.charAt(0) !== '/'
+              ? '/' + pathname
+              : pathname;
           }
         });
       }
