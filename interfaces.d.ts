@@ -76,6 +76,8 @@ declare namespace Router {
     children?: Route[] | ChildrenFn;
     component?: string;
     redirect?: string;
+    // Allow unknown property names
+    [key: string]: any;
   }
   interface RouteWithAction extends BaseRoute {
     action: ActionFn;
