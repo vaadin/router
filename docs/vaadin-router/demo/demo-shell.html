@@ -7157,7 +7157,9 @@ this.ready=this.resolve(context)// Process the result of this.resolve() and hand
 .then(function(context){return _this3.__fullyResolveChain(context)}).then(function(context){if(_this3.__isLatestRender(context)){var previousContext=_this3.__previousContext;// Check if the render was prevented and make an early return in that case
 if(context===previousContext){// Replace the history with the previous context
 // to make sure the URL stays the same.
-_this3.__updateBrowserHistory(previousContext,!0);return _this3.location}_this3.location=createLocation(context);fireRouterEvent("location-changed",{router:_this3,location:_this3.location});if(shouldUpdateHistory){_this3.__updateBrowserHistory(context,context.redirectFrom)}// Skip detaching/re-attaching there are no render changes
+_this3.__updateBrowserHistory(previousContext,!0);return _this3.location}_this3.location=createLocation(context);fireRouterEvent("location-changed",{router:_this3,location:_this3.location});if(shouldUpdateHistory){// Replace only if first render redirects, so that we don’t leave
+// the redirecting record in the history
+_this3.__updateBrowserHistory(context,1===renderId)}// Skip detaching/re-attaching there are no render changes
 if(context.__skipAttach){_this3.__copyUnchangedElements(context,previousContext);_this3.__previousContext=context;return _this3.location}_this3.__addAppearingContent(context,previousContext);var animationDone=_this3.__animateIfNeeded(context);_this3.__runOnAfterEnterCallbacks(context);_this3.__runOnAfterLeaveCallbacks(context,previousContext);return animationDone.then(function(){if(_this3.__isLatestRender(context)){// If there is another render pass started after this one,
 // the 'disappearing content' would be removed when the other
 // render pass calls `this.__addAppearingContent()`
@@ -7712,7 +7714,7 @@ window.Vaadin=window.Vaadin||{};/**
     // Intentionally ignored as this is not a problem in the app being developed
     }
     }());
-     vaadin-dev-mode:end **/}var usageStatistics=function usageStatistics(){if("function"===typeof runIfDevelopmentMode){return runIfDevelopmentMode(maybeGatherAndSendStats)}};window.Vaadin=window.Vaadin||{};window.Vaadin.registrations=window.Vaadin.registrations||[];window.Vaadin.registrations.push({is:"@vaadin/router",version:"1.4.3"});usageStatistics();Router.NavigationTrigger={POPSTATE:POPSTATE,CLICK:CLICK};var isUrlAvailable,urlDocument,urlBase,urlAnchor;Resolver.__ensureUrlAvailableOrPolyfilled=function(){if(isUrlAvailable===void 0){try{var url=new URL("b","http://a");url.pathname="c";isUrlAvailable="http://a/c"===url.href}catch(e){isUrlAvailable=!1}if(!isUrlAvailable){// The URL constructor is not available in IE11. Polyfill it by creating
+     vaadin-dev-mode:end **/}var usageStatistics=function usageStatistics(){if("function"===typeof runIfDevelopmentMode){return runIfDevelopmentMode(maybeGatherAndSendStats)}};window.Vaadin=window.Vaadin||{};window.Vaadin.registrations=window.Vaadin.registrations||[];window.Vaadin.registrations.push({is:"@vaadin/router",version:"1.5.0"});usageStatistics();Router.NavigationTrigger={POPSTATE:POPSTATE,CLICK:CLICK};var isUrlAvailable,urlDocument,urlBase,urlAnchor;Resolver.__ensureUrlAvailableOrPolyfilled=function(){if(isUrlAvailable===void 0){try{var url=new URL("b","http://a");url.pathname="c";isUrlAvailable="http://a/c"===url.href}catch(e){isUrlAvailable=!1}if(!isUrlAvailable){// The URL constructor is not available in IE11. Polyfill it by creating
 // an HTMLAnchorElement in an in-memory HTML document.
 urlDocument=document.implementation.createHTMLDocument("url");urlBase=urlDocument.createElement("base");urlDocument.head.appendChild(urlBase);urlAnchor=urlDocument.createElement("a");if(!urlAnchor.origin){// IE11: HTMLAnchorElement does not have the `origin` property
 Object.defineProperty(urlAnchor,"origin",{get:function get(){// IE11: on HTTP and HTTPS the default port is not included into
