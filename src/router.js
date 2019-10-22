@@ -480,7 +480,9 @@ export class Router extends Resolver {
           fireRouterEvent('location-changed', {router: this, location: this.location});
 
           if (shouldUpdateHistory) {
-            this.__updateBrowserHistory(context, context.redirectFrom);
+            // Replace only if first render redirects, so that we don’t leave
+            // the redirecting record in the history
+            this.__updateBrowserHistory(context, renderId === 1);
           }
 
           // Skip detaching/re-attaching there are no render changes

@@ -117,19 +117,54 @@
           expect(onError).to.have.been.called.once;
         });
 
-        it('should use `window.replaceState()` when redirecting from action', async() => {
+        it('should use `window.replaceState()` when redirecting from action on first render', async() => {
           const pushSpy = sinon.spy(window.history, 'pushState');
           const replaceSpy = sinon.spy(window.history, 'replaceState');
 
           router.setRoutes([
             {path: '/', action: (context, commands) => commands.redirect('/a')},
             {path: '/a', component: 'x-users-view'},
-          ]);
+          ], true);
 
           await router.render('/', true);
 
           expect(pushSpy).to.not.be.called;
           expect(replaceSpy).to.be.calledOnce;
+
+          window.history.pushState.restore();
+          window.history.replaceState.restore();
+        });
+
+        it('should use `window.pushState()` when redirecting from action on next renders', async() => {
+          router.setRoutes([
+            {path: '/', action: (context, commands) => commands.redirect('/a')},
+            {path: '/a', component: 'x-users-view'},
+            {path: '/b', component: 'x-users-view'},
+          ]);
+          await router.render('/b', true);
+
+          const pushSpy = sinon.spy(window.history, 'pushState');
+          const replaceSpy = sinon.spy(window.history, 'replaceState');
+
+          await router.render('/', true);
+
+          expect(pushSpy).to.be.calledOnce;
+          expect(replaceSpy).to.not.be.called;
+
+          // Make non-redirecting render to update the URL
+          await router.render('/b', true);
+
+          expect(pushSpy).to.be.calledTwice;
+          expect(replaceSpy).to.not.be.called;
+
+          // Redirecting navigation again
+          await router.render('/', true);
+
+          expect(pushSpy).to.be.calledThrice;
+          expect(replaceSpy).to.not.be.called;
+
+          window.history.pushState.restore();
+          window.history.replaceState.restore();
         });
       });
     });

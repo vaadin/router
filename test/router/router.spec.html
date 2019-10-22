@@ -385,17 +385,56 @@
             expect(outlet.children[0].tagName).to.match(/x-users-view/i);
           });
 
-          it('should use `window.replaceState()` when redirecting', async() => {
+          it('should use `window.replaceState()` when redirecting on initial render', async() => {
             const pushSpy = sinon.spy(window.history, 'pushState');
             const replaceSpy = sinon.spy(window.history, 'replaceState');
+
             router.setRoutes([
               {path: '/', component: 'x-home-view'},
               {path: '/people', redirect: '/users'},
               {path: '/users', component: 'x-users-view'},
-            ]);
+            ], true);
             await router.render('/people', true);
+
             expect(pushSpy).to.not.be.called;
             expect(replaceSpy).to.be.calledOnce;
+
+            window.history.pushState.restore();
+            window.history.replaceState.restore();
+          });
+
+          it('should use `window.pushState()` when redirecting on next renders', async() => {
+            router.setRoutes([
+              {path: '/', component: 'x-home-view'},
+              {path: '/people', redirect: '/users'},
+              {path: '/users', component: 'x-users-view'},
+            ], true);
+            await router.render('/', true);
+
+            const pushSpy = sinon.spy(window.history, 'pushState');
+            const replaceSpy = sinon.spy(window.history, 'replaceState');
+
+            await router.render('/people', true);
+
+            expect(pushSpy).to.be.calledOnce;
+            expect(replaceSpy).to.not.be.called;
+
+            // If we render '/people' again right away, it redirects back to current URL.
+            // The URL does not change in that case, and history is not updated.
+            // Make non-redirecting render to update the URL.
+            await router.render('/', true);
+
+            expect(pushSpy).to.be.calledTwice;
+            expect(replaceSpy).to.not.be.called;
+
+            // Redirecting navigation again
+            await router.render('/people', true);
+
+            expect(pushSpy).to.be.calledThrice;
+            expect(replaceSpy).to.not.be.called;
+
+            window.history.pushState.restore();
+            window.history.replaceState.restore();
           });
 
           it('should set the `location.redirectFrom` property on the route component in case of redirect', async() => {
