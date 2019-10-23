@@ -6624,7 +6624,18 @@ return Prism.languages.markup;}}})})();</script><script>/**
    * @memberof Vaadin
    */Vaadin.ThemePropertyMixin=function(superClass){return(/*#__PURE__*/function(_superClass){babelHelpers.inherits(VaadinThemePropertyMixin,_superClass);function VaadinThemePropertyMixin(){babelHelpers.classCallCheck(this,VaadinThemePropertyMixin);return babelHelpers.possibleConstructorReturn(this,babelHelpers.getPrototypeOf(VaadinThemePropertyMixin).apply(this,arguments))}babelHelpers.createClass(VaadinThemePropertyMixin,[{key:"attributeChangedCallback",/** @protected */value:function attributeChangedCallback(name,oldValue,newValue){babelHelpers.get(babelHelpers.getPrototypeOf(VaadinThemePropertyMixin.prototype),"attributeChangedCallback",this).call(this,name,oldValue,newValue);if("theme"===name){this._setTheme(newValue)}}}],[{key:"properties",get:function get(){return{/**
          * Helper property with theme attribute value facilitating propagation
-         * in shadow DOM. Allows using `theme$="[[theme]]"` in the template.
+         * in shadow DOM.
+         *
+         * Enables the component implementation to propagate the `theme`
+         * attribute value to the subcomponents in Shadow DOM by binding
+         * the subcomponent’s "theme" attribute to the `theme` property of
+         * the host.
+         *
+         * **NOTE:** Extending the mixin only provides the property for binding,
+         * and does not make the propagation alone.
+         *
+         * See [Theme Attribute and Subcomponents](https://github.com/vaadin/vaadin-themable-mixin/wiki/5.-Theme-Attribute-and-Subcomponents).
+         * page for more information.
          *
          * @protected
          */theme:{type:String,readOnly:!0}}}}]);return VaadinThemePropertyMixin}(superClass))};</script><script>/**
@@ -6632,6 +6643,7 @@ return Prism.languages.markup;}}})})();</script><script>/**
    */window.Vaadin=window.Vaadin||{};/**
    * @polymerMixin
    * @memberof Vaadin
+   * @mixes Vaadin.ThemePropertyMixin
    */Vaadin.ThemableMixin=function(superClass){return(/*#__PURE__*/function(_Vaadin$ThemeProperty){babelHelpers.inherits(VaadinThemableMixin,_Vaadin$ThemeProperty);function VaadinThemableMixin(){babelHelpers.classCallCheck(this,VaadinThemableMixin);return babelHelpers.possibleConstructorReturn(this,babelHelpers.getPrototypeOf(VaadinThemableMixin).apply(this,arguments))}babelHelpers.createClass(VaadinThemableMixin,null,[{key:"finalize",/** @protected */value:function finalize(){var _this=this;babelHelpers.get(babelHelpers.getPrototypeOf(VaadinThemableMixin),"finalize",this).call(this);var template=this.prototype._template,hasOwnTemplate=this.template&&this.template.parentElement&&this.template.parentElement.id===this.is,inheritedTemplate=Object.getPrototypeOf(this.prototype)._template;if(inheritedTemplate&&!hasOwnTemplate){// The element doesn't define its own template -> include the theme modules from the inherited template
 Array.from(inheritedTemplate.content.querySelectorAll("style[include]")).forEach(function(s){_this._includeStyle(s.getAttribute("include"),template)})}this._includeMatchingThemes(template)}/** @protected */},{key:"_includeMatchingThemes",value:function _includeMatchingThemes(template){var _this2=this,domModule=Polymer.DomModule,modules=domModule.prototype.modules,hasThemes=!1,defaultModuleName=this.is+"-default-theme";Object.keys(modules).sort(function(moduleNameA,moduleNameB){var vaadinA=0===moduleNameA.indexOf("vaadin-"),vaadinB=0===moduleNameB.indexOf("vaadin-"),vaadinThemePrefixes=["lumo-","material-"],vaadinThemeA=0<vaadinThemePrefixes.filter(function(prefix){return 0===moduleNameA.indexOf(prefix)}).length,vaadinThemeB=0<vaadinThemePrefixes.filter(function(prefix){return 0===moduleNameB.indexOf(prefix)}).length;if(vaadinA!==vaadinB){// Include vaadin core styles first
 return vaadinA?-1:1}else if(vaadinThemeA!==vaadinThemeB){// Include vaadin theme styles after that
