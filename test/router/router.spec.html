@@ -144,6 +144,40 @@
             document.head.removeChild(baseElement);
           });
 
+          it('should resolve relative base href when setting baseUrl', async() => {
+            const baseElement = document.createElement('base');
+            baseElement.setAttribute('href', './..');
+            document.head.appendChild(baseElement);
+
+            router = new Vaadin.Router(null);
+            const expectedURL = new URL('./..', document.URL).pathname;
+            expect(router).to.have.property('baseUrl', expectedURL);
+
+            document.head.removeChild(baseElement);
+          });
+
+          it('should use absolute base href when setting baseUrl', async() => {
+            const baseElement = document.createElement('base');
+            baseElement.setAttribute('href', '/my/base/');
+            document.head.appendChild(baseElement);
+
+            router = new Vaadin.Router(null);
+            expect(router).to.have.property('baseUrl', '/my/base/');
+
+            document.head.removeChild(baseElement);
+          });
+
+          it('should use custom base href when setting baseUrl', async() => {
+            const baseElement = document.createElement('base');
+            baseElement.setAttribute('href', 'http://localhost:8080/my/custom/base/');
+            document.head.appendChild(baseElement);
+
+            router = new Vaadin.Router(null);
+            expect(router).to.have.property('baseUrl', '/my/custom/base/');
+
+            document.head.removeChild(baseElement);
+          });
+
           it('should use baseUrl when matching relative routes', async() => {
             router = new Vaadin.Router(outlet, {baseUrl: '/foo/'});
             router.setRoutes([

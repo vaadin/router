@@ -177,9 +177,10 @@ export class Router extends Resolver {
    */
   constructor(outlet, options) {
     const baseElement = document.head.querySelector('base');
+    const baseHref = baseElement && baseElement.getAttribute('href');
     super([], Object.assign({
       // Default options
-      baseUrl: baseElement && baseElement.getAttribute('href')
+      baseUrl: baseHref && Resolver.__createUrl(baseHref, document.URL).pathname.replace(/[^\/]*$/, '')
     }, options));
 
     this.resolveRoute = context => this.__resolveRoute(context);
@@ -189,8 +190,9 @@ export class Router extends Resolver {
 
     /**
      * The base URL for all routes in the router instance. By default,
-     * takes the `<base href>` attribute value if the base element exists
-     * in the `<head>`.
+     * if the base element exists in the `<head>`, vaadin-router
+     * takes the `<base href>` attribute value, resolves against current `document.URL`
+     * and gets the `pathname` from the result.
      *
      * @public
      * @type {string}
