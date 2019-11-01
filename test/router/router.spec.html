@@ -150,8 +150,7 @@
             document.head.appendChild(baseElement);
 
             router = new Vaadin.Router(null);
-            const expectedURL = new URL('./..', document.URL).pathname;
-            expect(router).to.have.property('baseUrl', expectedURL);
+            expect(router).to.have.property('baseUrl', '/');
 
             document.head.removeChild(baseElement);
           });
