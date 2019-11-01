@@ -146,11 +146,11 @@
 
           it('should resolve relative base href when setting baseUrl', async() => {
             const baseElement = document.createElement('base');
-            baseElement.setAttribute('href', './..');
+            baseElement.setAttribute('href', './foo/../bar/asdf');
             document.head.appendChild(baseElement);
 
             router = new Vaadin.Router(null);
-            expect(router).to.have.property('baseUrl', '/');
+            expect(router).to.have.property('baseUrl', '/bar/');
 
             document.head.removeChild(baseElement);
           });
