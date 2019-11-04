@@ -7012,11 +7012,12 @@ cacheRoutes(routesByName,router.root,router.root.__children);route=getRouteByNam
      * ```
      * @param {?Node=} outlet
      * @param {?Router.Options=} options
-     */function Router(outlet,options){var _this;_classCallCheck(this,Router);var baseElement=document.head.querySelector("base");_this=_possibleConstructorReturn(this,_getPrototypeOf(Router).call(this,[],Object.assign({// Default options
-baseUrl:baseElement&&baseElement.getAttribute("href")},options)));_this.resolveRoute=function(context){return _this.__resolveRoute(context)};var triggers=Router.NavigationTrigger;Router.setTriggers.apply(Router,Object.keys(triggers).map(function(key){return triggers[key]}));/**
+     */function Router(outlet,options){var _this;_classCallCheck(this,Router);var baseElement=document.head.querySelector("base"),baseHref=baseElement&&baseElement.getAttribute("href");_this=_possibleConstructorReturn(this,_getPrototypeOf(Router).call(this,[],Object.assign({// Default options
+baseUrl:baseHref&&Resolver.__createUrl(baseHref,document.URL).pathname.replace(/[^\/]*$/,"")},options)));_this.resolveRoute=function(context){return _this.__resolveRoute(context)};var triggers=Router.NavigationTrigger;Router.setTriggers.apply(Router,Object.keys(triggers).map(function(key){return triggers[key]}));/**
        * The base URL for all routes in the router instance. By default,
-       * takes the `<base href>` attribute value if the base element exists
-       * in the `<head>`.
+       * if the base element exists in the `<head>`, vaadin-router
+       * takes the `<base href>` attribute value, resolves against current `document.URL`
+       * and gets the `pathname` from the result.
        *
        * @public
        * @type {string}
@@ -7726,7 +7727,7 @@ window.Vaadin=window.Vaadin||{};/**
     // Intentionally ignored as this is not a problem in the app being developed
     }
     }());
-     vaadin-dev-mode:end **/}var usageStatistics=function usageStatistics(){if("function"===typeof runIfDevelopmentMode){return runIfDevelopmentMode(maybeGatherAndSendStats)}};window.Vaadin=window.Vaadin||{};window.Vaadin.registrations=window.Vaadin.registrations||[];window.Vaadin.registrations.push({is:"@vaadin/router",version:"1.5.0"});usageStatistics();Router.NavigationTrigger={POPSTATE:POPSTATE,CLICK:CLICK};var isUrlAvailable,urlDocument,urlBase,urlAnchor;Resolver.__ensureUrlAvailableOrPolyfilled=function(){if(isUrlAvailable===void 0){try{var url=new URL("b","http://a");url.pathname="c";isUrlAvailable="http://a/c"===url.href}catch(e){isUrlAvailable=!1}if(!isUrlAvailable){// The URL constructor is not available in IE11. Polyfill it by creating
+     vaadin-dev-mode:end **/}var usageStatistics=function usageStatistics(){if("function"===typeof runIfDevelopmentMode){return runIfDevelopmentMode(maybeGatherAndSendStats)}};window.Vaadin=window.Vaadin||{};window.Vaadin.registrations=window.Vaadin.registrations||[];window.Vaadin.registrations.push({is:"@vaadin/router",version:"1.5.1"});usageStatistics();Router.NavigationTrigger={POPSTATE:POPSTATE,CLICK:CLICK};var isUrlAvailable,urlDocument,urlBase,urlAnchor;Resolver.__ensureUrlAvailableOrPolyfilled=function(){if(isUrlAvailable===void 0){try{var url=new URL("b","http://a");url.pathname="c";isUrlAvailable="http://a/c"===url.href}catch(e){isUrlAvailable=!1}if(!isUrlAvailable){// The URL constructor is not available in IE11. Polyfill it by creating
 // an HTMLAnchorElement in an in-memory HTML document.
 urlDocument=document.implementation.createHTMLDocument("url");urlBase=urlDocument.createElement("base");urlDocument.head.appendChild(urlBase);urlAnchor=urlDocument.createElement("a");if(!urlAnchor.origin){// IE11: HTMLAnchorElement does not have the `origin` property
 Object.defineProperty(urlAnchor,"origin",{get:function get(){// IE11: on HTTP and HTTPS the default port is not included into
