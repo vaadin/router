@@ -94,7 +94,7 @@
     "rollup-plugin-commonjs": "^10.0.2",
     "rollup-plugin-node-resolve": "^5.2.0",
     "stylelint": "^10.1.0",
-    "stylelint-config-vaadin": "latest",
+    "stylelint-config-vaadin": "^0.1.4",
     "typescript": "^3.5.3",
     "uglify-es": "^3.3.9",
     "wct-istanbul": "^0.14.3",
