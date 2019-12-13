@@ -24,6 +24,7 @@
     </a>
     <a id="in-app-target-blank" target="_blank" href="in-app/link">in-app/link (target="_blank")</a>
     <a id="in-app-download" download href="in-app/link">in-app/link (download)</a>
+    <a id="ignore-link" vaadin-router-ignore href="ignore-this-link">ignore (vaadin-router-ignore)</a>
     <a id="external" href="http://example.com/in-app/link">http://example.com/in-app/link</a>
     <a id="cross-origin" href="[same domain, different port]">[same domain, different port]</a>
     <div id="shadow-host-with-a-link" class="shadow-host">
@@ -348,6 +349,11 @@
 
             it('should ignore `click` events on non-link elements', () => {
               emulateClick(document.getElementById('not-a-link'));
+              expectClickIgnored();
+            });
+
+            it('should ignore `click` events on links with a `vaadin-router-ignore` attribute', () => {
+              emulateClick(document.getElementById('ignore-link'));
               expectClickIgnored();
             });
 

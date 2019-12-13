@@ -245,6 +245,31 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Ignore attribute</h3>
+    <p>You can tell Vaadin Router to ignore a link by adding <code>router-ignore</code>
+      parameter to the <code>a</code> tag.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-ignore" iframe-src="iframe.html">
+      <template preserve-content>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/users" router-ignore>Users</a> <!-- not handled as indicated by router-ignore attribute -->
+        </nav>
+
+        <main></main>
+
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          const router = new Router(document.querySelector('main'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
   </template>
   <script>
     class VaadinRouterGettingStartedDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
