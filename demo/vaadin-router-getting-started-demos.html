@@ -246,15 +246,16 @@
       </template>
     </vaadin-demo-snippet>
 
-    <h3>Ignore attribute</h3>
-    <p>You can tell Vaadin Router to ignore a link by adding <code>router-ignore</code>
-      parameter to the <code>a</code> tag.
+    <h3>Excluded links</h3>
+    <p>Vaadin Router can ignore a link if <code>router-ignore</code>
+      parameter is added to the <code>a</code> tag.
     </p>
     <vaadin-demo-snippet id="vaadin-router-getting-started-demo-ignore" iframe-src="iframe.html">
       <template preserve-content>
         <nav>
           <a href="/">Home</a>
-          <a href="/users" router-ignore>Users</a> <!-- not handled as indicated by router-ignore attribute -->
+          <!-- not handled as indicated by router-ignore attribute -->
+          <a href="/users" router-ignore>Users</a>
         </nav>
 
         <main></main>
