@@ -68,8 +68,8 @@ function vaadinRouterGlobalClickHandler(event) {
     return;
   }
 
-  // ignore the click if the <a> element has the 'vaadin-router-ignore' attribute
-  if (anchor.hasAttribute('vaadin-router-ignore')) {
+  // ignore the click if the <a> element has the 'router-ignore' attribute
+  if (anchor.hasAttribute('router-ignore')) {
     return;
   }
 
