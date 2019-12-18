@@ -68,6 +68,11 @@ function vaadinRouterGlobalClickHandler(event) {
     return;
   }
 
+  // ignore the click if the <a> element has the 'router-ignore' attribute
+  if (anchor.hasAttribute('router-ignore')) {
+    return;
+  }
+
   // ignore the click if the target URL is a fragment on the current page
   if (anchor.pathname === window.location.pathname && anchor.hash !== '') {
     return;
