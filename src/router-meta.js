@@ -5,7 +5,7 @@ window.Vaadin.registrations = window.Vaadin.registrations || [];
 
 window.Vaadin.registrations.push({
   is: '@vaadin/router',
-  version: '1.5.2',
+  version: '1.6.0',
 });
 
 usageStatistics();
