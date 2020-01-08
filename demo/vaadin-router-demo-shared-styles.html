@@ -37,3 +37,13 @@
     </style>
   </template>
 </dom-module>
+
+<dom-module id="vaadin-demo-snippet-no-renderer-theme" theme-for="vaadin-demo-snippet">
+  <template>
+    <style include="vaadin-demo-snippet-default-theme">
+      :host([theme~="no-renderer"]) #demo {
+        display: none;
+      }
+    </style>
+  </template>
+</dom-module>
