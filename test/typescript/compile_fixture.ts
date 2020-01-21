@@ -155,3 +155,72 @@ router.setOutlet(null);
 
 // getOutlet
 expectTypeOfValue<Node | null>(router.getOutlet());
+
+// Location property
+class MyViewWithLocation extends HTMLElement {
+  connectedCallback() {
+    this.localName;
+    this.location;
+  }
+}
+interface MyViewWithLocation extends Router.View {}
+customElements.define('my-view-with-location', MyViewWithLocation);
+
+// Lifecycle
+
+class MyViewWithBeforeEnter extends HTMLElement implements Router.Lifecycle {
+  onBeforeEnter(location: Router.Location, commands: Router.PreventAndRedirectCommands, router: Router) {
+    this.localName;
+    location.baseUrl;
+    router.baseUrl;
+    commands.prevent();
+    if ('component' in commands) { throw new Error('unexpected'); }
+    return commands.redirect('/');
+  }
+}
+customElements.define('my-view-with-before-enter', MyViewWithBeforeEnter);
+
+class MyViewWithBeforeLeave extends HTMLElement implements Router.Lifecycle {
+  onBeforeLeave(location: Router.Location, commands: Router.PreventCommands, router: Router) {
+    this.localName;
+    location.baseUrl;
+    router.baseUrl;
+    if (('component' in commands) || ('redirect' in commands)) {
+      throw new Error('unexpected');
+    }
+    return commands.prevent();
+  }
+}
+customElements.define('my-view-with-before-leave', MyViewWithBeforeLeave);
+
+class MyViewWithAfterEnter extends HTMLElement implements Router.Lifecycle {
+  onAfterEnter(location: Router.Location, commands: Router.EmptyCommands, router: Router) {
+    this.localName;
+    location.baseUrl;
+    if (('component' in commands) || ('redirect' in commands) || ('prevent' in commands)) {
+      throw new Error('unexpected');
+    }
+    router.baseUrl;
+  }
+}
+customElements.define('my-view-with-after-enter', MyViewWithAfterEnter);
+
+class MyViewWithAfterLeave extends HTMLElement implements Router.Lifecycle {
+  onAfterLeave(location: Router.Location, commands: Router.EmptyCommands, router: Router) {
+    this.localName;
+    location.baseUrl;
+    if (('component' in commands) || ('redirect' in commands) || ('prevent' in commands)) {
+      throw new Error('unexpected');
+    }
+    router.baseUrl;
+  }
+}
+customElements.define('my-view-with-after-leave', MyViewWithAfterLeave);
+
+// Navigation triggers
+const MyNavigationTrigger: Router.NavigationTrigger = {
+  activate() {},
+  inactivate() {}
+};
+const {CLICK, POPSTATE} = Router.NavigationTrigger;
+Router.setTriggers(CLICK, POPSTATE, MyNavigationTrigger);

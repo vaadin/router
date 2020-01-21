@@ -5,125 +5,165 @@
 // This file is supplemental, it only covers the types missing from
 // the generated declarations.
 
-declare class Router {
-}
+import {Router} from './dist/vaadin-router';
 
-declare namespace Router {
-  class NotFoundResult {
-    // Prevent instantiation and extension
-    private constructor();
+declare module './dist/vaadin-router' {
+  namespace Router {
+    class NotFoundResult {
+      // Prevent instantiation and extension
+      private constructor();
 
-    // Prevent treating any object literals `{}` as a match for this type
-    private _notFoundResultBrand: never;
-  }
+      // Prevent treating any object literals `{}` as a match for this type
+      private _notFoundResultBrand: never;
+    }
 
-  class ComponentResult {
-    private constructor();
-    private _componentResultBrand: never;
-  }
+    class ComponentResult {
+      private constructor();
+      private _componentResultBrand: never;
+    }
 
-  class PreventResult {
-    private constructor();
-    private _preventResultBrand: never; 
-  }
+    class PreventResult {
+      private constructor();
+      private _preventResultBrand: never;
+    }
 
-  class RedirectResult {
-    private constructor();
-    private _redirectResultBrand: never;
-  }
+    class RedirectResult {
+      private constructor();
+      private _redirectResultBrand: never;
+    }
 
-  type ActionResult = void
-    | null
-    | HTMLElement
-    | NotFoundResult
-    | ComponentResult
-    | RedirectResult
-    | PreventResult;
+    type ActionResult = void
+      | null
+      | HTMLElement
+      | NotFoundResult
+      | ComponentResult
+      | RedirectResult
+      | PreventResult;
 
-  type ParamValue = string | string[];
-  type IndexedParams = {[key in string | number]: ParamValue};
-  type Params = IndexedParams | ParamValue[];
+    type ParamValue = string | string[];
+    type IndexedParams = {[key in string | number]: ParamValue};
+    type Params = IndexedParams | ParamValue[];
 
-  class Context {
-    pathname: string;
-    search: string;
-    hash: string;
-    params: IndexedParams;
-    route: Route;
-    next: () => Promise<ActionResult>;
-  }
+    class Context {
+      pathname: string;
+      search: string;
+      hash: string;
+      params: IndexedParams;
+      route: Route;
+      next: () => Promise<ActionResult>;
+    }
 
-  class Commands {
-    component: (name: string) => ComponentResult;
-    redirect: (path: string) => RedirectResult;
-    prevent: () => PreventResult;
-  }
+    class Commands {
+      component: (name: string) => ComponentResult;
+      redirect: (path: string) => RedirectResult;
+      prevent: () => PreventResult;
+    }
 
-  interface ActionFn {
-    (context: Context, commmands: Commands): ActionResult | Promise<ActionResult>;
-  }
+    class PreventAndRedirectCommands {
+      redirect: (path: string) => RedirectResult;
+      prevent: () => PreventResult;
+    }
 
-  interface ChildrenFn {
-    (): Route[] | Promise<Route[]>
-  }
+    class PreventCommands {
+      prevent: () => PreventResult;
+    }
 
-  interface BaseRoute {
-    path: string;
-    name?: string;
-    // Route requires at least one of the following optional properties
-    action?: ActionFn;
-    bundle?: string;
-    children?: Route[] | ChildrenFn;
-    component?: string;
-    redirect?: string;
-  }
-  interface RouteWithAction extends BaseRoute {
-    action: ActionFn;
-  }
-  interface RouteWithBundle extends BaseRoute {
-    bundle: string;
-  }
-  interface RouteWithChildren extends BaseRoute {
-    children: Route[] | ChildrenFn;
-  }
-  interface RouteWithComponent extends BaseRoute {
-    component: string;
-  }
-  interface RouteWithRedirect extends BaseRoute {
-    redirect: string;
-  }
-  type Route = RouteWithAction
-    | RouteWithBundle
-    | RouteWithChildren
-    | RouteWithComponent
-    | RouteWithRedirect;
+    class EmptyCommands {
+    }
 
-  class Location {
-    baseUrl: string;
-    params: IndexedParams;
-    pathname: string;
-    search: string;
-    hash: string;
-    redirectFrom?: string;
-    route: Route | null;
-    routes: Array<Route>;
-    getUrl(params?: Params): string;
-  }
+    interface ActionFn {
+      (context: Context, commmands: Commands): ActionResult | Promise<ActionResult>;
+    }
 
-  interface Options {
-    baseUrl?: string;
-  }
+    interface ChildrenFn {
+      (): Route[] | Promise<Route[]>
+    }
 
-  interface NavigationTrigger {
-    activate(): void;
-    inactivate(): void;
-  }
+    interface BaseRoute {
+      path: string;
+      name?: string;
+      // Route requires at least one of the following optional properties
+      action?: ActionFn;
+      bundle?: string;
+      children?: Route[] | ChildrenFn;
+      component?: string;
+      redirect?: string;
+    }
+    interface RouteWithAction extends BaseRoute {
+      action: ActionFn;
+    }
+    interface RouteWithBundle extends BaseRoute {
+      bundle: string;
+    }
+    interface RouteWithChildren extends BaseRoute {
+      children: Route[] | ChildrenFn;
+    }
+    interface RouteWithComponent extends BaseRoute {
+      component: string;
+    }
+    interface RouteWithRedirect extends BaseRoute {
+      redirect: string;
+    }
+    type Route = RouteWithAction
+      | RouteWithBundle
+      | RouteWithChildren
+      | RouteWithComponent
+      | RouteWithRedirect;
 
-  // FIXME(platosha): declare builtin navigation triggers
-  // // Alias for referencing interface from the class below
-  // type _NavigationTrigger = NavigationTrigger;
-  // namespace NavigationTrigger {
-  //   const CLICK: _NavigationTrigger;
-  //   const POPSTATE: _NavigationTrigger;
-  // }
+    class Location {
+      baseUrl: string;
+      params: IndexedParams;
+      pathname: string;
+      search: string;
+      hash: string;
+      redirectFrom?: string;
+      route: Route | null;
+      routes: Array<Route>;
+      getUrl(params?: Params): string;
+    }
+
+    interface Options {
+      baseUrl?: string;
+    }
+
+    interface NavigationTrigger {
+      activate(): void;
+      inactivate(): void;
+    }
+
+    namespace NavigationTrigger {
+      const CLICK: NavigationTrigger;
+      const POPSTATE: NavigationTrigger;
+    }
+
+    class View {
+      location: Location
+    }
+
+    interface Lifecycle {
+      onBeforeEnter?: (
+        location: Location,
+        commands: PreventAndRedirectCommands,
+        router: Router
+      ) => void | PreventResult | RedirectResult | Promise<void | PreventResult | RedirectResult>;
+
+      onBeforeLeave?: (
+        location: Location,
+        commands: PreventCommands,
+        router: Router
+      ) => void | PreventResult | Promise<void | PreventResult>;
+
+      onAfterLeave?: (
+        location: Location,
+        commands: EmptyCommands,
+        router: Router
+      ) => void;
+
+      onAfterEnter?: (
+        location: Location,
+        commands: EmptyCommands,
+        router: Router
+      ) => void;
+    }
+  }
 }
