@@ -2,7 +2,17 @@
 // Only the compilation success is tested. We don’t emit any JS from the
 // code below and don't execute it.
 
-import {Router} from '@vaadin/router';
+import {
+  Router,
+  RouterLocation,
+  BeforeEnterObserver,
+  BeforeLeaveObserver,
+  AfterEnterObserver,
+  AfterLeaveObserver,
+  PreventAndRedirectCommands,
+  PreventCommands,
+  EmptyCommands
+} from '@vaadin/router';
 
 const outlet: Node = document.body.firstChild as Node;
 
@@ -155,3 +165,73 @@ router.setOutlet(null);
 
 // getOutlet
 expectTypeOfValue<Node | null>(router.getOutlet());
+
+// Location property
+class MyViewWithLocation extends HTMLElement {
+  location: RouterLocation = router.location;
+
+  connectedCallback() {
+    this.localName;
+    this.location.pathname;
+  }
+}
+customElements.define('my-view-with-location', MyViewWithLocation);
+
+// Lifecycle
+
+class MyViewWithBeforeEnter extends HTMLElement implements BeforeEnterObserver {
+  onBeforeEnter(location: RouterLocation, commands: PreventAndRedirectCommands, router: Router) {
+    this.localName;
+    location.baseUrl;
+    router.baseUrl;
+    commands.prevent();
+    if ('component' in commands) { throw new Error('unexpected'); }
+    return commands.redirect('/');
+  }
+}
+customElements.define('my-view-with-before-enter', MyViewWithBeforeEnter);
+
+class MyViewWithBeforeLeave extends HTMLElement implements BeforeLeaveObserver {
+  onBeforeLeave(location: RouterLocation, commands: PreventCommands, router: Router) {
+    this.localName;
+    location.baseUrl;
+    router.baseUrl;
+    if (('component' in commands) || ('redirect' in commands)) {
+      throw new Error('unexpected');
+    }
+    return commands.prevent();
+  }
+}
+customElements.define('my-view-with-before-leave', MyViewWithBeforeLeave);
+
+class MyViewWithAfterEnter extends HTMLElement implements AfterEnterObserver {
+  onAfterEnter(location: RouterLocation, commands: EmptyCommands, router: Router) {
+    this.localName;
+    location.baseUrl;
+    if (('component' in commands) || ('redirect' in commands) || ('prevent' in commands)) {
+      throw new Error('unexpected');
+    }
+    router.baseUrl;
+  }
+}
+customElements.define('my-view-with-after-enter', MyViewWithAfterEnter);
+
+class MyViewWithAfterLeave extends HTMLElement implements AfterLeaveObserver {
+  onAfterLeave(location: RouterLocation, commands: EmptyCommands, router: Router) {
+    this.localName;
+    location.baseUrl;
+    if (('component' in commands) || ('redirect' in commands) || ('prevent' in commands)) {
+      throw new Error('unexpected');
+    }
+    router.baseUrl;
+  }
+}
+customElements.define('my-view-with-after-leave', MyViewWithAfterLeave);
+
+// Navigation triggers
+const MyNavigationTrigger: Router.NavigationTrigger = {
+  activate() {},
+  inactivate() {}
+};
+const {CLICK, POPSTATE} = Router.NavigationTrigger;
+Router.setTriggers(CLICK, POPSTATE, MyNavigationTrigger);
