@@ -109,7 +109,7 @@
             },
             {
               "name": "route",
-              "type": "?Router.Route",
+              "type": "?Route",
               "description": "(optional) The route object associated with `this` Web Component instance.\n\nThis property is defined in the `location` objects that are passed as\nparameters into Web Component lifecycle callbacks, and the `location`\nproperty set by Vaadin Router on the Web Components.\n\nThis property is undefined in the `location` objects that are available\nas `router.location`, and in the `location` that is included into the\nglobal router event details.",
               "privacy": "public",
               "sourceRange": {
@@ -126,7 +126,7 @@
             },
             {
               "name": "routes",
-              "type": "!Array.<!Router.Route>",
+              "type": "!Array.<!Route>",
               "description": "A list of route objects that match the current pathname. This list has\none element for each route that defines a parent layout, and then the\nelement for the route that defines the view.\n\nSee the **Getting Started** section of the\n[live demos](#/classes/Router/demos/demo/index.html) for more\ndetails on child routes and nested layouts.",
               "privacy": "public",
               "sourceRange": {
@@ -143,7 +143,7 @@
             },
             {
               "name": "params",
-              "type": "!Router.IndexedParams",
+              "type": "!IndexedParams",
               "description": "A bag of key-value pairs with parameters for the current location. Named\nparameters are available by name, unnamed ones - by index (e.g. for the\n`/users/:id` route the `:id` parameter is available as `location.params.id`).\n\nSee the **Route Parameters** section of the\n[live demos](#/classes/Router/demos/demo/index.html) for more\ndetails.",
               "privacy": "public",
               "sourceRange": {
@@ -178,7 +178,7 @@
               "params": [
                 {
                   "name": "params",
-                  "type": "Router.Params=",
+                  "type": "Params=",
                   "description": "optional object with parameters to override.\nNamed parameters are passed by name (`params[name] = value`), unnamed\nparameters are passed by index (`params[index] = value`)."
                 }
               ],
@@ -476,7 +476,7 @@
         },
         {
           "name": "ready",
-          "type": "!Promise.<!Router.Location>",
+          "type": "!Promise.<!RouterLocation>",
           "description": "A promise that is settled after the current render cycle completes. If\nthere is no render cycle in progress the promise is immediately settled\nwith the last render cycle result.",
           "privacy": "public",
           "sourceRange": {
@@ -493,8 +493,8 @@
         },
         {
           "name": "location",
-          "type": "!Router.Location",
-          "description": "Contains read-only information about the current router location:\npathname, active routes, parameters. See the\n[Location type declaration](#/classes/Router.Location)\nfor more details.",
+          "type": "!RouterLocation",
+          "description": "Contains read-only information about the current router location:\npathname, active routes, parameters. See the\n[Location type declaration](#/classes/RouterLocation)\nfor more details.",
           "privacy": "public",
           "sourceRange": {
             "start": {
@@ -549,7 +549,7 @@
           "params": [
             {
               "name": "routes",
-              "type": "(!Array.<!Router.Route> | !Router.Route)",
+              "type": "(!Array.<!Route> | !Route)",
               "description": "a single route or an array of those"
             },
             {
@@ -1281,7 +1281,7 @@
             },
             {
               "name": "params",
-              "type": "Router.Params=",
+              "type": "Params=",
               "description": "Optional object with route path parameters.\nNamed parameters are passed by name (`params[name] = value`), unnamed\nparameters are passed by index (`params[index] = value`)."
             }
           ],
@@ -1312,7 +1312,7 @@
             },
             {
               "name": "params",
-              "type": "Router.Params=",
+              "type": "Params=",
               "description": "Optional object with route path parameters.\nNamed parameters are passed by name (`params[name] = value`), unnamed\nparameters are passed by index (`params[index] = value`)."
             }
           ],
@@ -1365,7 +1365,7 @@
           "params": [
             {
               "name": "triggers",
-              "type": "...Router.NavigationTrigger",
+              "type": "...NavigationTrigger",
               "rest": true
             }
           ],
@@ -1449,7 +1449,7 @@
           "params": [
             {
               "name": "location",
-              "description": "the `Router.Location` object"
+              "description": "the `RouterLocation` object"
             },
             {
               "name": "commands",
@@ -1479,7 +1479,7 @@
           "params": [
             {
               "name": "location",
-              "description": "the `Router.Location` object"
+              "description": "the `RouterLocation` object"
             },
             {
               "name": "commands",
@@ -1509,7 +1509,7 @@
           "params": [
             {
               "name": "location",
-              "description": "the `Router.Location` object"
+              "description": "the `RouterLocation` object"
             },
             {
               "name": "commands",
@@ -1542,7 +1542,7 @@
           "params": [
             {
               "name": "location",
-              "description": "the `Router.Location` object"
+              "description": "the `RouterLocation` object"
             },
             {
               "name": "commands",

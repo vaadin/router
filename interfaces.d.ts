@@ -8,136 +8,155 @@
 import {Router} from './dist/vaadin-router';
 
 declare module './dist/vaadin-router' {
-  namespace Router {
-    class NotFoundResult {
-      // Prevent instantiation and extension
-      private constructor();
+  export class NotFoundResult {
+    // Prevent instantiation and extension
+    private constructor();
 
-      // Prevent treating any object literals `{}` as a match for this type
-      private _notFoundResultBrand: never;
-    }
+    // Prevent treating any object literals `{}` as a match for this type
+    private _notFoundResultBrand: never;
+  }
+  type _NotFoundResult = NotFoundResult;
 
-    class ComponentResult {
-      private constructor();
-      private _componentResultBrand: never;
-    }
+  export class ComponentResult {
+    private constructor();
 
-    class PreventResult {
-      private constructor();
-      private _preventResultBrand: never;
-    }
+    private _componentResultBrand: never;
+  }
+  type _ComponentResult = ComponentResult;
 
-    class RedirectResult {
-      private constructor();
-      private _redirectResultBrand: never;
-    }
+  export class PreventResult {
+    private constructor();
 
-    type ActionResult = void
-      | null
-      | HTMLElement
-      | NotFoundResult
-      | ComponentResult
-      | RedirectResult
-      | PreventResult;
+    private _preventResultBrand: never;
+  }
+  type _PreventResult = PreventResult;
 
-    type ParamValue = string | string[];
-    type IndexedParams = {[key in string | number]: ParamValue};
-    type Params = IndexedParams | ParamValue[];
+  export class RedirectResult {
+    private constructor();
 
-    class Context {
-      pathname: string;
-      search: string;
-      hash: string;
-      params: IndexedParams;
-      route: Route;
-      next: () => Promise<ActionResult>;
-    }
+    private _redirectResultBrand: never;
+  }
+  type _RedirectResult = RedirectResult;
 
-    class Commands {
-      component: (name: string) => ComponentResult;
-      redirect: (path: string) => RedirectResult;
-      prevent: () => PreventResult;
-    }
+  export type ActionResult = void
+    | null
+    | HTMLElement
+    | NotFoundResult
+    | ComponentResult
+    | RedirectResult
+    | PreventResult;
+  type _ActionResult = ActionResult;
 
-    interface ActionFn {
-      (context: Context, commmands: Commands): ActionResult | Promise<ActionResult>;
-    }
+  type ParamValue = string | string[];
+  export type IndexedParams = { [key in string | number]: ParamValue };
+  type _IndexedParams = IndexedParams;
+  export type Params = IndexedParams | ParamValue[];
+  type _Params = Params;
 
-    interface ChildrenFn {
-      (): Route[] | Promise<Route[]>
-    }
+  export class Context {
+    private constructor();
 
-    interface BaseRoute {
-      path: string;
-      name?: string;
-      // Route requires at least one of the following optional properties
-      action?: ActionFn;
-      bundle?: string;
-      children?: Route[] | ChildrenFn;
-      component?: string;
-      redirect?: string;
-    }
-    interface RouteWithAction extends BaseRoute {
-      action: ActionFn;
-    }
-    interface RouteWithBundle extends BaseRoute {
-      bundle: string;
-    }
-    interface RouteWithChildren extends BaseRoute {
-      children: Route[] | ChildrenFn;
-    }
-    interface RouteWithComponent extends BaseRoute {
-      component: string;
-    }
-    interface RouteWithRedirect extends BaseRoute {
-      redirect: string;
-    }
-    type Route = RouteWithAction
-      | RouteWithBundle
-      | RouteWithChildren
-      | RouteWithComponent
-      | RouteWithRedirect;
+    pathname: string;
+    search: string;
+    hash: string;
+    params: IndexedParams;
+    route: Route;
+    next: () => Promise<ActionResult>;
+  }
+  type _Context = Context;
 
-    class Location {
-      baseUrl: string;
-      params: IndexedParams;
-      pathname: string;
-      search: string;
-      hash: string;
-      redirectFrom?: string;
-      route: Route | null;
-      routes: Array<Route>;
-      getUrl(params?: Params): string;
-    }
+  export class Commands {
+    private constructor();
 
-    interface Options {
-      baseUrl?: string;
-    }
+    component: (name: string) => ComponentResult;
+    redirect: (path: string) => RedirectResult;
+    prevent: () => PreventResult;
+  }
+  type _Commands = Commands;
 
-    interface NavigationTrigger {
-      activate(): void;
-      inactivate(): void;
-    }
+  export interface ActionFn {
+    (context: Context, commands: Commands): ActionResult | Promise<ActionResult>;
+  }
+  type _ActionFn = ActionFn;
 
-    namespace NavigationTrigger {
-      const CLICK: NavigationTrigger;
-      const POPSTATE: NavigationTrigger;
-    }
+  export interface ChildrenFn {
+    (): Route[] | Promise<Route[]>
+  }
+  type _ChildrenFn = ChildrenFn;
+
+  interface BaseRoute {
+    path: string;
+    name?: string;
+    // Route requires at least one of the following optional properties
+    action?: ActionFn;
+    bundle?: string;
+    children?: Route[] | ChildrenFn;
+    component?: string;
+    redirect?: string;
   }
 
-  export type RouterLocation = Router.Location;
+  interface RouteWithAction extends BaseRoute {
+    action: ActionFn;
+  }
+
+  interface RouteWithBundle extends BaseRoute {
+    bundle: string;
+  }
+
+  interface RouteWithChildren extends BaseRoute {
+    children: Route[] | ChildrenFn;
+  }
+
+  interface RouteWithComponent extends BaseRoute {
+    component: string;
+  }
+
+  interface RouteWithRedirect extends BaseRoute {
+    redirect: string;
+  }
+
+  export type Route = RouteWithAction
+    | RouteWithBundle
+    | RouteWithChildren
+    | RouteWithComponent
+    | RouteWithRedirect;
+  type _Route = Route;
+
+  export interface RouterOptions {
+    baseUrl?: string;
+  }
+  type _RouterOptions = RouterOptions;
+
+  export class RouterLocation {
+    private constructor();
+
+    baseUrl: string;
+    params: IndexedParams;
+    pathname: string;
+    search: string;
+    hash: string;
+    redirectFrom?: string;
+    route: Route | null;
+    routes: Array<Route>;
+
+    getUrl(params?: Params): string;
+  }
+  type _RouterLocation = RouterLocation;
 
   export class PreventAndRedirectCommands {
     redirect: (path: string) => Router.RedirectResult;
     prevent: () => Router.PreventResult;
   }
+  type _PreventAndRedirectCommands = PreventAndRedirectCommands;
 
   export class PreventCommands {
     prevent: () => Router.PreventResult;
   }
+  type _PreventCommands = PreventCommands;
 
   export class EmptyCommands {
   }
+  type _EmptyCommands = EmptyCommands;
 
   export interface BeforeEnterObserver {
     onBeforeEnter: (
@@ -177,5 +196,93 @@ declare module './dist/vaadin-router' {
       commands: EmptyCommands,
       router: Router
     ) => void;
+  }
+
+  export interface NavigationTrigger {
+    activate(): void;
+    inactivate(): void;
+  }
+  type _NavigationTrigger = NavigationTrigger;
+
+  namespace Router {
+    /**
+     * @deprecated use `NotFoundResult` instead of `Router.NotFoundResult`
+     */
+    type NotFoundResult = _NotFoundResult;
+
+    /**
+     * @deprecated use `ComponentResult` instead of `Router.ComponentResult`
+     */
+    type ComponentResult = _ComponentResult;
+
+    /**
+     * @deprecated use `PreventResult` instead of `Router.PreventResult`
+     */
+    type PreventResult = _PreventResult;
+
+    /**
+     * @deprecated use `RedirectResult` instead of `Router.RedirectResult`
+     */
+    type RedirectResult = _RedirectResult;
+
+    /**
+     * @deprecated use `ActionResult` instead of `Router.ActionResult`
+     */
+    type ActionResult = _ActionResult;
+
+    /**
+     * @deprecated use `IndexedParams` instead of `Router.IndexedParams`
+     */
+    type IndexedParams = _IndexedParams;
+
+    /**
+     * @deprecated use `Params` instead of `Router.Params`
+     */
+    type Params = _Params;
+
+    /**
+     * @deprecated use `Context` instead of `Router.Context`
+     */
+    type Context = _Context;
+
+    /**
+     * @deprecated use `Commands` instead of `Router.Commands`
+     */
+    type Commands = _Commands;
+
+    /**
+     * @deprecated use `ActionFn` instead of `Router.ActionFn`
+     */
+    type ActionFn = _ActionFn;
+
+    /**
+     * @deprecated use `ChildrenFn` instead of `Router.ChildrenFn`
+     */
+    type ChildrenFn = _ChildrenFn;
+
+    /**
+     * @deprecated use `Route` instead of `Router.Route`
+     */
+    type Route = _Route;
+
+    /**
+     * @deprecated use `RouterOptions` instead of `Router.Options`
+     */
+    type Options = _RouterOptions;
+
+    /**
+     * @deprecated use `RouterLocation` instead of `Router.Location`
+     */
+    type Location = _RouterLocation;
+
+    /**
+     * @deprecated use `NavigationTrigger` instead of `Router.NavigationTrigger`
+     */
+    type NavigationTrigger = _NavigationTrigger;
+
+    namespace NavigationTrigger {
+      const CLICK: _NavigationTrigger;
+      const POPSTATE: _NavigationTrigger;
+    }
   }
 }
