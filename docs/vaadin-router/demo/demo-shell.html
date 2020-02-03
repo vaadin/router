@@ -6624,7 +6624,18 @@ return Prism.languages.markup;}}})})();</script><script>/**
    * @memberof Vaadin
    */Vaadin.ThemePropertyMixin=function(superClass){return(/*#__PURE__*/function(_superClass){babelHelpers.inherits(VaadinThemePropertyMixin,_superClass);function VaadinThemePropertyMixin(){babelHelpers.classCallCheck(this,VaadinThemePropertyMixin);return babelHelpers.possibleConstructorReturn(this,babelHelpers.getPrototypeOf(VaadinThemePropertyMixin).apply(this,arguments))}babelHelpers.createClass(VaadinThemePropertyMixin,[{key:"attributeChangedCallback",/** @protected */value:function attributeChangedCallback(name,oldValue,newValue){babelHelpers.get(babelHelpers.getPrototypeOf(VaadinThemePropertyMixin.prototype),"attributeChangedCallback",this).call(this,name,oldValue,newValue);if("theme"===name){this._setTheme(newValue)}}}],[{key:"properties",get:function get(){return{/**
          * Helper property with theme attribute value facilitating propagation
-         * in shadow DOM. Allows using `theme$="[[theme]]"` in the template.
+         * in shadow DOM.
+         *
+         * Enables the component implementation to propagate the `theme`
+         * attribute value to the subcomponents in Shadow DOM by binding
+         * the subcomponent’s "theme" attribute to the `theme` property of
+         * the host.
+         *
+         * **NOTE:** Extending the mixin only provides the property for binding,
+         * and does not make the propagation alone.
+         *
+         * See [Theme Attribute and Subcomponents](https://github.com/vaadin/vaadin-themable-mixin/wiki/5.-Theme-Attribute-and-Subcomponents).
+         * page for more information.
          *
          * @protected
          */theme:{type:String,readOnly:!0}}}}]);return VaadinThemePropertyMixin}(superClass))};</script><script>/**
@@ -6632,6 +6643,7 @@ return Prism.languages.markup;}}})})();</script><script>/**
    */window.Vaadin=window.Vaadin||{};/**
    * @polymerMixin
    * @memberof Vaadin
+   * @mixes Vaadin.ThemePropertyMixin
    */Vaadin.ThemableMixin=function(superClass){return(/*#__PURE__*/function(_Vaadin$ThemeProperty){babelHelpers.inherits(VaadinThemableMixin,_Vaadin$ThemeProperty);function VaadinThemableMixin(){babelHelpers.classCallCheck(this,VaadinThemableMixin);return babelHelpers.possibleConstructorReturn(this,babelHelpers.getPrototypeOf(VaadinThemableMixin).apply(this,arguments))}babelHelpers.createClass(VaadinThemableMixin,null,[{key:"finalize",/** @protected */value:function finalize(){var _this=this;babelHelpers.get(babelHelpers.getPrototypeOf(VaadinThemableMixin),"finalize",this).call(this);var template=this.prototype._template,hasOwnTemplate=this.template&&this.template.parentElement&&this.template.parentElement.id===this.is,inheritedTemplate=Object.getPrototypeOf(this.prototype)._template;if(inheritedTemplate&&!hasOwnTemplate){// The element doesn't define its own template -> include the theme modules from the inherited template
 Array.from(inheritedTemplate.content.querySelectorAll("style[include]")).forEach(function(s){_this._includeStyle(s.getAttribute("include"),template)})}this._includeMatchingThemes(template)}/** @protected */},{key:"_includeMatchingThemes",value:function _includeMatchingThemes(template){var _this2=this,domModule=Polymer.DomModule,modules=domModule.prototype.modules,hasThemes=!1,defaultModuleName=this.is+"-default-theme";Object.keys(modules).sort(function(moduleNameA,moduleNameB){var vaadinA=0===moduleNameA.indexOf("vaadin-"),vaadinB=0===moduleNameB.indexOf("vaadin-"),vaadinThemePrefixes=["lumo-","material-"],vaadinThemeA=0<vaadinThemePrefixes.filter(function(prefix){return 0===moduleNameA.indexOf(prefix)}).length,vaadinThemeB=0<vaadinThemePrefixes.filter(function(prefix){return 0===moduleNameB.indexOf(prefix)}).length;if(vaadinA!==vaadinB){// Include vaadin core styles first
 return vaadinA?-1:1}else if(vaadinThemeA!==vaadinThemeB){// Include vaadin theme styles after that
@@ -6730,13 +6742,13 @@ var _anchor=anchor,pathname=_anchor.pathname,search=_anchor.search,hash=_anchor.
    * Only regular clicks on in-app links are translated (primary mouse button, no
    * modifier keys, the target href is within the app's URL space).
    *
-   * @memberOf Router.Triggers
+   * @memberOf Router.NavigationTrigger
    * @type {NavigationTrigger}
    */var CLICK={activate:function activate(){window.document.addEventListener("click",vaadinRouterGlobalClickHandler)},inactivate:function inactivate(){window.document.removeEventListener("click",vaadinRouterGlobalClickHandler)}},isIE=/Trident/.test(navigator.userAgent);/* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */if(isIE&&!isFunction(window.PopStateEvent)){window.PopStateEvent=function(inType,params){params=params||{};var e=document.createEvent("Event");e.initEvent(inType,!!params.bubbles,!!params.cancelable);e.state=params.state||null;return e};window.PopStateEvent.prototype=window.Event.prototype}function vaadinRouterGlobalPopstateHandler(event){if("vaadin-router-ignore"===event.state){return}var _window$location=window.location,pathname=_window$location.pathname,search=_window$location.search,hash=_window$location.hash;fireRouterEvent("go",{pathname:pathname,search:search,hash:hash})}/**
    * A navigation trigger for Vaadin Router that translates popstate events into
    * Vaadin Router navigation events.
    *
-   * @memberOf Router.Triggers
+   * @memberOf Router.NavigationTrigger
    * @type {NavigationTrigger}
    */var POPSTATE={activate:function activate(){window.addEventListener("popstate",vaadinRouterGlobalPopstateHandler)},inactivate:function inactivate(){window.removeEventListener("popstate",vaadinRouterGlobalPopstateHandler)}},pathToRegexp_1=pathToRegexp,parse_1=parse,compile_1=compile,tokensToFunction_1=tokensToFunction,tokensToRegExp_1=tokensToRegExp,DEFAULT_DELIMITER="/",DEFAULT_DELIMITERS="./",PATH_REGEXP=new RegExp([// Match escaped characters that would otherwise appear in future matches.
 // This allows the user to escape special characters that won't transform.
@@ -7000,7 +7012,7 @@ cacheRoutes(routesByName,router.root,router.root.__children);route=getRouteByNam
      * router.setOutlet(outlet);
      * ```
      * @param {?Node=} outlet
-     * @param {?Router.Options=} options
+     * @param {?RouterOptions=} options
      */function Router(outlet,options){var _this;_classCallCheck(this,Router);var baseElement=document.head.querySelector("base"),baseHref=baseElement&&baseElement.getAttribute("href");_this=_possibleConstructorReturn(this,_getPrototypeOf(Router).call(this,[],Object.assign({// Default options
 baseUrl:baseHref&&Resolver.__createUrl(baseHref,document.URL).pathname.replace(/[^\/]*$/,"")},options)));_this.resolveRoute=function(context){return _this.__resolveRoute(context)};var triggers=Router.NavigationTrigger;Router.setTriggers.apply(Router,Object.keys(triggers).map(function(key){return triggers[key]}));/**
        * The base URL for all routes in the router instance. By default,
@@ -7016,15 +7028,15 @@ baseUrl:baseHref&&Resolver.__createUrl(baseHref,document.URL).pathname.replace(/
        * with the last render cycle result.
        *
        * @public
-       * @type {!Promise<!Router.Location>}
+       * @type {!Promise<!RouterLocation>}
        */_this.ready;_this.ready=Promise.resolve(outlet);/**
        * Contains read-only information about the current router location:
        * pathname, active routes, parameters. See the
-       * [Location type declaration](#/classes/Router.Location)
+       * [Location type declaration](#/classes/RouterLocation)
        * for more details.
        *
        * @public
-       * @type {!Router.Location}
+       * @type {!RouterLocation}
        */_this.location;_this.location=createLocation({resolver:_assertThisInitialized(_this)});_this.__lastStartedRenderId=0;_this.__navigationEventHandler=_this.__onNavigationEvent.bind(_assertThisInitialized(_this));_this.setOutlet(outlet);_this.subscribe();// Using WeakMap instead of WeakSet because WeakSet is not supported by IE11
 _this.__createdByRouter=new WeakMap;_this.__addedByRouter=new WeakMap;return _this}_createClass(Router,[{key:"__resolveRoute",value:function __resolveRoute(context){var _this2=this,route=context.route,callbacks=Promise.resolve();if(isFunction(route.children)){callbacks=callbacks.then(function(){return route.children(copyContextWithoutNext(context))}).then(function(children){// The route.children() callback might have re-written the
 // route.children property instead of returning a value
@@ -7126,7 +7138,7 @@ if(babelHelpers.instanceof(result,HTMLElement)||result.redirect||result===notFou
        * with current context. Note: the component created by this function is reused if visiting the same path twice in row.
        *
        *
-       * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
+       * @param {!Array<!Route>|!Route} routes a single route or an array of those
        * @param {?boolean} skipRender configure the router but skip rendering the
        *     route corresponding to the current `window.location` values
        *
@@ -7223,7 +7235,7 @@ for(var i=currentContext.__divergedChainIndex;i<currentContext.chain.length;i++)
        *
        * See also **Navigation Triggers** section in [Live Examples](#/classes/Router/demos/demo/index.html).
        *
-       * @param {...Router.NavigationTrigger} triggers
+       * @param {...NavigationTrigger} triggers
        */},{key:"urlForName",/**
        * Generates a URL for the route with the given name, optionally performing
        * substitution of parameters.
@@ -7237,7 +7249,7 @@ for(var i=currentContext.__divergedChainIndex;i<currentContext.chain.length;i++)
        *
        * @function urlForName
        * @param {!string} name the route name or the route’s `component` name.
-       * @param {Router.Params=} params Optional object with route path parameters.
+       * @param {Params=} params Optional object with route path parameters.
        * Named parameters are passed by name (`params[name] = value`), unnamed
        * parameters are passed by index (`params[index] = value`).
        *
@@ -7247,7 +7259,7 @@ for(var i=currentContext.__divergedChainIndex;i<currentContext.chain.length;i++)
        * substitution of parameters.
        *
        * @param {!string} path string route path declared in [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
-       * @param {Router.Params=} params Optional object with route path parameters.
+       * @param {Params=} params Optional object with route path parameters.
        * Named parameters are passed by name (`params[name] = value`), unnamed
        * parameters are passed by index (`params[index] = value`).
        *

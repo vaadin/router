@@ -85,7 +85,7 @@ export class Location {
      * global router event details.
      *
      * @public
-     * @type {?Router.Route}
+     * @type {?Route}
      */
     this.route;
 
@@ -99,7 +99,7 @@ export class Location {
      * details on child routes and nested layouts.
      *
      * @public
-     * @type {!Array<!Router.Route>}
+     * @type {!Array<!Route>}
      */
     this.routes;
 
@@ -113,7 +113,7 @@ export class Location {
      * details.
      *
      * @public
-     * @type {!Router.IndexedParams}
+     * @type {!IndexedParams}
      */
     this.params;
   }
@@ -125,7 +125,7 @@ export class Location {
     *
     * @public
     * @type {Function}
-    * @param {Router.Params=} params optional object with parameters to override.
+    * @param {Params=} params optional object with parameters to override.
     * Named parameters are passed by name (`params[name] = value`), unnamed
     * parameters are passed by index (`params[index] = value`).
     * @return {string}
