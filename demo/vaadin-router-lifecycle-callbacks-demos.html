@@ -424,6 +424,90 @@
       property is used later when processing the <code>vaadin-router-location-changed
       </code> events.
     </p>
+
+    <h3>TypeScript Interfaces</h3>
+    <p>
+      For using with components defined as TypeScript classes, the following
+      interfaces are available for implementing:
+    </p>
+    <ul>
+      <li>
+        <p><b><code>BeforeEnterObserver</code></b></p>
+        <pre><code>import {
+  BeforeEnterObserver,
+  PreventAndRedirectCommands,
+  Router,
+  RouterLocation
+} from '@vaadin/router';
+
+@customElement('my-view-with-before-enter')
+class MyViewWithBeforeEnter extends LitElement implements BeforeEnterObserver {
+  onBeforeEnter(
+      location: RouterLocation,
+      commands: PreventAndRedirectCommands,
+      router: Router) {
+    // ...
+  }
+}</code></pre>
+      </li>
+      <li>
+        <p><b><code>AfterEnterObserver</code></b></p>
+        <pre><code>import {
+  AfterEnterObserver,
+  EmptyCommands,
+  Router,
+  RouterLocation
+} from '@vaadin/router';
+
+@customElement('my-view-with-after-enter')
+class MyViewWithAfterEnter extends LitElement implements AfterEnterObserver {
+  onAfterEnter(
+      location: RouterLocation,
+      commands: EmptyCommands,
+      router: Router) {
+    // ...
+  }
+}</code></pre>
+      </li>
+      <li>
+        <p><b><code>BeforeLeaveObserver</code></b></p>
+        <pre><code>import {
+  BeforeLeaveObserver,
+  PreventCommands,
+  Router,
+  RouterLocation
+} from '@vaadin/router';
+
+@customElement('my-view-with-before-leave')
+class MyViewWithBeforeLeave extends LitElement implements BeforeLeaveObserver {
+  onBeforeLeave(
+      location: RouterLocation,
+      commands: PreventCommands,
+      router: Router) {
+    // ...
+  }
+}</code></pre>
+      </li>
+      <li>
+        <p><b><code>AfterLeaveObserver</code></b></p>
+        <pre><code>import {
+  AfterLeaveObserver,
+  EmptyCommands,
+  Router,
+  RouterLocation
+} from '@vaadin/router';
+
+@customElement('my-view-with-after-leave')
+class MyViewWithAfterLeave extends LitElement implements AfterLeaveObserver {
+  onAfterLeave(
+      location: RouterLocation,
+      commands: EmptyCommands,
+      router: Router) {
+    // ...
+  }
+}</code></pre>
+      </li>
+    </ul>
   </template>
   <script>
     class VaadinRouterLifecycleCallbacksDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
