@@ -548,21 +548,48 @@ export class Router extends Resolver {
         const redirectsHappened = contextAfterRedirects !== contextBeforeRedirects;
         const topOfTheChainContextAfterRedirects =
           redirectsHappened ? contextAfterRedirects : topOfTheChainContextBeforeRedirects;
-        return contextAfterRedirects.next()
-          .then(nextChildContext => {
-            if (nextChildContext === null || nextChildContext === notFoundResult) {
-              const matchedPath = getPathnameForRouter(
-                getMatchedPath(contextAfterRedirects.chain),
-                contextAfterRedirects.resolver
-              );
-              if (matchedPath !== contextAfterRedirects.pathname) {
-                throw getNotFoundError(topOfTheChainContextAfterRedirects);
+
+        const matchedPath = getPathnameForRouter(
+          getMatchedPath(contextAfterRedirects.chain),
+          contextAfterRedirects.resolver
+        );
+        const isFound = (matchedPath === contextAfterRedirects.pathname);
+
+        // Recursive method to try matching more child and sibling routes
+        const findNextContextIfAny = (context, parent) => {
+          let prevResult = undefined;
+          if (parent === undefined) {
+            parent = context.route;
+          } else {
+            prevResult = null;
+          }
+          return context.next(undefined, parent, prevResult).then(nextContext => {
+            if (nextContext === null || nextContext === notFoundResult) {
+              // Next context is not found in children, ...
+              if (isFound) {
+                // ...but original context is already fully matching - use it
+                return context;
+              } else {
+                // ...and there is no full match yet - step up to check siblings
+                return findNextContextIfAny(context, context.route.parent);
               }
             }
-            return nextChildContext && nextChildContext !== notFoundResult
-              ? this.__fullyResolveChain(topOfTheChainContextAfterRedirects, nextChildContext)
-              : this.__amendWithOnBeforeCallbacks(contextAfterRedirects);
+
+            return nextContext;
           });
+        };
+
+        return findNextContextIfAny(contextAfterRedirects).then(nextContext => {
+          if (nextContext === null || nextContext === notFoundResult) {
+            throw getNotFoundError(topOfTheChainContextAfterRedirects);
+          }
+
+          return nextContext
+          && nextContext !== notFoundResult
+          && nextContext !== contextAfterRedirects
+            ? this.__fullyResolveChain(topOfTheChainContextAfterRedirects, nextContext)
+            : this.__amendWithOnBeforeCallbacks(contextAfterRedirects);
+        });
       });
   }
 

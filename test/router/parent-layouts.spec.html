@@ -194,6 +194,20 @@
         checkOutlet(['x-a', 'x-d']);
       });
 
+      it('should take next routes as fallback when children do not match', async() => {
+        router.setRoutes([
+          {path: '/a', component: 'x-a', children: [
+            {path: '/b', component: 'x-b'}
+          ]},
+          {path: '/a/c', component: 'x-fallback'}
+        ], true);
+
+        await router.render('/a/c');
+
+        verifyActiveRoutes(router, ['/a/c']);
+        checkOutlet(['x-fallback']);
+      });
+
       it('redirect property amends previous path', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
