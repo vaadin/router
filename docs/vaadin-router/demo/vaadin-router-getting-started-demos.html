@@ -85,6 +85,39 @@
       <code>this.location.pathname</code>).
     </p>
 
+    <h3>Using <code>this.location</code></h3>
+    <p>
+      If you use Polymer and JavaScript to build your view components,
+      the <code>location</code> property does not require a declaration.
+      It is recommended to add it to the <code>properties</code> of your
+      component for consistency, though:
+    </p>
+    <pre><code>static get properties() {
+  return {
+    // ...
+    location: Object
+  };
+}</code></pre>
+    <p>
+      For LitElement and TypeScript a declaration in the component is required.
+      Declare the <code>location</code> property in the class and initialize it
+      from the <code>router</code> Vaadin Router instance:
+    </p>
+    <pre><code>import {router} from './index';
+import {customElement, html, LitElement, property} from 'lit-element';
+
+@customElement('my-view')
+class MyViewElement extends LitElement {
+  @property({type: Object}) location = router.location;
+
+  render() {
+    return html`
+      Current location URL: ${this.location.getUrl()}
+    `;
+  }
+}</code></pre>
+    <p>This property is automatically updated on navigation.</p>
+
     <h3>Fallback Routes (404)</h3>
     <p>If Vaadin Router does not find a matching route, the promise returned
       from the <code>render()</code> method gets rejected, and any content in
