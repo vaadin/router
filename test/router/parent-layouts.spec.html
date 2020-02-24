@@ -96,6 +96,28 @@
         expect(third.firstElementChild.tagName).to.match(/x-d/i);
       });
 
+      it('should update parent location when reusing layout', async() => {
+        router.setRoutes([
+          {path: '/a', component: 'x-a', children: [
+            {path: '/b', component: 'x-b'},
+            {path: '/c', component: 'x-c'},
+            {path: '/([de])', component: 'x-d'}
+          ]}
+        ]);
+
+        await router.render('/a/b');
+        expect(outlet.lastElementChild.location.pathname).to.equal('/a/b');
+
+        await router.render('/a/c');
+        expect(outlet.lastElementChild.location.pathname).to.equal('/a/c');
+
+        await router.render('/a/d');
+        expect(outlet.lastElementChild.location.pathname).to.equal('/a/d');
+
+        await router.render('/a/e');
+        expect(outlet.lastElementChild.location.pathname).to.equal('/a/e');
+      });
+
       it('should remove nested route components when the parent route is navigated to', async() => {
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
@@ -206,6 +228,49 @@
 
         verifyActiveRoutes(router, ['/a/c']);
         checkOutlet(['x-fallback']);
+      });
+
+      it('should take next routes as fallback when grandchildren do not match', async() => {
+        router.setRoutes([
+          {path: '/a', component: 'x-a', children: [
+            {path: '/b', component: 'x-b', children: [
+              {path: '/b', component: 'x-c'}
+            ]},
+          ]},
+          {path: '/a/b/d', component: 'x-fallback'}
+        ], true);
+
+        await router.render('/a/b/d');
+
+        verifyActiveRoutes(router, ['/a/b/d']);
+        checkOutlet(['x-fallback']);
+      });
+
+      it('should throw not found when neither children nor siblings match', async() => {
+        // Ensure outlet is clean
+        const childNodes = Array.from(outlet.childNodes);
+        outlet.textContent = '';
+
+        router.setRoutes([
+          {path: '/a', component: 'x-a', children: [
+            {path: '/b', component: 'x-b', children: [
+              {path: '/b', component: 'x-c'}
+            ]},
+          ]},
+          {path: '/a/b/d', component: 'x-fallback'}
+        ], true);
+
+        const onError = sinon.spy();
+        await router.render('/a/b/e').catch(onError);
+
+        expect(outlet.childNodes.length).to.equal(0);
+        const error = onError.args[0][0];
+        expect(error).to.be.an('error');
+        expect(error.message).to.match(/page not found/i);
+
+        // Restore previous outlet content
+        outlet.textContent = '';
+        childNodes.forEach(childNode => outlet.appendChild(childNode));
       });
 
       it('should render the matching child route even if it is not under the first matching parent', async() => {
