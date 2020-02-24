@@ -556,22 +556,18 @@ export class Router extends Resolver {
         const isFound = (matchedPath === contextAfterRedirects.pathname);
 
         // Recursive method to try matching more child and sibling routes
-        const findNextContextIfAny = (context, parent) => {
-          let prevResult = undefined;
-          if (parent === undefined) {
-            parent = context.route;
-          } else {
-            prevResult = null;
-          }
+        const findNextContextIfAny = (context, parent = context.route, prevResult) => {
           return context.next(undefined, parent, prevResult).then(nextContext => {
             if (nextContext === null || nextContext === notFoundResult) {
               // Next context is not found in children, ...
               if (isFound) {
                 // ...but original context is already fully matching - use it
                 return context;
-              } else {
+              } else if (parent.parent !== null) {
                 // ...and there is no full match yet - step up to check siblings
-                return findNextContextIfAny(context, context.route.parent);
+                return findNextContextIfAny(context, parent.parent, nextContext);
+              } else {
+                return nextContext;
               }
             }
 
@@ -674,8 +670,19 @@ export class Router extends Resolver {
       }
     }
     // execute onBeforeEnter when NOT skipping attach
-    for (let i = newContext.__divergedChainIndex; !newContext.__skipAttach && i < newChain.length; i++) {
-      callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
+    if (!newContext.__skipAttach) {
+      for (let i = 0; i < newChain.length; i++) {
+        if (i < newContext.__divergedChainIndex) {
+          if (i < previousChain.length && previousChain[i].element) {
+            previousChain[i].element.location = createLocation(newContext, previousChain[i].route);
+          }
+        } else {
+          callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
+          if (newChain[i].element) {
+            newChain[i].element.location = createLocation(newContext, newChain[i].route);
+          }
+        }
+      }
     }
     return callbacks.then(amendmentResult => {
       if (amendmentResult) {
