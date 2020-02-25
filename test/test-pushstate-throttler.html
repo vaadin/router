@@ -124,7 +124,6 @@
         return new Promise((resolve, reject) => {
           if (runnerWindow.pushStateCount > 85 || force) {
             const cooldownPeriod = 30 * 1000;
-            test.timeout(cooldownPeriod + 5000);
             const cooldownMessage = this.$['safari-cooldown'];
             cooldownMessage.removeAttribute('hidden');
             setTimeout(() => {
@@ -132,6 +131,7 @@
               runnerWindow.pushStateCount = 0;
               resolve();
             }, cooldownPeriod);
+            test.timeout(cooldownPeriod + 5000);
           } else {
             resolve();
           }
