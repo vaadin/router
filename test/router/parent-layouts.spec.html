@@ -249,7 +249,9 @@
       it('should throw not found when neither children nor siblings match', async() => {
         // Ensure outlet is clean
         const childNodes = Array.from(outlet.childNodes);
-        outlet.textContent = '';
+        while (outlet.childNodes.length) {
+          outlet.removeChild(outlet.lastChild);
+        }
 
         router.setRoutes([
           {path: '/a', component: 'x-a', children: [
@@ -269,7 +271,9 @@
         expect(error.message).to.match(/page not found/i);
 
         // Restore previous outlet content
-        outlet.textContent = '';
+        while (outlet.childNodes.length) {
+          outlet.removeChild(outlet.lastChild);
+        }
         childNodes.forEach(childNode => outlet.appendChild(childNode));
       });
 
