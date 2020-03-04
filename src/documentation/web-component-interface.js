@@ -86,7 +86,7 @@ export class WebComponentInterface {
    *
    * Arguments:
    *
-   * @param location the `Router.Location` object
+   * @param location the `RouterLocation` object
    * @param commands the commands object with the following methods:
    *
    * | Property           | Description
@@ -129,7 +129,7 @@ export class WebComponentInterface {
    *
    * Arguments:
    *
-   * @param location the `Router.Location` object
+   * @param location the `RouterLocation` object
    * @param commands the commands object with the following methods:
    *
    * | Property                 | Description
@@ -165,7 +165,7 @@ export class WebComponentInterface {
    *
    * Arguments:
    *
-   * @param location the `Router.Location` object
+   * @param location the `RouterLocation` object
    * @param commands empty object
    * @param router the `Router` instance
    */
@@ -192,7 +192,7 @@ export class WebComponentInterface {
    *
    * Arguments:
    *
-   * @param location the `Router.Location` object
+   * @param location the `RouterLocation` object
    * @param commands empty object
    * @param router the `Router` instance
    */

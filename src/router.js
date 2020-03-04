@@ -173,7 +173,7 @@ export class Router extends Resolver {
    * router.setOutlet(outlet);
    * ```
    * @param {?Node=} outlet
-   * @param {?Router.Options=} options
+   * @param {?RouterOptions=} options
    */
   constructor(outlet, options) {
     const baseElement = document.head.querySelector('base');
@@ -205,7 +205,7 @@ export class Router extends Resolver {
      * with the last render cycle result.
      *
      * @public
-     * @type {!Promise<!Router.Location>}
+     * @type {!Promise<!RouterLocation>}
      */
     this.ready;
     this.ready = Promise.resolve(outlet);
@@ -213,11 +213,11 @@ export class Router extends Resolver {
     /**
      * Contains read-only information about the current router location:
      * pathname, active routes, parameters. See the
-     * [Location type declaration](#/classes/Router.Location)
+     * [Location type declaration](#/classes/RouterLocation)
      * for more details.
      *
      * @public
-     * @type {!Router.Location}
+     * @type {!RouterLocation}
      */
     this.location;
     this.location = createLocation({resolver: this});
@@ -405,7 +405,7 @@ export class Router extends Resolver {
    * with current context. Note: the component created by this function is reused if visiting the same path twice in row.
    *
    *
-   * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
+   * @param {!Array<!Route>|!Route} routes a single route or an array of those
    * @param {?boolean} skipRender configure the router but skip rendering the
    *     route corresponding to the current `window.location` values
    *
@@ -548,21 +548,44 @@ export class Router extends Resolver {
         const redirectsHappened = contextAfterRedirects !== contextBeforeRedirects;
         const topOfTheChainContextAfterRedirects =
           redirectsHappened ? contextAfterRedirects : topOfTheChainContextBeforeRedirects;
-        return contextAfterRedirects.next()
-          .then(nextChildContext => {
-            if (nextChildContext === null || nextChildContext === notFoundResult) {
-              const matchedPath = getPathnameForRouter(
-                getMatchedPath(contextAfterRedirects.chain),
-                contextAfterRedirects.resolver
-              );
-              if (matchedPath !== contextAfterRedirects.pathname) {
-                throw getNotFoundError(topOfTheChainContextAfterRedirects);
+
+        const matchedPath = getPathnameForRouter(
+          getMatchedPath(contextAfterRedirects.chain),
+          contextAfterRedirects.resolver
+        );
+        const isFound = (matchedPath === contextAfterRedirects.pathname);
+
+        // Recursive method to try matching more child and sibling routes
+        const findNextContextIfAny = (context, parent = context.route, prevResult) => {
+          return context.next(undefined, parent, prevResult).then(nextContext => {
+            if (nextContext === null || nextContext === notFoundResult) {
+              // Next context is not found in children, ...
+              if (isFound) {
+                // ...but original context is already fully matching - use it
+                return context;
+              } else if (parent.parent !== null) {
+                // ...and there is no full match yet - step up to check siblings
+                return findNextContextIfAny(context, parent.parent, nextContext);
+              } else {
+                return nextContext;
               }
             }
-            return nextChildContext && nextChildContext !== notFoundResult
-              ? this.__fullyResolveChain(topOfTheChainContextAfterRedirects, nextChildContext)
-              : this.__amendWithOnBeforeCallbacks(contextAfterRedirects);
+
+            return nextContext;
           });
+        };
+
+        return findNextContextIfAny(contextAfterRedirects).then(nextContext => {
+          if (nextContext === null || nextContext === notFoundResult) {
+            throw getNotFoundError(topOfTheChainContextAfterRedirects);
+          }
+
+          return nextContext
+          && nextContext !== notFoundResult
+          && nextContext !== contextAfterRedirects
+            ? this.__fullyResolveChain(topOfTheChainContextAfterRedirects, nextContext)
+            : this.__amendWithOnBeforeCallbacks(contextAfterRedirects);
+        });
       });
   }
 
@@ -647,8 +670,19 @@ export class Router extends Resolver {
       }
     }
     // execute onBeforeEnter when NOT skipping attach
-    for (let i = newContext.__divergedChainIndex; !newContext.__skipAttach && i < newChain.length; i++) {
-      callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
+    if (!newContext.__skipAttach) {
+      for (let i = 0; i < newChain.length; i++) {
+        if (i < newContext.__divergedChainIndex) {
+          if (i < previousChain.length && previousChain[i].element) {
+            previousChain[i].element.location = createLocation(newContext, previousChain[i].route);
+          }
+        } else {
+          callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
+          if (newChain[i].element) {
+            newChain[i].element.location = createLocation(newContext, newChain[i].route);
+          }
+        }
+      }
     }
     return callbacks.then(amendmentResult => {
       if (amendmentResult) {
@@ -917,7 +951,7 @@ export class Router extends Resolver {
    *
    * See also **Navigation Triggers** section in [Live Examples](#/classes/Router/demos/demo/index.html).
    *
-   * @param {...Router.NavigationTrigger} triggers
+   * @param {...NavigationTrigger} triggers
    */
   static setTriggers(...triggers) {
     setNavigationTriggers(triggers);
@@ -936,7 +970,7 @@ export class Router extends Resolver {
    *
    * @function urlForName
    * @param {!string} name the route name or the route’s `component` name.
-   * @param {Router.Params=} params Optional object with route path parameters.
+   * @param {Params=} params Optional object with route path parameters.
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    *
@@ -957,7 +991,7 @@ export class Router extends Resolver {
    * substitution of parameters.
    *
    * @param {!string} path string route path declared in [express.js syntax](https://expressjs.com/en/guide/routing.html#route-paths").
-   * @param {Router.Params=} params Optional object with route path parameters.
+   * @param {Params=} params Optional object with route path parameters.
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    *

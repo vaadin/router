@@ -85,6 +85,39 @@
       <code>this.location.pathname</code>).
     </p>
 
+    <h3>Using <code>this.location</code></h3>
+    <p>
+      If you use Polymer and JavaScript to build your view components,
+      the <code>location</code> property does not require a declaration.
+      It is recommended to add it to the <code>properties</code> of your
+      component for consistency, though:
+    </p>
+    <pre><code>static get properties() {
+  return {
+    // ...
+    location: Object
+  };
+}</code></pre>
+    <p>
+      For LitElement and TypeScript a declaration in the component is required.
+      Declare the <code>location</code> property in the class and initialize it
+      from the <code>router</code> Vaadin Router instance:
+    </p>
+    <pre><code>import {router} from './index';
+import {customElement, html, LitElement, property} from 'lit-element';
+
+@customElement('my-view')
+class MyViewElement extends LitElement {
+  @property({type: Object}) location = router.location;
+
+  render() {
+    return html`
+      Current location URL: ${this.location.getUrl()}
+    `;
+  }
+}</code></pre>
+    <p>This property is automatically updated on navigation.</p>
+
     <h3>Fallback Routes (404)</h3>
     <p>If Vaadin Router does not find a matching route, the promise returned
       from the <code>render()</code> method gets rejected, and any content in
@@ -245,9 +278,62 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Excluded links</h3>
+    <p>When some <code>&lt;a&gt;</code> links are external for the app, Vaadin
+      Router can be configured to ignore them and let the browser handle these
+      links in the default way:
+      <code></code></p><pre><code>&lt;a href="/users" <b>router-ignore</b>&gt;Users&lt;/a&gt;</code></pre>
+    <p></p>
+    <vaadin-demo-snippet id="vaadin-router-getting-started-demo-ignore" iframe-src="iframe.html">
+      <template preserve-content="">
+        <nav>
+          <a href="/">Home</a>
+          <!-- ignored by Vaadin Router, triggers a full page reload -->
+          <a href="/users" router-ignore="">Users</a>
+        </nav>
+
+        <main></main>
+
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          const router = new Router(document.querySelector('main'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
+    <p>When an large set of URLs needs to be ignored (e.g. all URLs starting
+      with <code>/external</code>), it may be impractical to add the
+      <code>router-ignore</code> attribute to each link separately.
+      For such cases a more practical approach would be to add a special route
+      to the top of the router config:
+    </p>
+    <vaadin-demo-snippet theme="no-renderer" id="vaadin-router-getting-started-demo-ignore-bulk">
+      <template preserve-content="">
+        <script>
+          /* eslint-disable-next-line */
+          var routes = [
+            // this would be the first route in the config
+            {
+              path: '/external/(.*)',
+              action: (ctx, commands) => {
+                window.location.pathname = ctx.pathname;
+              }
+            },
+          ];
+        </script>
+      </template>
+    </vaadin-demo-snippet>
   </template>
   <script>var VaadinRouterGettingStartedDemos=/*#__PURE__*/function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterGettingStartedDemos,_DemoReadyEventEmitte);function VaadinRouterGettingStartedDemos(){babelHelpers.classCallCheck(this,VaadinRouterGettingStartedDemos);return babelHelpers.possibleConstructorReturn(this,babelHelpers.getPrototypeOf(VaadinRouterGettingStartedDemos).apply(this,arguments))}babelHelpers.createClass(VaadinRouterGettingStartedDemos,[{key:"ready",value:function ready(){babelHelpers.get(babelHelpers.getPrototypeOf(VaadinRouterGettingStartedDemos.prototype),"ready",this).call(this);// The base URL demo should '/ui/' initially instead of the default '/'
 // TODO(platosha): Remove the workaround below after)
 // https://github.com/vaadin/vaadin-demo-helpers/issues/60 is fixed
-var baseUrlDemoSnippet=this.$["vaadin-router-getting-started-demo-base-url"],origShowDemo=baseUrlDemoSnippet._showDemo;baseUrlDemoSnippet._showDemo=function(){origShowDemo.apply(this,arguments);var iframeDemoRenderer=baseUrlDemoSnippet.$.demo.firstElementChild;iframeDemoRenderer.__iframeReady.then(function(){iframeDemoRenderer.url="/ui/";iframeDemoRenderer._postIframeMessage({type:"set-url",url:"/ui/"})})}}}],[{key:"is",get:function get(){return"vaadin-router-getting-started-demos"}}]);return VaadinRouterGettingStartedDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterGettingStartedDemos.is,VaadinRouterGettingStartedDemos);</script>
+var baseUrlDemoSnippet=this.$["vaadin-router-getting-started-demo-base-url"],origShowDemo=baseUrlDemoSnippet._showDemo;baseUrlDemoSnippet._showDemo=function(){origShowDemo.apply(this,arguments);var iframeDemoRenderer=baseUrlDemoSnippet.$.demo.firstElementChild;iframeDemoRenderer.__iframeReady.then(function(){iframeDemoRenderer.url="/ui/";iframeDemoRenderer._postIframeMessage({type:"set-url",url:"/ui/"})})};// TODO(vlukashov): Remove the workaround, and implement the feature in
+// https://github.com/vaadin/vaadin-demo-helpers
+var bulkIgnoreDemoSnippet=this.$["vaadin-router-getting-started-demo-ignore-bulk"],orig=bulkIgnoreDemoSnippet._showDemo;bulkIgnoreDemoSnippet._showDemo=function(){orig.apply(this,arguments);this._markdown=this._markdown.replace(/\n\s*\/\* eslint-.*\*\/\n/g,"\n")}}}],[{key:"is",get:function get(){return"vaadin-router-getting-started-demos"}}]);return VaadinRouterGettingStartedDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterGettingStartedDemos.is,VaadinRouterGettingStartedDemos);</script>
 </dom-module>

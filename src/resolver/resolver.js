@@ -33,19 +33,23 @@ function generateErrorMessage(currentContext) {
   return errorMessage;
 }
 
-function addRouteToChain(context, match) {
+function updateChainForRoute(context, match) {
   const {route, path} = match;
-  function shouldDiscardOldChain(oldChain, route) {
-    return !route.parent || !oldChain || !oldChain.length || oldChain[oldChain.length - 1].route !== route.parent;
-  }
 
   if (route && !route.__synthetic) {
     const item = {path, route};
-    if (shouldDiscardOldChain(context.chain, route)) {
-      context.chain = [item];
+    if (!context.chain) {
+      context.chain = [];
     } else {
-      context.chain.push(item);
+      // Discard old items
+      if (route.parent) {
+        let i = context.chain.length;
+        while (i-- && context.chain[i].route && context.chain[i].route !== route.parent) {
+          context.chain.pop();
+        }
+      }
     }
+    context.chain.push(item);
   }
 }
 
@@ -159,8 +163,14 @@ class Resolver {
         return Promise.reject(getNotFoundError(context));
       }
 
-      addRouteToChain(context, matches.value);
-      currentContext = Object.assign({}, context, matches.value);
+      currentContext = Object.assign(
+        currentContext
+          ? {chain: (currentContext.chain ? currentContext.chain.slice(0) : [])}
+          : {},
+        context,
+        matches.value
+      );
+      updateChainForRoute(currentContext, matches.value);
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {
         if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
