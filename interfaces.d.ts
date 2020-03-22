@@ -87,6 +87,7 @@ declare module './dist/vaadin-router' {
   interface BaseRoute {
     path: string;
     name?: string;
+    metadata?: Record<string|number, unknown>;
     // Route requires at least one of the following optional properties
     action?: ActionFn;
     bundle?: string;
