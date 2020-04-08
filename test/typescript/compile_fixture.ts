@@ -104,6 +104,7 @@ router.setRoutes([]);
 const r: Route = {path: '/standalone', component: 'x-standalone'};
 r.redirect = '/x-standalone';
 r.action = () => {};
+r.metadata = { arbitrary: { content: { in: ['metadata'] } } }
 router.setRoutes([r]);
 // TODO(@platosha): remove deprecated namespaced cases
 const rr: Router.Route = {path: '/standalone', component: 'x-standalone'};
@@ -165,6 +166,13 @@ router.setRoutes([
   {path: 'parent', name: 'with-children', children: [
     {path: 'child', children: []},
   ]}
+]);
+
+// routes with metadata
+router.setRoutes([
+  {path: 'component', component: 'x-component', metadata: { any: 'thing' } },
+  {path: 'component', component: 'x-component', metadata: { 0: true } },
+  {path: 'component', component: 'x-component', metadata: { arbitrary: { content: { in: ['metadata'] } } } },
 ]);
 
 // Various action return types
