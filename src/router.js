@@ -650,15 +650,11 @@ export class Router extends Resolver {
       if (newContext.__skipAttach) {
         // execute onBeforeLeave for changed segment element when skipping attach
         for (let i = newChain.length - 1; i >= 0; i--) {
-          if (previousChain[i].path !== newChain[i].path || newContext.search !== previousContext.search) {
-            callbacks = this.__runOnBeforeLeaveCallbacks(callbacks, newContext, {prevent}, previousChain[i]);
-          }
+          callbacks = this.__runOnBeforeLeaveCallbacks(callbacks, newContext, {prevent}, previousChain[i]);
         }
         // execute onBeforeEnter for changed segment element when skipping attach
         for (let i = 0; i < newChain.length; i++) {
-          if (previousChain[i].path !== newChain[i].path || newContext.search !== previousContext.search) {
-            callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
-          }
+          callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
           previousChain[i].element.location = createLocation(newContext, previousChain[i].route);
         }
 
