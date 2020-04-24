@@ -886,12 +886,12 @@
           await router.render('/a/b');
 
           verifyCallbacks([
-            "x-a.action",
-            "x-b.action",
-            "x-b.onBeforeLeave",
-            "x-a.onBeforeLeave",
-            "x-a.onBeforeEnter",
-            "x-b.onBeforeEnter"
+            'x-a.action',
+            'x-b.action',
+            'x-b.onBeforeLeave',
+            'x-a.onBeforeLeave',
+            'x-a.onBeforeEnter',
+            'x-b.onBeforeEnter'
           ]);
           checkOutlet(['x-a', 'x-b']);
         });
@@ -1666,7 +1666,7 @@
           expect(outlet.innerHTML.toLowerCase()).to.be.equal('<span><a>layout-link</a><h1>client</h1></span>');
         });
 
-        //https://github.com/vaadin/flow/issues/8081
+        // https://github.com/vaadin/flow/issues/8081
         it('should keep lifecycle even when path remains same and search string remains empty', async() => {
           router.setRoutes([
             {path: '/a', component: 'x-spy'}
