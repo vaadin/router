@@ -1700,6 +1700,21 @@
           ]);
         });
 
+        it('should not call callbacks for in page navigation', async() => {
+          router.setRoutes([
+            {
+              path: '/a', component: 'x-spy'
+            }
+          ], true);
+          await router.render('/a');
+          callbacksLog = [];
+          await router.render({pathname: '/a', hash: '#foo'});
+          verifyCallbacks([]);
+          callbacksLog = [];
+          await router.render({pathname: '/a', hash: '#bar'});
+          verifyCallbacks([]);
+        });
+
         it('should call lifecycle when path remains same and search string changes', async() => {
           router.setRoutes([
             {path: '/a', component: 'x-spy'}
