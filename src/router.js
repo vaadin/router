@@ -652,8 +652,8 @@ export class Router extends Resolver {
         for (let i = newChain.length - 1; i >= 0; i--) {
           // If only hash is different, don't call callbacks
           if (previousChain[i].path === newChain[i].path && newContext.search === previousContext.search
-            && newContext.hash !== previousContext.hash){
-              continue;
+            && newContext.hash !== previousContext.hash) {
+            continue;
           }
           callbacks = this.__runOnBeforeLeaveCallbacks(callbacks, newContext, {prevent}, previousChain[i]);
         }
@@ -661,8 +661,8 @@ export class Router extends Resolver {
         for (let i = 0; i < newChain.length; i++) {
           // If only hash is different, don't call callbacks
           if (previousChain[i].path === newChain[i].path && newContext.search === previousContext.search
-            && newContext.hash !== previousContext.hash){
-              continue;
+            && newContext.hash !== previousContext.hash) {
+            continue;
           }
           callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
           previousChain[i].element.location = createLocation(newContext, previousChain[i].route);
