@@ -888,6 +888,10 @@
           verifyCallbacks([
             'x-a.action',
             'x-b.action',
+            'x-b.onBeforeLeave',
+            'x-a.onBeforeLeave',
+            'x-a.onBeforeEnter',
+            'x-b.onBeforeEnter'
           ]);
           checkOutlet(['x-a', 'x-b']);
         });
@@ -1307,8 +1311,10 @@
             'x-user.action',
             'x-edit.action',
             // only call changed segment events
+            'x-edit.onBeforeLeave',
             'x-user.onBeforeLeave',
             'x-user.onBeforeEnter',
+            'x-edit.onBeforeEnter'
           ]);
         });
 
@@ -1355,6 +1361,8 @@
             'x-layout.action',
             'x-foo.action',
             'x-foo.onBeforeLeave',
+            'x-layout.onBeforeLeave',
+            'x-layout.onBeforeEnter',
             'x-foo.onBeforeEnter'
             // stop calling any other callbacks if result is the same
             // stop detaching/re-attaching the element
@@ -1508,7 +1516,7 @@
           ]);
         });
 
-        it('do not remove content when reusing element for same path (#362, #311, #331)', async() => {
+        it('Make lifecycle callbacks when reusing element for same path (#362, #311, #331)', async() => {
           const view = document.createElement('x-spy');
           view.textContent = 'view';
           view.name = 'view';
@@ -1542,8 +1550,8 @@
             'view.onAfterEnter',
             // Action is always called
             'view.action.1',
-            // No call events since nothing changed
-            // No detach/re-attach (#311 #331)
+            'view.onBeforeLeave',
+            'view.onBeforeEnter'
           ]);
         });
 
@@ -1567,6 +1575,8 @@
 
           // Skip detach/re-attach and notifications (#311 #331)
           verifyCallbacks([
+            'x-spy.onBeforeLeave',
+            'x-spy.onBeforeEnter'
           ]);
         });
 
@@ -1656,7 +1666,8 @@
           expect(outlet.innerHTML.toLowerCase()).to.be.equal('<span><a>layout-link</a><h1>client</h1></span>');
         });
 
-        it('should skip lifecycle when path remains same and search string remains empty', async() => {
+        // https://github.com/vaadin/flow/issues/8081
+        it('should keep lifecycle even when path remains same and search string remains empty', async() => {
           router.setRoutes([
             {path: '/a', component: 'x-spy'}
           ], true);
@@ -1671,16 +1682,21 @@
           await router.render({pathname: '/a'});
           expect(outlet.children[0]).to.be.equal(view);
 
-          // Search remains empty, skip lifecycle
           verifyCallbacks([
+            'x-spy.onBeforeLeave',
+            'x-spy.onBeforeEnter',
           ]);
 
           // Explicit empty search string
           await router.render({pathname: '/a', search: ''});
           expect(outlet.children[0]).to.be.equal(view);
 
-          // Search remains empty, skip lifecycle
+          // Search remains empty, stil lifecycle
           verifyCallbacks([
+            'x-spy.onBeforeLeave',
+            'x-spy.onBeforeEnter',
+            'x-spy.onBeforeLeave',
+            'x-spy.onBeforeEnter'
           ]);
         });
 
