@@ -6,51 +6,6 @@
       }
     </style>
 
-    <h3>Lazy Loading non-JS Bundles, e.g. HTML Imports</h3>
-    <p>
-      In cases when loading <code>.js</code> and <code>.mjs</code> is not
-      enough&mdash;most notably, when using HTML imports in Polymer-based
-      apps&mdash;the lazy loading feature can be implemented with a custom route
-      action (for more details see <a href="#vaadin-router-route-actions-demos">
-      Route Actions</a>).
-    </p>
-    <p>
-      This demo shows a way to lazily add an HTML import. The <code>user.bundle.html</code>
-      file contains entire Polymer 2 component definition including a template, a class,
-      and a script that defines a custom element.
-    </p>
-    <vaadin-demo-snippet id="vaadin-router-code-splitting-2" iframe-src="iframe.html">
-      <template preserve-content>
-        <link rel="import" href="../../polymer/lib/utils/import-href.html">
-        <a href="/">Home</a>
-        <a href="/user/admin">User Profile</a>
-        <div id="outlet"></div>
-        <script>
-          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // const Router = Vaadin.Router; // for vaadin-router.umd.js
-
-          const loadCustomBundle = (context) => {
-            // This is one way of loading a bundle lazily (works for Polymer apps).
-            // Other apps might use different ways.
-            Polymer.importHref(
-              `${Vaadin.Demo.componentsRoot}/user.bundle.html`,
-              null,
-              function(err) {
-                throw new Error('bundle not found');
-              },
-              true
-            );
-          };
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/user/:id', action: loadCustomBundle, component: 'x-user-html-bundle-view'}
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>
-
     <h3>Using Dynamic Imports</h3>
     <p>
       Vaadin Router allows you to implement your own loading mechanism for bundles using
@@ -139,6 +94,52 @@
         </script>
       </template>
     </vaadin-demo-snippet>
+
+    <h3>Lazy Loading non-JS Bundles, e.g. HTML Imports</h3>
+    <p>
+      In cases when loading <code>.js</code> and <code>.mjs</code> is not
+      enough&mdash;most notably, when using HTML imports in Polymer-based
+      apps&mdash;the lazy loading feature can be implemented with a custom route
+      action (for more details see <a href="#vaadin-router-route-actions-demos">
+      Route Actions</a>).
+    </p>
+    <p>
+      This demo shows a way to lazily add an HTML import. The <code>user.bundle.html</code>
+      file contains entire Polymer 2 component definition including a template, a class,
+      and a script that defines a custom element.
+    </p>
+    <vaadin-demo-snippet id="vaadin-router-code-splitting-2" iframe-src="iframe.html">
+      <template preserve-content>
+        <link rel="import" href="../../polymer/lib/utils/import-href.html">
+        <a href="/">Home</a>
+        <a href="/user/admin">User Profile</a>
+        <div id="outlet"></div>
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          const loadCustomBundle = (context) => {
+            // This is one way of loading a bundle lazily (works for Polymer apps).
+            // Other apps might use different ways.
+            Polymer.importHref(
+              `${Vaadin.Demo.componentsRoot}/user.bundle.html`,
+              null,
+              function(err) {
+                throw new Error('bundle not found');
+              },
+              true
+            );
+          };
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/user/:id', action: loadCustomBundle, component: 'x-user-html-bundle-view'}
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+
   </template>
   <script>
     class VaadinRouterCodeSplittingDemos extends DemoReadyEventEmitter(ElementDemo(Polymer.Element)) {
