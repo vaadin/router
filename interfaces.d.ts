@@ -115,11 +115,16 @@ declare module './dist/vaadin-router' {
     redirect: string;
   }
 
+  interface RouteWithAnimation extends BaseRoute {
+    animate: boolean;
+  }
+
   export type Route = RouteWithAction
     | RouteWithBundle
     | RouteWithChildren
     | RouteWithComponent
-    | RouteWithRedirect;
+    | RouteWithRedirect
+    | RouteWithAnimation;
   type _Route = Route;
 
   export interface RouterOptions {
