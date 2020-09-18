@@ -77,6 +77,7 @@
     "@rollup/plugin-commonjs": "^15.0.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@types/form-data": "^2.5.0",
+    "@webcomponents/webcomponentsjs": "^2.4.4",
     "bower": "^1.8.8",
     "browser-sync": "^2.26.12",
     "browserslist": "^4.14.3",
