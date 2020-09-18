@@ -4930,7 +4930,7 @@ escodegen@^1.9.0:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-config-vaadin@^0.2.0:
+eslint-config-vaadin@0.2.7:
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/eslint-config-vaadin/-/eslint-config-vaadin-0.2.7.tgz#f3012684503d3a4188388b720f33b3e0012ea115"
   integrity sha512-Y3Ndd98hjE9DXRX68I8zl3RenDp//1v4ihKcB/v64BBoTKqvmN1EuOMyif1SCx1wvU2t1YX0e+OtGiZ92NcTBw==
@@ -9299,7 +9299,7 @@ polymer-bundler@^4.0.9:
     source-map "^0.5.6"
     vscode-uri "=1.0.6"
 
-polymer-cli@^1.9.0:
+polymer-cli@^1.9.11:
   version "1.9.11"
   resolved "https://registry.yarnpkg.com/polymer-cli/-/polymer-cli-1.9.11.tgz#0b5310732b787e07b811af96627ef0fd1263f5da"
   integrity sha512-tiURjHDCOUUtDVPuVYvrfFI9PXe4OOUmBbn6Sg5GJNQ2POtP7r7hv+I5yI8P9qsxmalHTa19chVtf5/t9IBXDg==
@@ -9388,7 +9388,7 @@ polymer-project-config@^4.0.0, polymer-project-config@^4.0.3:
     plylog "^1.0.0"
     winston "^3.0.0"
 
-polyserve@^0.27.0, polyserve@^0.27.13, polyserve@^0.27.15:
+polyserve@^0.27.13, polyserve@^0.27.15:
   version "0.27.15"
   resolved "https://registry.yarnpkg.com/polyserve/-/polyserve-0.27.15.tgz#261fa5a0873c8d95fd7068598f44c9dac20cf9c4"
   integrity sha512-AaFgANt+tUUVgHLw+BnaVYcn649JiwL1ru0TOZUKj1gGGn/Bq2S16gxql+1muGpRaAsgFu13Zu7k5XkwatwwSg==
@@ -11189,7 +11189,7 @@ style-search@^0.1.0:
   resolved "https://registry.yarnpkg.com/style-search/-/style-search-0.1.0.tgz#7958c793e47e32e07d2b5cafe5c0bf8e12e77902"
   integrity sha1-eVjHk+R+MuB9K1yv5cC/jhLneQI=
 
-stylelint-config-vaadin@^0.1.0:
+stylelint-config-vaadin@0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/stylelint-config-vaadin/-/stylelint-config-vaadin-0.1.4.tgz#bc3161ffb1eb27039e08cc875f1b6e32ab01f03a"
   integrity sha512-OpjDsasSV8bQAvs7OjRaGF0Gj7mFDh6PEgOfdxTgYj0CJY5XAey9mLa7rJQcnJ1uzkm6TIeHR81tT+N6eSFrTg==
