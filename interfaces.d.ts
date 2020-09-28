@@ -95,6 +95,15 @@ declare module './dist/vaadin-router' {
     redirect?: string;
   }
 
+  interface AnimateCustomClasses {
+    enter?: string;
+    leave?: string;
+  }
+
+  interface AnimatableRoute extends BaseRoute {
+    animate?: boolean | AnimateCustomClasses;
+  }
+
   interface RouteWithAction extends BaseRoute {
     action: ActionFn;
   }
@@ -103,11 +112,11 @@ declare module './dist/vaadin-router' {
     bundle: string;
   }
 
-  interface RouteWithChildren extends BaseRoute {
+  interface RouteWithChildren extends AnimatableRoute {
     children: Route[] | ChildrenFn;
   }
 
-  interface RouteWithComponent extends BaseRoute {
+  interface RouteWithComponent extends AnimatableRoute {
     component: string;
   }
 
@@ -115,16 +124,11 @@ declare module './dist/vaadin-router' {
     redirect: string;
   }
 
-  interface RouteWithAnimation extends BaseRoute {
-    animate: boolean;
-  }
-
   export type Route = RouteWithAction
     | RouteWithBundle
     | RouteWithChildren
     | RouteWithComponent
     | RouteWithRedirect
-    | RouteWithAnimation;
   type _Route = Route;
 
   export interface RouterOptions {
