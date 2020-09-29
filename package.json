@@ -80,7 +80,7 @@
     "bundlesize": "^0.18.0",
     "eslint": "^6.6.0",
     "eslint-config-vaadin": "^0.2.0",
-    "eslint-plugin-html": "^6.0.0",
+    "eslint-plugin-html": "^6.1.0",
     "fs-extra": "^8.1.0",
     "gulp": "^4.0.0",
     "gulp-cli": "^2.2.0",
