@@ -83,7 +83,7 @@
     "eslint-plugin-html": "^6.0.0",
     "fs-extra": "^8.1.0",
     "gulp": "^4.0.0",
-    "gulp-cli": "^2.2.0",
+    "gulp-cli": "^2.3.0",
     "gulp-git": "^2.9.0",
     "gulp-replace": "^1.0.0",
     "npm-run-all": "^4.1.0",
