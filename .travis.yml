@@ -11,6 +11,8 @@ cache:
 addons:
   firefox: 66.0
   chrome: stable
+  hosts:
+    - lh # 'localhost' alias for SauceLabs Android
 
 # limit the Travis 'build on push' feature to the master branch only
 branches:
@@ -22,7 +24,10 @@ script:
   - yarn build
   - yarn lint
   - if [[ $TRAVIS_PULL_REQUEST == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
-      wct --env saucelabs;
+      wct
+        --env saucelabs
+        --webserver-hostname lh
+      ;
     else
       xvfb-run -s '-screen 0 1024x768x24' yarn test;
     fi
