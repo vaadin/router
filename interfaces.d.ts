@@ -5,7 +5,16 @@
 // This file is supplemental, it only covers the types missing from
 // the generated declarations.
 
-import {Router} from './dist/vaadin-router';
+import {Router, RouterLocation} from './dist/vaadin-router';
+
+declare global {
+  interface WindowEventMap {
+    'vaadin-router-location-changed': CustomEvent<{
+      router: Router;
+      location: RouterLocation;
+    }>;
+  }
+}
 
 declare module './dist/vaadin-router' {
   export class NotFoundResult {
