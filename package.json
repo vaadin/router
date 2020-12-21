@@ -78,7 +78,7 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@types/form-data": "^2.5.0",
     "bower": "^1.8.8",
-    "browser-sync": "^2.26.12",
+    "browser-sync": "^2.26.13",
     "browserslist": "^4.14.5",
     "bundlesize": "^0.18.0",
     "eslint": "^7.15.0",
