@@ -94,7 +94,7 @@
     "polyserve": "^0.27.15",
     "rollup": "^2.35.1",
     "stylelint": "^13.7.2",
-    "stylelint-config-vaadin": "0.1.4",
+    "stylelint-config-vaadin": "0.2.10",
     "typescript": "^4.0.3",
     "uglify-es": "^3.3.9",
     "wct-istanbul": "^0.14.3",
