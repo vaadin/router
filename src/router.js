@@ -1,3 +1,4 @@
+import {compile} from 'path-to-regexp';
 import Resolver from './resolver/resolver.js';
 import generateUrls from './resolver/generateUrls.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
@@ -39,7 +40,7 @@ function createLocation({pathname = '', search = '', hash = '', chain = [], para
     params,
     redirectFrom,
     getUrl: (userParams = {}) => getPathnameForRouter(
-      Router.pathToRegexp.compile(
+      compile(
         getMatchedPath(routes)
       )(Object.assign({}, params, userParams)),
       resolver
@@ -979,7 +980,7 @@ export class Router extends Resolver {
    */
   urlForPath(path, params) {
     return getPathnameForRouter(
-      Router.pathToRegexp.compile(path)(params),
+      compile(path)(params),
       this
     );
   }
