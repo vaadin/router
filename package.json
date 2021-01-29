@@ -46,7 +46,7 @@
     "docs:analyze": "polymer analyze dist/vaadin-router.js src/documentation/*.js > analysis.json",
     "browserslist": "browserslist && browserslist --coverage",
     "prepare": "npm run build",
-    "preversion": "gulp version:update"
+    "version": "gulp version:update"
   },
   "bundlesize": [
     {
