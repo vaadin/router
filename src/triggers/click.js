@@ -85,6 +85,11 @@ function vaadinRouterGlobalClickHandler(event) {
     return;
   }
 
+  // for a click event, the scroll is reset to the top position.
+  if (event && event.type === 'click') { 
+    window.scrollTo(0, 0); 
+  }
+
   // if none of the above, convert the click into a navigation event
   const {pathname, search, hash} = anchor;
   if (fireRouterEvent('go', {pathname, search, hash})) {
