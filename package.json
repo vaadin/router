@@ -75,7 +75,7 @@
     "@polymer/gen-typescript-declarations": "^1.6.2",
     "@rollup/plugin-babel": "^5.2.1",
     "@rollup/plugin-commonjs": "^15.1.0",
-    "@rollup/plugin-node-resolve": "^9.0.0",
+    "@rollup/plugin-node-resolve": "^11.1.0",
     "@types/form-data": "^2.5.0",
     "bower": "^1.8.8",
     "browser-sync": "^2.26.14",
