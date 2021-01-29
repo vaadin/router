@@ -8,6 +8,7 @@
     "afterEach": false,
     "fixture": false,
     "it": false,
+    "xit": false,
     "expect": false,
     "gemini": false,
     "sinon": false,
