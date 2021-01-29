@@ -67,14 +67,13 @@
   ],
   "dependencies": {
     "@vaadin/vaadin-usage-statistics": "^2.1.0",
-    "path-to-regexp": "2.4.0"
+    "path-to-regexp": "^6.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.12.11",
     "@polymer/gen-typescript-declarations": "^1.6.2",
     "@rollup/plugin-babel": "^5.2.1",
-    "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@types/form-data": "^2.5.0",
     "bower": "^1.8.8",
