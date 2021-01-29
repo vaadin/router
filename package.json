@@ -81,7 +81,7 @@
     "browser-sync": "^2.26.14",
     "browserslist": "^4.14.5",
     "bundlesize": "^0.18.0",
-    "eslint": "^7.15.0",
+    "eslint": "^7.18.0",
     "eslint-config-vaadin": "0.2.7",
     "eslint-plugin-html": "^6.1.0",
     "fs-extra": "^9.0.1",
