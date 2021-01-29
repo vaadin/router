@@ -5,7 +5,7 @@ module.exports = {
     if (argv.env === 'saucelabs') {
       // The list below is based on the browserslist config defined in package.json
       context.options.plugins.sauce.browsers = [
-        // // last 2 Chrome major versions (desktop)
+        // last 2 Chrome major versions (desktop)
         'Windows 10/chrome@latest',
         'Windows 10/chrome@latest-1',
 
@@ -13,14 +13,14 @@ module.exports = {
         {
           deviceName: 'Android GoogleAPI Emulator',
           platformName: 'Android',
-          platformVersion: '7.1',
+          platformVersion: '10.0',
           browserName: 'chrome',
           browserVersion: 'latest'
         },
         {
-          deviceName: 'Android Emulator',
+          deviceName: 'Android GoogleAPI Emulator',
           platformName: 'Android',
-          platformVersion: '6.0',
+          platformVersion: '9.0',
           browserName: 'chrome',
           browserVersion: 'latest-1'
         },
@@ -34,19 +34,15 @@ module.exports = {
         'Windows 10/microsoftedge@latest-1',
 
         // last 2 Safari major versions (desktop)
-        'macOS 10.13/safari@11.1',
-        'macOS 10.12/safari@10.1',
+        'macOS 10.15/safari@latest',
+        'macOS 10.14/safari@latest',
 
         // last 2 iOS major versions (mobile Safari)
-        'iOS Simulator/iphone@12.0',
-        'iOS Simulator/iphone@11.0',
+        'iOS Simulator/iphone@latest',
+        'iOS Simulator/iphone@latest-1',
 
         // Safari 9 on desktop and mobile
         'OS X 10.11/safari@9.0',
-
-        // The mobile Safari 9 tests are disabled because they fail due to
-        // https://forums.developer.apple.com/thread/36650
-        // 'iOS Simulator/iphone@9.3',
 
         // IE11
         'Windows 7/internet explorer@11',
