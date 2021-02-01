@@ -7,10 +7,10 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
+import {parse, tokensToFunction} from 'path-to-regexp';
 import Resolver from './resolver.js';
 import {isString} from '../utils.js';
 
-const {pathToRegexp} = Resolver;
 const cache = new Map();
 
 function cacheRoutes(routesByName, route, routes) {
@@ -49,7 +49,9 @@ function getRoutePath(route) {
   return path !== undefined ? path : '';
 }
 
-function generateUrls(router, options = {}) {
+function generateUrls(router, options = {
+  encode: encodeURIComponent
+}) {
   if (!(router instanceof Resolver)) {
     throw new TypeError('An instance of Resolver is expected');
   }
@@ -68,8 +70,8 @@ function generateUrls(router, options = {}) {
       }
     }
 
-    let regexp = cache.get(route.fullPath);
-    if (!regexp) {
+    let cached = cache.get(route.fullPath);
+    if (!cached) {
       let fullPath = getRoutePath(route);
       let rt = route.parent;
       while (rt) {
@@ -79,27 +81,27 @@ function generateUrls(router, options = {}) {
         }
         rt = rt.parent;
       }
-      const tokens = pathToRegexp.parse(fullPath);
-      const toPath = pathToRegexp.tokensToFunction(tokens);
+      const tokens = parse(fullPath);
       const keys = Object.create(null);
       for (let i = 0; i < tokens.length; i++) {
         if (!isString(tokens[i])) {
           keys[tokens[i].name] = true;
         }
       }
-      regexp = {toPath, keys};
-      cache.set(fullPath, regexp);
+      cached = {tokens, keys};
+      cache.set(fullPath, cached);
       route.fullPath = fullPath;
     }
 
-    let url = regexp.toPath(params, options) || '/';
+    const toPath = tokensToFunction(cached.tokens, options);
+    let url = toPath(params) || '/';
 
     if (options.stringifyQueryParams && params) {
       const queryParams = {};
       const keys = Object.keys(params);
       for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
-        if (!regexp.keys[key]) {
+        if (!cached.keys[key]) {
           queryParams[key] = params[key];
         }
       }

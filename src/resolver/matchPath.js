@@ -54,8 +54,10 @@ function matchPath(routepath, path, exact, parentKeys, parentParams) {
     const prop = key.name;
     const value = m[i];
     if (value !== undefined || !hasOwnProperty.call(params, prop)) {
-      if (key.repeat) {
-        params[prop] = value ? value.split(key.delimiter).map(decodeParam) : [];
+      if (key.modifier === '+' || key.modifier === '*') {
+        // by default, as of path-to-regexp 6.0.0, the default delimiters
+        // are `/`, `#` and `?`.
+        params[prop] = value ? value.split(/[/?#]/).map(decodeParam) : [];
       } else {
         params[prop] = value ? decodeParam(value) : value;
       }
