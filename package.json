@@ -55,15 +55,13 @@
     }
   ],
   "browserslist": [
-    "last 2 Chrome major versions",
-    "last 2 Android major versions",
-    "last 2 Firefox major versions",
-    "last 2 Edge major versions",
-    "last 2 Safari major versions",
-    "last 2 iOS major versions",
-    "Safari 9",
-    "iOS 9",
-    "IE 11"
+    "last 1 Chrome major versions",
+    "last 1 Firefox major versions",
+    "Firefox ESR",
+    "last 1 Edge major versions",
+    "Safari >= 13",
+    "iOS >= 13",
+    "last 1 ChromeAndroid major versions"
   ],
   "dependencies": {
     "@vaadin/vaadin-usage-statistics": "^2.1.0",
@@ -79,7 +77,7 @@
     "@types/form-data": "^2.5.0",
     "bower": "^1.8.8",
     "browser-sync": "^2.26.14",
-    "browserslist": "^4.14.5",
+    "browserslist": "^4.16.3",
     "bundlesize": "^0.18.0",
     "eslint": "^7.15.0",
     "eslint-config-vaadin": "0.2.7",
