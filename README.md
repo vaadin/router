@@ -33,6 +33,25 @@ router.setRoutes([
 ```
 
 ## Browser support
+
+A specific version of Vaadin Router supports the same browsers as the Vaadin platform major version which includes that version of Vaadin Router.
+See [Vaadin platform release notes](https://github.com/vaadin/platform/releases) for details on included Vaadin Router version and supported technologies.
+The Supported Technologies section is typically listed in the release notes of the first publicly available release of a Vaadin platform major version
+(for example [Vaadin 18.0.1](https://github.com/vaadin/platform/releases/tag/18.0.1) since 18.0.0 was skipped).
+
+### Desktop browsers
+
+Evergreen versions of the following browsers
+- Chrome, Firefox, Firefox ESR, Safari and Edge (Chromium)
+
+### Mobile browsers
+
+Built-in browsers in the following mobile operating systems:
+- Safari starting from iOS 13 (Safari 13 or newer)
+- Google Chrome evergreen on Android (requiring Android 4.4 or newer)
+
+### Sauce Labs test status
+
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/vaadin-router.svg)](https://saucelabs.com/u/vaadin-router)
 
 ### Big Thanks

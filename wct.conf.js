@@ -13,14 +13,14 @@ module.exports = {
         {
           deviceName: 'Android GoogleAPI Emulator',
           platformName: 'Android',
-          platformVersion: '10.0',
+          platformVersion: '11.0',
           browserName: 'chrome',
           browserVersion: 'latest'
         },
         {
           deviceName: 'Android GoogleAPI Emulator',
           platformName: 'Android',
-          platformVersion: '9.0',
+          platformVersion: '10.0',
           browserName: 'chrome',
           browserVersion: 'latest-1'
         },
@@ -29,23 +29,22 @@ module.exports = {
         'Windows 10/firefox@latest',
         'Windows 10/firefox@latest-1',
 
+        // last Firefox ESR version (desktop)
+        // SauceLabs doesn't have ESR versions so testing
+        // the regular release of the same major version here
+        'Windows 10/firefox@78.0',
+
         // last 2 Edge major versions (desktop)
         'Windows 10/microsoftedge@latest',
         'Windows 10/microsoftedge@latest-1',
 
         // last 2 Safari major versions (desktop)
+        'macOS 11.00/safari@latest',
         'macOS 10.15/safari@latest',
-        'macOS 10.14/safari@latest',
 
         // last 2 iOS major versions (mobile Safari)
         'iOS Simulator/iphone@latest',
         'iOS Simulator/iphone@latest-1',
-
-        // Safari 9 on desktop and mobile
-        'OS X 10.11/safari@9.0',
-
-        // IE11
-        'Windows 7/internet explorer@11',
       ];
     }
 
