@@ -78,7 +78,7 @@
     "@types/form-data": "^2.5.0",
     "bower": "^1.8.8",
     "browser-sync": "^2.26.14",
-    "browserslist": "^4.14.5",
+    "browserslist": "^4.16.3",
     "bundlesize": "^0.18.0",
     "eslint": "^7.19.0",
     "eslint-config-vaadin": "0.2.7",
