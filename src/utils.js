@@ -20,18 +20,6 @@ export function logValue(value) {
   }
 }
 
-const MODULE = 'module';
-const NOMODULE = 'nomodule';
-const bundleKeys = [MODULE, NOMODULE];
-
-function ensureBundle(src) {
-  if (!src.match(/.+\.[m]?js$/)) {
-    throw new Error(
-      log(`Unsupported type for bundle "${src}": .js or .mjs expected.`)
-    );
-  }
-}
-
 export function ensureRoute(route) {
   if (!route || !isString(route.path)) {
     throw new Error(
@@ -39,14 +27,11 @@ export function ensureRoute(route) {
     );
   }
 
-  const bundle = route.bundle;
-
-  const stringKeys = ['component', 'redirect', 'bundle'];
+  const stringKeys = ['component', 'redirect'];
   if (
     !isFunction(route.action) &&
     !Array.isArray(route.children) &&
     !isFunction(route.children) &&
-    !isObject(bundle) &&
     !stringKeys.some(key => isString(route[key]))
   ) {
     throw new Error(
@@ -57,20 +42,8 @@ export function ensureRoute(route) {
     );
   }
 
-  if (bundle) {
-    if (isString(bundle)) {
-      ensureBundle(bundle);
-    } else if (!bundleKeys.some(key => key in bundle)) {
-      throw new Error(
-        log('Expected route bundle to include either "' + NOMODULE + '" or "' + MODULE + '" keys, or both')
-      );
-    } else {
-      bundleKeys.forEach(key => key in bundle && ensureBundle(bundle[key]));
-    }
-  }
-
   if (route.redirect) {
-    ['bundle', 'component'].forEach(overriddenProp => {
+    ['component'].forEach(overriddenProp => {
       if (overriddenProp in route) {
         console.warn(
           log(
@@ -85,49 +58,6 @@ export function ensureRoute(route) {
 
 export function ensureRoutes(routes) {
   toArray(routes).forEach(route => ensureRoute(route));
-}
-
-function loadScript(src, key) {
-  let script = document.head.querySelector('script[src="' + src + '"][async]');
-  if (!script) {
-    script = document.createElement('script');
-    script.setAttribute('src', src);
-    if (key === MODULE) {
-      script.setAttribute('type', MODULE);
-    } else if (key === NOMODULE) {
-      script.setAttribute(NOMODULE, '');
-    }
-    script.async = true;
-  }
-  return new Promise((resolve, reject) => {
-    script.onreadystatechange = script.onload = e => {
-      script.__dynamicImportLoaded = true;
-      resolve(e);
-    };
-    script.onerror = e => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-      reject(e);
-    };
-    if (script.parentNode === null) {
-      document.head.appendChild(script);
-    } else if (script.__dynamicImportLoaded) {
-      resolve();
-    }
-  });
-}
-
-export function loadBundle(bundle) {
-  if (isString(bundle)) {
-    return loadScript(bundle);
-  } else {
-    return Promise.race(
-      bundleKeys
-        .filter(key => key in bundle)
-        .map(key => loadScript(bundle[key], key))
-    );
-  }
 }
 
 export function fireRouterEvent(type, detail) {

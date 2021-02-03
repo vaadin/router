@@ -1193,37 +1193,6 @@
         });
       });
 
-      describe('lifecycle events with bundle', () => {
-        const existingBundlePath = encodeURI('data:application/javascript,callbacksLog.push("bundle");//.js');
-        function getBundleScript() {
-          return document.head.querySelector('script[src="' + existingBundlePath + '"][async]');
-        }
-        afterEach(() => {
-          const bundleScript = getBundleScript();
-          if (bundleScript) {
-            bundleScript.parentNode.removeChild(bundleScript);
-          }
-        });
-
-        it('should invoke lifecycle events after bundle loading is complete', async() => {
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/x-spy', bundle: existingBundlePath, component: 'x-spy'}
-          ]);
-
-          await router.render('/');
-          callbacksLog = [];
-          await router.render('/x-spy');
-
-          verifyCallbacks([
-            'bundle',
-            'x-spy.onBeforeEnter',
-            'x-spy.connectedCallback',
-            'x-spy.onAfterEnter'
-          ]);
-        });
-      });
-
       describe('lifecycle events with action', () => {
         it('lifecycle events when reusing element (#355)', async() => {
           const view = document.createElement('x-spy');

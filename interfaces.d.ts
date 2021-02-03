@@ -98,7 +98,6 @@ declare module './dist/vaadin-router' {
     name?: string;
     // Route requires at least one of the following optional properties
     action?: ActionFn;
-    bundle?: string;
     children?: Route[] | ChildrenFn;
     component?: string;
     redirect?: string;
@@ -117,10 +116,6 @@ declare module './dist/vaadin-router' {
     action: ActionFn;
   }
 
-  interface RouteWithBundle extends BaseRoute {
-    bundle: string;
-  }
-
   interface RouteWithChildren extends AnimatableRoute {
     children: Route[] | ChildrenFn;
   }
@@ -134,7 +129,6 @@ declare module './dist/vaadin-router' {
   }
 
   export type Route = RouteWithAction
-    | RouteWithBundle
     | RouteWithChildren
     | RouteWithComponent
     | RouteWithRedirect

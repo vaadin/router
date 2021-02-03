@@ -1,3 +1,4 @@
+import {compile} from 'path-to-regexp';
 import Resolver from './resolver/resolver.js';
 import generateUrls from './resolver/generateUrls.js';
 import setNavigationTriggers from './triggers/setNavigationTriggers.js';
@@ -5,7 +6,6 @@ import animate from './transitions/animate.js';
 import {
   ensureRoute,
   fireRouterEvent,
-  loadBundle,
   log,
   logValue,
   toArray,
@@ -40,7 +40,7 @@ function createLocation({pathname = '', search = '', hash = '', chain = [], para
     params,
     redirectFrom,
     getUrl: (userParams = {}) => getPathnameForRouter(
-      Router.pathToRegexp.compile(
+      compile(
         getMatchedPath(routes)
       )(Object.assign({}, params, userParams)),
       resolver
@@ -279,13 +279,6 @@ export class Router extends Resolver {
         if (isString(route.redirect)) {
           return commands.redirect(route.redirect);
         }
-
-        if (route.bundle) {
-          return loadBundle(route.bundle)
-            .then(() => {}, () => {
-              throw new Error(log(`Bundle not found: ${route.bundle}. Check if the file name is correct`));
-            });
-        }
       })
       .then(result => {
         if (isResultNotEmpty(result)) {
@@ -358,14 +351,6 @@ export class Router extends Resolver {
    * * `redirect` – other route's path to redirect to. Passes all route parameters to the redirect target.
    * The target route should also be defined.
    * See also **Redirects** section in [Live Examples](#/classes/Router/demos/demo/index.html).
-   *
-   * * `bundle` – string containing the path to `.js` or `.mjs` bundle to load before resolving the route,
-   * or the object with "module" and "nomodule" keys referring to different bundles.
-   * Each bundle is only loaded once. If "module" and "nomodule" are set, only one bundle is loaded,
-   * depending on whether the browser supports ES modules or not.
-   * The property is ignored when either an `action` returns the result or `redirect` property is present.
-   * Any error, e.g. 404 while loading bundle will cause route resolution to throw.
-   * See also **Code Splitting** section in [Live Examples](#/classes/Router/demos/demo/index.html).
    *
    * * `component` – the tag name of the Web Component to resolve the route to.
    * The property is ignored when either an `action` returns the result or `redirect` property is present.
@@ -995,7 +980,7 @@ export class Router extends Resolver {
    */
   urlForPath(path, params) {
     return getPathnameForRouter(
-      Router.pathToRegexp.compile(path)(params),
+      compile(path)(params),
       this
     );
   }
