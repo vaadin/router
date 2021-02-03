@@ -1,4 +1,6 @@
 import {Router, Resolver} from './index.js';
+import * as pathToRegexp from 'path-to-regexp';
+Resolver.pathToRegexp = pathToRegexp;
 
 let isUrlAvailable, urlDocument, urlBase, urlAnchor;
 

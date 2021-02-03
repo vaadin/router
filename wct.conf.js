@@ -61,9 +61,6 @@ module.exports = {
         include: [
           '**/dist/test-iife/**/*.js',
         ],
-        exclude: [
-          '**/dist/test-iife/resolver/path-to-regexp.js',
-        ],
         thresholds: {
           global: {
             statements: 80,
