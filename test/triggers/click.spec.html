@@ -285,6 +285,42 @@
             expect(clicks[0]).to.have.property('defaultPrevented', true);
           });
 
+          it('should scroll to top on click event', () => {
+            const div = document.createElement('div');
+            div.setAttribute('style', 'width:2000px; height:2000px;');
+            document.body.append(div);
+
+            window.scrollTo(10, 10);
+            expect(window.scrollX).to.within(9, 11);
+            expect(window.scrollY).to.within(9, 11);
+
+            emulateClick(document.getElementById('in-app'));
+
+            expect(window.scrollX).to.within(0, 1);
+            expect(window.scrollY).to.within(0, 1);
+            document.body.removeChild(div);
+          });
+
+          it('should not scroll to top on unhandled click event', () => {
+            preventNavigationDefault = false;
+
+            const div = document.createElement('div');
+            div.setAttribute('style', 'width:2000px; height:2000px;');
+            document.body.append(div);
+
+            window.scrollTo(10, 10);
+            expect(window.scrollX).to.within(9, 11);
+            expect(window.scrollY).to.within(9, 11);
+
+            emulateClick(document.getElementById('in-app'));
+
+            expect(window.scrollX).to.within(9, 11);
+            expect(window.scrollY).to.within(9, 11);
+            document.body.removeChild(div);
+
+            preventNavigationDefault = true;
+          });
+
           describe('irrelevant `click` events', () => {
             function expectClickIgnored() {
               expect(navigateEvents).to.have.lengthOf(0);
