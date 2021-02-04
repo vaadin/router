@@ -90,8 +90,8 @@ function vaadinRouterGlobalClickHandler(event) {
   if (fireRouterEvent('go', {pathname, search, hash})) {
     event.preventDefault();
     // for a click event, the scroll is reset to the top position.
-    if (event && event.type === 'click') { 
-      window.scrollTo(0, 0); 
+    if (event && event.type === 'click') {
+      window.scrollTo(0, 0);
     }
   }
 }
