@@ -6763,7 +6763,8 @@ if(anchor.hasAttribute("router-ignore")){return}// ignore the click if the targe
 if(anchor.pathname===window.location.pathname&&""!==anchor.hash){return}// ignore the click if the target is external to the app
 // In IE11 HTMLAnchorElement does not have the `origin` property
 var origin=anchor.origin||getAnchorOrigin(anchor);if(origin!==window.location.origin){return}// if none of the above, convert the click into a navigation event
-var _anchor=anchor,pathname=_anchor.pathname,search=_anchor.search,hash=_anchor.hash;if(fireRouterEvent("go",{pathname:pathname,search:search,hash:hash})){event.preventDefault()}}/**
+var _anchor=anchor,pathname=_anchor.pathname,search=_anchor.search,hash=_anchor.hash;if(fireRouterEvent("go",{pathname:pathname,search:search,hash:hash})){event.preventDefault();// for a click event, the scroll is reset to the top position.
+if(event&&"click"===event.type){window.scrollTo(0,0)}}}/**
    * A navigation trigger for Vaadin Router that translated clicks on `<a>` links
    * into Vaadin Router navigation events.
    *
@@ -7764,7 +7765,7 @@ window.Vaadin=window.Vaadin||{};/**
     // Intentionally ignored as this is not a problem in the app being developed
     }
     }());
-     vaadin-dev-mode:end **/}var usageStatistics=function usageStatistics(){if("function"===typeof runIfDevelopmentMode){return runIfDevelopmentMode(maybeGatherAndSendStats)}};window.Vaadin=window.Vaadin||{};window.Vaadin.registrations=window.Vaadin.registrations||[];window.Vaadin.registrations.push({is:"@vaadin/router",version:"1.7.2"});usageStatistics();Router.NavigationTrigger={POPSTATE:POPSTATE,CLICK:CLICK};var isUrlAvailable,urlDocument,urlBase,urlAnchor;Resolver.__ensureUrlAvailableOrPolyfilled=function(){if(isUrlAvailable===void 0){try{var url=new URL("b","http://a");url.pathname="c";isUrlAvailable="http://a/c"===url.href}catch(e){isUrlAvailable=!1}if(!isUrlAvailable){// The URL constructor is not available in IE11. Polyfill it by creating
+     vaadin-dev-mode:end **/}var usageStatistics=function usageStatistics(){if("function"===typeof runIfDevelopmentMode){return runIfDevelopmentMode(maybeGatherAndSendStats)}};window.Vaadin=window.Vaadin||{};window.Vaadin.registrations=window.Vaadin.registrations||[];window.Vaadin.registrations.push({is:"@vaadin/router",version:"1.7.3"});usageStatistics();Router.NavigationTrigger={POPSTATE:POPSTATE,CLICK:CLICK};var isUrlAvailable,urlDocument,urlBase,urlAnchor;Resolver.__ensureUrlAvailableOrPolyfilled=function(){if(isUrlAvailable===void 0){try{var url=new URL("b","http://a");url.pathname="c";isUrlAvailable="http://a/c"===url.href}catch(e){isUrlAvailable=!1}if(!isUrlAvailable){// The URL constructor is not available in IE11. Polyfill it by creating
 // an HTMLAnchorElement in an in-memory HTML document.
 urlDocument=document.implementation.createHTMLDocument("url");urlBase=urlDocument.createElement("base");urlDocument.head.appendChild(urlBase);urlAnchor=urlDocument.createElement("a");if(!urlAnchor.origin){// IE11: HTMLAnchorElement does not have the `origin` property
 Object.defineProperty(urlAnchor,"origin",{get:function get(){// IE11: on HTTP and HTTPS the default port is not included into
