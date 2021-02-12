@@ -844,12 +844,22 @@
       expect(stub).to.be.called;
     });
 
-    it('should invoke Resolver.__createUrl(path, base) hook', () => {
+    it('should invoke Resolver.__createUrl(url, base) hook', () => {
       sinon.spy(Resolver, '__createUrl');
       try {
+        // Absolute pathname: prepend origin
         new Resolver([], {baseUrl: '/foo/bar'}).__normalizePathname('/baz/');
         expect(Resolver.__createUrl).to.be.calledWith(
-          '/baz/',
+          location.origin + '/baz/',
+          location.origin + '/foo/'
+        );
+
+        Resolver.__createUrl.reset();
+
+        // Relative pathname: prepend dot path prefix
+        new Resolver([], {baseUrl: '/foo/bar'}).__normalizePathname('baz');
+        expect(Resolver.__createUrl).to.be.calledWith(
+          './baz',
           location.origin + '/foo/'
         );
       } finally {
