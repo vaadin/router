@@ -18,6 +18,7 @@ addons:
 branches:
   only:
    - master
+   - /^[1-9]\.x$/
 
 script:
   - yarn install:dependencies
