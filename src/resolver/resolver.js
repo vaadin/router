@@ -9,7 +9,7 @@
 
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
-import {toArray, ensureRoutes, isString, getNotFoundError, notFoundResult} from '../utils.js';
+import {ensureRoutes, getNotFoundError, isString, notFoundResult, toArray} from '../utils.js';
 
 function isChildRoute(parentRoute, childRoute) {
   let route = childRoute;
@@ -241,7 +241,11 @@ class Resolver {
     }
 
     const base = this.__effectiveBaseUrl;
-    const normalizedUrl = this.constructor.__createUrl(pathname, base).href;
+    // Convert pathname to a valid URL constructor argument
+    const url = pathname[0] === '/'
+      ? this.constructor.__createUrl(base).origin + pathname
+      : './' + pathname;
+    const normalizedUrl = this.constructor.__createUrl(url, base).href;
     if (normalizedUrl.slice(0, base.length) === base) {
       return normalizedUrl.slice(base.length);
     }
