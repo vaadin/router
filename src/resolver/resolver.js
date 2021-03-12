@@ -206,8 +206,8 @@ class Resolver {
   /**
    * URL constructor polyfill hook. Creates and returns an URL instance.
    */
-  static __createUrl(url, base) {
-    return new URL(url, base);
+  static __createUrl(...args) {
+    return new URL(...args);
   }
 
   /**

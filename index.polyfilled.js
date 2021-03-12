@@ -57,12 +57,13 @@ Resolver.__ensureUrlAvailableOrPolyfilled = () => {
   }
 };
 
-Resolver.__createUrl = (path, base) => {
+Resolver.__createUrl = (...args) => {
   Resolver.__ensureUrlAvailableOrPolyfilled();
   if (isUrlAvailable) {
-    return new URL(path, base);
+    return new URL(...args);
   }
 
+  const [path, base] = args;
   urlBase.href = base;
   urlAnchor.href = path.replace(/ /g, '%20');
   // IE11: only absolute href setting results in correct part properties
