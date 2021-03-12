@@ -43,6 +43,14 @@ export class Location {
     this.search;
 
     /**
+     * The query search parameters of the current url.
+     *
+     * @public
+     * @type {URLSearchParams}
+     */
+    this.searchParams;
+
+    /**
      * The fragment identifier (including hash character) for the current page.
      *
      * @public

@@ -39,6 +39,7 @@ function createLocation({pathname = '', search = '', hash = '', chain = [], para
     route: route || routes.length && routes[routes.length - 1] || null,
     params,
     redirectFrom,
+    searchParams: new URLSearchParams(search),
     getUrl: (userParams = {}) => getPathnameForRouter(
       compile(
         getMatchedPath(routes)

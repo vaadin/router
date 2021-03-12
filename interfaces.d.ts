@@ -150,6 +150,7 @@ declare module './dist/vaadin-router' {
     redirectFrom?: string;
     route: Route | null;
     routes: Array<Route>;
+    searchParams: URLSearchParams;
 
     getUrl(params?: Params): string;
   }
