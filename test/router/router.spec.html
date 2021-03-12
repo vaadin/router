@@ -2239,6 +2239,28 @@
             expect(registrations[0]).to.have.property('version').that.is.a.string;
           });
         });
+
+        describe('__removeDomNodes (function)', () => {
+          let parent, childA, childB = [];
+
+          beforeEach(() => {
+            parent = document.createElement('div');
+            childA = document.createElement('div');
+            childB = document.createElement('div');
+            parent.appendChild(childA);
+            parent.appendChild(childB);
+          });
+
+          it('should remove all nodes when passed HTMLCollection', async() => {
+            Vaadin.Router.__removeDomNodes(parent.children);
+            expect(parent.children).to.have.lengthOf(0);
+          });
+
+          it('should remove all nodes when passed JS array', async() => {
+            Vaadin.Router.__removeDomNodes([childA, childB]);
+            expect(parent.children).to.have.lengthOf(0);
+          });
+        });
       });
     });
 

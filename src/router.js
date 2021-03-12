@@ -101,15 +101,6 @@ function processNewChildren(newChildren, route) {
   }
 }
 
-function removeDomNodes(nodes) {
-  if (nodes && nodes.length) {
-    const parent = nodes[0].parentNode;
-    for (let i = 0; i < nodes.length; i++) {
-      parent.removeChild(nodes[i]);
-    }
-  }
-}
-
 function getPathnameForRouter(pathname, router) {
   const base = router.__effectiveBaseUrl;
   return base
@@ -504,7 +495,7 @@ export class Router extends Resolver {
           if (shouldUpdateHistory) {
             this.__updateBrowserHistory(context);
           }
-          removeDomNodes(this.__outlet && this.__outlet.children);
+          Router.__removeDomNodes(this.__outlet && this.__outlet.children);
           this.location = createLocation(Object.assign(context, {resolver: this}));
           fireRouterEvent('error', Object.assign({router: this, error}, context));
           throw error;
@@ -809,7 +800,7 @@ export class Router extends Resolver {
 
   __removeDisappearingContent() {
     if (this.__disappearingContent) {
-      removeDomNodes(this.__disappearingContent);
+      Router.__removeDomNodes(this.__disappearingContent);
     }
     this.__disappearingContent = null;
     this.__appearingContent = null;
@@ -817,7 +808,7 @@ export class Router extends Resolver {
 
   __removeAppearingContent() {
     if (this.__disappearingContent && this.__appearingContent) {
-      removeDomNodes(this.__appearingContent);
+      Router.__removeDomNodes(this.__appearingContent);
       this.__disappearingContent = null;
       this.__appearingContent = null;
     }
@@ -845,7 +836,7 @@ export class Router extends Resolver {
           currentComponent);
       } finally {
         if (this.__disappearingContent.indexOf(currentComponent) > -1) {
-          removeDomNodes(currentComponent.children);
+          Router.__removeDomNodes(currentComponent.children);
         }
       }
     }
@@ -1001,5 +992,16 @@ export class Router extends Resolver {
       ? this.__createUrl(path, 'http://a') // some base to omit origin
       : path;
     return fireRouterEvent('go', {pathname, search, hash});
+  }
+
+  static __removeDomNodes(nodes) {
+    if (nodes && nodes.length) {
+      const parent = nodes[0].parentNode;
+      const childrenCount = nodes.length - 1;
+
+      for (let i = childrenCount; i >= 0; i--) {
+        parent.removeChild(nodes[i]);
+      }
+    }
   }
 }
