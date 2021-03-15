@@ -72,6 +72,7 @@ expectTypeOfValue<string>(router.location.baseUrl);
 expectTypeOfValue<object>(router.location.params);
 expectTypeOfValue<string>(router.location.pathname);
 expectTypeOfValue<Route | null>(router.location.route);
+expectTypeOfValue<URLSearchParams>(router.location.searchParams);
 expectTypeOfValue<Route[]>(router.location.routes);
 expectTypeOfValue<string>(router.location.getUrl());
 expectTypeOfValue<string>(router.location.getUrl({}));

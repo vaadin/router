@@ -186,11 +186,7 @@
     </p>
     <p>
       Use <code>location.search</code> to access the raw search query string.
-      For parsing the parameters, use <code>URLSearchParams</code> native API.
-    </p>
-    <p>
-      Note: The <code>URLSearchParams</code> API is absent in IE 11, make sure
-      to have <a href="#">the <code>URLSearchParams</code> polyfill</a>.
+      Use <code>location.searchParams</code> to get the <code>URLSearchParams</code> wrapper of the search query string.
     </p>
     <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-5" iframe-src="iframe.html">
       <template preserve-content>
@@ -216,7 +212,7 @@
             }
 
             getPageNumber(location) {
-              return new URLSearchParams(location.search).get('page') || 'none';
+              return location.searchParams.get('page') || 'none';
             }
           }
           customElements.define(PageNumberViewElement.is, PageNumberViewElement);

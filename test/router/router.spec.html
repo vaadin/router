@@ -846,6 +846,7 @@
 
             expect(router.location.pathname).to.equal('/admin');
             expect(router.location.search).to.equal('?a=b');
+            expect(router.location.searchParams.get('a')).to.equal('b');
             expect(router.location.hash).to.equal('#hash');
           });
 
@@ -878,6 +879,7 @@
 
             expect(router.location.pathname).to.equal('/admin');
             expect(router.location.search).to.equal('');
+            expect(router.location.searchParams.values().next().done).to.be.true;
             expect(router.location.hash).to.equal('');
           });
 
