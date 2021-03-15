@@ -69,7 +69,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
-    "@babel/preset-env": "^7.12.16",
+    "@babel/preset-env": "^7.13.10",
     "@polymer/gen-typescript-declarations": "^1.6.2",
     "@rollup/plugin-babel": "^5.2.1",
     "@rollup/plugin-node-resolve": "^9.0.0",
@@ -80,7 +80,7 @@
     "bundlesize": "^0.18.1",
     "eslint": "^7.22.0",
     "eslint-config-vaadin": "0.2.7",
-    "eslint-plugin-html": "^6.1.0",
+    "eslint-plugin-html": "^6.1.2",
     "fs-extra": "^9.0.1",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
