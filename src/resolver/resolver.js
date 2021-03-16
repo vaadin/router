@@ -222,7 +222,7 @@ class Resolver {
       ? this.constructor.__createUrl(
         this.baseUrl,
         document.baseURI || document.URL
-      ).href.replace(/[^\/]*$/, '')
+      ).href.replace(/[^/]*$/, '')
       : '';
   }
 

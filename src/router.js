@@ -172,7 +172,7 @@ export class Router extends Resolver {
     const baseHref = baseElement && baseElement.getAttribute('href');
     super([], Object.assign({
       // Default options
-      baseUrl: baseHref && Resolver.__createUrl(baseHref, document.URL).href.replace(/[^\/]*$/, '')
+      baseUrl: baseHref && Resolver.__createUrl(baseHref, document.URL).href.replace(/[^/]*$/, '')
     }, options));
 
     this.resolveRoute = context => this.__resolveRoute(context);
