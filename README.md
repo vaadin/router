@@ -5,9 +5,9 @@
 
 # Vaadin Router
 
-[Live Demo ↗](https://vaadin.github.io/vaadin-router/vaadin-router/demo)
+[Live Demo ↗](https://vaadin.github.io/router/vaadin-router/demo)
 |
-[API documentation ↗](https://vaadin.github.io/vaadin-router/vaadin-router/)
+[API documentation ↗](https://vaadin.github.io/router/vaadin-router/)
 
 <p align="center">
   <img width="120" alt="router hero banner" src="https://user-images.githubusercontent.com/22416150/42952145-74cead64-8b80-11e8-9dfd-09b01f904972.png">
