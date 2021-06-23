@@ -877,8 +877,8 @@ export class Router extends Resolver {
       let enter = 'entering';
       config = isFunction(config) && config();
       if (isObject(config)) {
-        leave = config.leave ?? leave;
-        enter = config.enter ?? enter;
+        leave = config.leave ? config.leave : leave;
+        enter = config.enter ? config.enter : enter;
       }
       promises.push(animate(from, leave));
       promises.push(animate(to, enter));
