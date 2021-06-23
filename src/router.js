@@ -875,10 +875,16 @@ export class Router extends Resolver {
     if (from && to && config) {
       let leave = 'leaving';
       let enter = 'entering';
-      config = isFunction(config) && config();
+      if (isFunction(config)) {
+        config = config();
+      }
       if (isObject(config)) {
-        leave = config.leave ? config.leave : leave;
-        enter = config.enter ? config.enter : enter;
+        if (config.leave) {
+          leave = config.leave;
+        }
+        if (config.enter) {
+          enter = config.enter;
+        }
       }
       promises.push(animate(from, leave));
       promises.push(animate(to, enter));
