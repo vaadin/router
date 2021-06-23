@@ -873,8 +873,13 @@ export class Router extends Resolver {
     }
 
     if (from && to && config) {
-      const leave = ((isObject(config) && isFunction(config.leave)) && config.leave()) || ((isObject(config) && isString(config.leave)) && config.leave) || 'leaving';
-      const enter = ((isObject(config) && isFunction(config.enter)) && config.enter()) || ((isObject(config) && isString(config.enter)) && config.enter) || 'entering';
+      let leave = 'leaving';
+      let enter = 'entering';
+      config = isFunction(config) && config();
+      if (isObject(config)) {
+        leave = config.leave ?? leave;
+        enter = config.enter ?? enter;
+      }
       promises.push(animate(from, leave));
       promises.push(animate(to, enter));
     }
