@@ -4,6 +4,7 @@
   "description": "Small and powerful client-side router for Web Components. Framework-agnostic.",
   "main": "dist/vaadin-router.js",
   "module": "dist/vaadin-router.js",
+  "type": "module",
   "repository": "vaadin/vaadin-router",
   "keywords": [
     "Vaadin",
@@ -88,7 +89,7 @@
     "npm-run-all": "^4.1.5",
     "polymer-cli": "^1.9.11",
     "polyserve": "^0.27.15",
-    "rollup": "^2.35.1",
+    "rollup": "^2.66.1",
     "stylelint": "^13.12.0",
     "typescript": "^4.1.5",
     "uglify-es": "^3.3.9",
