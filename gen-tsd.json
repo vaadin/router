@@ -11,13 +11,13 @@
     "node_modules/**",
     "test/**",
     "src/**",
-    "bs-config.js",
-    "gulpfile.js",
+    "bs-config.cjs",
+    "gulpfile.cjs",
     "index.html",
     "index.js",
     "index.polyfilled.js",
     "rollup.config.js",
-    "wct.conf.js"
+    "wct.conf.cjs"
   ],
   "addReferences": {
     "dist/vaadin-router.d.ts": [
