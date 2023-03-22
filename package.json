@@ -80,7 +80,7 @@
     "browserslist": "^4.21.5",
     "bundlesize": "^0.18.1",
     "eslint": "^7.22.0",
-    "eslint-plugin-html": "^6.1.2",
+    "eslint-plugin-html": "^7.1.0",
     "fs-extra": "^9.1.0",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
