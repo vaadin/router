@@ -1,7 +1,7 @@
 import path from 'path';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
-import pkg from './package.json';
+import pkg from './package.json' assert {type: "json"};
 
 const plugins = [
   // The 'node-resolve' plugin allows Rollup to resolve bare module imports like

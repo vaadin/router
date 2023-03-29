@@ -175,6 +175,8 @@ export class Router extends Resolver {
       baseUrl: baseHref && Resolver.__createUrl(baseHref, document.URL).href.replace(/[^/]*$/, '')
     }, options));
 
+    this.enableNativeViewTransitions = options && options.enableNativeViewTransitions;
+
     this.resolveRoute = context => this.__resolveRoute(context);
 
     const triggers = Router.NavigationTrigger;
@@ -472,23 +474,43 @@ export class Router extends Resolver {
             return this.location;
           }
 
-          this.__addAppearingContent(context, previousContext);
-          const animationDone = this.__animateIfNeeded(context);
+          if(this.enableNativeViewTransitions && document.startViewTransition) {
+            document.startViewTransition(
+              () => {
+                this.__addAppearingContent(context, previousContext);
+                this.__runOnAfterEnterCallbacks(context);
+                this.__runOnAfterLeaveCallbacks(context, previousContext);
+                if (this.__isLatestRender(context)) {
+                  // If there is another render pass started after this one,
+                  // the 'disappearing content' would be removed when the other
+                  // render pass calls `this.__addAppearingContent()`
+                  this.__removeDisappearingContent();
 
-          this.__runOnAfterEnterCallbacks(context);
-          this.__runOnAfterLeaveCallbacks(context, previousContext);
+                  this.__previousContext = context;
+                  return this.location;
+                }
+              }
+            )
+          }
+          else {
+            this.__addAppearingContent(context, previousContext);
+            const animationDone = this.__animateIfNeeded(context);
 
-          return animationDone.then(() => {
-            if (this.__isLatestRender(context)) {
-              // If there is another render pass started after this one,
-              // the 'disappearing content' would be removed when the other
-              // render pass calls `this.__addAppearingContent()`
-              this.__removeDisappearingContent();
+            this.__runOnAfterEnterCallbacks(context);
+            this.__runOnAfterLeaveCallbacks(context, previousContext);
 
-              this.__previousContext = context;
-              return this.location;
-            }
-          });
+            return animationDone.then(() => {
+              if (this.__isLatestRender(context)) {
+                // If there is another render pass started after this one,
+                // the 'disappearing content' would be removed when the other
+                // render pass calls `this.__addAppearingContent()`
+                this.__removeDisappearingContent();
+
+                this.__previousContext = context;
+                return this.location;
+              }
+            });
+          }
         }
       })
       .catch(error => {
