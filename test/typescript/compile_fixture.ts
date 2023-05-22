@@ -4,18 +4,18 @@
 
 import {
   Router,
-  NavigationTrigger,
-  Route,
-  Commands,
-  Context,
-  RouterLocation,
-  BeforeEnterObserver,
-  BeforeLeaveObserver,
-  AfterEnterObserver,
-  AfterLeaveObserver,
-  PreventAndRedirectCommands,
-  PreventCommands,
-  EmptyCommands
+  type NavigationTrigger,
+  type Route,
+  type Commands,
+  type Context,
+  type RouterLocation,
+  type BeforeEnterObserver,
+  type BeforeLeaveObserver,
+  type AfterEnterObserver,
+  type AfterLeaveObserver,
+  type PreventAndRedirectCommands,
+  type PreventCommands,
+  type EmptyCommands
 } from '@vaadin/router';
 
 const outlet: Node = document.body.firstChild as Node;
@@ -174,16 +174,16 @@ router.setRoutes([
   {path: 'action-component', action: () => {
     return document.createElement('x-foo');
   }},
-  {path: 'action-commands-component', action: (_, commands: Commands) => {
+  {path: 'action-commands-component', action: (_: Context, commands: Commands) => {
     return commands.component('x-foo');
   }},
-  {path: 'action-commands-prevent', action: (_, commands: Commands) => {
+  {path: 'action-commands-prevent', action: (_: Context, commands: Commands) => {
     return commands.prevent();
   }},
-  {path: 'action-commands-redirect', action: (_, commands: Commands) => {
+  {path: 'action-commands-redirect', action: (_: Context, commands: Commands) => {
     return commands.redirect('/');
   }},
-  {path: 'action-next', action: (context) => {
+  {path: 'action-next', action: (context: Context) => {
     return context.next();
   }},
   {path: 'async-action-nothing', action: () => Promise.resolve()},
@@ -191,35 +191,35 @@ router.setRoutes([
   {path: 'async-action-component', action: () => {
     return Promise.resolve(document.createElement('x-foo'));
   } },
-  {path: 'async-action-commands-component', action: (_, commands: Commands) => {
+  {path: 'async-action-commands-component', action: (_: Context, commands: Commands) => {
     return Promise.resolve(commands.component('x-foo'));
   }},
-  {path: 'async-action-commands-prevent', action: (_, commands: Commands) => {
+  {path: 'async-action-commands-prevent', action: (_: Context, commands: Commands) => {
     return Promise.resolve(commands.prevent());
   }},
-  {path: 'async-action-commands-redirect', action: (_, commands: Commands) => {
+  {path: 'async-action-commands-redirect', action: (_: Context, commands: Commands) => {
     return Promise.resolve(commands.redirect('/'));
   }},
-  {path: 'async-action-next', action: (context) => {
+  {path: 'async-action-next', action: (context: Context) => {
     return Promise.resolve(context.next());
   }},
   // TODO(@platosha): remove deprecated namespaced cases
-  {path: 'action-commands-component', action: (_, commands: Router.Commands) => {
+  {path: 'action-commands-component', action: (_: Router.Context, commands: Router.Commands) => {
     return commands.component('x-foo');
   }},
-  {path: 'action-commands-prevent', action: (_, commands: Router.Commands) => {
+  {path: 'action-commands-prevent', action: (_: Router.Context, commands: Router.Commands) => {
     return commands.prevent();
   }},
-  {path: 'action-commands-redirect', action: (_, commands: Router.Commands) => {
+  {path: 'action-commands-redirect', action: (_: Router.Context, commands: Router.Commands) => {
     return commands.redirect('/');
   }},
-  {path: 'async-action-commands-component', action: (_, commands: Router.Commands) => {
+  {path: 'async-action-commands-component', action: (_: Router.Context, commands: Router.Commands) => {
     return Promise.resolve(commands.component('x-foo'));
   }},
-  {path: 'async-action-commands-prevent', action: (_, commands: Router.Commands) => {
+  {path: 'async-action-commands-prevent', action: (_: Router.Context, commands: Router.Commands) => {
     return Promise.resolve(commands.prevent());
   }},
-  {path: 'async-action-commands-redirect', action: (_, commands: Router.Commands) => {
+  {path: 'async-action-commands-redirect', action: (_: Router.Context, commands: Router.Commands) => {
     return Promise.resolve(commands.redirect('/'));
   }},
 ]);

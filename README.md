@@ -66,7 +66,7 @@ Cross-browser Testing Platform and Open Source <3 Provided by [Sauce Labs](https
 
   - [http://127.0.0.1:8000/components/vaadin-router/demo](http://127.0.0.1:8000/components/vaadin-router/demo)
   - Public API tests: [http://127.0.0.1:8000/components/vaadin-router/test](http://127.0.0.1:8000/components/vaadin-router/test)
-  - Unit tests: [http://127.0.0.1:8000/components/vaadin-router/test/index.coverage.html](http://127.0.0.1:8000/components/vaadin-router/test/index.coverage.html)
+  - Unit tests: [http://127.0.0.1:8000/components/vaadin-router/test/index.html](http://127.0.0.1:8000/components/vaadin-router/test/index.html)
 
 
 ## Running tests from the command line

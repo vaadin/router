@@ -5,7 +5,7 @@
 // This file is supplemental, it only covers the types missing from
 // the generated declarations.
 
-import {Router, RouterLocation} from './dist/vaadin-router';
+import {Router, type RouterLocation} from './vaadin-router';
 
 declare global {
   interface WindowEventMap {
@@ -16,7 +16,7 @@ declare global {
   }
 }
 
-declare module './dist/vaadin-router' {
+declare module './vaadin-router' {
   export class NotFoundResult {
     // Prevent instantiation and extension
     private constructor();

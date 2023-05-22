@@ -18,7 +18,7 @@ gulp.task('build:copy-sources:bower', () => {
 });
 
 gulp.task('build:copy-sources:vaadin-router', () => {
-  return gulp.src(['dist/vaadin-router.umd.js'])
+  return gulp.src(['dist/vaadin-router.js'])
     .pipe(gulp.dest('build/bower_components/vaadin-router/dist'));
 });
 
@@ -110,7 +110,7 @@ gulp.task('version:update', function() {
   // Assumes that the new version is in the `npm_package_version` environment variable
   const newversion = process.env.npm_package_version;
   if (!newversion) {
-    throw new 'New version must be given as a npm_package_version environment variable.';
+    throw new Error('New version must be given as a npm_package_version environment variable.');
   }
   return gulp.src(['src/router-meta.js'])
     .pipe(replace(/version: '.*'/, `version: '${newversion}'`))

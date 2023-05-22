@@ -50,7 +50,7 @@ module.exports = {
 
     if (argv.profile === 'coverage') {
       context.options.suites = [
-        'test/index.coverage.html'
+        'test/index.html'
       ];
 
       context.options.plugins.local.browsers = ['chrome'];
@@ -59,7 +59,7 @@ module.exports = {
         dir: './coverage',
         reporters: ['text-summary', 'lcov'],
         include: [
-          '**/dist/test-iife/**/*.js',
+          '**/dist/**/*.js',
         ],
         thresholds: {
           global: {

@@ -5,7 +5,7 @@
     "Vaadin Ltd"
   ],
   "description": "Small and powerfull client-side router for Web Components. Framework-agnostic.",
-  "main": "dist/umd/vaadin-router.js",
+  "main": "dist/vaadin-router.js",
   "keywords": [
     "Vaadin",
     "vaadin-router",

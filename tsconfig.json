@@ -1,28 +1,33 @@
 {
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["es2021", "dom"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+    "strict": true,
     "sourceMap": true,
     "inlineSources": true,
-    "module": "esNext",
-    "target": "es2015",
-    "moduleResolution": "node",
-    "strict": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "experimentalDecorators": true,
-    "outDir": "ts-dist",
-    "declaration": true,
-    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true,
+    "useDefineForClassFields": true,
+    "useUnknownInCatchVariables": true,
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@vaadin/router": ["dist/vaadin-router"]
+      "@vaadin/router": ["./vaadin-router"]
     }
   },
   "include": [
+    "vaadin-router.js",
+    "vaadin-router.d.ts",
+    "src/**/*.js",
     "test/typescript/**/*.ts"
-  ],
-  "exclude": []
+  ]
 }

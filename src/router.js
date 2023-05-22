@@ -983,7 +983,7 @@ export class Router extends Resolver {
    * has handled the navigation (was subscribed and had `baseUrl` matching
    * the `path` argument), otherwise returns `false`.
    *
-   * @param {!string|!{pathname: !string, search: (string|undefined), hash: (string|undefined)}} path
+   * @param {!string|!{pathname: !string, search?: string, hash?: string}} path
    *   a new in-app path string, or an URL-like object with `pathname`
    *   string property, and optional `search` and `hash` string properties.
    * @return {boolean}

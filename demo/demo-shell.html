@@ -8,10 +8,10 @@
 <link rel="import" href="element-demo.html">
 <link rel="import" href="vaadin-router-demo-shared-styles.html">
 
-<script src="../dist/vaadin-router.umd.js"></script>
-<script>
-  // In order to make the demos work without the import statement there
-  window.Router = window.Vaadin.Router;
+<script type="module">
+  import {Router} from '../dist/vaadin-router.js';
+
+  window.Router = Router;
 </script>
 
 <link rel="import" href="demo-elements/x-home-view.html">
