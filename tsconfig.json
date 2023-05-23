@@ -18,16 +18,10 @@
     "useUnknownInCatchVariables": true,
     "allowJs": true,
     "checkJs": true,
-    "outDir": "dist",
-    "baseUrl": ".",
-    "paths": {
-      "@vaadin/router": ["./vaadin-router"]
-    }
+    "outDir": "dist"
   },
   "include": [
     "vaadin-router.js",
-    "vaadin-router.d.ts",
-    "src/**/*.js",
-    "test/typescript/**/*.ts"
+    "vaadin-router.d.ts"
   ]
 }

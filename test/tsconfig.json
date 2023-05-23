@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@vaadin/router": ["../dist/vaadin-router"]
+    }
+  },
+  "include": [
+    "test/typescript/**/*.ts"
+  ],
+  "exclude": [
+  ]
+}
