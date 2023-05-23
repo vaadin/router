@@ -32,7 +32,6 @@
     "lint:css": "stylelint demo/**/*.html",
     "build": "tsc && npm-run-all --parallel build:minify.* build:typescript-declarations",
     "build:minify.browser": "uglifyjs dist/vaadin-router.js -c -m --mangle-props regex=/^__/ --toplevel --source-map --output dist/vaadin-router.min.js",
-    "build:typescript-declarations": "gen-typescript-declarations --outDir .",
     "build:watch": "tsc -w",
     "start": "npm run build && polyserve --port 8000",
     "start:browser-sync": "browser-sync start --config bs-config.cjs",
@@ -67,7 +66,6 @@
     "path-to-regexp": "^6.2.0"
   },
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.6.2",
     "@types/form-data": "^2.5.0",
     "bower": "^1.8.12",
     "browser-sync": "^2.26.14",
