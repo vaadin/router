@@ -10,8 +10,14 @@
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
 import {ensureRoutes, getNotFoundError, isString, notFoundResult, toArray} from '../utils.js';
+import {ActionResult, Context, Route} from "../types/route";
 
-function isChildRoute(parentRoute, childRoute) {
+type InternalContext = Context & {
+  chain?: Route[],
+  result?: ActionResult,
+};
+
+function isChildRoute(parentRoute: Route, childRoute: Route) {
   let route = childRoute;
   while (route) {
     route = route.parent;
@@ -22,7 +28,7 @@ function isChildRoute(parentRoute, childRoute) {
   return false;
 }
 
-function generateErrorMessage(currentContext) {
+function generateErrorMessage(currentContext: Context): string {
   let errorMessage = `Path '${currentContext.pathname}' is not properly resolved due to an error.`;
   const routePath = (currentContext.route || {}).path;
   if (routePath) {
@@ -31,7 +37,7 @@ function generateErrorMessage(currentContext) {
   return errorMessage;
 }
 
-function updateChainForRoute(context, match) {
+function updateChainForRoute(context: InternalContext, match: {route: Route, path: string}): void {
   const {route, path} = match;
 
   if (route && !route.__synthetic) {
@@ -51,10 +57,25 @@ function updateChainForRoute(context, match) {
   }
 }
 
+export type ErrorHandlerFn = (error: any) => ActionResult;
+
+export type ResolverOptions = Readonly<{
+  baseUrl?: string,
+  errorHandler?: ErrorHandlerFn,
+  resolveRoute?: typeof resolveRoute,
+  context?: Context,
+}>;
+
 /**
  */
 class Resolver {
-  constructor(routes, options = {}) {
+  baseUrl: string;
+  errorHandler?: ErrorHandlerFn;
+  resolveRoute: typeof resolveRoute;
+  context: InternalContext;
+  root: Route;
+
+  constructor(routes, options: ResolverOptions = {}) {
     if (Object(routes) !== routes) {
       throw new TypeError('Invalid routes');
     }
@@ -71,20 +92,18 @@ class Resolver {
    * Returns the current list of routes (as a shallow copy). Adding / removing
    * routes to / from the returned array does not affect the routing config,
    * but modifying the route objects does.
-   *
-   * @return {!Array<!Router.Route>}
    */
-  getRoutes() {
+  getRoutes(): Route[] {
     return [...this.root.__children];
   }
 
   /**
    * Sets the routing config (replacing the existing one).
    *
-   * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
+   * @param routes a single route or an array of those
    *    (the array is shallow copied)
    */
-  setRoutes(routes) {
+  setRoutes(routes: Route|ReadonlyArray<Route>): void {
     ensureRoutes(routes);
     const newRoutes = [...toArray(routes)];
     this.root.__children = newRoutes;
@@ -94,12 +113,10 @@ class Resolver {
    * Appends one or several routes to the routing config and returns the
    * effective routing config after the operation.
    *
-   * @param {!Array<!Router.Route>|!Router.Route} routes a single route or an array of those
+   * @param routes a single route or an array of those
    *    (the array is shallow copied)
-   * @return {!Array<!Router.Route>}
-   * @protected
    */
-  addRoutes(routes) {
+  protected addRoutes(routes: Route | ReadonlyArray<Route>): ReadonlyArray<Route> {
     ensureRoutes(routes);
     this.root.__children.push(...toArray(routes));
     return this.getRoutes();
@@ -108,7 +125,7 @@ class Resolver {
   /**
    * Removes all existing routes from the routing config.
    */
-  removeRoutes() {
+  removeRoutes(): void {
     this.setRoutes([]);
   }
 
@@ -124,28 +141,28 @@ class Resolver {
    * given pathname the returned promise is rejected with a 'page not found'
    * `Error`.
    *
-   * @param {!string|!{pathname: !string}} pathnameOrContext the pathname to
-   *    resolve or a context object with a `pathname` property and other
-   *    properties to pass to the route resolver functions.
-   * @return {!Promise<any>}
+   * @param pathnameOrContext the pathname to resolve or a context object
+   * with a `pathname` property and other properties to pass to the route
+   * resolver functions.
    */
-  resolve(pathnameOrContext) {
-    const context = Object.assign(
+  resolve(pathnameOrContext: string | {pathname: string}): Promise<unknown> {
+    const context: InternalContext = Object.assign(
       {},
       this.context,
-      isString(pathnameOrContext) ? {pathname: pathnameOrContext} : pathnameOrContext
+      isString(pathnameOrContext) ? {pathname: pathnameOrContext} : pathnameOrContext,
+      {next: next}
     );
     const match = matchRoute(
       this.root,
       this.__normalizePathname(context.pathname),
-      this.baseUrl
+      !!this.baseUrl
     );
     const resolve = this.resolveRoute;
     let matches = null;
     let nextMatches = null;
     let currentContext = context;
 
-    function next(resume, parent = matches.value.route, prevResult) {
+    function next(resume: boolean, parent: Route = matches.value.route, prevResult?: ReturnType<resolveRoute>) {
       const routeToSkip = prevResult === null && matches.value.route;
       matches = nextMatches || match.next(routeToSkip);
       nextMatches = null;
@@ -172,14 +189,12 @@ class Resolver {
 
       return Promise.resolve(resolve(currentContext)).then(resolution => {
         if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
-          currentContext.result = resolution.result || resolution;
+          currentContext.result = ('result' in resolution) ? resolution.result : resolution;
           return currentContext;
         }
         return next(resume, parent, resolution);
       });
     }
-
-    context.next = next;
 
     return Promise.resolve()
       .then(() => next(true, this.root))

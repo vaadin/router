@@ -1,4 +1,0 @@
-/**
- * @namespace Router
- */
-const Router = {};

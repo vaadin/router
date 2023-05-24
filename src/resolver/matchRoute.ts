@@ -8,6 +8,9 @@
  */
 
 import matchPath from './matchPath.js';
+import {Route} from "../types/route";
+import {Key} from "path-to-regexp";
+import {Params} from "../types/params";
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from
@@ -54,7 +57,7 @@ import matchPath from './matchPath.js';
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParams) {
+function matchRoute(route: Route, pathname: string, ignoreLeadingSlash: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params) {
   let match;
   let childMatches;
   let childIndex = 0;

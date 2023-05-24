@@ -10,10 +10,10 @@
 import {parse, tokensToFunction} from 'path-to-regexp';
 import Resolver from './resolver.js';
 import {isString} from '../utils.js';
+import {Route} from "../types/route";
+import {IndexedParams, Params} from "../types/params";
 
-const cache = new Map();
-
-function cacheRoutes(routesByName, route, routes) {
+function cacheRoutes(routesByName: Map<string, Route>, route: Route, routes?: ReadonlyArray<Route>): void {
   const name = route.name || route.component;
   if (name) {
     if (routesByName.has(name)) {
@@ -32,7 +32,7 @@ function cacheRoutes(routesByName, route, routes) {
   }
 }
 
-function getRouteByName(routesByName, routeName) {
+function getRouteByName(routesByName: Map<string, Route>, routeName: string): Route {
   const routes = routesByName.get(routeName);
   if (routes && routes.length > 1) {
     throw new Error(
@@ -43,22 +43,21 @@ function getRouteByName(routesByName, routeName) {
   return routes && routes[0];
 }
 
-function getRoutePath(route) {
+function getRoutePath(route: Route) {
   let path = route.path;
   path = Array.isArray(path) ? path[0] : path;
   return path !== undefined ? path : '';
 }
 
-function generateUrls(router, options = {
-  encode: encodeURIComponent
-}) {
+function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params: Params) => string} = {}) {
   if (!(router instanceof Resolver)) {
     throw new TypeError('An instance of Resolver is expected');
   }
 
-  const routesByName = new Map();
+  const cache: Map<string, Route> = new Map();
+  const routesByName: Map<string, Route> = new Map();
 
-  return (routeName, params) => {
+  return (routeName: string, params: Params) => {
     let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache
@@ -82,7 +81,7 @@ function generateUrls(router, options = {
         rt = rt.parent;
       }
       const tokens = parse(fullPath);
-      const keys = Object.create(null);
+      const keys = Object.create(null as object);
       for (let i = 0; i < tokens.length; i++) {
         if (!isString(tokens[i])) {
           keys[tokens[i].name] = true;

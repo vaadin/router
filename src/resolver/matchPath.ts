@@ -7,17 +7,23 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import {pathToRegexp} from 'path-to-regexp';
+import {pathToRegexp, type Key} from 'path-to-regexp';
+import {Params} from "../types/params";
+
+type Matcher = Readonly<{
+  keys: ReadonlyArray<Key>,
+  pattern: RegExp,
+}>;
 
 const {hasOwnProperty} = Object.prototype;
-const cache = new Map();
+const cache: Map<string, Matcher> = new Map();
 // see https://github.com/pillarjs/path-to-regexp/issues/148
 cache.set('|false', {
   keys: [],
   pattern: /(?:)/
 });
 
-function decodeParam(val) {
+function decodeParam(val: string): string {
   try {
     return decodeURIComponent(val);
   } catch (err) {
@@ -25,7 +31,7 @@ function decodeParam(val) {
   }
 }
 
-function matchPath(routepath, path, exact, parentKeys, parentParams) {
+function matchPath(routepath: string, path: string, exact?: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params) {
   exact = !!exact;
   const cacheKey = `${routepath}|${exact}`;
   let regexp = cache.get(cacheKey);

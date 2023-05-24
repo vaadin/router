@@ -15,6 +15,7 @@ import {
   getNotFoundError,
   notFoundResult
 } from './utils.js';
+import {RouterLocation} from "./documentation/location";
 
 const MAX_REDIRECT_COUNT = 256;
 
@@ -116,6 +117,19 @@ function getMatchedPath(chain) {
     }
     return a;
   }, '');
+}
+
+export type RouterOptions = Readonly<{
+  baseUrl?: string;
+}>;
+
+declare global {
+  interface WindowEventMap {
+    'vaadin-router-location-changed': CustomEvent<{
+      router: Router;
+      location: RouterLocation;
+    }>;
+  }
 }
 
 /**

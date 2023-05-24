@@ -8,8 +8,9 @@
  */
 
 import {isFunction} from '../utils.js';
+import {ActionResult, Context} from "../types/route";
 
-function resolveRoute(context) {
+function resolveRoute(context: Context): (Context & { result: ActionResult }) | ActionResult {
   if (isFunction(context.route.action)) {
     return context.route.action(context);
   }

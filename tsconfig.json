@@ -12,6 +12,7 @@
     "strict": true,
     "sourceMap": true,
     "inlineSources": true,
+    "noImplicitAny": true,
     "verbatimModuleSyntax": true,
     "noImplicitOverride": true,
     "useDefineForClassFields": true,

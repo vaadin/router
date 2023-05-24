@@ -1,17 +1,12 @@
-/**
- * @typedef NavigationTrigger
- * @type {object}
- * @property {function()} activate
- * @property {function()} inactivate
- */
+export type NavigationTrigger = Readonly<{
+  activate(): void;
+  inactivate(): void;
+}>;
 
-/** @type {Array<NavigationTrigger>} */
-let triggers = [];
+let triggers: ReadonlyArray<NavigationTrigger> = [];
 
 export default function setNavigationTriggers(newTriggers) {
   triggers.forEach(trigger => trigger.inactivate());
-
   newTriggers.forEach(trigger => trigger.activate());
-
   triggers = newTriggers;
 }
