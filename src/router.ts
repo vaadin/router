@@ -1,7 +1,11 @@
+/// <reference lib="dom" />
+
 import {compile} from 'path-to-regexp';
 import Resolver from './resolver/resolver.js';
 import generateUrls from './resolver/generateUrls.js';
-import setNavigationTriggers from './triggers/setNavigationTriggers.js';
+import setNavigationTriggers, {
+  NavigationTrigger
+} from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
 import {
   ensureRoute,
@@ -13,44 +17,87 @@ import {
   isString,
   isObject,
   getNotFoundError,
-  notFoundResult
+  notFoundResult,
+  type ContextWithChain,
+  type ChainItem,
+  type InternalContext, ResolveResult
 } from './utils.js';
-import {RouterLocation} from "./documentation/location";
+import {RouterLocation} from "./documentation/location.js";
+import {
+  ActionResult, Commands,
+  ComponentResult,
+  Context,
+  RedirectResult,
+  Route
+} from "./types/route.js";
+import type {IndexedParams, Params} from "./types/params.js";
+import type {
+  WebComponentInterface,
+  AfterEnterObserver,
+  AfterLeaveObserver,
+  BeforeEnterObserver,
+  BeforeLeaveObserver
+} from "./types/observers.js";
+import CLICK from "./triggers/click.js";
+import POPSTATE from "./triggers/popstate.js";
 
 const MAX_REDIRECT_COUNT = 256;
 
-function isResultNotEmpty(result) {
+function isResultNotEmpty(result?: ActionResult | undefined | null): boolean {
   return result !== null && result !== undefined;
 }
 
-function copyContextWithoutNext(context) {
+function copyContextWithoutNext(context: Context): Omit<Context, 'next'> {
   const copy = Object.assign({}, context);
-  delete copy.next;
+  delete copy['next'];
   return copy;
 }
 
-function createLocation({pathname = '', search = '', hash = '', chain = [], params = {}, redirectFrom, resolver}, route) {
-  const routes = chain.map(item => item.route);
-  return {
-    baseUrl: resolver && resolver.baseUrl || '',
-    pathname,
-    search,
-    hash,
-    routes,
-    route: route || routes.length && routes[routes.length - 1] || null,
-    params,
+type ContextForLocation =
+  Partial<ContextWithChain>
+  & Readonly<{ resolver?: Router, redirectFrom?: string }>;
+
+function createLocation(context: ContextForLocation, route?: Route): RouterLocation {
+  const {
+    pathname = '',
+    search = '',
+    hash = '',
+    chain = [] as ChainItem[],
+    params = {} as Params,
     redirectFrom,
+    resolver
+  } = context;
+  const routes: Route[] = chain.map(item => item.route);
+  const baseUrl = resolver ? resolver.baseUrl : '';
+  return {
+    baseUrl,
+    pathname: pathname || '',
+    search: search || '',
+    hash: hash || '',
+    route: route || null,
+    routes,
+    params,
     searchParams: new URLSearchParams(search),
-    getUrl: (userParams = {}) => getPathnameForRouter(
-      compile(
+    getUrl: (userParams: Params) => {
+      const pathname: string = compile(
         getMatchedPath(routes)
-      )(Object.assign({}, params, userParams)),
-      resolver
-    )
-  };
+      )(Object.assign({}, params, userParams));
+      return resolver ? getPathnameForRouter(pathname, resolver) : pathname;
+    },
+  } as RouterLocation;
 }
 
-function createRedirect(context, pathname) {
+type CancelMarker = Readonly<{
+  cancel: true
+}>;
+
+type RedirectMarker = Readonly<{
+  redirect: RedirectContextInfo,
+}>;
+
+type ResultMarker = CancelMarker | RedirectMarker | Element | undefined;
+
+function createRedirect(context: InternalContext, pathname: string): RedirectMarker {
   const params = Object.assign({}, context.params);
   return {
     redirect: {
@@ -61,32 +108,35 @@ function createRedirect(context, pathname) {
   };
 }
 
-function renderElement(context, element) {
-  element.location = createLocation(context);
+function renderElement(context: ContextWithChain, element: Element): Element {
+  (element as WebComponentInterface).location = createLocation(context as ContextForLocation);
   const index = context.chain.map(item => item.route).indexOf(context.route);
-  context.chain[index].element = element;
+  context.chain![index].element = element;
   return element;
 }
 
-function runCallbackIfPossible(callback, args, thisArg) {
+function runCallbackIfPossible(callback: unknown, args: Parameters<typeof callback>, thisArg: ThisParameterType<typeof callback>): ReturnType<typeof callback> | void {
   if (isFunction(callback)) {
     return callback.apply(thisArg, args);
   }
 }
 
-function amend(amendmentFunction, args, element) {
-  return amendmentResult => {
-    if (amendmentResult && (amendmentResult.cancel || amendmentResult.redirect)) {
-      return amendmentResult;
+function amend(amendmentFunction: string, args: unknown[], element?: Element) {
+  return (amendmentResult: ResultMarker) => {
+    if (amendmentResult && ('cancel' in amendmentResult) || ('redirect' in amendmentResult)) {
+      return amendmentResult as ResultMarker;
     }
 
     if (element) {
-      return runCallbackIfPossible(element[amendmentFunction], args, element);
+      const callback = element[amendmentFunction];
+      return runCallbackIfPossible(callback, args, element) as ResultMarker;
     }
+
+    return undefined as ResultMarker;
   };
 }
 
-function processNewChildren(newChildren, route) {
+function processNewChildren(newChildren: Route | Route[], route: Route): void {
   if (!Array.isArray(newChildren) && !isObject(newChildren)) {
     throw new Error(
       log(
@@ -103,14 +153,14 @@ function processNewChildren(newChildren, route) {
   }
 }
 
-function getPathnameForRouter(pathname, router) {
+function getPathnameForRouter(pathname: string, router: Resolver): string {
   const base = router.__effectiveBaseUrl;
   return base
-    ? router.constructor.__createUrl(pathname.replace(/^\//, ''), base).pathname
+    ? (router.constructor as typeof Resolver).__createUrl(pathname.replace(/^\//, ''), base).pathname
     : pathname;
 }
 
-function getMatchedPath(chain) {
+function getMatchedPath(chain: ChainItem[]): string {
   return chain.map(item => item.path).reduce((a, b) => {
     if (b.length) {
       return a.replace(/\/$/, '') + '/' + b.replace(/^\//, '');
@@ -131,6 +181,18 @@ declare global {
     }>;
   }
 }
+
+export type LocationInfo = Readonly<{
+  pathname: string,
+  search?: string,
+  hash?: string,
+}>;
+
+type RedirectContextInfo = LocationInfo & Readonly<{
+  params?: Params,
+  __redirectCount?: number,
+  from?: string,
+}>;
 
 /**
  * A simple client-side router for single-page applications. It uses
@@ -161,13 +223,55 @@ declare global {
  *
  * Only `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
  *
- * @extends Resolver
- * @demo demo/index.html
  * @summary JavaScript class that renders different DOM content depending on
  *    a given path. It can re-render when triggered or automatically on
  *    'popstate' and / or 'click' events.
  */
 export class Router extends Resolver {
+  public readonly resolveRoute = this.__resolveRoute.bind(this);
+
+  /**
+   * The base URL for all routes in the router instance. By default,
+   * if the base element exists in the `<head>`, vaadin-router
+   * takes the `<base href>` attribute value, resolved against the current
+   * `document.URL`.
+   *
+   */
+  public baseUrl: string;
+
+  /**
+   * Contains read-only information about the current router location:
+   * pathname, active routes, parameters. See the
+   * [Location type declaration](#/classes/RouterLocation)
+   * for more details.
+   */
+  public location: RouterLocation = createLocation({resolver: this});
+
+  /**
+   * A promise that is settled after the current render cycle completes. If
+   * there is no render cycle in progress the promise is immediately settled
+   * with the last render cycle result.
+   *
+   * @public
+   * @type {!Promise<!RouterLocation>}
+   */
+  public ready: Promise<RouterLocation> = Promise.resolve(this.location);
+
+
+  private __lastStartedRenderId: number = 0;
+  private __navigationEventHandler = this.__onNavigationEvent.bind(this);
+
+  // Using WeakMap instead of WeakSet because WeakSet is not supported by IE11
+  private __createdByRouter = new WeakMap<Element, boolean>();
+  private __addedByRouter = new WeakMap<Element, boolean>();
+
+  private __outlet: ParentNode | null | undefined;
+  private __previousContext?: InternalContext;
+
+  private __urlForName?: ReturnType<typeof generateUrls>;
+
+  private __appearingContent: ReadonlyArray<Element> | null = null;
+  private __disappearingContent: ReadonlyArray<Element> | null = null;
 
   /**
    * Creates a new Router instance with a given outlet, and
@@ -178,10 +282,10 @@ export class Router extends Resolver {
    * const router = new Router();
    * router.setOutlet(outlet);
    * ```
-   * @param {?Node=} outlet
-   * @param {?RouterOptions=} options
+   * @param outlet the DOM Node to render contents into
+   * @param options
    */
-  constructor(outlet, options) {
+  constructor(outlet?: ParentNode | null, options?: RouterOptions) {
     const baseElement = document.head.querySelector('base');
     const baseHref = baseElement && baseElement.getAttribute('href');
     super([], Object.assign({
@@ -189,58 +293,17 @@ export class Router extends Resolver {
       baseUrl: baseHref && Resolver.__createUrl(baseHref, document.URL).href.replace(/[^/]*$/, '')
     }, options));
 
-    this.resolveRoute = context => this.__resolveRoute(context);
 
-    const triggers = Router.NavigationTrigger;
-    Router.setTriggers.apply(Router, Object.keys(triggers).map(key => triggers[key]));
+    Router.setTriggers(CLICK, POPSTATE);
 
-    /**
-     * The base URL for all routes in the router instance. By default,
-     * if the base element exists in the `<head>`, vaadin-router
-     * takes the `<base href>` attribute value, resolved against the current
-     * `document.URL`.
-     *
-     * @public
-     * @type {string}
-     */
-    this.baseUrl;
-
-    /**
-     * A promise that is settled after the current render cycle completes. If
-     * there is no render cycle in progress the promise is immediately settled
-     * with the last render cycle result.
-     *
-     * @public
-     * @type {!Promise<!RouterLocation>}
-     */
-    this.ready;
-    this.ready = Promise.resolve(outlet);
-
-    /**
-     * Contains read-only information about the current router location:
-     * pathname, active routes, parameters. See the
-     * [Location type declaration](#/classes/RouterLocation)
-     * for more details.
-     *
-     * @public
-     * @type {!RouterLocation}
-     */
-    this.location;
-    this.location = createLocation({resolver: this});
-
-    this.__lastStartedRenderId = 0;
-    this.__navigationEventHandler = this.__onNavigationEvent.bind(this);
     this.setOutlet(outlet);
     this.subscribe();
-    // Using WeakMap instead of WeakSet because WeakSet is not supported by IE11
-    this.__createdByRouter = new WeakMap();
-    this.__addedByRouter = new WeakMap();
   }
 
-  __resolveRoute(context) {
+  __resolveRoute(context: Context): Promise<ActionResult> {
     const route = context.route;
 
-    let callbacks = Promise.resolve();
+    let callbacks: Promise<ActionResult> = Promise.resolve();
 
     if (isFunction(route.children)) {
       callbacks = callbacks
@@ -256,11 +319,11 @@ export class Router extends Resolver {
     }
 
     const commands = {
-      redirect: path => createRedirect(context, path),
+      redirect: path => createRedirect(context as InternalContext, path) as RedirectResult,
       component: (component) => {
         const element = document.createElement(component);
         this.__createdByRouter.set(element, true);
-        return element;
+        return element as ComponentResult;
       }
     };
 
@@ -275,15 +338,21 @@ export class Router extends Resolver {
           // Actions like `() => import('my-view.js')` are not expected to
           // end the resolution, despite the result is not empty. Checking
           // the result with a whitelist of values that end the resolution.
-          if (result instanceof HTMLElement ||
-              result.redirect ||
-              result === notFoundResult) {
+          if (result instanceof HTMLElement) {
+            return result as ComponentResult;
+          }
+
+          if ('redirect' in result) {
+            return result as RedirectResult;
+          }
+
+          if (result === notFoundResult) {
             return result;
           }
         }
 
         if (isString(route.redirect)) {
-          return commands.redirect(route.redirect);
+          return commands.redirect(route.redirect) as RedirectResult;
         }
       })
       .then(result => {
@@ -291,7 +360,7 @@ export class Router extends Resolver {
           return result;
         }
         if (isString(route.component)) {
-          return commands.component(route.component);
+          return commands.component(route.component) as HTMLElement;
         }
       });
   }
@@ -303,10 +372,10 @@ export class Router extends Resolver {
    *
    * NOTE: this method is automatically invoked first time when creating a new Router instance.
    *
-   * @param {?Node} outlet the DOM node where the content for the current route
+   * @param outlet the DOM node where the content for the current route
    *     is inserted.
    */
-  setOutlet(outlet) {
+  setOutlet(outlet?: ParentNode | null) {
     if (outlet) {
       this.__ensureOutlet(outlet);
     }
@@ -316,9 +385,9 @@ export class Router extends Resolver {
   /**
    * Returns the current router outlet. The initial value is `undefined`.
    *
-   * @return {?Node} the current router outlet (or `undefined`)
+   * @return the current router outlet (or `undefined`)
    */
-  getOutlet() {
+  getOutlet(): ParentNode | null | undefined {
     return this.__outlet;
   }
 
@@ -395,14 +464,11 @@ export class Router extends Resolver {
    * * `commands.component(component)` – function that creates a new HTMLElement
    * with current context. Note: the component created by this function is reused if visiting the same path twice in row.
    *
-   *
-   * @param {!Array<!Route>|!Route} routes a single route or an array of those
-   * @param {?boolean} skipRender configure the router but skip rendering the
+   * @param routes a single route or an array of those
+   * @param skipRender configure the router but skip rendering the
    *     route corresponding to the current `window.location` values
-   *
-   * @return {!Promise<!Node>}
    */
-  setRoutes(routes, skipRender = false) {
+  setRoutes(routes: Route | Route[], skipRender = false): Promise<RouterLocation> {
     this.__previousContext = undefined;
     this.__urlForName = undefined;
     super.setRoutes(routes);
@@ -425,17 +491,16 @@ export class Router extends Resolver {
    * If another render pass is started before the previous one is completed, the
    * result of the previous render pass is ignored.
    *
-   * @param {!string|!{pathname: !string, search: ?string, hash: ?string}} pathnameOrContext
+   * @param pathnameOrContext
    *    the pathname to render or a context object with a `pathname` property,
    *    optional `search` and `hash` properties, and other properties
    *    to pass to the resolver.
-   * @param {boolean=} shouldUpdateHistory
+   * @param shouldUpdateHistory
    *    update browser history with the rendered location
-   * @return {!Promise<!Node>}
    */
-  render(pathnameOrContext, shouldUpdateHistory) {
+  render(pathnameOrContext: string | LocationInfo, shouldUpdateHistory: boolean = false): Promise<RouterLocation> {
     const renderId = ++this.__lastStartedRenderId;
-    const context = Object.assign(
+    const context: Required<LocationInfo> = Object.assign(
       {
         search: '',
         hash: ''
@@ -458,52 +523,57 @@ export class Router extends Resolver {
       .then(context => this.__fullyResolveChain(context))
 
       .then(context => {
-        if (this.__isLatestRender(context)) {
-          const previousContext = this.__previousContext;
+        if (!this.__isLatestRender(context)) {
+          return this.location;
+        }
 
-          // Check if the render was prevented and make an early return in that case
-          if (context === previousContext) {
-            // Replace the history with the previous context
-            // to make sure the URL stays the same.
-            this.__updateBrowserHistory(previousContext, true);
-            return this.location;
-          }
+        const previousContext = this.__previousContext;
 
-          this.location = createLocation(context);
+        // Check if the render was prevented and make an early return in that case
+        if (context === previousContext) {
+          // Replace the history with the previous context
+          // to make sure the URL stays the same.
+          this.__updateBrowserHistory(previousContext, true);
+          return this.location;
+        }
 
-          if (shouldUpdateHistory) {
-            // Replace only if first render redirects, so that we don’t leave
-            // the redirecting record in the history
-            this.__updateBrowserHistory(context, renderId === 1);
-          }
+        this.location = createLocation(context as ContextForLocation);
 
-          fireRouterEvent('location-changed', {router: this, location: this.location});
+        if (shouldUpdateHistory) {
+          // Replace only if first render redirects, so that we don’t leave
+          // the redirecting record in the history
+          this.__updateBrowserHistory(context, renderId === 1);
+        }
 
-          // Skip detaching/re-attaching there are no render changes
-          if (context.__skipAttach) {
-            this.__copyUnchangedElements(context, previousContext);
+        fireRouterEvent('location-changed', {
+          router: this,
+          location: this.location
+        });
+
+        // Skip detaching/re-attaching there are no render changes
+        if (context.__skipAttach) {
+          this.__copyUnchangedElements(context, previousContext);
+          this.__previousContext = context;
+          return this.location;
+        }
+
+        this.__addAppearingContent(context, previousContext);
+        const animationDone = this.__animateIfNeeded(context);
+
+        this.__runOnAfterEnterCallbacks(context);
+        this.__runOnAfterLeaveCallbacks(context, previousContext);
+
+        return animationDone.then(() => {
+          if (this.__isLatestRender(context)) {
+            // If there is another render pass started after this one,
+            // the 'disappearing content' would be removed when the other
+            // render pass calls `this.__addAppearingContent()`
+            this.__removeDisappearingContent();
+
             this.__previousContext = context;
             return this.location;
           }
-
-          this.__addAppearingContent(context, previousContext);
-          const animationDone = this.__animateIfNeeded(context);
-
-          this.__runOnAfterEnterCallbacks(context);
-          this.__runOnAfterLeaveCallbacks(context, previousContext);
-
-          return animationDone.then(() => {
-            if (this.__isLatestRender(context)) {
-              // If there is another render pass started after this one,
-              // the 'disappearing content' would be removed when the other
-              // render pass calls `this.__addAppearingContent()`
-              this.__removeDisappearingContent();
-
-              this.__previousContext = context;
-              return this.location;
-            }
-          });
-        }
+        });
       })
       .catch(error => {
         if (renderId === this.__lastStartedRenderId) {
@@ -512,10 +582,13 @@ export class Router extends Resolver {
           }
           Router.__removeDomNodes(this.__outlet && this.__outlet.children);
           this.location = createLocation(Object.assign(context, {resolver: this}));
-          fireRouterEvent('error', Object.assign({router: this, error}, context));
+          fireRouterEvent('error', Object.assign({
+            router: this,
+            error
+          }, context));
           throw error;
         }
-      });
+      }) as Promise<RouterLocation>;
     return this.ready;
   }
 
@@ -530,8 +603,8 @@ export class Router extends Resolver {
   // Apart from building the chain of child components, this method would also
   // handle 'redirect' routes, call 'onBefore' callbacks and handle 'prevent'
   // and 'redirect' callback results.
-  __fullyResolveChain(topOfTheChainContextBeforeRedirects,
-    contextBeforeRedirects = topOfTheChainContextBeforeRedirects) {
+  __fullyResolveChain(topOfTheChainContextBeforeRedirects: InternalContext,
+                      contextBeforeRedirects: InternalContext = topOfTheChainContextBeforeRedirects): Promise<ContextWithChain> {
     return this.__findComponentContextAfterAllRedirects(contextBeforeRedirects)
       // `contextAfterRedirects` is always a context with an `HTMLElement` result
       // In other cases the promise gets rejected and .then() is not called
@@ -542,13 +615,13 @@ export class Router extends Resolver {
 
         const matchedPath = getPathnameForRouter(
           getMatchedPath(contextAfterRedirects.chain),
-          contextAfterRedirects.resolver
+          contextAfterRedirects.resolver,
         );
         const isFound = (matchedPath === contextAfterRedirects.pathname);
 
         // Recursive method to try matching more child and sibling routes
-        const findNextContextIfAny = (context, parent = context.route, prevResult) => {
-          return context.next(undefined, parent, prevResult).then(nextContext => {
+        const findNextContextIfAny = (context: InternalContext, parent = context.route, prevResult?: ResolveResult) => {
+          return context.next(false, parent, prevResult).then(nextContext => {
             if (nextContext === null || nextContext === notFoundResult) {
               // Next context is not found in children, ...
               if (isFound) {
@@ -568,7 +641,7 @@ export class Router extends Resolver {
 
         return findNextContextIfAny(contextAfterRedirects).then(nextContext => {
           if (nextContext === null || nextContext === notFoundResult) {
-            throw getNotFoundError(topOfTheChainContextAfterRedirects);
+            throw getNotFoundError(topOfTheChainContextAfterRedirects as Context);
           }
 
           return nextContext
@@ -580,14 +653,15 @@ export class Router extends Resolver {
       });
   }
 
-  __findComponentContextAfterAllRedirects(context) {
+  __findComponentContextAfterAllRedirects(context: InternalContext): Promise<ContextWithChain> {
     const result = context.result;
     if (result instanceof HTMLElement) {
-      renderElement(context, result);
-      return Promise.resolve(context);
-    } else if (result.redirect) {
-      return this.__redirect(result.redirect, context.__redirectCount, context.__renderId)
-        .then(context => this.__findComponentContextAfterAllRedirects(context));
+      renderElement(context as ContextWithChain, result);
+      return Promise.resolve(context as ContextWithChain);
+    } else if ('redirect' in result) {
+      const redirectInfo = context as RedirectContextInfo;
+      return this.__redirect((result as RedirectMarker).redirect, redirectInfo.__redirectCount, context.__renderId)
+        .then(context => this.__findComponentContextAfterAllRedirects(context as InternalContext));
     } else if (result instanceof Error) {
       return Promise.reject(result);
     } else {
@@ -602,7 +676,7 @@ export class Router extends Resolver {
     }
   }
 
-  __amendWithOnBeforeCallbacks(contextWithFullChain) {
+  __amendWithOnBeforeCallbacks(contextWithFullChain: ContextWithChain): Promise<ContextWithChain> {
     return this.__runOnBeforeCallbacks(contextWithFullChain).then(amendedContext => {
       if (amendedContext === this.__previousContext || amendedContext === contextWithFullChain) {
         return amendedContext;
@@ -611,12 +685,12 @@ export class Router extends Resolver {
     });
   }
 
-  __runOnBeforeCallbacks(newContext) {
-    const previousContext = this.__previousContext || {};
+  __runOnBeforeCallbacks(newContext: ContextWithChain): Promise<ContextWithChain> {
+    const previousContext = (this.__previousContext || {}) as Partial<ContextWithChain>;
     const previousChain = previousContext.chain || [];
     const newChain = newContext.chain;
 
-    let callbacks = Promise.resolve();
+    let callbacks: Promise<ActionResult> = Promise.resolve();
     const prevent = () => ({cancel: true});
     const redirect = (pathname) => createRedirect(newContext, pathname);
 
@@ -645,8 +719,11 @@ export class Router extends Resolver {
         }
         // execute onBeforeEnter for changed segment element when skipping attach
         for (let i = 0; i < newChain.length; i++) {
-          callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
-          previousChain[i].element.location = createLocation(newContext, previousChain[i].route);
+          callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {
+            prevent,
+            redirect
+          }, newChain[i]);
+          (previousChain[i].element as WebComponentInterface).location = createLocation(newContext as ContextForLocation, previousChain[i].route);
         }
 
       } else {
@@ -661,12 +738,15 @@ export class Router extends Resolver {
       for (let i = 0; i < newChain.length; i++) {
         if (i < newContext.__divergedChainIndex) {
           if (i < previousChain.length && previousChain[i].element) {
-            previousChain[i].element.location = createLocation(newContext, previousChain[i].route);
+            (previousChain[i].element as WebComponentInterface).location = createLocation(newContext as ContextForLocation, previousChain[i].route);
           }
         } else {
-          callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {prevent, redirect}, newChain[i]);
+          callbacks = this.__runOnBeforeEnterCallbacks(callbacks, newContext, {
+            prevent,
+            redirect
+          }, newChain[i]);
           if (newChain[i].element) {
-            newChain[i].element.location = createLocation(newContext, newChain[i].route);
+            (newChain[i].element as WebComponentInterface).location = createLocation(newContext as ContextForLocation, newChain[i].route);
           }
         }
       }
@@ -685,32 +765,33 @@ export class Router extends Resolver {
     });
   }
 
-  __runOnBeforeLeaveCallbacks(callbacks, newContext, commands, chainElement) {
-    const location = createLocation(newContext);
-    return callbacks.then(result => {
-      if (this.__isLatestRender(newContext)) {
-        const afterLeaveFunction = amend('onBeforeLeave', [location, commands, this], chainElement.element);
-        return afterLeaveFunction(result);
-      }
-    }).then(result => {
-      if (!(result || {}).redirect) {
-        return result;
+  __runOnBeforeLeaveCallbacks(callbacks: Promise<ResultMarker>, newContext: ContextWithChain, commands: Commands, chainElement: ChainItem): Promise<ResultMarker> {
+    const location = createLocation(newContext as ContextForLocation);
+    return callbacks
+      .then((result: ResultMarker) => {
+        if (this.__isLatestRender(newContext)) {
+          const afterLeaveFunction = amend('onBeforeLeave', [location, commands, this], chainElement.element);
+          return Promise.resolve(afterLeaveFunction(result));
+        }
+      }).then((result: ResultMarker) => {
+      if (!('redirect' in (result || {}))) {
+        return Promise.resolve(result);
       }
     });
   }
 
-  __runOnBeforeEnterCallbacks(callbacks, newContext, commands, chainElement) {
-    const location = createLocation(newContext, chainElement.route);
+  __runOnBeforeEnterCallbacks(callbacks: Promise<ResultMarker>, newContext: ContextWithChain, commands: Commands, chainElement: ChainItem): Promise<ResultMarker> {
+    const location = createLocation(newContext as ContextForLocation, chainElement.route);
     return callbacks.then(result => {
       if (this.__isLatestRender(newContext)) {
         const beforeEnterFunction = amend('onBeforeEnter', [location, commands, this], chainElement.element);
-        return beforeEnterFunction(result);
+        return Promise.resolve(beforeEnterFunction(result));
       }
     });
   }
 
-  __isReusableElement(element, otherElement) {
-    if (element && otherElement) {
+  __isReusableElement(element?: Element | unknown, otherElement?: Element | unknown): boolean {
+    if (element instanceof Element && otherElement instanceof Element) {
       return this.__createdByRouter.get(element) && this.__createdByRouter.get(otherElement)
         ? element.localName === otherElement.localName
         : element === otherElement;
@@ -718,11 +799,11 @@ export class Router extends Resolver {
     return false;
   }
 
-  __isLatestRender(context) {
+  __isLatestRender(context: InternalContext): boolean {
     return context.__renderId === this.__lastStartedRenderId;
   }
 
-  __redirect(redirectData, counter, renderId) {
+  __redirect(redirectData: RedirectContextInfo, counter?: number, renderId?: number): Promise<InternalContext & RedirectContextInfo> {
     if (counter > MAX_REDIRECT_COUNT) {
       throw new Error(log(`Too many redirects when rendering ${redirectData.from}`));
     }
@@ -735,19 +816,23 @@ export class Router extends Resolver {
       redirectFrom: redirectData.from,
       __redirectCount: (counter || 0) + 1,
       __renderId: renderId
-    });
+    } as RedirectContextInfo) as Promise<InternalContext & RedirectContextInfo>;
   }
 
-  __ensureOutlet(outlet = this.__outlet) {
+  __ensureOutlet(outlet: ParentNode | undefined | null = this.__outlet): void {
     if (!(outlet instanceof Node)) {
       throw new TypeError(log(`Expected router outlet to be a valid DOM Node (but got ${outlet})`));
     }
   }
 
-  __updateBrowserHistory({pathname, search = '', hash = ''}, replace) {
+  __updateBrowserHistory({
+                           pathname,
+                           search = '',
+                           hash = ''
+                         }: LocationInfo, replace?: boolean): void {
     if (window.location.pathname !== pathname
-        || window.location.search !== search
-        || window.location.hash !== hash
+      || window.location.search !== search
+      || window.location.hash !== hash
     ) {
       const changeState = replace ? 'replaceState' : 'pushState';
       window.history[changeState](null, document.title, pathname + search + hash);
@@ -755,10 +840,10 @@ export class Router extends Resolver {
     }
   }
 
-  __copyUnchangedElements(context, previousContext) {
+  __copyUnchangedElements(context: ContextWithChain, previousContext: ContextWithChain): Element {
     // Find the deepest common parent between the last and the new component
     // chains. Update references for the unchanged elements in the new chain
-    let deepestCommonParent = this.__outlet;
+    let deepestCommonParent = this.__outlet as Element;
     for (let i = 0; i < context.__divergedChainIndex; i++) {
       const unchangedElement = previousContext && previousContext.chain[i].element;
       if (unchangedElement) {
@@ -773,7 +858,7 @@ export class Router extends Resolver {
     return deepestCommonParent;
   }
 
-  __addAppearingContent(context, previousContext) {
+  __addAppearingContent(context: ContextWithChain, previousContext: ContextWithChain): void {
     this.__ensureOutlet();
 
     // If the previous 'entering' animation has not completed yet,
@@ -792,8 +877,8 @@ export class Router extends Resolver {
       .filter(
         // Only remove layout content that was added by router
         e => this.__addedByRouter.get(e) &&
-        // Do not remove the result element to avoid flickering
-        e !== context.result);
+          // Do not remove the result element to avoid flickering
+          e !== context.result);
 
     // Add new elements (starting after the deepest common parent) to the DOM.
     // That way only the components that are actually different between the two
@@ -813,7 +898,7 @@ export class Router extends Resolver {
     }
   }
 
-  __removeDisappearingContent() {
+  __removeDisappearingContent(): void {
     if (this.__disappearingContent) {
       Router.__removeDomNodes(this.__disappearingContent);
     }
@@ -821,7 +906,7 @@ export class Router extends Resolver {
     this.__appearingContent = null;
   }
 
-  __removeAppearingContent() {
+  __removeAppearingContent(): void {
     if (this.__disappearingContent && this.__appearingContent) {
       Router.__removeDomNodes(this.__appearingContent);
       this.__disappearingContent = null;
@@ -829,7 +914,7 @@ export class Router extends Resolver {
     }
   }
 
-  __runOnAfterLeaveCallbacks(currentContext, targetContext) {
+  __runOnAfterLeaveCallbacks(currentContext: ContextWithChain, targetContext: ContextWithChain): void {
     if (!targetContext) {
       return;
     }
@@ -844,7 +929,7 @@ export class Router extends Resolver {
         continue;
       }
       try {
-        const location = createLocation(currentContext);
+        const location = createLocation(currentContext as RouterLocation);
         runCallbackIfPossible(
           currentComponent.onAfterLeave,
           [location, {}, targetContext.resolver],
@@ -857,7 +942,7 @@ export class Router extends Resolver {
     }
   }
 
-  __runOnAfterEnterCallbacks(currentContext) {
+  __runOnAfterEnterCallbacks(currentContext: ContextWithChain): void {
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
       if (!this.__isLatestRender(currentContext)) {
@@ -866,7 +951,7 @@ export class Router extends Resolver {
       const currentComponent = currentContext.chain[i].element || {};
       const location = createLocation(currentContext, currentContext.chain[i].route);
       runCallbackIfPossible(
-        currentComponent.onAfterEnter,
+        (currentComponent as Partial<AfterEnterObserver>).onAfterEnter,
         [location, {}, currentContext.resolver],
         currentComponent);
     }
@@ -914,7 +999,7 @@ export class Router extends Resolver {
     window.removeEventListener('vaadin-router-go', this.__navigationEventHandler);
   }
 
-  __onNavigationEvent(event) {
+  __onNavigationEvent(event?: CustomEvent<{ pathname: string, search: string, hash: string }>): void {
     const {pathname, search, hash} = event ? event.detail : window.location;
     if (isString(this.__normalizePathname(pathname))) {
       if (event && event.preventDefault) {
@@ -938,9 +1023,9 @@ export class Router extends Resolver {
    *
    * See also **Navigation Triggers** section in [Live Examples](#/classes/Router/demos/demo/index.html).
    *
-   * @param {...NavigationTrigger} triggers
+   * @param triggers navigation triggers
    */
-  static setTriggers(...triggers) {
+  static setTriggers(...triggers: NavigationTrigger[]) {
     setNavigationTriggers(triggers);
   }
 
@@ -956,14 +1041,14 @@ export class Router extends Resolver {
    * a children function.
    *
    * @function urlForName
-   * @param {!string} name the route name or the route’s `component` name.
+   * @param name the route name or the route’s `component` name.
    * @param {Params=} params Optional object with route path parameters.
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    *
    * @return {string}
    */
-  urlForName(name, params) {
+  urlForName(name: string, params?: Params) {
     if (!this.__urlForName) {
       this.__urlForName = generateUrls(this);
     }

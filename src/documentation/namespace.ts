@@ -1,5 +1,5 @@
 import type {RouterLocation} from "./location";
-export {Router, type RouterOptions} from "../router";
+export * from "../router";
 
 import type {
   NotFoundResult as _NotFoundResult,
@@ -21,7 +21,13 @@ import type {
   NavigationTrigger as _NavigationTrigger
 } from "../triggers/setNavigationTriggers";
 
-declare module "../router" {
+export * from "../router.js"
+
+import {type RouterOptions} from "../router.js";
+import CLICK from "../triggers/click";
+import POPSTATE from "../triggers/popstate";
+
+declare module "../router.js" {
   export namespace Router {
     /**
      * @deprecated use `NotFoundResult` instead of `Router.NotFoundResult`

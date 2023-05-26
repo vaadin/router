@@ -9,13 +9,17 @@
 
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
-import {ensureRoutes, getNotFoundError, isString, notFoundResult, toArray} from '../utils.js';
+import {
+  ContextWithChain,
+  ensureRoutes,
+  getNotFoundError,
+  type InternalContext,
+  type InternalContextNextFn,
+  isString,
+  notFoundResult, ResolveResult,
+  toArray
+} from '../utils.js';
 import {ActionResult, Context, Route} from "../types/route";
-
-type InternalContext = Context & {
-  chain?: Route[],
-  result?: ActionResult,
-};
 
 function isChildRoute(parentRoute: Route, childRoute: Route) {
   let route = childRoute;
@@ -37,7 +41,7 @@ function generateErrorMessage(currentContext: Context): string {
   return errorMessage;
 }
 
-function updateChainForRoute(context: InternalContext, match: {route: Route, path: string}): void {
+function updateChainForRoute(context: InternalContext, match: {route: Route, path: string}): asserts context is ContextWithChain {
   const {route, path} = match;
 
   if (route && !route.__synthetic) {
@@ -83,7 +87,15 @@ class Resolver {
     this.baseUrl = options.baseUrl || '';
     this.errorHandler = options.errorHandler;
     this.resolveRoute = options.resolveRoute || resolveRoute;
-    this.context = Object.assign({resolver: this}, options.context);
+    this.context = Object.assign({
+      resolver: this,
+      pathname: '',
+      search: '',
+      hash: '',
+      params: {},
+      route: this.root,
+      next: () => Promise.resolve(notFoundResult),
+    }, options.context || {});
     this.root = Array.isArray(routes) ? {path: '', __children: routes, parent: null, __synthetic: true} : routes;
     this.root.parent = null;
   }
@@ -105,8 +117,7 @@ class Resolver {
    */
   setRoutes(routes: Route|ReadonlyArray<Route>): void {
     ensureRoutes(routes);
-    const newRoutes = [...toArray(routes)];
-    this.root.__children = newRoutes;
+    this.root.__children = [...toArray(routes)];
   }
 
   /**
@@ -132,7 +143,7 @@ class Resolver {
   /**
    * Asynchronously resolves the given pathname, i.e. finds all routes matching
    * the pathname and tries resolving them one after another in the order they
-   * are listed in the routes config until the first non-null result.
+   * are listed in the routes until the first non-null result.
    *
    * Returns a promise that is fulfilled with the return value of an object that consists of the first
    * route handler result that returns something other than `null` or `undefined` and context used to get this result.
@@ -145,7 +156,7 @@ class Resolver {
    * with a `pathname` property and other properties to pass to the route
    * resolver functions.
    */
-  resolve(pathnameOrContext: string | {pathname: string}): Promise<unknown> {
+  resolve(pathnameOrContext: string | {pathname: string}): Promise<InternalContext> {
     const context: InternalContext = Object.assign(
       {},
       this.context,
@@ -162,7 +173,7 @@ class Resolver {
     let nextMatches = null;
     let currentContext = context;
 
-    function next(resume: boolean, parent: Route = matches.value.route, prevResult?: ReturnType<resolveRoute>) {
+    const next: InternalContextNextFn = (resume: boolean = false, parent: Route = matches.value.route, prevResult: ResolveResult = null) => {
       const routeToSkip = prevResult === null && matches.value.route;
       matches = nextMatches || match.next(routeToSkip);
       nextMatches = null;
@@ -187,17 +198,17 @@ class Resolver {
       );
       updateChainForRoute(currentContext, matches.value);
 
-      return Promise.resolve(resolve(currentContext)).then(resolution => {
+      return Promise.resolve(resolve(currentContext as InternalContext)).then(resolution => {
         if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
-          currentContext.result = ('result' in resolution) ? resolution.result : resolution;
-          return currentContext;
+          currentContext.result = (('result' in resolution) ? resolution.result : resolution) as ActionResult;
+          return currentContext as ContextWithChain;
         }
         return next(resume, parent, resolution);
       });
-    }
+    };
 
     return Promise.resolve()
-      .then(() => next(true, this.root))
+      .then(() => next(true, this.root) as Promise<InternalContext>)
       .catch((error) => {
         const errorMessage = generateErrorMessage(currentContext);
         if (!error) {
@@ -219,22 +230,22 @@ class Resolver {
   }
 
   /**
-   * URL constructor polyfill hook. Creates and returns an URL instance.
+   * URL constructor polyfill hook. Creates and returns a URL instance.
    */
-  static __createUrl(...args) {
+  static __createUrl(...args: ConstructorParameters<typeof URL>): InstanceType<typeof URL> {
     return new URL(...args);
   }
 
   /**
    * If the baseUrl property is set, transforms the baseUrl and returns the full
    * actual `base` string for using in the `new URL(path, base);` and for
-   * prepernding the paths with. The returned base ends with a trailing slash.
+   * prepending the paths with. The returned base ends with a trailing slash.
    *
    * Otherwise, returns empty string.
    */
-  get __effectiveBaseUrl() {
+  get __effectiveBaseUrl(): string {
     return this.baseUrl
-      ? this.constructor.__createUrl(
+      ? (this.constructor as typeof Resolver).__createUrl(
         this.baseUrl,
         document.baseURI || document.URL
       ).href.replace(/[^/]*$/, '')
@@ -249,7 +260,7 @@ class Resolver {
    *
    * If the `baseUrl` is not set, returns the unmodified pathname argument.
    */
-  __normalizePathname(pathname) {
+  __normalizePathname(pathname: string): string {
     if (!this.baseUrl) {
       // No base URL, no need to transform the pathname.
       return pathname;
@@ -258,9 +269,9 @@ class Resolver {
     const base = this.__effectiveBaseUrl;
     // Convert pathname to a valid URL constructor argument
     const url = pathname[0] === '/'
-      ? this.constructor.__createUrl(base).origin + pathname
+      ? (this.constructor as typeof Resolver).__createUrl(base).origin + pathname
       : './' + pathname;
-    const normalizedUrl = this.constructor.__createUrl(url, base).href;
+    const normalizedUrl = (this.constructor as typeof Resolver).__createUrl(url, base).href;
     if (normalizedUrl.slice(0, base.length) === base) {
       return normalizedUrl.slice(base.length);
     }

@@ -1,13 +1,18 @@
-export function toArray(objectOrArray) {
+import {ActionResult, Context, Route} from "./types/route";
+import * as assert from "assert";
+import Resolver from "./resolver/resolver";
+import {NotFoundResult} from "../dist/vaadin-router";
+
+export function toArray<T>(objectOrArray: T | T[]): T[] {
   objectOrArray = objectOrArray || [];
   return Array.isArray(objectOrArray) ? objectOrArray : [objectOrArray];
 }
 
-export function log(msg) {
+export function log(msg: string): string {
   return `[Vaadin.Router] ${msg}`;
 }
 
-export function logValue(value) {
+export function logValue(value: unknown): string {
   if (typeof value !== 'object') {
     return String(value);
   }
@@ -20,7 +25,7 @@ export function logValue(value) {
   }
 }
 
-export function ensureRoute(route) {
+export function ensureRoute(route: unknown): asserts route is Route {
   if (!route || !isString(route.path)) {
     throw new Error(
       log(`Expected route config to be an object with a "path" string property, or an array of such objects`)
@@ -32,7 +37,7 @@ export function ensureRoute(route) {
     !isFunction(route.action) &&
     !Array.isArray(route.children) &&
     !isFunction(route.children) &&
-    !stringKeys.some(key => isString(route[key]))
+    !stringKeys.some(key => isString(route![key]))
   ) {
     throw new Error(
       log(
@@ -56,35 +61,69 @@ export function ensureRoute(route) {
   }
 }
 
-export function ensureRoutes(routes) {
+export function ensureRoutes(routes: unknown): asserts routes is Route | Route[] {
   toArray(routes).forEach(route => ensureRoute(route));
 }
 
-export function fireRouterEvent(type, detail) {
+export function fireRouterEvent(type: string, detail?: unknown) {
   return !window.dispatchEvent(new CustomEvent(
     `vaadin-router-${type}`,
     {cancelable: type === 'go', detail}
   ));
 }
 
-export function isObject(o) {
+export function isObject(o: any): o is object {
   // guard against null passing the typeof check
   return typeof o === 'object' && !!o;
 }
 
-export function isFunction(f) {
+export function isFunction(f: any): f is InstanceType<typeof Function> {
   return typeof f === 'function';
 }
 
-export function isString(s) {
+export function isString(s: any): s is string {
   return typeof s === 'string';
 }
 
-export function getNotFoundError(context) {
-  const error = new Error(log(`Page not found (${context.pathname})`));
-  error.context = context;
-  error.code = 404;
-  return error;
+export class NotFoundError extends Error {
+  public readonly code = 404;
+
+  constructor(public readonly context: Context) {
+    super(log(`Page not found (${context.pathname})`));
+  }
+}
+
+export function getNotFoundError(context: Context) {
+  return new NotFoundError(context);
 }
 
 export const notFoundResult = new (class NotFoundResult {})();
+
+export type ChainItem = {
+  path: string,
+  route: Route,
+  element?: Element,
+};
+
+export type ResolveResult =
+  InternalContext
+  | Readonly<{ result: ActionResult | typeof notFoundResult }>
+  | ActionResult
+  | typeof notFoundResult;
+
+export type InternalContextNextFn =
+  (resume?: boolean, parent?: Route, prevResult?: ResolveResult | null) => Promise<InternalContext>;
+
+export type InternalContext = Omit<Context, 'next'> & {
+  next: InternalContextNextFn;
+  resolver: Resolver,
+  chain?: ChainItem[],
+  result?: ActionResult | Error,
+  __renderId?: number,
+  __skipAttach?: boolean,
+  __divergedChainIndex?: number,
+};
+
+export type ContextWithChain = InternalContext & {
+  chain: ChainItem[],
+};

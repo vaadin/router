@@ -11,7 +11,7 @@ import {parse, tokensToFunction} from 'path-to-regexp';
 import Resolver from './resolver.js';
 import {isString} from '../utils.js';
 import {Route} from "../types/route";
-import {IndexedParams, Params} from "../types/params";
+import {Params} from "../types/params";
 
 function cacheRoutes(routesByName: Map<string, Route>, route: Route, routes?: ReadonlyArray<Route>): void {
   const name = route.name || route.component;
@@ -57,7 +57,7 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
   const cache: Map<string, Route> = new Map();
   const routesByName: Map<string, Route> = new Map();
 
-  return (routeName: string, params: Params) => {
+  return (routeName: string, params?: Params) => {
     let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache

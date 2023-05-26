@@ -1,18 +1,19 @@
 import {fireRouterEvent, isFunction} from '../utils.js';
+import {NavigationTrigger} from "./setNavigationTriggers";
 
 // PopStateEvent constructor shim
 const isIE = /Trident/.test(navigator.userAgent);
 
 /* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
-if (isIE && !isFunction(window.PopStateEvent)) {
-  window.PopStateEvent = function(inType, params) {
+if (isIE && !isFunction(window['PopStateEvent'])) {
+  window['PopStateEvent'] = function(inType: string, params?: PopStateEventInit) {
     params = params || {};
-    var e = document.createEvent('Event');
+    const e = document.createEvent('Event');
     e.initEvent(inType, Boolean(params.bubbles), Boolean(params.cancelable));
-    e.state = params.state || null;
+    e['state'] = params.state || null;
     return e;
-  };
-  window.PopStateEvent.prototype = window.Event.prototype;
+  } as typeof PopStateEvent;
+  window['PopStateEvent'].prototype = window['Event'].prototype;
 }
 
 function vaadinRouterGlobalPopstateHandler(event) {
@@ -26,11 +27,8 @@ function vaadinRouterGlobalPopstateHandler(event) {
 /**
  * A navigation trigger for Vaadin Router that translates popstate events into
  * Vaadin Router navigation events.
- *
- * @memberOf Router.NavigationTrigger
- * @type {NavigationTrigger}
  */
-const POPSTATE = {
+const POPSTATE: NavigationTrigger = {
   activate() {
     window.addEventListener('popstate', vaadinRouterGlobalPopstateHandler);
   },

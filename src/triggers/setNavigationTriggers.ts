@@ -1,3 +1,6 @@
+import CLICK from "./click";
+import POPSTATE from "./popstate";
+
 export type NavigationTrigger = Readonly<{
   activate(): void;
   inactivate(): void;
@@ -5,7 +8,7 @@ export type NavigationTrigger = Readonly<{
 
 let triggers: ReadonlyArray<NavigationTrigger> = [];
 
-export default function setNavigationTriggers(newTriggers) {
+export default function setNavigationTriggers(newTriggers: ReadonlyArray<NavigationTrigger>): void {
   triggers.forEach(trigger => trigger.inactivate());
   newTriggers.forEach(trigger => trigger.activate());
   triggers = newTriggers;

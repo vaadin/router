@@ -71,6 +71,7 @@ export type EmptyCommands = {};
  *
  */
 export interface WebComponentInterface {
+  location?: RouterLocation;
 }
 
 export interface BeforeEnterObserver extends WebComponentInterface {
