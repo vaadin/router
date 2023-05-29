@@ -1,7 +1,5 @@
 import {ActionResult, Context, Route} from "./types/route";
-import * as assert from "assert";
 import Resolver from "./resolver/resolver";
-import {NotFoundResult} from "../dist/vaadin-router";
 
 export function toArray<T>(objectOrArray: T | T[]): T[] {
   objectOrArray = objectOrArray || [];
@@ -119,6 +117,7 @@ export type InternalContext = Omit<Context, 'next'> & {
   resolver: Resolver,
   chain?: ChainItem[],
   result?: ActionResult | Error,
+  __redirectCount?: number,
   __renderId?: number,
   __skipAttach?: boolean,
   __divergedChainIndex?: number,
