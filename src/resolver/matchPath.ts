@@ -8,7 +8,7 @@
  */
 
 import {pathToRegexp, type Key} from 'path-to-regexp';
-import {Params} from "../types/params";
+import type {Params} from "../types/params";
 
 type Matcher = Readonly<{
   keys: ReadonlyArray<Key>,

@@ -24,8 +24,6 @@ import type {
 export * from "../router.js"
 
 import {type RouterOptions} from "../router.js";
-import CLICK from "../triggers/click";
-import POPSTATE from "../triggers/popstate";
 
 declare module "../router.js" {
   export namespace Router {
@@ -103,13 +101,5 @@ declare module "../router.js" {
      * @deprecated use `NavigationTrigger` instead of `Router.NavigationTrigger`
      */
     export type NavigationTrigger = _NavigationTrigger;
-
-    /**
-     * @deprecated use `NavigationTrigger` instead of `Router.NavigationTrigger`
-     */
-    export namespace NavigationTrigger {
-      const CLICK: _NavigationTrigger;
-      const POPSTATE: _NavigationTrigger;
-    }
   }
 }

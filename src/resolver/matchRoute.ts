@@ -8,9 +8,9 @@
  */
 
 import matchPath from './matchPath.js';
-import {Route} from "../types/route";
-import {Key} from "path-to-regexp";
-import {Params} from "../types/params";
+import type {Route} from "../types/route";
+import type {Key} from "path-to-regexp";
+import type {Params} from "../types/params";
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from

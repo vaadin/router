@@ -1,9 +1,10 @@
-import {RouterLocation} from "../documentation/location";
-import {
+import type {RouterLocation} from "../documentation/location.js";
+import type {
   Commands,
-  PreventResult, RedirectResult
+  PreventResult,
+  RedirectResult
 } from "./route";
-import {Router} from "../router";
+import type {Router} from "../router";
 
 export type PreventAndRedirectCommands = Pick<Commands, 'prevent' | 'redirect'>;
 export type PreventCommands = Pick<Commands, 'prevent'>;

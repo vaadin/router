@@ -12,8 +12,8 @@
  *  - as the `event.detail.location` of the global Vaadin Router events
  *
  */
-import {Route} from "../types/route";
-import {IndexedParams, Params} from "../types/params";
+import type {Route} from "../types/route.js";
+import type {IndexedParams, Params} from "../types/params.js";
 
 export type RouterLocation = Readonly<{
   /**

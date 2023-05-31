@@ -10,8 +10,8 @@
 import {parse, tokensToFunction} from 'path-to-regexp';
 import Resolver from './resolver.js';
 import {isString} from '../utils.js';
-import {Route} from "../types/route";
-import {Params} from "../types/params";
+import type {Route} from "../types/route";
+import type {Params} from "../types/params";
 
 function cacheRoutes(routesByName: Map<string, Route>, route: Route, routes?: ReadonlyArray<Route>): void {
   const name = route.name || route.component;

@@ -1,5 +1,5 @@
 import {fireRouterEvent, isFunction} from '../utils.js';
-import {NavigationTrigger} from "./setNavigationTriggers";
+import type {NavigationTrigger} from "./setNavigationTriggers";
 
 // PopStateEvent constructor shim
 const isIE = /Trident/.test(navigator.userAgent);

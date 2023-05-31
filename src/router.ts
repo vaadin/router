@@ -2,7 +2,7 @@ import {compile} from 'path-to-regexp';
 import Resolver from './resolver/resolver.js';
 import generateUrls from './resolver/generateUrls.js';
 import setNavigationTriggers, {
-  NavigationTrigger
+  type NavigationTrigger
 } from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
 import {
@@ -41,6 +41,15 @@ import CLICK from "./triggers/click.js";
 import POPSTATE from "./triggers/popstate.js";
 
 const MAX_REDIRECT_COUNT = 256;
+
+export const NavigationTrigger = {
+  get CLICK() {
+    return CLICK;
+  },
+  get POPSTATE() {
+    return POPSTATE;
+  }
+};
 
 function isResultNotEmpty(result?: ActionResult | undefined | null): boolean {
   return result !== null && result !== undefined;
@@ -1093,5 +1102,12 @@ export class Router extends Resolver {
         parent.removeChild(nodes[i]);
       }
     }
+  }
+
+  /**
+   * @deprecated use `NavigationTrigger` instead of `Router.NavigationTrigger`.
+   */
+  static get NavigationTrigger() {
+    return NavigationTrigger;
   }
 }

@@ -1,6 +1,3 @@
-import CLICK from "./click";
-import POPSTATE from "./popstate";
-
 export type NavigationTrigger = Readonly<{
   activate(): void;
   inactivate(): void;

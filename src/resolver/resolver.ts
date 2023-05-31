@@ -10,16 +10,17 @@
 import matchRoute from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
 import {
-  ContextWithChain,
+  type ContextWithChain,
   ensureRoutes,
   getNotFoundError,
   type InternalContext,
   type InternalContextNextFn,
   isString,
-  notFoundResult, ResolveResult,
+  notFoundResult,
+  type ResolveResult,
   toArray
 } from '../utils.js';
-import {ActionResult, Context, Route} from "../types/route";
+import type {ActionResult, Context, Route} from "../types/route.js";
 
 function isChildRoute(parentRoute: Route, childRoute: Route) {
   let route = childRoute;

@@ -1,5 +1,5 @@
-import {ActionResult, Context, Route} from "./types/route";
-import Resolver from "./resolver/resolver";
+import type {ActionResult, Context, Route} from "./types/route.js";
+import type Resolver from "./resolver/resolver.js";
 
 export function toArray<T>(objectOrArray: T | T[]): T[] {
   objectOrArray = objectOrArray || [];
