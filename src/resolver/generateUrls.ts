@@ -81,7 +81,7 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
         rt = rt.parent;
       }
       const tokens = parse(fullPath);
-      const keys = Object.create(null as object);
+      const keys = Object.create(null as unknown);
       for (let i = 0; i < tokens.length; i++) {
         if (!isString(tokens[i])) {
           keys[tokens[i].name] = true;
