@@ -60,7 +60,7 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
     throw new TypeError('An instance of Resolver is expected');
   }
 
-  const cache: Map<string, RouteParamsCacheRecord> = new Map();
+  const cache: Map<string, RouteCacheRecord> = new Map();
   const routesByName: Map<string, Route[]> = new Map();
 
   return (routeName: string, params?: Params) => {
@@ -75,7 +75,7 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
       }
     }
 
-    let cached: RouteParamsCacheRecord | undefined = undefined;
+    let cached: RouteCacheRecord | undefined = undefined;
     if ('fullPath' in route) {
       cached = cache.get((route as RouteWithFullPath).fullPath);
     } 
