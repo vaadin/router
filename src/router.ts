@@ -1,9 +1,7 @@
 import {compile} from 'path-to-regexp';
 import Resolver from './resolver/resolver.js';
 import generateUrls from './resolver/generateUrls.js';
-import setNavigationTriggers, {
-  type NavigationTrigger
-} from './triggers/setNavigationTriggers.js';
+import setNavigationTriggers, * as setNavigationTriggersModule from './triggers/setNavigationTriggers.js';
 import animate from './transitions/animate.js';
 import {
   ensureRoute,
@@ -18,13 +16,17 @@ import {
   notFoundResult,
   type ContextWithChain,
   type ChainItem,
-  type InternalContext, ResolveResult
+  type InternalContext, type ResolveResult
 } from './utils.js';
-import {RouterLocation} from "./documentation/location.js";
+import type {RouterLocation} from "./documentation/location.js";
 import type {
   ActionResult,
+  ChildrenFn,
+  Commands,
   ComponentResult,
   Context,
+  InternalRoute,
+  NotFoundResult,
   PreventResult,
   RedirectResult,
   Route
@@ -37,31 +39,24 @@ import type {
   BeforeEnterObserver,
   BeforeLeaveObserver, PreventCommands, PreventAndRedirectCommands
 } from "./types/observers.js";
-import CLICK from "./triggers/click.js";
-import POPSTATE from "./triggers/popstate.js";
+import POPSTATE from './triggers/popstate.js';
+import CLICK from './triggers/click.js';
+import { NavigationTrigger } from './triggers/NavigationTrigger.js';
+export {NavigationTrigger} from './triggers/NavigationTrigger.js';
 
 const MAX_REDIRECT_COUNT = 256;
 
-export const NavigationTrigger = {
-  get CLICK() {
-    return CLICK;
-  },
-  get POPSTATE() {
-    return POPSTATE;
-  }
-};
-
-function isResultNotEmpty(result?: ActionResult | undefined | null): boolean {
+function isResultNotEmpty(result?: unknown | undefined | null): boolean {
   return result !== null && result !== undefined;
 }
 
 function copyContextWithoutNext(context: Context): Omit<Context, 'next'> {
-  const copy = Object.assign({}, context);
-  delete copy['next'];
+  const copy: Omit<Context, 'next'> = Object.assign({}, context);
+  delete (copy as typeof copy & {next?: Context['next']}).next;
   return copy;
 }
 
-function createLocation(context: Partial<ContextWithChain>, route?: Route): RouterLocation {
+function createLocation(context: Partial<ContextWithChain>, route?: InternalRoute): RouterLocation {
   const {
     pathname = '',
     search = '',
@@ -70,7 +65,7 @@ function createLocation(context: Partial<ContextWithChain>, route?: Route): Rout
     params = {} as Params,
     resolver
   } = context;
-  const routes: Route[] = chain.map(item => item.route);
+  const routes: InternalRoute[] = chain.map(item => item.route);
   const baseUrl = resolver ? resolver.baseUrl : '';
   return {
     baseUrl,
@@ -83,7 +78,7 @@ function createLocation(context: Partial<ContextWithChain>, route?: Route): Rout
     searchParams: new URLSearchParams(search),
     getUrl: (userParams: Params) => {
       const pathname: string = compile(
-        getMatchedPath(routes)
+        getMatchedPath(chain)
       )(Object.assign({}, params, userParams));
       return resolver ? getPathnameForRouter(pathname, resolver) : pathname;
     },
@@ -118,26 +113,34 @@ function renderElement(context: ContextWithChain, element: Element): Element {
   return element;
 }
 
-function runCallbackIfPossible(callback: unknown, args: Parameters<typeof callback>, thisArg: ThisParameterType<typeof callback>): ReturnType<typeof callback> | void {
+function runCallbackIfPossible<TFunction extends (...args: unknown[]) => unknown>(
+  callback?: TFunction | unknown, args?: Parameters<TFunction>, thisArg?: ThisParameterType<TFunction>): ReturnType<TFunction> | void {
   if (isFunction(callback)) {
     return callback.apply(thisArg, args);
   }
 }
 
-function amend(amendmentFunction: string, args: unknown[], element?: Element) {
+function amend<
+  TFunction extends (this: TElement, ...args: unknown[]) => unknown,
+  TMethodName extends (string & keyof TElement),
+  TElement extends Element & WebComponentInterface & { [key in TMethodName]?: TFunction },
+  >( amendmentFunction: TMethodName,
+  args: Parameters<TFunction>,
+  element?: TElement
+) {
   return (amendmentResult: ResultMarker) => {
-    if (amendmentResult && ('cancel' in amendmentResult) || ('redirect' in amendmentResult)) {
+    if (amendmentResult && (('cancel' in amendmentResult) || ('redirect' in amendmentResult))) {
       return amendmentResult;
     }
 
     if (element) {
-      const callback = element[amendmentFunction];
-      return runCallbackIfPossible(callback, args, element);
+      const callback = element[amendmentFunction] as TFunction | undefined;
+      return runCallbackIfPossible(callback, args, element as ThisParameterType<TFunction>);
     }
   };
 }
 
-function processNewChildren(newChildren: Route | Route[], route: Route): void {
+function processNewChildren(newChildren: Route | Route[], route: InternalRoute): void {
   if (!Array.isArray(newChildren) && !isObject(newChildren)) {
     throw new Error(
       log(
@@ -228,7 +231,7 @@ type RedirectContextInfo = LocationInfo & Readonly<{
  *    'popstate' and / or 'click' events.
  */
 export class Router extends Resolver {
-  public readonly resolveRoute = this.__resolveRoute.bind(this);
+  public override readonly resolveRoute = this.__resolveRoute.bind(this);
 
   /**
    * The base URL for all routes in the router instance. By default,
@@ -237,7 +240,7 @@ export class Router extends Resolver {
    * `document.URL`.
    *
    */
-  public baseUrl: string;
+  declare public baseUrl: string;
 
   /**
    * Contains read-only information about the current router location:
@@ -307,29 +310,29 @@ export class Router extends Resolver {
 
     if (isFunction(route.children)) {
       callbacks = callbacks
-        .then(() => route.children(copyContextWithoutNext(context)))
+        .then(() => (route.children as ChildrenFn)(copyContextWithoutNext(context)))
         .then(children => {
           // The route.children() callback might have re-written the
           // route.children property instead of returning a value
           if (!isResultNotEmpty(children) && !isFunction(route.children)) {
-            children = route.children;
+            children = route.children!;
           }
           processNewChildren(children, route);
         });
     }
 
-    const commands = {
-      redirect: path => createRedirect(context, path) as RedirectResult,
-      component: (component) => {
+    const commands: Pick<Commands, 'component' | 'redirect'> = {
+      redirect: (path: string) => ((createRedirect(context, path) as unknown) as RedirectResult),
+      component: (component: string) => {
         const element = document.createElement(component);
         this.__createdByRouter.set(element, true);
-        return element as ComponentResult;
+        return (element as unknown) as ComponentResult;
       }
     };
 
     return callbacks
       .then(() => {
-        if (this.__isLatestRender(context as Partial<InternalContext>)) {
+        if (this.__isLatestRender(context as unknown as Partial<InternalContext>)) {
           return runCallbackIfPossible(route.action, [context, commands], route);
         }
       })
@@ -339,15 +342,15 @@ export class Router extends Resolver {
           // end the resolution, despite the result is not empty. Checking
           // the result with a whitelist of values that end the resolution.
           if (result instanceof HTMLElement) {
-            return result as ComponentResult;
+            return result as unknown as ComponentResult;
           }
 
-          if ('redirect' in result) {
-            return result as RedirectResult;
+          if ('redirect' in (result as object)) {
+            return result as unknown as RedirectResult;
           }
 
           if (result === notFoundResult) {
-            return result;
+            return result as NotFoundResult;
           }
         }
 
@@ -360,7 +363,7 @@ export class Router extends Resolver {
           return result;
         }
         if (isString(route.component)) {
-          return commands.component(route.component) as HTMLElement;
+          return commands.component(route.component) as unknown as HTMLElement;
         }
       });
   }
@@ -468,7 +471,7 @@ export class Router extends Resolver {
    * @param skipRender configure the router but skip rendering the
    *     route corresponding to the current `window.location` values
    */
-  setRoutes(routes: Route | Route[], skipRender = false): Promise<RouterLocation> {
+  override setRoutes(routes: Route | Route[], skipRender = false): Promise<RouterLocation> {
     this.__previousContext = undefined;
     this.__urlForName = undefined;
     super.setRoutes(routes);
@@ -620,7 +623,7 @@ export class Router extends Resolver {
         const isFound = (matchedPath === contextAfterRedirects.pathname);
 
         // Recursive method to try matching more child and sibling routes
-        const findNextContextIfAny = (context: InternalContext, parent = context.route, prevResult?: ResolveResult) => {
+        const findNextContextIfAny = (context: InternalContext, parent: InternalRoute = context.route, prevResult?: ResolveResult): Promise<InternalContext> => {
           return context.next(false, parent, prevResult).then(nextContext => {
             if (nextContext === null || nextContext === notFoundResult) {
               // Next context is not found in children, ...
@@ -641,7 +644,7 @@ export class Router extends Resolver {
 
         return findNextContextIfAny(contextAfterRedirects).then(nextContext => {
           if (nextContext === null || nextContext === notFoundResult) {
-            throw getNotFoundError(topOfTheChainContextAfterRedirects as Context);
+            throw getNotFoundError(topOfTheChainContextAfterRedirects as unknown as Context);
           }
 
           return nextContext
@@ -658,8 +661,8 @@ export class Router extends Resolver {
     if (result instanceof HTMLElement) {
       renderElement(context as ContextWithChain, result);
       return Promise.resolve(context as ContextWithChain);
-    } else if ('redirect' in result) {
-      return this.__redirect((result as RedirectMarker).redirect, context.__redirectCount, context.__renderId)
+    } else if ('redirect' in (result as object)) {
+      return this.__redirect((result as unknown as RedirectMarker).redirect, context.__redirectCount, context.__renderId)
         .then(context => this.__findComponentContextAfterAllRedirects(context as InternalContext));
     } else if (result instanceof Error) {
       return Promise.reject(result);
@@ -684,14 +687,14 @@ export class Router extends Resolver {
     });
   }
 
-  __runOnBeforeCallbacks(newContext: ContextWithChain): Promise<InternalContext & RedirectContextInfo> | Promise<ContextWithChain> {
+  __runOnBeforeCallbacks(newContext: ContextWithChain): Promise<InternalContext> {
     const previousContext = (this.__previousContext || {}) as Partial<ContextWithChain>;
     const previousChain = previousContext.chain || [];
     const newChain = newContext.chain;
 
     let callbacks: Promise<ResultMarker> = Promise.resolve();
-    const prevent = () => ({cancel: true} as PreventResult);
-    const redirect = (pathname) => (createRedirect(newContext, pathname) as RedirectResult);
+    const prevent = () => ({ cancel: true } as unknown as PreventResult);
+    const redirect = (pathname: string) => (createRedirect(newContext, pathname) as unknown as RedirectResult);
 
     newContext.__divergedChainIndex = 0;
     newContext.__skipAttach = false;
@@ -754,7 +757,7 @@ export class Router extends Resolver {
       if (amendmentResult) {
         if (('cancel' in amendmentResult) && this.__previousContext) {
           this.__previousContext.__renderId = newContext.__renderId;
-          return Promise.resolve(this.__previousContext);
+          return Promise.resolve(this.__previousContext as InternalContext);
         }
         if ('redirect' in amendmentResult) {
           return this.__redirect(amendmentResult.redirect, newContext.__redirectCount, newContext.__renderId);
@@ -769,14 +772,16 @@ export class Router extends Resolver {
     return callbacks
       .then((result: ResultMarker) => {
         if (this.__isLatestRender(newContext)) {
-          const afterLeaveFunction = amend('onBeforeLeave', [location, commands, this], chainElement.element as Element & Partial<BeforeLeaveObserver>);
-          return Promise.resolve(afterLeaveFunction(result));
+          const beforeLeaveFunction = amend('onBeforeLeave', [location, commands, this], chainElement.element as Element & Partial<BeforeLeaveObserver>);
+          return Promise.resolve(beforeLeaveFunction(result) as ResolveResult | void);
         }
-      }).then((result: ResultMarker) => {
-      if (!('redirect' in (result || {}))) {
-        return Promise.resolve(result);
-      }
-    });
+      }).then((result: unknown) => {
+        if (result && !('redirect' in (result as object))) {
+          return Promise.resolve(result as ResultMarker);
+        }  else {
+          return Promise.resolve();
+        }
+      });
   }
 
   __runOnBeforeEnterCallbacks(callbacks: Promise<ResultMarker>, newContext: ContextWithChain, commands: PreventAndRedirectCommands, chainElement: ChainItem): Promise<ResultMarker> {
@@ -784,7 +789,7 @@ export class Router extends Resolver {
     return callbacks.then(result => {
       if (this.__isLatestRender(newContext)) {
         const beforeEnterFunction = amend('onBeforeEnter', [location, commands, this], chainElement.element as Element & Partial<BeforeEnterObserver>);
-        return Promise.resolve(beforeEnterFunction(result));
+        return Promise.resolve(beforeEnterFunction(result) as ResultMarker);
       }
     });
   }
@@ -802,7 +807,7 @@ export class Router extends Resolver {
     return context.__renderId === this.__lastStartedRenderId;
   }
 
-  __redirect(redirectData: RedirectContextInfo, counter?: number, renderId?: number): Promise<InternalContext & RedirectContextInfo> {
+  __redirect(redirectData: RedirectContextInfo, counter: number = 0, renderId: number = 0): Promise<InternalContext & RedirectContextInfo> {
     if (counter > MAX_REDIRECT_COUNT) {
       throw new Error(log(`Too many redirects when rendering ${redirectData.from}`));
     }
@@ -813,7 +818,7 @@ export class Router extends Resolver {
         redirectData.params
       ),
       redirectFrom: redirectData.from,
-      __redirectCount: (counter || 0) + 1,
+      __redirectCount: counter + 1,
       __renderId: renderId
     } as RedirectContextInfo);
   }
@@ -998,8 +1003,8 @@ export class Router extends Resolver {
     window.removeEventListener('vaadin-router-go', this.__navigationEventHandler);
   }
 
-  __onNavigationEvent(event?: CustomEvent<{ pathname: string, search: string, hash: string }>): void {
-    const {pathname, search, hash} = event ? event.detail : window.location;
+  __onNavigationEvent(event?: Event): void {
+    const { pathname, search, hash } = event instanceof CustomEvent ? (event.detail as LocationInfo) : window.location;
     if (isString(this.__normalizePathname(pathname))) {
       if (event && event.preventDefault) {
         event.preventDefault();
@@ -1099,7 +1104,7 @@ export class Router extends Resolver {
       const childrenCount = nodes.length - 1;
 
       for (let i = childrenCount; i >= 0; i--) {
-        parent.removeChild(nodes[i]);
+        parent && parent.removeChild(nodes[i]);
       }
     }
   }

@@ -7,17 +7,17 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import {parse, tokensToFunction} from 'path-to-regexp';
+import {parse, tokensToFunction, type Token, type Key} from 'path-to-regexp';
 import Resolver from './resolver.js';
 import {isString} from '../utils.js';
-import type {Route} from "../types/route";
+import type {ChildrenFn, InternalRoute, Route} from "../types/route";
 import type {Params} from "../types/params";
 
-function cacheRoutes(routesByName: Map<string, Route>, route: Route, routes?: ReadonlyArray<Route>): void {
+function cacheRoutes(routesByName: Map<string, InternalRoute[]>, route: InternalRoute, routes?: ReadonlyArray<Route> | ChildrenFn): void {
   const name = route.name || route.component;
   if (name) {
     if (routesByName.has(name)) {
-      routesByName.get(name).push(route);
+      routesByName.get(name)!.push(route);
     } else {
       routesByName.set(name, [route]);
     }
@@ -25,14 +25,14 @@ function cacheRoutes(routesByName: Map<string, Route>, route: Route, routes?: Re
 
   if (Array.isArray(routes)) {
     for (let i = 0; i < routes.length; i++) {
-      const childRoute = routes[i];
+      const childRoute = routes[i] as InternalRoute;
       childRoute.parent = route;
       cacheRoutes(routesByName, childRoute, childRoute.__children || childRoute.children);
     }
   }
 }
 
-function getRouteByName(routesByName: Map<string, Route>, routeName: string): Route {
+function getRouteByName(routesByName: Map<string, Route[]>, routeName: string): InternalRoute | undefined {
   const routes = routesByName.get(routeName);
   if (routes && routes.length > 1) {
     throw new Error(
@@ -43,19 +43,25 @@ function getRouteByName(routesByName: Map<string, Route>, routeName: string): Ro
   return routes && routes[0];
 }
 
-function getRoutePath(route: Route) {
+function getRoutePath(route: InternalRoute) {
   let path = route.path;
   path = Array.isArray(path) ? path[0] : path;
   return path !== undefined ? path : '';
 }
+
+type RouteWithFullPath = Route & {fullPath: string};
+type RouteCacheRecord = Readonly<{
+  tokens: Token[],
+  keys: Record<string, true>;
+}>;
 
 function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params: Params) => string} = {}) {
   if (!(router instanceof Resolver)) {
     throw new TypeError('An instance of Resolver is expected');
   }
 
-  const cache: Map<string, Route> = new Map();
-  const routesByName: Map<string, Route> = new Map();
+  const cache: Map<string, RouteParamsCacheRecord> = new Map();
+  const routesByName: Map<string, Route[]> = new Map();
 
   return (routeName: string, params?: Params) => {
     let route = getRouteByName(routesByName, routeName);
@@ -69,7 +75,10 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
       }
     }
 
-    let cached = cache.get(route.fullPath);
+    let cached: RouteParamsCacheRecord | undefined = undefined;
+    if ('fullPath' in route) {
+      cached = cache.get((route as RouteWithFullPath).fullPath);
+    } 
     if (!cached) {
       let fullPath = getRoutePath(route);
       let rt = route.parent;
@@ -80,19 +89,19 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
         }
         rt = rt.parent;
       }
-      const tokens = parse(fullPath);
-      const keys = Object.create(null as unknown);
+      const tokens: Token[] = parse(fullPath);
+      const keys = Object.create(null as object | null);
       for (let i = 0; i < tokens.length; i++) {
         if (!isString(tokens[i])) {
-          keys[tokens[i].name] = true;
+          keys[(tokens[i] as Key).name] = true;
         }
       }
       cached = {tokens, keys};
       cache.set(fullPath, cached);
-      route.fullPath = fullPath;
+      (route as RouteWithFullPath).fullPath = fullPath;
     }
 
-    const toPath = tokensToFunction(cached.tokens, options);
+    const toPath = tokensToFunction(cached.tokens, {});
     let url = toPath(params) || '/';
 
     if (options.stringifyQueryParams && params) {
@@ -101,7 +110,8 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
       for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         if (!cached.keys[key]) {
-          queryParams[key] = params[key];
+          type ParamRecord = Record<string, string | string[]>;
+          (queryParams as ParamRecord)[key] = (params as ParamRecord)[key];
         }
       }
       const query = options.stringifyQueryParams(queryParams);

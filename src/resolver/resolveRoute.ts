@@ -12,7 +12,7 @@ import type {Context} from "../types/route";
 
 function resolveRoute(context: Context): ResolveResult | Promise<ResolveResult> {
   if (isFunction(context.route.action)) {
-    return context.route.action(context);
+    return (context.route.action as ((context: Context) => ResolveResult | Promise<ResolveResult>))(context);
   }
   return undefined;
 }

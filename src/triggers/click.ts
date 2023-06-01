@@ -1,5 +1,5 @@
 import {fireRouterEvent} from '../utils.js';
-import type {NavigationTrigger} from "./setNavigationTriggers";
+import type { NavigationTrigger } from './NavigationTrigger.js';
 
 /* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
 function getAnchorOrigin(anchor: HTMLAnchorElement): string {

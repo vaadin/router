@@ -7,22 +7,23 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import matchRoute from './matchRoute.js';
+import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import resolveRoute from './resolveRoute.js';
 import {
   type ContextWithChain,
   ensureRoutes,
   getNotFoundError,
   type InternalContext,
-  type InternalContextNextFn,
   isString,
   notFoundResult,
   type ResolveResult,
   toArray
 } from '../utils.js';
-import type {ActionResult, Context, Route} from "../types/route.js";
+import type {ActionResult, Context, InternalRoute, Route} from "../types/route.js";
+import type { InternalContextNextFn } from '../utils.js';
+import type { Match } from './matchPath.js';
 
-function isChildRoute(parentRoute: Route, childRoute: Route) {
+function isChildRoute(parentRoute: Route | InternalRoute, childRoute?: InternalRoute) {
   let route = childRoute;
   while (route) {
     route = route.parent;
@@ -33,7 +34,7 @@ function isChildRoute(parentRoute: Route, childRoute: Route) {
   return false;
 }
 
-function generateErrorMessage(currentContext: Context): string {
+function generateErrorMessage(currentContext: InternalContext): string {
   let errorMessage = `Path '${currentContext.pathname}' is not properly resolved due to an error.`;
   const routePath = (currentContext.route || {}).path;
   if (routePath) {
@@ -42,7 +43,7 @@ function generateErrorMessage(currentContext: Context): string {
   return errorMessage;
 }
 
-function updateChainForRoute(context: InternalContext, match: {route: Route, path: string}): asserts context is ContextWithChain {
+function updateChainForRoute(context: InternalContext, match: {route: InternalRoute, path: string}): asserts context is ContextWithChain {
   const {route, path} = match;
 
   if (route && !route.__synthetic) {
@@ -78,9 +79,9 @@ class Resolver {
   errorHandler?: ErrorHandlerFn;
   resolveRoute: typeof resolveRoute;
   context: InternalContext;
-  root: Route;
+  root: InternalRoute;
 
-  constructor(routes, options: ResolverOptions = {}) {
+  constructor(routes: Route | Route[], options: ResolverOptions = {}) {
     if (Object(routes) !== routes) {
       throw new TypeError('Invalid routes');
     }
@@ -88,6 +89,8 @@ class Resolver {
     this.baseUrl = options.baseUrl || '';
     this.errorHandler = options.errorHandler;
     this.resolveRoute = options.resolveRoute || resolveRoute;
+    this.root = Array.isArray(routes) ? {path: '', __children: routes, parent: undefined, __synthetic: true} : routes;
+    this.root.parent = undefined;
     this.context = Object.assign({
       resolver: this,
       pathname: '',
@@ -95,10 +98,8 @@ class Resolver {
       hash: '',
       params: {},
       route: this.root,
-      next: () => Promise.resolve(notFoundResult),
-    }, options.context || {});
-    this.root = Array.isArray(routes) ? {path: '', __children: routes, parent: null, __synthetic: true} : routes;
-    this.root.parent = null;
+      next: (() => Promise.resolve(notFoundResult)) as InternalContextNextFn,
+    }, (options.context || {}) as Partial<InternalContext>);
   }
 
   /**
@@ -107,7 +108,7 @@ class Resolver {
    * but modifying the route objects does.
    */
   getRoutes(): Route[] {
-    return [...this.root.__children];
+    return [...(this.root.__children || [])];
   }
 
   /**
@@ -130,7 +131,7 @@ class Resolver {
    */
   protected addRoutes(routes: Route | ReadonlyArray<Route>): ReadonlyArray<Route> {
     ensureRoutes(routes);
-    this.root.__children.push(...toArray(routes));
+    this.root.__children?.push(...toArray(routes));
     return this.getRoutes();
   }
 
@@ -166,16 +167,20 @@ class Resolver {
     );
     const match = matchRoute(
       this.root,
-      this.__normalizePathname(context.pathname),
+      this.__normalizePathname(context.pathname) || context.pathname,
       !!this.baseUrl
     );
     const resolve = this.resolveRoute;
-    let matches = null;
-    let nextMatches = null;
+    let matches: IteratorResult<MatchWithRoute> | null = null;
+    let nextMatches: IteratorResult<MatchWithRoute> | null = null;
     let currentContext = context;
 
-    const next: InternalContextNextFn = (resume: boolean = false, parent: Route = matches.value.route, prevResult: ResolveResult = null) => {
-      const routeToSkip = prevResult === null && matches.value.route;
+    function next(
+      resume: boolean = false,
+      parent: InternalRoute | undefined = matches?.value.route,
+      prevResult: ResolveResult | null = null,
+    ): Promise<ResolveResult> {
+      const routeToSkip = prevResult === null && matches!.value.route;
       matches = nextMatches || match.next(routeToSkip);
       nextMatches = null;
 
@@ -187,7 +192,7 @@ class Resolver {
       }
 
       if (matches.done) {
-        return Promise.reject(getNotFoundError(context));
+        return Promise.reject(getNotFoundError((context as unknown) as Context));
       }
 
       currentContext = Object.assign(
@@ -199,7 +204,7 @@ class Resolver {
       );
       updateChainForRoute(currentContext, matches.value);
 
-      return Promise.resolve(resolve(currentContext as InternalContext)).then(resolution => {
+      return Promise.resolve(resolve((currentContext as unknown) as Context)).then(resolution => {
         if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
           currentContext.result = (('result' in resolution) ? resolution.result : resolution) as ActionResult;
           return currentContext as ContextWithChain;
@@ -261,7 +266,7 @@ class Resolver {
    *
    * If the `baseUrl` is not set, returns the unmodified pathname argument.
    */
-  __normalizePathname(pathname: string): string {
+  __normalizePathname(pathname: string): string | undefined {
     if (!this.baseUrl) {
       // No base URL, no need to transform the pathname.
       return pathname;

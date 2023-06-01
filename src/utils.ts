@@ -1,4 +1,4 @@
-import type {ActionResult, Context, Route} from "./types/route.js";
+import type {ActionResult, Context, InternalRoute, Route} from "./types/route.js";
 import type Resolver from "./resolver/resolver.js";
 
 export function toArray<T>(objectOrArray: T | T[]): T[] {
@@ -15,7 +15,7 @@ export function logValue(value: unknown): string {
     return String(value);
   }
 
-  const stringType = Object.prototype.toString.call(value).match(/ (.*)\]$/)[1];
+  const stringType = Object.prototype.toString.call(value).match(/ (.*)\]$/)![1];
   if (stringType === 'Object' || stringType === 'Array') {
     return `${stringType} ${JSON.stringify(value)}`;
   } else {
@@ -24,33 +24,35 @@ export function logValue(value: unknown): string {
 }
 
 export function ensureRoute(route: unknown): asserts route is Route {
-  if (!route || !isString(route.path)) {
+  if ((typeof route !== 'object') || !route || !('path' in route) || !isString(route.path)) {
     throw new Error(
       log(`Expected route config to be an object with a "path" string property, or an array of such objects`)
     );
   }
 
+  const routeCandidate = route as Partial<Route> & Record<string, string>;
+
   const stringKeys = ['component', 'redirect'];
   if (
-    !isFunction(route.action) &&
-    !Array.isArray(route.children) &&
-    !isFunction(route.children) &&
-    !stringKeys.some(key => isString(route![key]))
+    !isFunction(routeCandidate.action) &&
+    !Array.isArray(routeCandidate.children) &&
+    !isFunction(routeCandidate.children) &&
+    !stringKeys.some(key => isString(routeCandidate[key]))
   ) {
     throw new Error(
       log(
-        `Expected route config "${route.path}" to include either "${stringKeys.join('", "')}" ` +
+        `Expected route config "${routeCandidate.path}" to include either "${stringKeys.join('", "')}" ` +
         `or "action" function but none found.`
       )
     );
   }
 
-  if (route.redirect) {
+  if (routeCandidate.redirect) {
     ['component'].forEach(overriddenProp => {
-      if (overriddenProp in route) {
+      if (overriddenProp in routeCandidate) {
         console.warn(
           log(
-            `Route config "${route.path}" has both "redirect" and "${overriddenProp}" properties, ` +
+            `Route config "${routeCandidate.path}" has both "redirect" and "${overriddenProp}" properties, ` +
             `and "redirect" will always override the latter. Did you mean to only use "${overriddenProp}"?`
           )
         );
@@ -99,7 +101,7 @@ export const notFoundResult = new (class NotFoundResult {})();
 
 export type ChainItem = {
   path: string,
-  route: Route,
+  route: InternalRoute,
   element?: Element,
 };
 
@@ -110,11 +112,12 @@ export type ResolveResult =
   | typeof notFoundResult;
 
 export type InternalContextNextFn =
-  (resume?: boolean, parent?: Route, prevResult?: ResolveResult | null) => Promise<InternalContext>;
+  (resume?: boolean, parent?: InternalRoute, prevResult?: ResolveResult | null) => Promise<InternalContext>;
 
 export type InternalContext = Omit<Context, 'next'> & {
   next: InternalContextNextFn;
   resolver: Resolver,
+  route?: InternalRoute,
   chain?: ChainItem[],
   result?: ActionResult | Error,
   __redirectCount?: number,
@@ -125,4 +128,5 @@ export type InternalContext = Omit<Context, 'next'> & {
 
 export type ContextWithChain = InternalContext & {
   chain: ChainItem[],
+  __divergedChainIndex: number,
 };

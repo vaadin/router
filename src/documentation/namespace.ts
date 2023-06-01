@@ -19,7 +19,7 @@ import type {
 } from "../types/params";
 import type {
   NavigationTrigger as _NavigationTrigger
-} from "../triggers/setNavigationTriggers";
+} from "../triggers/NavigationTrigger.js";
 
 export * from "../router.js"
 

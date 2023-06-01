@@ -1,5 +1,4 @@
-import type {IndexedParams} from "./params";
-import type {Route} from "./route";
+import type {IndexedParams} from "./params.js";
 
 export type NotFoundResult = Readonly<{
   // Prevent treating any object literals `{}` as a match for this type
@@ -48,9 +47,9 @@ export type Commands = Readonly<{
   prevent: () => PreventResult;
 }>;
 
-export type ActionFn = (context: Context, commands: Commands) => ActionResult | Promise<ActionResult>;
+export type ActionFn = (context: Context, commands: Pick<Commands, 'component' | 'redirect'>) => ActionResult | Promise<ActionResult>;
 
-export type ChildrenFn = () => Route[] | Promise<Route[]>;
+export type ChildrenFn = (context: Omit<Context, 'next'>) => Route[] | Promise<Route[]>;
 
 type MakeRequired<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
@@ -74,11 +73,18 @@ type AnimatableRoute = BaseRoute & {
 };
 
 type RouteWithAction = MakeRequired<BaseRoute, 'action'>;
-type RouteWithChildren = MakeRequired<BaseRoute, 'children'>;
+type RouteWithChildren = MakeRequired<AnimatableRoute, 'children'>;
 type RouteWithComponent = MakeRequired<AnimatableRoute, 'component'>;
-type RouteWithRedirect = MakeRequired<RouteWithRedirect, 'redirect'>;
+type RouteWithRedirect = MakeRequired<BaseRoute, 'redirect'>;
 
 export type Route = RouteWithAction
   | RouteWithChildren
   | RouteWithComponent
   | RouteWithRedirect
+
+export type InternalRoute = BaseRoute & {
+  animate?: boolean | AnimateCustomClasses;
+  parent?: InternalRoute;
+  __children?: Route[];
+  __synthetic?: true;
+}

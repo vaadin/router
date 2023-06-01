@@ -1,7 +1,4 @@
-export type NavigationTrigger = Readonly<{
-  activate(): void;
-  inactivate(): void;
-}>;
+import type { NavigationTrigger } from "./NavigationTrigger";
 
 let triggers: ReadonlyArray<NavigationTrigger> = [];
 

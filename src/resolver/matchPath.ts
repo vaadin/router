@@ -8,11 +8,17 @@
  */
 
 import {pathToRegexp, type Key} from 'path-to-regexp';
-import type {Params} from "../types/params";
+import type {ParamValue, Params} from "../types/params";
 
 type Matcher = Readonly<{
   keys: ReadonlyArray<Key>,
   pattern: RegExp,
+}>;
+
+export type Match = Readonly<{
+  path: string,
+  keys: ReadonlyArray<Key>,
+  params: Readonly<Record<string, ParamValue>>,
 }>;
 
 const {hasOwnProperty} = Object.prototype;
@@ -31,13 +37,13 @@ function decodeParam(val: string): string {
   }
 }
 
-function matchPath(routepath: string, path: string, exact?: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params) {
+function matchPath(routepath: string, path: string, exact?: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params): Match | null {
   exact = !!exact;
   const cacheKey = `${routepath}|${exact}`;
   let regexp = cache.get(cacheKey);
 
   if (!regexp) {
-    const keys = [];
+    const keys: Key[] = [];
     regexp = {
       keys,
       pattern: pathToRegexp(routepath, keys, {
@@ -53,7 +59,7 @@ function matchPath(routepath: string, path: string, exact?: boolean, parentKeys?
     return null;
   }
 
-  const params = Object.assign({}, parentParams);
+  const params = Object.assign({}, parentParams) as Record<string, ParamValue>;
 
   for (let i = 1; i < m.length; i++) {
     const key = regexp.keys[i - 1];

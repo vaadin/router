@@ -7,10 +7,15 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import matchPath from './matchPath.js';
-import type {Route} from "../types/route";
+import matchPath, {type Match} from './matchPath.js';
+import type {InternalRoute, Route} from "../types/route.js";
 import type {Key} from "path-to-regexp";
-import type {Params} from "../types/params";
+import type {Params} from "../types/params.js";
+import { isFunction } from '../utils.js';
+
+export type MatchWithRoute = Match & Readonly<{
+  route: InternalRoute
+}>;
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from
@@ -57,9 +62,9 @@ import type {Params} from "../types/params";
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(route: Route, pathname: string, ignoreLeadingSlash: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params) {
-  let match;
-  let childMatches;
+function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params): Iterator<MatchWithRoute, undefined, Route> {
+  let match: Match | null;
+  let childMatches: ReturnType<typeof matchRoute> | null;
   let childIndex = 0;
   let routepath = route.path || '';
   if (routepath.charAt(0) === '/') {
@@ -70,12 +75,16 @@ function matchRoute(route: Route, pathname: string, ignoreLeadingSlash: boolean,
   }
 
   return {
-    next(routeToSkip) {
+    next(routeToSkip: Route) {
       if (route === routeToSkip) {
         return {done: true};
       }
 
-      const children = route.__children = route.__children || route.children;
+      if (Array.isArray(route.children)) {
+        route.__children = route.children;
+      }
+
+      const children: InternalRoute[] | undefined = route.__children || (Array.isArray(route.children) ? route.children : undefined);
 
       if (!match) {
         match = matchPath(routepath, pathname, !children, parentKeys, parentParams);
