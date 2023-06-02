@@ -21,8 +21,6 @@ import type {
   NavigationTrigger as _NavigationTrigger
 } from "../triggers/NavigationTrigger.js";
 
-export * from "../router.js"
-
 import {type RouterOptions} from "../router.js";
 
 declare module "../router.js" {

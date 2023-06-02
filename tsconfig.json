@@ -17,12 +17,9 @@
     "noImplicitOverride": true,
     "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true,
-    "allowJs": true,
-    "checkJs": true,
     "outDir": "dist"
   },
   "include": [
-    "vaadin-router.js",
-    "vaadin-router.d.ts"
+    "src/vaadin-router.ts",
   ]
 }

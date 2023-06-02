@@ -37,12 +37,37 @@ import type {
   AfterEnterObserver,
   AfterLeaveObserver,
   BeforeEnterObserver,
-  BeforeLeaveObserver, PreventCommands, PreventAndRedirectCommands
+  BeforeLeaveObserver,
+  EmptyCommands,
+  PreventCommands,
+  PreventAndRedirectCommands,
 } from "./types/observers.js";
 import POPSTATE from './triggers/popstate.js';
 import CLICK from './triggers/click.js';
 import { NavigationTrigger } from './triggers/NavigationTrigger.js';
+
 export {NavigationTrigger} from './triggers/NavigationTrigger.js';
+
+export type {
+  ActionResult,
+  ChildrenFn,
+  Commands,
+  ComponentResult,
+  Context,
+  NotFoundResult,
+  PreventResult,
+  RedirectResult,
+  Route,
+  RouterLocation,
+  WebComponentInterface,
+  AfterEnterObserver,
+  AfterLeaveObserver,
+  BeforeEnterObserver,
+  BeforeLeaveObserver,
+  EmptyCommands,
+  PreventCommands,
+  PreventAndRedirectCommands
+};
 
 const MAX_REDIRECT_COUNT = 256;
 
@@ -76,7 +101,7 @@ function createLocation(context: Partial<ContextWithChain>, route?: InternalRout
     routes,
     params,
     searchParams: new URLSearchParams(search),
-    getUrl: (userParams: Params) => {
+    getUrl: (userParams?: Params) => {
       const pathname: string = compile(
         getMatchedPath(chain)
       )(Object.assign({}, params, userParams));
@@ -94,6 +119,10 @@ type RedirectMarker = Readonly<{
 }>;
 
 type ResultMarker = CancelMarker | RedirectMarker | Element | void;
+
+function prevent(): PreventResult {
+  return {cancel: true} as unknown as PreventResult;
+}
 
 function createRedirect(context: LocationInfo & {params?: Params}, pathname: string): RedirectMarker {
   const params = Object.assign({}, context.params);
@@ -321,7 +350,8 @@ export class Router extends Resolver {
         });
     }
 
-    const commands: Pick<Commands, 'component' | 'redirect'> = {
+    const commands: Commands = {
+      prevent,
       redirect: (path: string) => ((createRedirect(context, path) as unknown) as RedirectResult),
       component: (component: string) => {
         const element = document.createElement(component);
@@ -693,7 +723,6 @@ export class Router extends Resolver {
     const newChain = newContext.chain;
 
     let callbacks: Promise<ResultMarker> = Promise.resolve();
-    const prevent = () => ({ cancel: true } as unknown as PreventResult);
     const redirect = (pathname: string) => (createRedirect(newContext, pathname) as unknown as RedirectResult);
 
     newContext.__divergedChainIndex = 0;
@@ -936,7 +965,7 @@ export class Router extends Resolver {
         const location = createLocation(currentContext);
         runCallbackIfPossible(
           (currentComponent as Partial<AfterLeaveObserver>).onAfterLeave,
-          [location, {}, targetContext.resolver],
+          [location, {} as EmptyCommands, targetContext.resolver],
           currentComponent);
       } finally {
         if ((this.__disappearingContent || []).indexOf(currentComponent) > -1) {
@@ -956,7 +985,7 @@ export class Router extends Resolver {
       const location = createLocation(currentContext, currentContext.chain[i].route);
       runCallbackIfPossible(
         (currentComponent as Partial<AfterEnterObserver>).onAfterEnter,
-        [location, {}, currentContext.resolver],
+        [location, {} as EmptyCommands, currentContext.resolver],
         currentComponent);
     }
   }
@@ -1052,12 +1081,12 @@ export class Router extends Resolver {
    *
    * @return {string}
    */
-  urlForName(name: string, params?: Params) {
+  urlForName(name: string, params?: Params | null) {
     if (!this.__urlForName) {
       this.__urlForName = generateUrls(this);
     }
     return getPathnameForRouter(
-      this.__urlForName(name, params),
+      this.__urlForName(name, params || undefined),
       this
     );
   }
@@ -1073,9 +1102,9 @@ export class Router extends Resolver {
    *
    * @return
    */
-  urlForPath(path: string, params?: Params): string {
+  urlForPath(path: string, params?: Params | null): string {
     return getPathnameForRouter(
-      compile(path)(params),
+      compile(path)(params || undefined),
       this
     );
   }

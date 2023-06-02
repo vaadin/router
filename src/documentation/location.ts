@@ -106,5 +106,5 @@ export type RouterLocation = Readonly<{
    * location. When the parameters object is given in the arguments,
    * the argument parameters override the location ones.
    */
-  getUrl: (params: Params) => string
+  getUrl: (params?: Params) => string
 }>;

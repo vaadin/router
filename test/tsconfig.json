@@ -8,7 +8,7 @@
     }
   },
   "include": [
-    "test/typescript/**/*.ts"
+    "./typescript/**/*.ts"
   ],
   "exclude": [
   ]

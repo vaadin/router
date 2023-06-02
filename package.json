@@ -30,7 +30,7 @@
     "lint": "npm-run-all --parallel lint:*",
     "lint:js": "eslint --ext .html,.js src test demo *.js *.html",
     "lint:css": "stylelint demo/**/*.html",
-    "build": "tsc && npm-run-all --parallel build:minify.* build:typescript-declarations",
+    "build": "tsc && npm-run-all --parallel build:minify.*",
     "build:minify.browser": "uglifyjs dist/vaadin-router.js -c -m --mangle-props regex=/^__/ --toplevel --source-map --output dist/vaadin-router.min.js",
     "build:watch": "tsc -w",
     "start": "npm run build && polyserve --port 8000",

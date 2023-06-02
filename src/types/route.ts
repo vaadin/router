@@ -47,7 +47,7 @@ export type Commands = Readonly<{
   prevent: () => PreventResult;
 }>;
 
-export type ActionFn = (context: Context, commands: Pick<Commands, 'component' | 'redirect'>) => ActionResult | Promise<ActionResult>;
+export type ActionFn = (context: Context, commands: Commands) => ActionResult | Promise<ActionResult>;
 
 export type ChildrenFn = (context: Omit<Context, 'next'>) => Route[] | Promise<Route[]>;
 

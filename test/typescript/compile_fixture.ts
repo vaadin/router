@@ -18,7 +18,7 @@ import {
   type EmptyCommands
 } from '@vaadin/router';
 
-const outlet: Node = document.body.firstChild as Node;
+const outlet = document.body.firstElementChild!;
 
 function expectTypeOfValue<T>(t: T): void { t; }
 
@@ -73,7 +73,7 @@ expectTypeOfValue<object>(router.location.params);
 expectTypeOfValue<string>(router.location.pathname);
 expectTypeOfValue<Route | null>(router.location.route);
 expectTypeOfValue<URLSearchParams>(router.location.searchParams);
-expectTypeOfValue<Route[]>(router.location.routes);
+expectTypeOfValue<readonly Route[]>(router.location.routes);
 expectTypeOfValue<string>(router.location.getUrl());
 expectTypeOfValue<string>(router.location.getUrl({}));
 expectTypeOfValue<string>(router.location.getUrl([]));
@@ -81,12 +81,12 @@ expectTypeOfValue<Promise<RouterLocation>>(router.ready);
 // TODO(@platosha): remove deprecated namespaced cases
 expectTypeOfValue<Router.Location>(router.location);
 expectTypeOfValue<Router.Route | null>(router.location.route);
-expectTypeOfValue<Router.Route[]>(router.location.routes);
+expectTypeOfValue<readonly Router.Route[]>(router.location.routes);
 expectTypeOfValue<Promise<Router.Location>>(router.ready);
 
 // Basic methods
 router.render('/');
-(): ReturnType<typeof router.render> extends Promise<Node> ? true : never => true;
+const location: RouterLocation = await router.render('/');
 router.subscribe();
 router.unsubscribe();
 expectTypeOfValue<string>(router.urlForName('foo'));
@@ -229,7 +229,7 @@ router.setOutlet(outlet);
 router.setOutlet(null);
 
 // getOutlet
-expectTypeOfValue<Node | null>(router.getOutlet());
+expectTypeOfValue<ParentNode | null | undefined>(router.getOutlet());
 
 // Location property
 class MyViewWithLocation extends HTMLElement {
