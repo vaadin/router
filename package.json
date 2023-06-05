@@ -79,7 +79,7 @@
     "browser-sync": "^2.26.14",
     "browserslist": "^4.21.5",
     "bundlesize": "^0.18.1",
-    "eslint": "^7.22.0",
+    "eslint": "^8.42.0",
     "eslint-plugin-html": "^6.1.2",
     "fs-extra": "^9.1.0",
     "gulp": "^4.0.2",
