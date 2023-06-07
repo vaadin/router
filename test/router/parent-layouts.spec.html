@@ -352,7 +352,7 @@
 
         await router.render('/a/b/123');
 
-        expect(onAfterEnter).to.have.been.called.once;
+        expect(onAfterEnter).to.have.been.calledOnce;
         expect(onAfterEnter.args[0].length).to.equal(3);
 
         const location = onAfterEnter.args[0][0];

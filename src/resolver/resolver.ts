@@ -23,7 +23,7 @@ import type {ActionResult, Context, InternalRoute, Route} from "../types/route.j
 import type { InternalContextNextFn } from '../utils.js';
 import type { Match } from './matchPath.js';
 
-function isChildRoute(parentRoute: Route | InternalRoute, childRoute?: InternalRoute) {
+function isChildRoute(parentRoute?: Route | InternalRoute, childRoute?: InternalRoute) {
   let route = childRoute;
   while (route) {
     route = route.parent;
@@ -92,7 +92,6 @@ class Resolver {
     this.root = Array.isArray(routes) ? {path: '', __children: routes, parent: undefined, __synthetic: true} : routes;
     this.root.parent = undefined;
     this.context = Object.assign({
-      resolver: this,
       pathname: '',
       search: '',
       hash: '',
@@ -171,17 +170,17 @@ class Resolver {
       !!this.baseUrl
     );
     const resolve = this.resolveRoute;
-    let matches: IteratorResult<MatchWithRoute> | null = null;
-    let nextMatches: IteratorResult<MatchWithRoute> | null = null;
+    let matches: IteratorResult<MatchWithRoute, undefined> | null = null;
+    let nextMatches: IteratorResult<MatchWithRoute, undefined> | null = null;
     let currentContext = context;
 
     function next(
       resume: boolean = false,
-      parent: InternalRoute | undefined = matches?.value.route,
+      parent: InternalRoute | undefined = matches?.value?.route,
       prevResult: ResolveResult | null = null,
     ): Promise<ResolveResult> {
-      const routeToSkip = prevResult === null && matches!.value.route;
-      matches = nextMatches || match.next(routeToSkip);
+      const routeToSkip = prevResult === null ? matches?.value?.route : undefined;
+      matches = nextMatches || routeToSkip ? match.next(routeToSkip!) : match.next();
       nextMatches = null;
 
       if (!resume) {

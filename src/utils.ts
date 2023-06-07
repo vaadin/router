@@ -116,7 +116,7 @@ export type InternalContextNextFn =
 
 export type InternalContext = Omit<Context, 'next'> & {
   next: InternalContextNextFn;
-  resolver: Resolver,
+  resolver?: Resolver,
   route?: InternalRoute,
   chain?: ChainItem[],
   result?: ActionResult | Error,

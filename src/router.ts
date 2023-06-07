@@ -648,7 +648,7 @@ export class Router extends Resolver {
 
         const matchedPath = getPathnameForRouter(
           getMatchedPath(contextAfterRedirects.chain),
-          contextAfterRedirects.resolver,
+          this,
         );
         const isFound = (matchedPath === contextAfterRedirects.pathname);
 
@@ -965,7 +965,7 @@ export class Router extends Resolver {
         const location = createLocation(currentContext);
         runCallbackIfPossible(
           (currentComponent as Partial<AfterLeaveObserver>).onAfterLeave,
-          [location, {} as EmptyCommands, targetContext.resolver],
+          [location, {} as EmptyCommands, this],
           currentComponent);
       } finally {
         if ((this.__disappearingContent || []).indexOf(currentComponent) > -1) {
@@ -985,7 +985,7 @@ export class Router extends Resolver {
       const location = createLocation(currentContext, currentContext.chain[i].route);
       runCallbackIfPossible(
         (currentComponent as Partial<AfterEnterObserver>).onAfterEnter,
-        [location, {} as EmptyCommands, currentContext.resolver],
+        [location, {} as EmptyCommands, this],
         currentComponent);
     }
   }

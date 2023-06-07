@@ -8,7 +8,7 @@
  */
 
 import matchPath, {type Match} from './matchPath.js';
-import type {InternalRoute, Route} from "../types/route.js";
+import type {InternalRoute} from "../types/route.js";
 import type {Key} from "path-to-regexp";
 import type {Params} from "../types/params.js";
 import { isFunction } from '../utils.js';
@@ -62,7 +62,7 @@ export type MatchWithRoute = Match & Readonly<{
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params): Iterator<MatchWithRoute, undefined, Route> {
+function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params): Iterator<MatchWithRoute, undefined, InternalRoute> {
   let match: Match | null;
   let childMatches: ReturnType<typeof matchRoute> | null;
   let childIndex = 0;
@@ -75,7 +75,7 @@ function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: 
   }
 
   return {
-    next(routeToSkip: Route) {
+    next(routeToSkip: InternalRoute) {
       if (route === routeToSkip) {
         return {done: true};
       }

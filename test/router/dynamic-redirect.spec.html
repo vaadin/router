@@ -114,7 +114,7 @@
           await router.render('/a').catch(onError);
 
           expect(outlet.children).to.have.lengthOf(0);
-          expect(onError).to.have.been.called.once;
+          expect(onError).to.have.been.calledOnce;
         });
 
         it('should use `window.replaceState()` when redirecting from action on first render', async() => {

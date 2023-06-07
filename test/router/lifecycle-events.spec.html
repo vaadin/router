@@ -127,7 +127,7 @@
 
           await router.render('/');
 
-          expect(onBeforeEnter).to.have.been.called.once;
+          expect(onBeforeEnter).to.have.been.calledOnce;
           expect(onBeforeEnter.args[0].length).to.equal(3);
 
           const location = onBeforeEnter.args[0][0];
@@ -227,7 +227,7 @@
           await router.render('/').catch(onError);
 
           expect(outlet.children).to.have.lengthOf(0);
-          expect(onError).to.have.been.called.once;
+          expect(onError).to.have.been.calledOnce;
         });
 
         it('should ignore any other return value than `prevent` or `redirect`', async() => {
@@ -325,7 +325,7 @@
 
           await router.render('/users');
 
-          expect(onBeforeLeave).to.have.been.called.once;
+          expect(onBeforeLeave).to.have.been.calledOnce;
           expect(onBeforeLeave.args[0].length).to.equal(3);
 
           const location = onBeforeLeave.args[0][0];
@@ -500,7 +500,7 @@
 
           await router.render('/users');
 
-          expect(onAfterLeave).to.have.been.called.once;
+          expect(onAfterLeave).to.have.been.calledOnce;
           expect(onAfterLeave.args[0].length).to.equal(3);
 
           const location = onAfterLeave.args[0][0];
@@ -576,7 +576,7 @@
 
           await router.render('/');
 
-          expect(onAfterEnter).to.have.been.called.once;
+          expect(onAfterEnter).to.have.been.calledOnce;
           expect(onAfterEnter.args[0].length).to.equal(3);
 
           const location = onAfterEnter.args[0][0];
@@ -1798,7 +1798,7 @@
           await router.render('/');
           window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
-          expect(onRouteChanged).to.have.been.called.once;
+          expect(onRouteChanged).to.have.been.calledOnce;
         });
 
         it('should NOT be triggered after an abandoned navigation', async() => {
@@ -1815,7 +1815,7 @@
           ]);
           window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
-          expect(onRouteChanged).to.have.been.called.once;
+          expect(onRouteChanged).to.have.been.calledOnce;
         });
 
         it('should contain the new location as `event.detail.location`', async() => {
@@ -1828,7 +1828,7 @@
           await router.render('/admin');
           window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
-          expect(onRouteChanged).to.have.been.called.once;
+          expect(onRouteChanged).to.have.been.calledOnce;
           expect(onRouteChanged.args[0].length).to.equal(1);
 
           const event = onRouteChanged.args[0][0];
@@ -1845,7 +1845,7 @@
           await router.render('/admin');
           window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
-          expect(onRouteChanged).to.have.been.called.once;
+          expect(onRouteChanged).to.have.been.calledOnce;
           expect(onRouteChanged.args[0].length).to.equal(1);
 
           const event = onRouteChanged.args[0][0];
@@ -1882,7 +1882,7 @@
           await router.render('/non-existent').catch(() => {});
           window.removeEventListener('vaadin-router-error', onError);
 
-          expect(onError).to.have.been.called.once;
+          expect(onError).to.have.been.calledOnce;
         });
 
         it('should NOT be triggered after an abandoned navigation', async() => {
@@ -1898,7 +1898,7 @@
           ]);
           window.removeEventListener('vaadin-router-error', onError);
 
-          expect(onError).to.have.been.called.once;
+          expect(onError).to.have.been.calledOnce;
         });
 
         it('should contain the error as `event.detail.error`', async() => {
@@ -1911,7 +1911,7 @@
           await router.render('/non-existent').catch(() => {});
           window.removeEventListener('vaadin-router-error', onError);
 
-          expect(onError).to.have.been.called.once;
+          expect(onError).to.have.been.calledOnce;
           expect(onError.args[0].length).to.equal(1);
 
           const event = onError.args[0][0];
@@ -1929,7 +1929,7 @@
           await router.render('/non-existent').catch(() => {});
           window.removeEventListener('vaadin-router-error', onError);
 
-          expect(onError).to.have.been.called.once;
+          expect(onError).to.have.been.calledOnce;
           expect(onError.args[0].length).to.equal(1);
 
           const event = onError.args[0][0];
@@ -1946,7 +1946,7 @@
           await router.render('/non-existent').catch(() => {});
           window.removeEventListener('vaadin-router-error', onError);
 
-          expect(onError).to.have.been.called.once;
+          expect(onError).to.have.been.calledOnce;
           expect(onError.args[0].length).to.equal(1);
 
           const event = onError.args[0][0];

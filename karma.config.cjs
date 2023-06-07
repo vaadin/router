@@ -43,6 +43,12 @@ module.exports = (config) => {
         watched: false,
         served: false,
       },
+      {
+        pattern: 'test/**/*.spec.js',
+        type: 'module',
+        watched: false,
+        served: false,
+      },
     ],
 
     // list of files / patterns to exclude
