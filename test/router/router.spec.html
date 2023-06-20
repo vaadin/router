@@ -464,7 +464,7 @@
               {path: '/users', component: 'x-users-view'},
             ]);
             await router.render('/people');
-            expect(outlet.children[0]).to.have.deep.property('location.redirectFrom', '/people');
+            expect(outlet.children[0]).to.have.nested.property('location.redirectFrom', '/people');
           });
         });
 
@@ -1026,7 +1026,7 @@
               Vaadin.Router.go('/admin');
               window.removeEventListener('vaadin-router-go', spy);
               expect(spy).to.have.been.calledOnce;
-              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
             });
 
             it('should support url with search string', () => {
@@ -1035,9 +1035,9 @@
               Vaadin.Router.go('/admin?foo=bar');
               window.removeEventListener('vaadin-router-go', spy);
 
-              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
-              expect(spy.args[0][0]).to.have.deep.property('detail.search', '?foo=bar');
-              expect(spy.args[0][0]).to.have.deep.property('detail.hash', '');
+              expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.nested.property('detail.search', '?foo=bar');
+              expect(spy.args[0][0]).to.have.nested.property('detail.hash', '');
             });
 
             it('should support url with hash string', () => {
@@ -1047,9 +1047,9 @@
               Vaadin.Router.go('/admin#foo');
               window.removeEventListener('vaadin-router-go', spy);
 
-              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
-              expect(spy.args[0][0]).to.have.deep.property('detail.search', '');
-              expect(spy.args[0][0]).to.have.deep.property('detail.hash', '#foo');
+              expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.nested.property('detail.search', '');
+              expect(spy.args[0][0]).to.have.nested.property('detail.hash', '#foo');
             });
 
             it('should support url with search and hash strings', () => {
@@ -1059,9 +1059,9 @@
               Vaadin.Router.go('/admin?foo=bar#baz');
               window.removeEventListener('vaadin-router-go', spy);
 
-              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
-              expect(spy.args[0][0]).to.have.deep.property('detail.search', '?foo=bar');
-              expect(spy.args[0][0]).to.have.deep.property('detail.hash', '#baz');
+              expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.nested.property('detail.search', '?foo=bar');
+              expect(spy.args[0][0]).to.have.nested.property('detail.hash', '#baz');
             });
 
             it('should support object argument with pathname, optional search, and optional hash', () => {
@@ -1070,23 +1070,23 @@
 
               Vaadin.Router.go({pathname: '/admin'});
 
-              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
-              expect(spy.args[0][0]).to.have.deep.property('detail.search', undefined);
-              expect(spy.args[0][0]).to.have.deep.property('detail.hash', undefined);
+              expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.nested.property('detail.search', undefined);
+              expect(spy.args[0][0]).to.have.nested.property('detail.hash', undefined);
 
               spy.reset();
               Vaadin.Router.go({pathname: '/admin', search: '?foo=bar'});
 
-              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
-              expect(spy.args[0][0]).to.have.deep.property('detail.search', '?foo=bar');
-              expect(spy.args[0][0]).to.have.deep.property('detail.hash', undefined);
+              expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.nested.property('detail.search', '?foo=bar');
+              expect(spy.args[0][0]).to.have.nested.property('detail.hash', undefined);
 
               spy.reset();
               Vaadin.Router.go({pathname: '/admin', hash: '#baz'});
 
-              expect(spy.args[0][0]).to.have.deep.property('detail.pathname', '/admin');
-              expect(spy.args[0][0]).to.have.deep.property('detail.search', undefined);
-              expect(spy.args[0][0]).to.have.deep.property('detail.hash', '#baz');
+              expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
+              expect(spy.args[0][0]).to.have.nested.property('detail.search', undefined);
+              expect(spy.args[0][0]).to.have.nested.property('detail.hash', '#baz');
 
               window.removeEventListener('vaadin-router-go', spy);
             });
@@ -1234,7 +1234,7 @@
               {path: '(.*)', component: 'x-not-found-view'},
             ]);
             await router.render('/non-existent/path');
-            expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
+            expect(outlet.children[0]).to.have.nested.property('location.pathname', '/non-existent/path');
           });
 
           it('should set the `location` properties on the route component', async() => {
@@ -1248,9 +1248,9 @@
               search: '?foo=bar',
               hash: '#baz'
             });
-            expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
-            expect(outlet.children[0]).to.have.deep.property('location.search', '?foo=bar');
-            expect(outlet.children[0]).to.have.deep.property('location.hash', '#baz');
+            expect(outlet.children[0]).to.have.nested.property('location.pathname', '/non-existent/path');
+            expect(outlet.children[0]).to.have.nested.property('location.search', '?foo=bar');
+            expect(outlet.children[0]).to.have.nested.property('location.hash', '#baz');
           });
 
           it('should update the `location` properties on the route component', async() => {
@@ -1267,9 +1267,9 @@
               search: '?foo=qux',
               hash: '#quz'
             });
-            expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
-            expect(outlet.children[0]).to.have.deep.property('location.search', '?foo=qux');
-            expect(outlet.children[0]).to.have.deep.property('location.hash', '#quz');
+            expect(outlet.children[0]).to.have.nested.property('location.pathname', '/non-existent/path');
+            expect(outlet.children[0]).to.have.nested.property('location.search', '?foo=qux');
+            expect(outlet.children[0]).to.have.nested.property('location.hash', '#quz');
           });
 
           it('should update the `location` properties on the route component on router.render(pathname)', async() => {
@@ -1282,9 +1282,9 @@
               hash: '#baz'
             });
             await router.render('/non-existent/path');
-            expect(outlet.children[0]).to.have.deep.property('location.pathname', '/non-existent/path');
-            expect(outlet.children[0]).to.have.deep.property('location.search', '');
-            expect(outlet.children[0]).to.have.deep.property('location.hash', '');
+            expect(outlet.children[0]).to.have.nested.property('location.pathname', '/non-existent/path');
+            expect(outlet.children[0]).to.have.nested.property('location.search', '');
+            expect(outlet.children[0]).to.have.nested.property('location.hash', '');
           });
 
           it('should keep route parameters when redirecting to different route', async() => {

@@ -143,7 +143,7 @@ describe('resolver.resolve({ pathname, ...context })', () => {
     const resolver = new Resolver({path: '/a', action});
     const context = await resolver.resolve('/a');
     expect(action.calledOnce).to.be.true;
-    expect(action.args[0][0]).to.have.deep.property('route.path', '/a');
+    expect(action.args[0][0]).to.have.nested.property('route.path', '/a');
     expect(context.result).to.be.equal('b');
   });
 
@@ -171,7 +171,7 @@ describe('resolver.resolve({ pathname, ...context })', () => {
     const resolver = new Resolver([{path: '/a', action}]);
     const context = await resolver.resolve({pathname: '/a', test: 'b'});
     expect(action.calledOnce).to.be.true;
-    expect(action.args[0][0]).to.have.deep.property('route.path', '/a');
+    expect(action.args[0][0]).to.have.nested.property('route.path', '/a');
     expect(action.args[0][0]).to.have.property('test', 'b');
     expect(context.result).to.be.true;
   });
@@ -557,8 +557,8 @@ describe('resolver.resolve({ pathname, ...context })', () => {
     const resolver = new Resolver([{path: '/path/:a/other/:b', action}]);
     const context = await resolver.resolve('/path/1/other/2');
     expect(action.calledOnce).to.be.true;
-    expect(action.args[0][0]).to.have.deep.property('params.a', '1');
-    expect(action.args[0][0]).to.have.deep.property('params.b', '2');
+    expect(action.args[0][0]).to.have.nested.property('params.a', '1');
+    expect(action.args[0][0]).to.have.nested.property('params.b', '2');
     expect(action.args[0][0].params).to.have.property('a', '1');
     expect(action.args[0][0].params).to.have.property('b', '2');
     expect(context.result).to.be.true;
@@ -582,9 +582,9 @@ describe('resolver.resolve({ pathname, ...context })', () => {
 
     const context = await resolver.resolve('/a');
     expect(action1.calledOnce).to.be.true;
-    expect(action1.args[0][0]).to.have.deep.property('route.path', '');
+    expect(action1.args[0][0]).to.have.nested.property('route.path', '');
     expect(action2.calledOnce).to.be.true;
-    expect(action2.args[0][0]).to.have.deep.property('route.path', '/a');
+    expect(action2.args[0][0]).to.have.nested.property('route.path', '/a');
     expect(context.result).to.be.true;
   });
 
@@ -606,9 +606,9 @@ describe('resolver.resolve({ pathname, ...context })', () => {
 
     const context = await resolver.resolve('/a/b');
     expect(action1.calledOnce).to.be.true;
-    expect(action1.args[0][0]).to.have.deep.property('route.path', '/a');
+    expect(action1.args[0][0]).to.have.nested.property('route.path', '/a');
     expect(action2.calledOnce).to.be.true;
-    expect(action2.args[0][0]).to.have.deep.property('route.path', '/b');
+    expect(action2.args[0][0]).to.have.nested.property('route.path', '/b');
     expect(context.result).to.be.true;
   });
 
@@ -635,11 +635,11 @@ describe('resolver.resolve({ pathname, ...context })', () => {
 
     const context = await resolver.resolve('/a/b');
     expect(action1.calledOnce).to.be.true;
-    expect(action1.args[0][0]).to.have.deep.property('route.path', '/a');
+    expect(action1.args[0][0]).to.have.nested.property('route.path', '/a');
     expect(action2.calledOnce).to.be.true;
-    expect(action2.args[0][0]).to.have.deep.property('route.path', '/b');
+    expect(action2.args[0][0]).to.have.nested.property('route.path', '/b');
     expect(action3.calledOnce).to.be.true;
-    expect(action3.args[0][0]).to.have.deep.property('route.path', '/a/b');
+    expect(action3.args[0][0]).to.have.nested.property('route.path', '/a/b');
     expect(context.result).to.be.true;
   });
 
@@ -691,7 +691,7 @@ describe('resolver.resolve({ pathname, ...context })', () => {
     const context = await resolver.resolve('/base/a/b/c');
     expect(action.calledOnce).to.be.true;
     expect(action.args[0][0]).to.have.property('pathname', '/base/a/b/c');
-    expect(action.args[0][0]).to.have.deep.property('route.path', '/c');
+    expect(action.args[0][0]).to.have.nested.property('route.path', '/c');
     expect(action.args[0][0]).to.have.property('route', routes.children[0].children[0]);
     expect(action.args[0][0]).to.have.property('resolver', resolver);
     expect(context.result).to.be.equal(17);

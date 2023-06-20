@@ -213,27 +213,27 @@
           it('should set the `detail.pathname` property of the `vaadin-router-go` event to the pathname of the clicked link', () => {
             emulateClick(document.getElementById('in-app'));
 
-            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
+            expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/in-app/link');
           });
 
           it('should carry `detail.search` property on `vaadin-router-go` event', () => {
             emulateClick(document.getElementById('in-app'));
 
-            expect(navigateEvents[0]).to.have.deep.property('detail.search', '');
+            expect(navigateEvents[0]).to.have.nested.property('detail.search', '');
 
             emulateClick(document.getElementById('in-app-search'));
 
-            expect(navigateEvents[1]).to.have.deep.property('detail.search', '?search');
+            expect(navigateEvents[1]).to.have.nested.property('detail.search', '?search');
           });
 
           it('should carry `detail.hash` property on `vaadin-router-go` event', () => {
             emulateClick(document.getElementById('in-app'));
 
-            expect(navigateEvents[0]).to.have.deep.property('detail.hash', '');
+            expect(navigateEvents[0]).to.have.nested.property('detail.hash', '');
 
             emulateClick(document.getElementById('in-app-hash'));
 
-            expect(navigateEvents[1]).to.have.deep.property('detail.hash', '#hash');
+            expect(navigateEvents[1]).to.have.nested.property('detail.hash', '#hash');
           });
 
           it('should translate `click` events inside <a> links into `vaadin-router-go` events on window', () => {
@@ -241,7 +241,7 @@
 
             expect(navigateEvents).to.have.lengthOf(1);
             expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
-            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
+            expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/in-app/link');
 
             expect(clicks).to.have.lengthOf(1);
             expect(clicks[0]).to.have.property('defaultPrevented', true);
@@ -253,7 +253,7 @@
 
             expect(navigateEvents).to.have.lengthOf(1);
             expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
-            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
+            expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/in-app/link');
 
             expect(clicks).to.have.lengthOf(1);
             expect(clicks[0]).to.have.property('defaultPrevented', true);
@@ -265,7 +265,7 @@
 
             expect(navigateEvents).to.have.lengthOf(1);
             expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
-            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/in-app/link');
+            expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/in-app/link');
 
             expect(clicks).to.have.lengthOf(1);
             expect(clicks[0]).to.have.property('defaultPrevented', true);
@@ -279,7 +279,7 @@
 
             expect(navigateEvents).to.have.lengthOf(1);
             expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
-            expect(navigateEvents[0]).to.have.deep.property('detail.pathname', '/');
+            expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/');
 
             expect(clicks).to.have.lengthOf(1);
             expect(clicks[0]).to.have.property('defaultPrevented', true);

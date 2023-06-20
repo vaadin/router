@@ -1859,7 +1859,7 @@
 
           let pathname;
           const checkLocation = () => {
-            expect(router).to.have.deep.property('location.pathname', '/admin');
+            expect(router).to.have.nested.property('location.pathname', '/admin');
             pathname = window.location.pathname;
           };
 
