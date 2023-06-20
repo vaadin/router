@@ -81,13 +81,13 @@ function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: 
       }
 
       if (Array.isArray(route.children)) {
-        route.__children = route.children;
+        route.__children = route.__children || route.children;
       }
 
-      const children: InternalRoute[] | undefined = route.__children || (Array.isArray(route.children) ? route.children : undefined);
+      const shouldMatchChildren = Boolean(route.__children) || Boolean(route.children);
 
       if (!match) {
-        match = matchPath(routepath, pathname, !children, parentKeys, parentParams);
+        match = matchPath(routepath, pathname, !shouldMatchChildren, parentKeys, parentParams);
 
         if (match) {
           return {
@@ -102,7 +102,8 @@ function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: 
         }
       }
 
-      if (match && children) {
+      if (match && shouldMatchChildren) {
+        const children = route.__children || [];
         while (childIndex < children.length) {
           if (!childMatches) {
             const childRoute = children[childIndex];

@@ -85,6 +85,6 @@ export type Route = RouteWithAction
 export type InternalRoute = BaseRoute & {
   animate?: boolean | AnimateCustomClasses;
   parent?: InternalRoute;
-  __children?: Route[];
+  __children?: InternalRoute[];
   __synthetic?: true;
 }
