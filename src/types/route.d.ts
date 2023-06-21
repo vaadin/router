@@ -53,7 +53,7 @@ export type ActionFn = (context: Context, commands: Commands) => ActionResult | 
 export type ChildrenFn = (context: Omit<Context, 'next'>) => Route[] | Promise<Route[]>;
 
 type Route = Readonly<{
-  path: string;
+  path: string | ReadonlyArray<string | Regexp>;
   name?: string;
 }> &
   Readonly<
@@ -75,9 +75,8 @@ export type AnimatableRoute = Route &
     animate?: boolean | AnimateCustomClasses;
   }>;
 
-export type InternalRoute = AnimatableRoute &
-  Readonly<{
-    parent?: InternalRoute;
-    __children?: InternalRoute[];
-    __synthetic?: true;
-  }>;
+export type InternalRoute = AnimatableRoute & {
+  parent?: InternalRoute;
+  __children?: InternalRoute[];
+  __synthetic?: true;
+};

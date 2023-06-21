@@ -7,7 +7,14 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import {parse, tokensToFunction, type Token, type Key} from 'path-to-regexp';
+import {
+  parse,
+  tokensToFunction,
+  type Token,
+  type Key,
+  type TokensToFunctionOptions,
+  type ParseOptions,
+} from 'path-to-regexp';
 import Resolver from './resolver.js';
 import { isString } from '../utils.js';
 import type { ChildrenFn, InternalRoute, Route } from '../types/route.js';
@@ -17,7 +24,22 @@ export interface UrlParams {
   [paramName: string]: string | number | (string | number)[];
 }
 
-function cacheRoutes(routesByName: Map<string, InternalRoute[]>, route: InternalRoute, routes?: ReadonlyArray<Route> | ChildrenFn): void {
+export interface GenerateUrlsOptions extends ParseOptions, TokensToFunctionOptions {
+  /**
+   * Add a query string to generated url based on unknown route params.
+   */
+  stringifyQueryParams?: (params: UrlParams) => string;
+  /**
+   * Generates a unique route name based on all parent routes with the specified separator.
+   */
+  uniqueRouteNameSep?: string;
+}
+
+function cacheRoutes(
+  routesByName: Map<string, InternalRoute[]>,
+  route: InternalRoute,
+  routes?: ReadonlyArray<Route> | ChildrenFn,
+): void {
   const name = route.name || route.component;
   if (name) {
     if (routesByName.has(name)) {
@@ -31,7 +53,7 @@ function cacheRoutes(routesByName: Map<string, InternalRoute[]>, route: Internal
     for (let i = 0; i < routes.length; i++) {
       const childRoute = routes[i] as InternalRoute;
       childRoute.parent = route;
-      cacheRoutes(routesByName, childRoute, childRoute.__children || childRoute.children);
+      cacheRoutes(routesByName, childRoute, (childRoute.__children as Route[]) || childRoute.children);
     }
   }
 }
@@ -39,27 +61,28 @@ function cacheRoutes(routesByName: Map<string, InternalRoute[]>, route: Internal
 function getRouteByName(routesByName: Map<string, Route[]>, routeName: string): InternalRoute | undefined {
   const routes = routesByName.get(routeName);
   if (routes && routes.length > 1) {
-    throw new Error(
-      `Duplicate route with name "${routeName}".`
-      + ` Try seting unique 'name' route properties.`
-    );
+    throw new Error(`Duplicate route with name "${routeName}".` + ` Try seting unique 'name' route properties.`);
   }
   return routes && routes[0];
 }
 
-function getRoutePath(route: InternalRoute) {
-  let path = route.path;
-  path = Array.isArray(path) ? path[0] : path;
+function getRoutePath({ path: routePath }: InternalRoute) {
+  const path: string = Array.isArray(routePath) ? routePath[0] : routePath;
   return path !== undefined ? path : '';
 }
 
-type RouteWithFullPath = Route & {fullPath: string};
+type RouteWithFullPath = Route & { fullPath: string };
 type RouteCacheRecord = Readonly<{
-  tokens: Token[],
+  tokens: Token[];
   keys: Record<string, true>;
 }>;
 
-function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params: Params) => string} = {}) {
+function generateUrls(
+  router: Resolver,
+  options: GenerateUrlsOptions = {
+    encode: encodeURIComponent,
+  },
+) {
   if (!(router instanceof Resolver)) {
     throw new TypeError('An instance of Resolver is expected');
   }
@@ -71,7 +94,7 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
     let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache
-      cacheRoutes(routesByName, router.root, router.root.__children);
+      cacheRoutes(routesByName, router.root, router.root.__children as Route[]);
 
       route = getRouteByName(routesByName, routeName);
       if (!route) {
@@ -82,7 +105,7 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
     let cached: RouteCacheRecord | undefined = undefined;
     if ('fullPath' in route) {
       cached = cache.get((route as RouteWithFullPath).fullPath);
-    } 
+    }
     if (!cached) {
       let fullPath = getRoutePath(route);
       let rt = route.parent;
@@ -100,12 +123,12 @@ function generateUrls(router: Resolver, options: {stringifyQueryParams?: (params
           keys[(tokens[i] as Key).name] = true;
         }
       }
-      cached = {tokens, keys};
+      cached = { tokens, keys };
       cache.set(fullPath, cached);
       (route as RouteWithFullPath).fullPath = fullPath;
     }
 
-    const toPath = tokensToFunction(cached.tokens, {});
+    const toPath = tokensToFunction(cached.tokens, options);
     let url = toPath(params) || '/';
 
     if (options.stringifyQueryParams && params) {
