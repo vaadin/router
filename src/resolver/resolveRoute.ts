@@ -8,7 +8,7 @@
  */
 
 import {isFunction, type ResolveResult} from '../utils.js';
-import type {Context} from "../types/route";
+import type {Context} from "../types/route.js";
 
 function resolveRoute(context: Context): ResolveResult | Promise<ResolveResult> {
   if (isFunction(context.route.action)) {

@@ -3,8 +3,8 @@ import type {
   Commands,
   PreventResult,
   RedirectResult
-} from "./route";
-import type {Router} from "../router";
+} from "./route.js";
+import type {Router} from "../router.js";
 
 export type PreventAndRedirectCommands = Pick<Commands, 'prevent' | 'redirect'>;
 export type PreventCommands = Pick<Commands, 'prevent'>;

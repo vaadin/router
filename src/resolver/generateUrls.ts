@@ -9,9 +9,13 @@
 
 import {parse, tokensToFunction, type Token, type Key} from 'path-to-regexp';
 import Resolver from './resolver.js';
-import {isString} from '../utils.js';
-import type {ChildrenFn, InternalRoute, Route} from "../types/route";
-import type {Params} from "../types/params";
+import { isString } from '../utils.js';
+import type { ChildrenFn, InternalRoute, Route } from '../types/route.js';
+import type { Params } from '../types/params.js';
+
+export interface UrlParams {
+  [paramName: string]: string | number | (string | number)[];
+}
 
 function cacheRoutes(routesByName: Map<string, InternalRoute[]>, route: InternalRoute, routes?: ReadonlyArray<Route> | ChildrenFn): void {
   const name = route.name || route.component;

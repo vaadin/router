@@ -1,4 +1,5 @@
-import type {IndexedParams} from "./params.js";
+import type { RequireAtLeastOne } from 'type-fest';
+import type { IndexedParams } from './params.js';
 
 export type NotFoundResult = Readonly<{
   // Prevent treating any object literals `{}` as a match for this type
@@ -17,7 +18,8 @@ export type RedirectResult = Readonly<{
   _redirectResultBrand: never;
 }>;
 
-export type ActionResult = void
+export type ActionResult =
+  | void
   | null
   | HTMLElement
   | NotFoundResult
@@ -36,7 +38,6 @@ export type Context = Readonly<{
 
 export type Commands = Readonly<{
   component: (name: string) => ComponentResult;
-
   redirect: (path: string) => RedirectResult;
 
   /**
@@ -51,40 +52,32 @@ export type ActionFn = (context: Context, commands: Commands) => ActionResult | 
 
 export type ChildrenFn = (context: Omit<Context, 'next'>) => Route[] | Promise<Route[]>;
 
-type MakeRequired<T, K extends keyof T> = T & Required<Pick<T, K>>;
-
-type BaseRoute = {
+type Route = Readonly<{
   path: string;
   name?: string;
-  // Route requires at least one of the following optional properties
-  action?: ActionFn;
-  children?: Route[] | ChildrenFn;
-  component?: string;
-  redirect?: string;
-};
+}> &
+  Readonly<
+    RequireAtLeastOne<{
+      action?: ActionFn;
+      children?: Route[] | ChildrenFn;
+      component?: string;
+      redirect?: string;
+    }>
+  >;
 
-type AnimateCustomClasses = {
+type AnimateCustomClasses = Readonly<{
   enter?: string;
   leave?: string;
-};
+}>;
 
-type AnimatableRoute = BaseRoute & {
-  animate?: boolean | AnimateCustomClasses;
-};
+export type AnimatableRoute = Route &
+  Readonly<{
+    animate?: boolean | AnimateCustomClasses;
+  }>;
 
-type RouteWithAction = MakeRequired<BaseRoute, 'action'>;
-type RouteWithChildren = MakeRequired<AnimatableRoute, 'children'>;
-type RouteWithComponent = MakeRequired<AnimatableRoute, 'component'>;
-type RouteWithRedirect = MakeRequired<BaseRoute, 'redirect'>;
-
-export type Route = RouteWithAction
-  | RouteWithChildren
-  | RouteWithComponent
-  | RouteWithRedirect
-
-export type InternalRoute = BaseRoute & {
-  animate?: boolean | AnimateCustomClasses;
-  parent?: InternalRoute;
-  __children?: InternalRoute[];
-  __synthetic?: true;
-}
+export type InternalRoute = AnimatableRoute &
+  Readonly<{
+    parent?: InternalRoute;
+    __children?: InternalRoute[];
+    __synthetic?: true;
+  }>;
