@@ -229,7 +229,7 @@ describe('matchPath(routepath, path, exact)', () => {
     });
 
     it('should preserve the provided keys and params if the route has no params', () => {
-      const {keys, params} = matchPath('/:x', '/y');
+      const {keys, params} = matchPath('/:x', '/y') ?? {};
       const result = matchPath('/a', '/a', false, keys, params);
       expect(result)
         .to.have.property('keys')
@@ -240,21 +240,21 @@ describe('matchPath(routepath, path, exact)', () => {
     });
 
     it('should amend the provided keys and params if the route has some params', () => {
-      const {keys, params} = matchPath('/:x', '/y');
+      const {keys, params} = matchPath('/:x', '/y') ?? {};
       const result = matchPath('/:a/:b?', '/1', false, keys, params);
       expect(result).to.have.property('path', '/1');
       expect(result)
         .to.have.property('keys')
         .and.be.an('array')
         .lengthOf(3);
-      expect(result.keys[0]).to.be.deep.equal(keys[0]);
+      expect(result?.keys[0]).to.be.deep.equal(keys?.[0]);
       expect(result)
         .to.have.property('params')
         .and.be.deep.equal({x: 'y', a: '1', b: undefined});
     });
 
     it('should override the provided param value with the route param of the same name', () => {
-      const {keys, params} = matchPath('/:b', '/0');
+      const {keys, params} = matchPath('/:b', '/0') ?? {};
       const result = matchPath('/:a/:b?', '/1/2', false, keys, params);
       expect(result).to.have.property('path', '/1/2');
       expect(result)
@@ -263,7 +263,7 @@ describe('matchPath(routepath, path, exact)', () => {
     });
 
     it('should not override the provided param value with undefined', () => {
-      const {keys, params} = matchPath('/:b', '/0');
+      const {keys, params} = matchPath('/:b', '/0') ?? {};
       const result = matchPath('/:a/:b?', '/1', false, keys, params);
       expect(result).to.have.property('path', '/1');
       expect(result)
@@ -272,7 +272,7 @@ describe('matchPath(routepath, path, exact)', () => {
     });
 
     it.skip('should override the provided param key with the route param of the same name', () => {
-      const {keys, params} = matchPath('/:b', '/0');
+      const {keys, params} = matchPath('/:b', '/0') ?? {};
       const result = matchPath('/:a/:b?', '/1/2', false, keys, params);
       expect(result).to.have.property('path', '/1/2');
       expect(result)
@@ -282,14 +282,14 @@ describe('matchPath(routepath, path, exact)', () => {
     });
 
     it.skip('should not override the provided param key with undefined', () => {
-      const {keys, params} = matchPath('/:b', '/0');
+      const {keys, params} = matchPath('/:b', '/0') ?? {};
       const result = matchPath('/:a/:b?', '/1', false, keys, params);
       expect(result).to.have.property('path', '/1');
       expect(result)
         .to.have.property('keys')
         .and.be.an('array')
         .lengthOf(2);
-      expect(result.keys[0]).to.be.deep.equal(keys[0]);
+      expect(result?.keys[0]).to.be.deep.equal(keys?.[0]);
     });
   });
 
@@ -388,11 +388,13 @@ describe('matchPath(routepath, path, exact)', () => {
 
   describe.skip('array of paths', () => {
     it('should match to an array of paths', () => {
+      // @ts-expect-error: skipped test
       const result = matchPath({path: ['/e', '/f']}, '/f');
       expect(result).to.be.deep.equal({path: '/f', keys: [], params: {}});
     });
 
     it('should not override existing param with undefined', () => {
+      // @ts-expect-error: skipped test
       const fn = () => matchPath({path: ['/a/:c', '/b/:c']}, '/a/x');
       expect(fn).to.not.throw();
       expect(fn())
