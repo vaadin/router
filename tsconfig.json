@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "lib": ["es2021", "dom"],
+    "lib": ["es2021", "dom", "dom.iterable"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
     "strict": true,
@@ -20,6 +21,7 @@
     "outDir": "dist"
   },
   "include": [
-    "src/vaadin-router.ts",
+    "src/**/*",
+    "test/**/*"
   ]
 }
