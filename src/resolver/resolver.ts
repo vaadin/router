@@ -177,24 +177,24 @@ class Resolver {
     let nextMatches: IteratorResult<MatchWithRoute, undefined> | null = null;
     let currentContext = context;
 
-    function next(
+    async function next(
       resume: boolean = false,
       parent: InternalRoute | undefined = matches?.value?.route,
-      prevResult: ResolveResult | null = null,
+      prevResult?: ResolveResult | null,
     ): Promise<ResolveResult> {
       const routeToSkip = prevResult === null ? matches?.value?.route : undefined;
-      matches = nextMatches || routeToSkip ? match.next(routeToSkip!) : match.next();
+      matches = nextMatches || match.next(routeToSkip);
       nextMatches = null;
 
       if (!resume) {
         if (matches.done || !isChildRoute(parent, matches.value.route)) {
           nextMatches = matches;
-          return Promise.resolve(notFoundResult);
+          return notFoundResult;
         }
       }
 
       if (matches.done) {
-        return Promise.reject(getNotFoundError(context as unknown as Context));
+        throw getNotFoundError(context as unknown as Context);
       }
 
       currentContext = Object.assign(
@@ -204,7 +204,7 @@ class Resolver {
       );
       updateChainForRoute(currentContext, matches.value);
 
-      return Promise.resolve(resolve(currentContext as unknown as Context)).then((resolution) => {
+      return resolve(currentContext as unknown as Context).then((resolution) => {
         if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
           currentContext.result = ('result' in resolution ? resolution.result : resolution) as ActionResult;
           return currentContext as ContextWithChain;
@@ -213,26 +213,24 @@ class Resolver {
       });
     }
 
-    return Promise.resolve()
-      .then(() => next(true, this.root) as Promise<InternalContext>)
-      .catch((error) => {
-        const errorMessage = generateErrorMessage(currentContext);
-        if (!error) {
-          error = new Error(errorMessage);
-        } else {
-          console.warn(errorMessage);
-        }
-        error.context = error.context || currentContext;
-        // DOMException has its own code which is read-only
-        if (!(error instanceof DOMException)) {
-          error.code = error.code || 500;
-        }
-        if (this.errorHandler) {
-          currentContext.result = this.errorHandler(error);
-          return currentContext;
-        }
-        throw error;
-      });
+    return (next(true, this.root) as Promise<InternalContext>).catch((error) => {
+      const errorMessage = generateErrorMessage(currentContext);
+      if (!error) {
+        error = new Error(errorMessage);
+      } else {
+        console.warn(errorMessage);
+      }
+      error.context = error.context || currentContext;
+      // DOMException has its own code which is read-only
+      if (!(error instanceof DOMException)) {
+        error.code = error.code || 500;
+      }
+      if (this.errorHandler) {
+        currentContext.result = this.errorHandler(error);
+        return currentContext;
+      }
+      throw error;
+    });
   }
 
   /**

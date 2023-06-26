@@ -1,6 +1,10 @@
-import { expect } from '@esm-bundle/chai';
-import sinon from 'sinon';
+import { expect, use } from '@esm-bundle/chai';
+import chaiAsPromised from 'chai-as-promised';
+import sinon, { type SinonSpy } from 'sinon';
 import { Router } from '../../src/router.js';
+import { verifyActiveRoutes } from './test-utils.js';
+
+use(chaiAsPromised);
 
 declare global {
   interface Window {
@@ -11,9 +15,19 @@ declare global {
 describe('Vaadin.Router', function () {
   // eslint-disable-next-line no-invalid-this
   const suite = this;
+
   suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
   let outlet: HTMLElement;
+  let router: Router;
+
+  const defaultURL = location.href;
+
+  const cleanOutlet = () => {
+    for (const child of outlet.children) {
+      child.remove();
+    }
+  }
 
   before(() => {
     outlet = document.createElement('div');
@@ -24,17 +38,9 @@ describe('Vaadin.Router', function () {
     outlet.remove();
   });
 
-  let router: Router;
-
   beforeEach(async function () {
-    const test = this;
-
-    for (const child of outlet.children) {
-      child.remove();
-    }
-
-    // reset the window URL
-    window.history.pushState(null, '', '/');
+    history.pushState(null, '', location.origin);
+    cleanOutlet();
 
     // create a new router instance
     router = new Router(outlet);
@@ -42,6 +48,7 @@ describe('Vaadin.Router', function () {
 
   afterEach(() => {
     router.unsubscribe();
+    history.pushState(null, '', defaultURL);
   });
 
   describe('resolver chain and router features', () => {
@@ -90,73 +97,75 @@ describe('Vaadin.Router', function () {
     });
 
     it('should fail on recursive action redirects', async () => {
-      // Assure that outlet is emptied.
-      outlet.innerHTML = '';
-
       await router.setRoutes([
+        { path: '/', action: (context, commands) => commands.component('x-home-view') },
         { path: '/a', action: (context, commands) => commands.redirect('/b') },
         { path: '/b', action: (context, commands) => commands.redirect('/c') },
         { path: '/c', action: (context, commands) => commands.redirect('/a') },
       ]);
 
-      const onError = sinon.spy();
-      await router.render('/a').catch(onError);
-
-      expect(outlet.children).to.have.lengthOf(0);
-      expect(onError).to.have.been.calledOnce;
+      cleanOutlet();
+      expect(router.render('/a')).to.be.rejectedWith(Error);
+      expect(outlet).to.be.empty;
     });
 
-    it('should use `window.replaceState()` when redirecting from action on first render', async () => {
-      const pushSpy = sinon.spy(window.history, 'pushState');
-      const replaceSpy = sinon.spy(window.history, 'replaceState');
+    describe('working with History', () => {
+      let pushSpy: SinonSpy<Parameters<History['pushState']>, ReturnType<History['pushState']>>;
+      let replaceSpy: SinonSpy<Parameters<History['replaceState']>, ReturnType<History['replaceState']>>;
 
-      await router.setRoutes(
-        [
+      beforeEach(() => {
+        pushSpy = sinon.spy(window.history, 'pushState');
+        replaceSpy = sinon.spy(window.history, 'replaceState');
+      });
+
+      afterEach(() => {
+        pushSpy.restore();
+        replaceSpy.restore();
+      });
+
+      it('should use `window.replaceState()` when redirecting from action on first render', async () => {
+        await router.setRoutes(
+          [
+            { path: '/', action: (context, commands) => commands.redirect('/a') },
+            { path: '/a', component: 'x-users-view' },
+          ],
+          true,
+        );
+
+        await router.render('/', true);
+
+        expect(pushSpy).to.not.be.called;
+        expect(replaceSpy).to.be.calledOnce;
+      });
+
+      it('should use `window.pushState()` when redirecting from action on next renders', async () => {
+        await router.setRoutes([
           { path: '/', action: (context, commands) => commands.redirect('/a') },
           { path: '/a', component: 'x-users-view' },
-        ],
-        true,
-      );
+          { path: '/b', component: 'x-users-view' },
+        ]);
+        await router.render('/b', true);
 
-      await router.render('/', true);
+        pushSpy.resetHistory();
+        replaceSpy.resetHistory();
 
-      expect(pushSpy).to.not.be.called;
-      expect(replaceSpy).to.be.calledOnce;
+        await router.render('/', true);
 
-      pushSpy.restore();
-      replaceSpy.restore();
-    });
+        expect(pushSpy).to.be.calledOnce;
+        expect(replaceSpy).to.not.be.called;
 
-    it('should use `window.pushState()` when redirecting from action on next renders', async () => {
-      await router.setRoutes([
-        { path: '/', action: (context, commands) => commands.redirect('/a') },
-        { path: '/a', component: 'x-users-view' },
-        { path: '/b', component: 'x-users-view' },
-      ]);
-      await router.render('/b', true);
+        // Make non-redirecting render to update the URL
+        await router.render('/b', true);
 
-      const pushSpy = sinon.spy(window.history, 'pushState');
-      const replaceSpy = sinon.spy(window.history, 'replaceState');
+        expect(pushSpy).to.be.calledTwice;
+        expect(replaceSpy).to.not.be.called;
 
-      await router.render('/', true);
+        // Redirecting navigation again
+        await router.render('/', true);
 
-      expect(pushSpy).to.be.calledOnce;
-      expect(replaceSpy).to.not.be.called;
-
-      // Make non-redirecting render to update the URL
-      await router.render('/b', true);
-
-      expect(pushSpy).to.be.calledTwice;
-      expect(replaceSpy).to.not.be.called;
-
-      // Redirecting navigation again
-      await router.render('/', true);
-
-      expect(pushSpy).to.be.calledThrice;
-      expect(replaceSpy).to.not.be.called;
-
-      pushSpy.restore();
-      replaceSpy.restore();
+        expect(pushSpy).to.be.calledThrice;
+        expect(replaceSpy).to.not.be.called;
+      });
     });
   });
 });

@@ -20,7 +20,9 @@ module.exports = (config) => {
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-setuid-sandbox'],
+        flags: ['--no-sandbox', '--disable-setuid-sandbox', isCI ? undefined : '--disable-dev-shm-usage'].filter(
+          Boolean,
+        ),
       },
     },
 
@@ -48,7 +50,7 @@ module.exports = (config) => {
 
     coverageReporter: {
       dir: '.coverage/',
-      reporters: [!isCI && {type: 'html', subdir: 'html'}, {type: 'lcovonly', subdir: '.'}].filter(Boolean),
+      reporters: [!isCI && { type: 'html', subdir: 'html' }, { type: 'lcovonly', subdir: '.' }].filter(Boolean),
     },
   });
 };

@@ -66,6 +66,7 @@
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@types/chai-as-promised": "^7.1.5",
     "@types/chai-dom": "^1.11.0",
     "@types/form-data": "^2.5.0",
     "@types/karma": "^6.3.4",
@@ -78,6 +79,7 @@
     "browser-sync": "^2.26.14",
     "browserslist": "^4.21.5",
     "bundlesize": "^0.18.1",
+    "chai-as-promised": "^7.1.1",
     "chai-dom": "^1.11.0",
     "eslint": "^7.22.0",
     "eslint-plugin-html": "^6.1.2",

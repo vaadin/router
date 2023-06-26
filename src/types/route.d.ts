@@ -53,7 +53,7 @@ export type ActionFn = (context: Context, commands: Commands) => ActionResult | 
 export type ChildrenFn = (context: Omit<Context, 'next'>) => Route[] | Promise<Route[]>;
 
 type Route = Readonly<{
-  path: string | ReadonlyArray<string | Regexp>;
+  path: string;
   name?: string;
 }> &
   Readonly<

@@ -7,15 +7,15 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import matchPath, {type Match} from './matchPath.js';
-import type {InternalRoute} from "../types/route.js";
-import type {Key} from "path-to-regexp";
-import type {Params} from "../types/params.js";
-import { isFunction } from '../utils.js';
+import matchPath, { type Match } from './matchPath.js';
+import type { InternalRoute } from '../types/route.js';
+import type { Key } from 'path-to-regexp';
+import type { Params } from '../types/params.js';
 
-export type MatchWithRoute = Match & Readonly<{
-  route: InternalRoute
-}>;
+export type MatchWithRoute = Match &
+  Readonly<{
+    route: InternalRoute;
+  }>;
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from
@@ -62,22 +62,28 @@ export type MatchWithRoute = Match & Readonly<{
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params): Iterator<MatchWithRoute, undefined, InternalRoute> {
+function matchRoute(
+  route: InternalRoute,
+  pathname: string,
+  ignoreLeadingSlash: boolean,
+  parentKeys?: ReadonlyArray<Key>,
+  parentParams?: Params,
+): Iterator<MatchWithRoute, undefined, InternalRoute | undefined> {
   let match: Match | null;
   let childMatches: ReturnType<typeof matchRoute> | null;
   let childIndex = 0;
   let routepath = route.path || '';
   if (routepath.charAt(0) === '/') {
     if (ignoreLeadingSlash) {
-      routepath = routepath.substr(1);
+      routepath = routepath.substring(1);
     }
     ignoreLeadingSlash = true;
   }
 
   return {
-    next(routeToSkip: InternalRoute) {
+    next(routeToSkip?: InternalRoute) {
       if (route === routeToSkip) {
-        return {done: true};
+        return { done: true };
       }
 
       if (Array.isArray(route.children)) {
@@ -96,7 +102,7 @@ function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: 
               route,
               keys: match.keys,
               params: match.params,
-              path: match.path
+              path: match.path,
             },
           };
         }
@@ -119,7 +125,7 @@ function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: 
               pathname.substr(matchedLength),
               ignoreLeadingSlash,
               match.keys,
-              match.params
+              match.params,
             );
           }
 
@@ -136,7 +142,7 @@ function matchRoute(route: InternalRoute, pathname: string, ignoreLeadingSlash: 
         }
       }
 
-      return {done: true};
+      return { done: true };
     },
   };
 }

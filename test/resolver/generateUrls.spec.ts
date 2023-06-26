@@ -76,14 +76,17 @@ describe('generateUrls(router, options)(routeName, params)', () => {
   });
 
   it('should generate urls for routes with array of paths', async () => {
+    // @ts-expect-error: universal-router API
     const router1 = new Resolver({ action() {}, path: ['/:name', '/user/:name'], name: 'user' });
     const url1 = generateUrls(router1);
     expect(url1('user', { name: 'koistya' })).to.be.equal('/koistya');
 
+    // @ts-expect-error: universal-router API
     const router2 = new Resolver({ action() {}, path: ['/user/:id', /\/user\/(\d+)/iu], name: 'user' });
     const url2 = generateUrls(router2);
     expect(url2('user', { id: '123' })).to.be.equal('/user/123');
 
+    // @ts-expect-error: universal-router API
     const router3 = new Resolver({ action() {}, path: [], name: 'user' });
     const url3 = generateUrls(router3);
     expect(url3('user')).to.be.equal('/');
