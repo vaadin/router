@@ -26,6 +26,11 @@ module.exports = (config) => {
       },
     },
 
+    captureTimeout: 60000, // it was already there
+    browserDisconnectTimeout : 10000,
+    browserDisconnectTolerance : 1,
+    browserNoActivityTimeout : 60000,//by default 10000
+
     frameworks: ['vite', 'mocha'],
 
     files: [
