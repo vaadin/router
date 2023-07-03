@@ -1,10 +1,6 @@
-import type {RouterLocation} from "../documentation/location.js";
-import type {
-  Commands,
-  PreventResult,
-  RedirectResult
-} from "./route.js";
-import type {Router} from "../router.js";
+import type { RouterLocation } from '../documentation/location.js';
+import type { Commands, PreventResult, RedirectResult } from './route.js';
+import type { Router } from '../router.js';
 
 export type PreventAndRedirectCommands = Pick<Commands, 'prevent' | 'redirect'>;
 export type PreventCommands = Pick<Commands, 'prevent'>;
@@ -101,16 +97,11 @@ export interface BeforeEnterObserver extends WebComponentInterface {
    * Vaadin Router proceeds by redirecting to the given path. Any other return
    * value is ignored and Vaadin Router proceeds with the navigation.
    */
-  onBeforeEnter: (
+  onBeforeEnter(
     location: RouterLocation,
     commands: PreventAndRedirectCommands,
-    router: Router
-  ) => void
-    | PreventResult
-    | RedirectResult
-    | Promise<void
-    | PreventResult
-    | RedirectResult>;
+    router: Router,
+  ): void | PreventResult | RedirectResult | Promise<void | PreventResult | RedirectResult>;
 }
 
 export interface BeforeLeaveObserver extends WebComponentInterface {
@@ -138,14 +129,11 @@ export interface BeforeLeaveObserver extends WebComponentInterface {
    * is not updated. Any other return value is ignored and Vaadin Router
    * proceeds with the navigation.
    */
-  onBeforeLeave: (
+  onBeforeLeave(
     location: RouterLocation,
     commands: PreventCommands,
-    router: Router
-  ) => void
-    | PreventResult
-    | Promise<void
-    | PreventResult>;
+    router: Router,
+  ): void | PreventResult | Promise<void | PreventResult>;
 }
 
 export interface AfterEnterObserver extends WebComponentInterface {
@@ -168,11 +156,7 @@ export interface AfterEnterObserver extends WebComponentInterface {
    * @param router the `Router` instance
    * @return any return value is ignored and Vaadin Router proceeds with the navigation.
    */
-  onAfterEnter: (
-    location: RouterLocation,
-    commands: EmptyCommands,
-    router: Router
-  ) => void;
+  onAfterEnter(location: RouterLocation, commands: EmptyCommands, router: Router): void;
 }
 
 export interface AfterLeaveObserver extends WebComponentInterface {
@@ -196,9 +180,5 @@ export interface AfterLeaveObserver extends WebComponentInterface {
    * @param router the `Router` instance
    * @return any return value is ignored and Vaadin Router proceeds with the navigation.
    */
-  onAfterLeave: (
-    location: RouterLocation,
-    commands: EmptyCommands,
-    router: Router
-  ) => void;
+  onAfterLeave(location: RouterLocation, commands: EmptyCommands, router: Router): void;
 }

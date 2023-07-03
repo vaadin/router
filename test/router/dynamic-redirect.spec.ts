@@ -21,7 +21,7 @@ describe('Vaadin.Router', function () {
   let outlet: HTMLElement;
   let router: Router;
 
-  const defaultURL = location.href;
+  const DEFAULT_URL = location.href;
 
   const cleanOutlet = () => {
     for (const child of outlet.children) {
@@ -48,7 +48,7 @@ describe('Vaadin.Router', function () {
 
   afterEach(() => {
     router.unsubscribe();
-    history.pushState(null, '', defaultURL);
+    history.pushState(null, '', DEFAULT_URL);
   });
 
   describe('resolver chain and router features', () => {

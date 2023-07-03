@@ -6,9 +6,9 @@ export type NotFoundResult = Readonly<{
   _notFoundResultBrand: never;
 }>;
 
-export type ComponentResult = Readonly<{
+export interface ComponentResult<T extends HTMLElement = HTMLElement> extends T {
   _componentResultBrand: never;
-}>;
+}
 
 export type PreventResult = Readonly<{
   _preventResultBrand: never;
@@ -37,15 +37,16 @@ export type Context = Readonly<{
 }>;
 
 export type Commands = Readonly<{
-  component: (name: string) => ComponentResult;
-  redirect: (path: string) => RedirectResult;
+  component<K extends keyof HTMLElementTagNameMap>(name: K): ComponentResult<HTMLElementTagNameMap[K]>;
+  component(name: string): ComponentResult;
+  redirect(path: string): RedirectResult;
 
   /**
    * function that creates a special object that can be returned to abort
    * the current navigation and fall back to the last one. If there is no
    * existing one, an exception is thrown.
    */
-  prevent: () => PreventResult;
+  prevent(): PreventResult;
 }>;
 
 export type ActionFn = (context: Context, commands: Commands) => ActionResult | Promise<ActionResult>;

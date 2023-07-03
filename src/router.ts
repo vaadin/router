@@ -70,7 +70,8 @@ export type {
   PreventAndRedirectCommands,
 };
 
-const MAX_REDIRECT_COUNT = 10;
+// TODO: Restore test count
+const MAX_REDIRECT_COUNT = 5;
 
 function isResultNotEmpty(result?: unknown | undefined | null): boolean {
   return result !== null && result !== undefined;
@@ -134,6 +135,14 @@ function renderElement(context: ContextWithChain, element: Element): Element {
   return element;
 }
 
+function is<T = unknown>(maybeObject: unknown, checker: (obj: object) => boolean): maybeObject is T {
+  return !!maybeObject && typeof maybeObject === 'object' && checker(maybeObject);
+}
+
+function isRedirectMarker(maybeRedirectMarker: unknown): maybeRedirectMarker is RedirectMarker {
+  return is<RedirectMarker>(maybeRedirectMarker, (obj) => 'redirect' in obj);
+}
+
 function runCallbackIfPossible<TFunction extends (...args: unknown[]) => unknown>(
   callback?: TFunction | unknown,
   args?: Parameters<TFunction>,
@@ -150,7 +159,7 @@ function amend<
   TElement extends Element & WebComponentInterface & { [key in TMethodName]?: TFunction },
 >(amendmentFunction: TMethodName, args: Parameters<TFunction>, element?: TElement) {
   return (amendmentResult: ResultMarker) => {
-    if (amendmentResult && ('cancel' in amendmentResult || 'redirect' in amendmentResult)) {
+    if (amendmentResult && is<ResultMarker>(amendmentResult, (obj) => 'cancel' in obj || 'redirect' in obj)) {
       return amendmentResult;
     }
 
@@ -353,7 +362,7 @@ export class Router extends Resolver {
       component: (component: string) => {
         const element = document.createElement(component);
         this.__createdByRouter.set(element, true);
-        return element as unknown as ComponentResult;
+        return element as ComponentResult;
       },
     };
 
@@ -372,7 +381,7 @@ export class Router extends Resolver {
             return result as unknown as ComponentResult;
           }
 
-          if ('redirect' in (result as object)) {
+          if (is(result, isRedirectMarker)) {
             return result as unknown as RedirectResult;
           }
 
@@ -686,12 +695,8 @@ export class Router extends Resolver {
     if (result instanceof HTMLElement) {
       renderElement(context as ContextWithChain, result);
       return context as ContextWithChain;
-    } else if ('redirect' in (result as object)) {
-      const ctx = await this.__redirect(
-        (result as unknown as RedirectMarker).redirect,
-        context.__redirectCount,
-        context.__renderId,
-      );
+    } else if (is<RedirectMarker>(result, isRedirectMarker)) {
+      const ctx = await this.__redirect(result.redirect, context.__redirectCount, context.__renderId);
       return this.__findComponentContextAfterAllRedirects(ctx as InternalContext);
     }
 
@@ -800,11 +805,11 @@ export class Router extends Resolver {
     }
     return callbacks.then((amendmentResult: ResultMarker) => {
       if (amendmentResult) {
-        if ('cancel' in amendmentResult && this.__previousContext) {
+        if (is<CancelMarker>(amendmentResult, (obj) => 'cancel' in obj) && this.__previousContext) {
           this.__previousContext.__renderId = newContext.__renderId;
           return this.__previousContext as InternalContext;
         }
-        if ('redirect' in amendmentResult) {
+        if (is<RedirectMarker>(amendmentResult, isRedirectMarker)) {
           return this.__redirect(amendmentResult.redirect, newContext.__redirectCount, newContext.__renderId);
         }
       }
@@ -819,9 +824,6 @@ export class Router extends Resolver {
     chainElement: ChainItem,
   ): Promise<ResultMarker> {
     const location = createLocation(newContext);
-
-    let result: ResolveResult | undefined;
-
     if (this.__isLatestRender(newContext)) {
       const beforeLeaveFunction = amend(
         'onBeforeLeave',
@@ -829,11 +831,11 @@ export class Router extends Resolver {
         chainElement.element as Element & Partial<BeforeLeaveObserver>,
       );
 
-      result = (await beforeLeaveFunction(await callbacks)) as ResolveResult | undefined;
-    }
+      const result = (await beforeLeaveFunction(await callbacks)) as ResolveResult | undefined;
 
-    if (result && !('redirect' in (result as object))) {
-      return result as ResultMarker;
+      if (!is<RedirectMarker>(result, isRedirectMarker)) {
+        return result as ResultMarker;
+      }
     }
   }
 
