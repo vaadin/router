@@ -1,12 +1,6 @@
-import {expect, use} from '@esm-bundle/chai';
-import sinon from 'sinon';
-import chaiDom from 'chai-dom';
-import sinonChai from 'sinon-chai';
-
-use(chaiDom);
-use(sinonChai);
-
-import POPSTATE from '../../src/triggers/popstate';
+import { expect } from "@esm-bundle/chai";
+import sinon from "sinon";
+import POPSTATE from "../../src/triggers/popstate.js";
 
 describe('NavigationTriggers.POPSTATE', () => {
   let pathname, search, hash;
@@ -17,7 +11,7 @@ describe('NavigationTriggers.POPSTATE', () => {
   });
 
   after(() => {
-    window.history.pushState(null, null, pathname + search + hash);
+    window.history.pushState(null, '', pathname + search + hash);
   });
 
   it('should expose the NavigationTrigger API', () => {
@@ -30,7 +24,7 @@ describe('NavigationTriggers.POPSTATE', () => {
     const spy = sinon.spy();
     window.addEventListener('vaadin-router-go', spy);
     POPSTATE.activate();
-    window.history.pushState(null, null, '/test-url?search#hash');
+    window.history.pushState(null, '', '/test-url?search#hash');
     window.dispatchEvent(new PopStateEvent('popstate'));
     window.removeEventListener('vaadin-router-go', spy);
     expect(spy).to.have.been.calledOnce;
@@ -45,7 +39,7 @@ describe('NavigationTriggers.POPSTATE', () => {
     const spy = sinon.spy();
     window.addEventListener('vaadin-router-go', spy);
     POPSTATE.activate();
-    window.history.pushState(null, null, '/test-url');
+    window.history.pushState(null, '', '/test-url');
     window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router-ignore'}));
     window.removeEventListener('vaadin-router-go', spy);
     expect(spy).to.not.have.been.called;
@@ -56,7 +50,7 @@ describe('NavigationTriggers.POPSTATE', () => {
     POPSTATE.inactivate();
     const spy = sinon.spy();
     window.addEventListener('vaadin-router-go', spy);
-    window.history.pushState(null, null, '/test-url');
+    window.history.pushState(null, '', '/test-url');
     window.dispatchEvent(new PopStateEvent('popstate'));
     window.removeEventListener('vaadin-router-go', spy);
     expect(spy).to.not.have.been.called;

@@ -1,12 +1,6 @@
-import {expect, use} from '@esm-bundle/chai';
-import sinon from 'sinon';
-import chaiDom from 'chai-dom';
-import sinonChai from 'sinon-chai';
-
-use(chaiDom);
-use(sinonChai);
-
-import setNavigationTriggers from '../../src/triggers/setNavigationTriggers';
+import { expect } from "@esm-bundle/chai";
+import sinon from "sinon";
+import { setNavigationTriggers } from "../../src/triggers/navigationTriggers.js";
 
 describe('setNavigationTriggers', () => {
   function createTriggerMock() {

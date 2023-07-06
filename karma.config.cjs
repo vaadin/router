@@ -40,12 +40,6 @@ module.exports = (config) => {
         watched: false,
         served: false,
       },
-      {
-        pattern: 'test/**/*.spec.js',
-        type: 'module',
-        watched: false,
-        served: false,
-      },
     ],
 
     reporters: ['progress', coverage && 'coverage'].filter(Boolean),

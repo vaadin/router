@@ -1,9 +1,9 @@
-const willAnimate = (elem: Element) => {
+const willAnimate = elem => {
   const name = getComputedStyle(elem).getPropertyValue('animation-name');
   return name && name !== 'none';
 };
 
-const waitForAnimation = (elem: Element, cb: () => void) => {
+const waitForAnimation = (elem, cb) => {
   const listener = () => {
     elem.removeEventListener('animationend', listener);
     cb();
@@ -11,7 +11,7 @@ const waitForAnimation = (elem: Element, cb: () => void) => {
   elem.addEventListener('animationend', listener);
 };
 
-function animate(elem: Element, className: string): Promise<void> {
+function animate(elem, className) {
   elem.classList.add(className);
 
   return new Promise(resolve => {

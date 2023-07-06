@@ -7,14 +7,15 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import {expect, use} from '@esm-bundle/chai';
-import chaiDom from 'chai-dom';
-import sinonChai from 'sinon-chai';
+import { expect, use } from "@esm-bundle/chai";
+import chaiAsPromised from "chai-as-promised";
+import chaiDom from "chai-dom";
+import sinonChai from "sinon-chai";
+import matchPath from "../../src/resolver/matchPath.js";
 
 use(chaiDom);
 use(sinonChai);
-
-import matchPath from '../../src/resolver/matchPath';
+use(chaiAsPromised);
 
 describe('matchPath(routepath, path, exact)', () => {
   describe('negative matches (should return null)', () => {
@@ -207,89 +208,59 @@ describe('matchPath(routepath, path, exact)', () => {
       const result = matchPath('/:a/:b', '/1/2');
       expect(result).to.be.ok;
       expect(result).to.have.property('path', '/1/2');
-      expect(result)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(2);
-      expect(result)
-        .to.have.property('params')
-        .and.be.deep.equal({a: '1', b: '2'});
+      expect(result).to.have.property('keys').and.be.an('array').lengthOf(2);
+      expect(result).to.have.property('params').and.be.deep.equal({ a: '1', b: '2' });
     });
 
     it('should contain empty keys and params if the route has no params', () => {
       const result = matchPath('', '');
-      expect(result)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(0);
-      expect(result)
-        .to.have.property('params')
-        .and.be.an('object')
-        .and.be.deep.equal({});
+      expect(result).to.have.property('keys').and.be.an('array').lengthOf(0);
+      expect(result).to.have.property('params').and.be.an('object').and.be.deep.equal({});
     });
 
     it('should preserve the provided keys and params if the route has no params', () => {
-      const {keys, params} = matchPath('/:x', '/y') ?? {};
+      const { keys, params } = matchPath('/:x', '/y')!;
       const result = matchPath('/a', '/a', false, keys, params);
-      expect(result)
-        .to.have.property('keys')
-        .and.be.deep.equal(keys);
-      expect(result)
-        .to.have.property('params')
-        .and.be.deep.equal(params);
+      expect(result).to.have.property('keys').and.be.deep.equal(keys);
+      expect(result).to.have.property('params').and.be.deep.equal(params);
     });
 
     it('should amend the provided keys and params if the route has some params', () => {
-      const {keys, params} = matchPath('/:x', '/y') ?? {};
+      const { keys, params } = matchPath('/:x', '/y')!;
       const result = matchPath('/:a/:b?', '/1', false, keys, params);
       expect(result).to.have.property('path', '/1');
-      expect(result)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(3);
-      expect(result?.keys[0]).to.be.deep.equal(keys?.[0]);
-      expect(result)
-        .to.have.property('params')
-        .and.be.deep.equal({x: 'y', a: '1', b: undefined});
+      expect(result).to.have.property('keys').and.be.an('array').lengthOf(3);
+      expect(result?.keys[0]).to.be.deep.equal(keys[0]);
+      expect(result).to.have.property('params').and.be.deep.equal({ x: 'y', a: '1', b: undefined });
     });
 
     it('should override the provided param value with the route param of the same name', () => {
-      const {keys, params} = matchPath('/:b', '/0') ?? {};
+      const { keys, params } = matchPath('/:b', '/0')!;
       const result = matchPath('/:a/:b?', '/1/2', false, keys, params);
       expect(result).to.have.property('path', '/1/2');
-      expect(result)
-        .to.have.property('params')
-        .and.be.deep.equal({a: '1', b: '2'});
+      expect(result).to.have.property('params').and.be.deep.equal({ a: '1', b: '2' });
     });
 
     it('should not override the provided param value with undefined', () => {
-      const {keys, params} = matchPath('/:b', '/0') ?? {};
+      const { keys, params } = matchPath('/:b', '/0')!;
       const result = matchPath('/:a/:b?', '/1', false, keys, params);
       expect(result).to.have.property('path', '/1');
-      expect(result)
-        .to.have.property('params')
-        .and.be.deep.equal({a: '1', b: '0'});
+      expect(result).to.have.property('params').and.be.deep.equal({ a: '1', b: '0' });
     });
 
     it.skip('should override the provided param key with the route param of the same name', () => {
-      const {keys, params} = matchPath('/:b', '/0') ?? {};
+      const { keys, params } = matchPath('/:b', '/0')!;
       const result = matchPath('/:a/:b?', '/1/2', false, keys, params);
       expect(result).to.have.property('path', '/1/2');
-      expect(result)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(2);
+      expect(result).to.have.property('keys').and.be.an('array').lengthOf(2);
     });
 
     it.skip('should not override the provided param key with undefined', () => {
-      const {keys, params} = matchPath('/:b', '/0') ?? {};
+      const { keys, params } = matchPath('/:b', '/0')!;
       const result = matchPath('/:a/:b?', '/1', false, keys, params);
       expect(result).to.have.property('path', '/1');
-      expect(result)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(2);
-      expect(result?.keys[0]).to.be.deep.equal(keys?.[0]);
+      expect(result).to.have.property('keys').and.be.an('array').lengthOf(2);
+      expect(result?.keys[0]).to.be.deep.equal(keys[0]);
     });
   });
 
@@ -297,84 +268,54 @@ describe('matchPath(routepath, path, exact)', () => {
     it('should allow literal parenthesis', () => {
       const result = matchPath('/:user\\(:op\\)', '/tj(edit)');
       expect(result).to.have.property('path', '/tj(edit)');
-      expect(result)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(2);
-      expect(result)
-        .to.have.property('params')
-        .and.be.deep.equal({user: 'tj', op: 'edit'});
+      expect(result).to.have.property('keys').and.be.an('array').lengthOf(2);
+      expect(result).to.have.property('params').and.be.deep.equal({ user: 'tj', op: 'edit' });
     });
 
     it('should allow unnamed capturing groups', () => {
       const result1 = matchPath('/user(s)?/:user/:op', '/users/tj/edit');
       const result2 = matchPath('/user(s)?/:user/:op', '/user/tj/edit');
 
-      expect(result1)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(3);
-      expect(result1)
-        .to.have.property('params')
-        .and.be.deep.equal({0: 's', user: 'tj', op: 'edit'});
+      expect(result1).to.have.property('keys').and.be.an('array').lengthOf(3);
+      expect(result1).to.have.property('params').and.be.deep.equal({ 0: 's', user: 'tj', op: 'edit' });
 
-      expect(result2)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(3);
-      expect(result2)
-        .to.have.property('params')
-        .and.be.deep.equal({0: undefined, user: 'tj', op: 'edit'});
+      expect(result2).to.have.property('keys').and.be.an('array').lengthOf(3);
+      expect(result2).to.have.property('params').and.be.deep.equal({ 0: undefined, user: 'tj', op: 'edit' });
     });
 
     it('should support repeat parameters (1)', () => {
       const result = matchPath('/:a*', '/1/2/3');
-      expect(result)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(1);
+      expect(result).to.have.property('keys').and.be.an('array').lengthOf(1);
       expect(result)
         .to.have.property('params')
-        .and.be.deep.equal({a: ['1', '2', '3']});
+        .and.be.deep.equal({ a: ['1', '2', '3'] });
     });
 
     it('should support repeat parameters (2)', () => {
       const result = matchPath('/:a*', '/1');
-      expect(result)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(1);
+      expect(result).to.have.property('keys').and.be.an('array').lengthOf(1);
       expect(result)
         .to.have.property('params')
-        .and.be.deep.equal({a: ['1']});
+        .and.be.deep.equal({ a: ['1'] });
     });
 
     it('should support repeat parameters (3)', () => {
       const result = matchPath('/:a*', '/');
-      expect(result)
-        .to.have.property('keys')
-        .and.be.an('array')
-        .lengthOf(1);
-      expect(result)
-        .to.have.property('params')
-        .and.be.deep.equal({a: []});
+      expect(result).to.have.property('keys').and.be.an('array').lengthOf(1);
+      expect(result).to.have.property('params').and.be.deep.equal({ a: [] });
     });
   });
 
   describe('params decoding', () => {
     it('should decode URI-encoded params correctly', () => {
       const result = matchPath('/:a/:b/:c', '/%2F/%3A/caf%C3%A9');
-      expect(result)
-        .to.have.property('params')
-        .and.be.deep.equal({a: '/', b: ':', c: 'café'});
+      expect(result).to.have.property('params').and.be.deep.equal({ a: '/', b: ':', c: 'café' });
     });
 
     it('should not throw an error for malformed URI params', () => {
       const fn = () => matchPath('/:a', '/%AF');
       expect(fn).to.not.throw();
-      expect(fn())
-        .to.have.property('params')
-        .and.be.deep.equal({a: '%AF'});
+      expect(fn()).to.have.property('params').and.be.deep.equal({ a: '%AF' });
     });
 
     it('should decode repeat parameters correctly', () => {
@@ -382,24 +323,20 @@ describe('matchPath(routepath, path, exact)', () => {
       expect(fn).to.not.throw();
       expect(fn())
         .to.have.property('params')
-        .and.be.deep.equal({a: ['x/y', 'z', ' ', '%AF']});
+        .and.be.deep.equal({ a: ['x/y', 'z', ' ', '%AF'] });
     });
   });
 
   describe.skip('array of paths', () => {
     it('should match to an array of paths', () => {
-      // @ts-expect-error: skipped test
-      const result = matchPath({path: ['/e', '/f']}, '/f');
-      expect(result).to.be.deep.equal({path: '/f', keys: [], params: {}});
+      const result = matchPath({ path: ['/e', '/f'] }, '/f');
+      expect(result).to.be.deep.equal({ path: '/f', keys: [], params: {} });
     });
 
     it('should not override existing param with undefined', () => {
-      // @ts-expect-error: skipped test
-      const fn = () => matchPath({path: ['/a/:c', '/b/:c']}, '/a/x');
+      const fn = () => matchPath({ path: ['/a/:c', '/b/:c'] }, '/a/x');
       expect(fn).to.not.throw();
-      expect(fn())
-        .to.have.property('params')
-        .and.be.deep.equal({c: 'x'});
+      expect(fn()).to.have.property('params').and.be.deep.equal({ c: 'x' });
     });
   });
 });

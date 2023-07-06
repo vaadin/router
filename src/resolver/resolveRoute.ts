@@ -7,12 +7,11 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import {isFunction, type ResolveResult} from '../utils.js';
-import type {Context} from "../types/route.js";
+import {isFunction} from '../utils.js';
 
-async function resolveRoute(context: Context): Promise<ResolveResult> {
+function resolveRoute(context) {
   if (isFunction(context.route.action)) {
-    return (context.route.action as ((context: Context) => ResolveResult | Promise<ResolveResult>))(context);
+    return context.route.action(context);
   }
   return undefined;
 }

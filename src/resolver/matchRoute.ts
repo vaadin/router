@@ -7,15 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import matchPath, { type Match } from './matchPath.js';
-import type { InternalRoute } from '../types/route.js';
-import type { Key } from 'path-to-regexp';
-import type { Params } from '../types/params.js';
-
-export type MatchWithRoute = Match &
-  Readonly<{
-    route: InternalRoute;
-  }>;
+import matchPath from './matchPath.js';
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from
@@ -62,38 +54,28 @@ export type MatchWithRoute = Match &
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(
-  route: InternalRoute,
-  pathname: string,
-  ignoreLeadingSlash: boolean,
-  parentKeys?: ReadonlyArray<Key>,
-  parentParams?: Params,
-): Iterator<MatchWithRoute, undefined, InternalRoute | undefined> {
-  let match: Match | null;
-  let childMatches: ReturnType<typeof matchRoute> | null;
+function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParams) {
+  let match;
+  let childMatches;
   let childIndex = 0;
   let routepath = route.path || '';
   if (routepath.charAt(0) === '/') {
     if (ignoreLeadingSlash) {
-      routepath = routepath.substring(1);
+      routepath = routepath.substr(1);
     }
     ignoreLeadingSlash = true;
   }
 
   return {
-    next(routeToSkip?: InternalRoute) {
+    next(routeToSkip) {
       if (route === routeToSkip) {
-        return { done: true };
+        return {done: true};
       }
 
-      if (Array.isArray(route.children)) {
-        route.__children = route.__children || route.children;
-      }
-
-      const shouldMatchChildren = Boolean(route.__children) || Boolean(route.children);
+      const children = route.__children = route.__children || route.children;
 
       if (!match) {
-        match = matchPath(routepath, pathname, !shouldMatchChildren, parentKeys, parentParams);
+        match = matchPath(routepath, pathname, !children, parentKeys, parentParams);
 
         if (match) {
           return {
@@ -102,14 +84,13 @@ function matchRoute(
               route,
               keys: match.keys,
               params: match.params,
-              path: match.path,
+              path: match.path
             },
           };
         }
       }
 
-      if (match && shouldMatchChildren) {
-        const children = route.__children || [];
+      if (match && children) {
         while (childIndex < children.length) {
           if (!childMatches) {
             const childRoute = children[childIndex];
@@ -125,7 +106,7 @@ function matchRoute(
               pathname.substr(matchedLength),
               ignoreLeadingSlash,
               match.keys,
-              match.params,
+              match.params
             );
           }
 
@@ -142,7 +123,7 @@ function matchRoute(
         }
       }
 
-      return { done: true };
+      return {done: true};
     },
   };
 }

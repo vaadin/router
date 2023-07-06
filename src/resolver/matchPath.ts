@@ -7,29 +7,17 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import {pathToRegexp, type Key} from 'path-to-regexp';
-import type {ParamValue, Params} from "../types/params.js";
-
-type Matcher = Readonly<{
-  keys: ReadonlyArray<Key>,
-  pattern: RegExp,
-}>;
-
-export type Match = Readonly<{
-  path: string,
-  keys: ReadonlyArray<Key>,
-  params: Readonly<Record<string, ParamValue>>,
-}>;
+import {pathToRegexp} from 'path-to-regexp';
 
 const {hasOwnProperty} = Object.prototype;
-const cache: Map<string, Matcher> = new Map();
+const cache = new Map();
 // see https://github.com/pillarjs/path-to-regexp/issues/148
 cache.set('|false', {
   keys: [],
   pattern: /(?:)/
 });
 
-function decodeParam(val: string): string {
+function decodeParam(val) {
   try {
     return decodeURIComponent(val);
   } catch (err) {
@@ -37,13 +25,13 @@ function decodeParam(val: string): string {
   }
 }
 
-function matchPath(routepath: string, path: string, exact?: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params): Match | null {
+function matchPath(routepath, path, exact, parentKeys, parentParams) {
   exact = !!exact;
   const cacheKey = `${routepath}|${exact}`;
   let regexp = cache.get(cacheKey);
 
   if (!regexp) {
-    const keys: Key[] = [];
+    const keys = [];
     regexp = {
       keys,
       pattern: pathToRegexp(routepath, keys, {
@@ -59,7 +47,7 @@ function matchPath(routepath: string, path: string, exact?: boolean, parentKeys?
     return null;
   }
 
-  const params = Object.assign({}, parentParams) as Record<string, ParamValue>;
+  const params = Object.assign({}, parentParams);
 
   for (let i = 1; i < m.length; i++) {
     const key = regexp.keys[i - 1];

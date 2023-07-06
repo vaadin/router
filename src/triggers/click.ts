@@ -1,8 +1,8 @@
 import {fireRouterEvent} from '../utils.js';
-import type { NavigationTrigger } from './NavigationTrigger.js';
+import type { NavigationTrigger } from "./types.js";
 
 /* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
-function getAnchorOrigin(anchor: HTMLAnchorElement): string {
+function getAnchorOrigin(anchor) {
   // IE11: on HTTP and HTTPS the default port is not included into
   // window.location.origin, so won't include it here either.
   const port = anchor.port;
@@ -18,7 +18,7 @@ function getAnchorOrigin(anchor: HTMLAnchorElement): string {
 // The list of checks is not complete:
 //  - SVG support is missing
 //  - the 'rel' attribute is not considered
-function vaadinRouterGlobalClickHandler(event: MouseEvent) {
+function vaadinRouterGlobalClickHandler(event) {
   // ignore the click if the default action is prevented
   if (event.defaultPrevented) {
     return;
@@ -35,31 +35,29 @@ function vaadinRouterGlobalClickHandler(event: MouseEvent) {
   }
 
   // find the <a> element that the click is at (or within)
-  let anchorCandidate = event.target;
+  let anchor = event.target;
   const path = event.composedPath
     ? event.composedPath()
-    : ((event as {path?: EventTarget[]}).path || []);
+    : (event.path || []);
 
   // FIXME(web-padawan): `Symbol.iterator` used by webcomponentsjs is broken for arrays
   // example to check: `for...of` loop here throws the "Not yet implemented" error
   for (let i = 0; i < path.length; i++) {
     const target = path[i];
-    if ((target instanceof Element) && target.localName && target.localName === 'a') {
-      anchorCandidate = target;
+    if (target.nodeName && target.nodeName.toLowerCase() === 'a') {
+      anchor = target;
       break;
     }
   }
 
-  while ((anchorCandidate instanceof Element) && anchorCandidate.localName !== 'a') {
-    anchorCandidate = anchorCandidate.parentNode;
+  while (anchor && anchor.nodeName.toLowerCase() !== 'a') {
+    anchor = anchor.parentNode;
   }
 
   // ignore the click if not at an <a> element
-  if (!(anchorCandidate instanceof Element) || anchorCandidate.localName !== 'a') {
+  if (!anchor || anchor.nodeName.toLowerCase() !== 'a') {
     return;
   }
-
-  const anchor = anchorCandidate as HTMLAnchorElement;
 
   // ignore the click if the <a> element has a non-default target
   if (anchor.target && anchor.target.toLowerCase() !== '_self') {
@@ -105,6 +103,9 @@ function vaadinRouterGlobalClickHandler(event: MouseEvent) {
  *
  * Only regular clicks on in-app links are translated (primary mouse button, no
  * modifier keys, the target href is within the app's URL space).
+ *
+ * @memberOf Router.NavigationTrigger
+ * @type {NavigationTrigger}
  */
 const CLICK: NavigationTrigger = {
   activate() {

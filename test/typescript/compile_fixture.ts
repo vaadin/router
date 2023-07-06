@@ -4,21 +4,21 @@
 
 import {
   Router,
-  type NavigationTrigger,
-  type Route,
-  type Commands,
-  type Context,
-  type RouterLocation,
-  type BeforeEnterObserver,
-  type BeforeLeaveObserver,
-  type AfterEnterObserver,
-  type AfterLeaveObserver,
-  type PreventAndRedirectCommands,
-  type PreventCommands,
-  type EmptyCommands
+  NavigationTrigger,
+  Route,
+  Commands,
+  Context,
+  RouterLocation,
+  BeforeEnterObserver,
+  BeforeLeaveObserver,
+  AfterEnterObserver,
+  AfterLeaveObserver,
+  PreventAndRedirectCommands,
+  PreventCommands,
+  EmptyCommands
 } from '@vaadin/router';
 
-const outlet = document.body.firstElementChild!;
+const outlet: Node = document.body.firstChild as Node;
 
 function expectTypeOfValue<T>(t: T): void { t; }
 
@@ -73,7 +73,7 @@ expectTypeOfValue<object>(router.location.params);
 expectTypeOfValue<string>(router.location.pathname);
 expectTypeOfValue<Route | null>(router.location.route);
 expectTypeOfValue<URLSearchParams>(router.location.searchParams);
-expectTypeOfValue<readonly Route[]>(router.location.routes);
+expectTypeOfValue<Route[]>(router.location.routes);
 expectTypeOfValue<string>(router.location.getUrl());
 expectTypeOfValue<string>(router.location.getUrl({}));
 expectTypeOfValue<string>(router.location.getUrl([]));
@@ -81,12 +81,12 @@ expectTypeOfValue<Promise<RouterLocation>>(router.ready);
 // TODO(@platosha): remove deprecated namespaced cases
 expectTypeOfValue<Router.Location>(router.location);
 expectTypeOfValue<Router.Route | null>(router.location.route);
-expectTypeOfValue<readonly Router.Route[]>(router.location.routes);
+expectTypeOfValue<Router.Route[]>(router.location.routes);
 expectTypeOfValue<Promise<Router.Location>>(router.ready);
 
 // Basic methods
 router.render('/');
-const location: RouterLocation = await router.render('/');
+(): ReturnType<typeof router.render> extends Promise<Node> ? true : never => true;
 router.subscribe();
 router.unsubscribe();
 expectTypeOfValue<string>(router.urlForName('foo'));
@@ -174,16 +174,16 @@ router.setRoutes([
   {path: 'action-component', action: () => {
     return document.createElement('x-foo');
   }},
-  {path: 'action-commands-component', action: (_: Context, commands: Commands) => {
+  {path: 'action-commands-component', action: (_, commands: Commands) => {
     return commands.component('x-foo');
   }},
-  {path: 'action-commands-prevent', action: (_: Context, commands: Commands) => {
+  {path: 'action-commands-prevent', action: (_, commands: Commands) => {
     return commands.prevent();
   }},
-  {path: 'action-commands-redirect', action: (_: Context, commands: Commands) => {
+  {path: 'action-commands-redirect', action: (_, commands: Commands) => {
     return commands.redirect('/');
   }},
-  {path: 'action-next', action: (context: Context) => {
+  {path: 'action-next', action: (context) => {
     return context.next();
   }},
   {path: 'async-action-nothing', action: () => Promise.resolve()},
@@ -191,35 +191,35 @@ router.setRoutes([
   {path: 'async-action-component', action: () => {
     return Promise.resolve(document.createElement('x-foo'));
   } },
-  {path: 'async-action-commands-component', action: (_: Context, commands: Commands) => {
+  {path: 'async-action-commands-component', action: (_, commands: Commands) => {
     return Promise.resolve(commands.component('x-foo'));
   }},
-  {path: 'async-action-commands-prevent', action: (_: Context, commands: Commands) => {
+  {path: 'async-action-commands-prevent', action: (_, commands: Commands) => {
     return Promise.resolve(commands.prevent());
   }},
-  {path: 'async-action-commands-redirect', action: (_: Context, commands: Commands) => {
+  {path: 'async-action-commands-redirect', action: (_, commands: Commands) => {
     return Promise.resolve(commands.redirect('/'));
   }},
-  {path: 'async-action-next', action: (context: Context) => {
+  {path: 'async-action-next', action: (context) => {
     return Promise.resolve(context.next());
   }},
   // TODO(@platosha): remove deprecated namespaced cases
-  {path: 'action-commands-component', action: (_: Router.Context, commands: Router.Commands) => {
+  {path: 'action-commands-component', action: (_, commands: Router.Commands) => {
     return commands.component('x-foo');
   }},
-  {path: 'action-commands-prevent', action: (_: Router.Context, commands: Router.Commands) => {
+  {path: 'action-commands-prevent', action: (_, commands: Router.Commands) => {
     return commands.prevent();
   }},
-  {path: 'action-commands-redirect', action: (_: Router.Context, commands: Router.Commands) => {
+  {path: 'action-commands-redirect', action: (_, commands: Router.Commands) => {
     return commands.redirect('/');
   }},
-  {path: 'async-action-commands-component', action: (_: Router.Context, commands: Router.Commands) => {
+  {path: 'async-action-commands-component', action: (_, commands: Router.Commands) => {
     return Promise.resolve(commands.component('x-foo'));
   }},
-  {path: 'async-action-commands-prevent', action: (_: Router.Context, commands: Router.Commands) => {
+  {path: 'async-action-commands-prevent', action: (_, commands: Router.Commands) => {
     return Promise.resolve(commands.prevent());
   }},
-  {path: 'async-action-commands-redirect', action: (_: Router.Context, commands: Router.Commands) => {
+  {path: 'async-action-commands-redirect', action: (_, commands: Router.Commands) => {
     return Promise.resolve(commands.redirect('/'));
   }},
 ]);
@@ -229,7 +229,7 @@ router.setOutlet(outlet);
 router.setOutlet(null);
 
 // getOutlet
-expectTypeOfValue<ParentNode | null | undefined>(router.getOutlet());
+expectTypeOfValue<Node | null>(router.getOutlet());
 
 // Location property
 class MyViewWithLocation extends HTMLElement {

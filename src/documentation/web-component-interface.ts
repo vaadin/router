@@ -1,11 +1,3 @@
-import type { RouterLocation } from '../documentation/location.js';
-import type { Commands, PreventResult, RedirectResult } from './route.js';
-import type { Router } from '../router.js';
-
-export type PreventAndRedirectCommands = Pick<Commands, 'prevent' | 'redirect'>;
-export type PreventCommands = Pick<Commands, 'prevent'>;
-export type EmptyCommands = {};
-
 /**
  * This interface describes the lifecycle callbacks supported by Vaadin Router
  * on view Web Components. It exists only for documentation purposes, i.e.
@@ -67,11 +59,7 @@ export type EmptyCommands = {};
  * [live demos](#/classes/Router/demos/demo/index.html) and tests.
  *
  */
-export interface WebComponentInterface {
-  location?: RouterLocation;
-}
-
-export interface BeforeEnterObserver extends WebComponentInterface {
+export class WebComponentInterface {
   /**
    * Method that gets executed when user navigates away from the component
    * that had defined the method. The user can prevent the navigation
@@ -88,29 +76,36 @@ export interface BeforeEnterObserver extends WebComponentInterface {
    * The WebComponent instance on which the callback has been invoked is available inside the callback through
    * the `this` reference.
    *
-   * @param location the `RouterLocation` object
-   * @param commands the commands object
-   * @param router the `Router` instance
-   * @return If the `commands.prevent()` result is returned (immediately or
+   * Return values:
+   *
+   * * if the `commands.prevent()` result is returned (immediately or
    * as a Promise), the navigation is aborted and the outlet contents
-   * is not updated. If the `commands.redirect('/to/path)` result is returned,
-   * Vaadin Router proceeds by redirecting to the given path. Any other return
-   * value is ignored and Vaadin Router proceeds with the navigation.
+   * is not updated.
+   * * any other return value is ignored and Vaadin Router proceeds with
+   * the navigation.
+   *
+   * Arguments:
+   *
+   * @param location the `RouterLocation` object
+   * @param commands the commands object with the following methods:
+   *
+   * | Property           | Description
+   * | -------------------|-------------
+   * | `commands.prevent()` | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.
+   *
+   * @param router the `Router` instance
    */
-  onBeforeEnter(
-    location: RouterLocation,
-    commands: PreventAndRedirectCommands,
-    router: Router,
-  ): void | PreventResult | RedirectResult | Promise<void | PreventResult | RedirectResult>;
-}
+  onBeforeLeave(location, commands, router) {
+    // user implementation example:
+    if (this.hasUnfinishedChanges()) {
+      return commands.prevent();
+    }
+  }
 
-export interface BeforeLeaveObserver extends WebComponentInterface {
   /**
-   * Method that gets executed when user navigates away from the component
-   * that had defined the method. The user can prevent the navigation
-   * by returning `commands.prevent()` from the method or same value wrapped
-   * in `Promise`. This effectively means that the corresponding component
-   * should be resolved by the router before the method can be executed.
+   * Method that gets executed before the outlet contents is updated with
+   * the new element. The user can prevent the navigation by returning
+   * `commands.prevent()` from the method or same value wrapped in `Promise`.
    * If the router navigates to the same path twice in a row, and this results
    * in rendering the same component name (if the component is created
    * using `component` property in the route object) or the same component instance
@@ -121,45 +116,36 @@ export interface BeforeLeaveObserver extends WebComponentInterface {
    * The WebComponent instance on which the callback has been invoked is available inside the callback through
    * the `this` reference.
    *
-   * @param location the `RouterLocation` object
-   * @param commands the commands object
-   * @param router the `Router` instance
-   * @return If the `commands.prevent()` result is returned (immediately or
+   * Return values:
+   *
+   * * if the `commands.prevent()` result is returned (immediately or
    * as a Promise), the navigation is aborted and the outlet contents
-   * is not updated. Any other return value is ignored and Vaadin Router
-   * proceeds with the navigation.
-   */
-  onBeforeLeave(
-    location: RouterLocation,
-    commands: PreventCommands,
-    router: Router,
-  ): void | PreventResult | Promise<void | PreventResult>;
-}
-
-export interface AfterEnterObserver extends WebComponentInterface {
-  /**
-   * Method that gets executed after the outlet contents is updated with the new
-   * element. If the router navigates to the same path twice in a row, and this results
-   * in rendering the same component name (if the component is created
-   * using `component` property in the route object) or the same component instance
-   * (if the component is created and returned inside `action` property of the route object),
-   * in the second time the method is not called. The WebComponent instance on which the callback
-   * has been invoked is available inside the callback through
-   * the `this` reference.
+   * is not updated.
+   * * if the `commands.redirect(path)` result is returned (immediately or
+   * as a Promise), Vaadin Router ends navigation to the current path, and
+   * starts a new navigation cycle to the new path.
+   * * any other return value is ignored and Vaadin Router proceeds with
+   * the navigation.
    *
-   * This callback is called asynchronously after the native
-   * [`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)
-   * defined by the Custom Elements spec.
+   * Arguments:
    *
    * @param location the `RouterLocation` object
-   * @param commands empty object
+   * @param commands the commands object with the following methods:
+   *
+   * | Property                 | Description
+   * | -------------------------|-------------
+   * | `commands.redirect(path)` | function that creates a redirect data for the path specified, to use as a return value from the callback.
+   * | `commands.prevent()`       | function that creates a special object that can be returned to abort the current navigation and fall back to the last one. If there is no existing one, an exception is thrown.
+   *
    * @param router the `Router` instance
-   * @return any return value is ignored and Vaadin Router proceeds with the navigation.
    */
-  onAfterEnter(location: RouterLocation, commands: EmptyCommands, router: Router): void;
-}
+  onBeforeEnter(location, commands, router) {
+    // user implementation example:
+    if (context.params.userName === 'admin') {
+      return context.redirect(context.pathname + '?admin');
+    }
+  }
 
-export interface AfterLeaveObserver extends WebComponentInterface {
   /**
    * Method that gets executed when user navigates away from the component that
    * had defined the method, just before the element is to be removed
@@ -175,10 +161,43 @@ export interface AfterLeaveObserver extends WebComponentInterface {
    * has been invoked is available inside the callback through
    * the `this` reference.
    *
+   * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
+   *
+   * Arguments:
+   *
    * @param location the `RouterLocation` object
    * @param commands empty object
    * @param router the `Router` instance
-   * @return any return value is ignored and Vaadin Router proceeds with the navigation.
    */
-  onAfterLeave(location: RouterLocation, commands: EmptyCommands, router: Router): void;
+  onAfterLeave(location, commands, router) {
+    // user implementation example:
+    storeTimeSpentOnTheView();
+  }
+
+  /**
+   * Method that gets executed after the outlet contents is updated with the new
+   * element. If the router navigates to the same path twice in a row, and this results
+   * in rendering the same component name (if the component is created
+   * using `component` property in the route object) or the same component instance
+   * (if the component is created and returned inside `action` property of the route object),
+   * in the second time the method is not called. The WebComponent instance on which the callback
+   * has been invoked is available inside the callback through
+   * the `this` reference.
+   *
+   * This callback is called asynchronously after the native
+   * [`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)
+   * defined by the Custom Elements spec.
+   *
+   * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
+   *
+   * Arguments:
+   *
+   * @param location the `RouterLocation` object
+   * @param commands empty object
+   * @param router the `Router` instance
+   */
+  onAfterEnter(location, commands, router) {
+    // user implementation example:
+    sendVisitStatistics();
+  }
 }
