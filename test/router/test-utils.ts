@@ -1,11 +1,17 @@
-import { expect } from "@esm-bundle/chai";
+import { expect } from '@esm-bundle/chai';
+
+export async function waitForNavigation() {
+  return new Promise((resolve) => {
+    window.addEventListener('popstate', resolve, { once: true });
+  });
+}
 
 export function cleanup(element: Element) {
   element.innerHTML = '';
 }
 
 export function verifyActiveRoutes(router, expectedSegments) {
-  expect(router.__previousContext.chain.map(item => item.route.path)).to.deep.equal(expectedSegments);
+  expect(router.__previousContext.chain.map((item) => item.route.path)).to.deep.equal(expectedSegments);
 }
 
 export function onBeforeLeaveAction(componentName, callback, name) {
@@ -50,10 +56,16 @@ export function checkOutletContents(root, valueGetter, expectedValues) {
     const expectedValue = expectedValues[i];
     expect(currentElementToCheck, `Failed to find a child '${expectedValue}'`).to.be.ok;
     expect(currentElementToCheck[valueGetter]).to.match(new RegExp(expectedValue, 'i'));
-    expect(currentElementToCheck.children.length, `Expect each outlet element to have no more than 1 child`).to.be.below(2);
+    expect(
+      currentElementToCheck.children.length,
+      `Expect each outlet element to have no more than 1 child`,
+    ).to.be.below(2);
     currentElementToCheck = currentElementToCheck.children[0];
   }
-  expect(currentElementToCheck,
-    `Got '${expectedValues}' values to check but got at least one more child in outlet: '${(currentElementToCheck || {})[valueGetter]}'`)
-    .to.be.an('undefined');
+  expect(
+    currentElementToCheck,
+    `Got '${expectedValues}' values to check but got at least one more child in outlet: '${
+      (currentElementToCheck || {})[valueGetter]
+    }'`,
+  ).to.be.an('undefined');
 }

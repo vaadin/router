@@ -12,6 +12,7 @@ import chaiAsPromised from "chai-as-promised";
 import chaiDom from "chai-dom";
 import sinonChai from "sinon-chai";
 import matchPath from "../../src/resolver/matchPath.js";
+import '../setup.js';
 
 use(chaiDom);
 use(sinonChai);

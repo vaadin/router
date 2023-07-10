@@ -1,5 +1,6 @@
 import { expect } from "@esm-bundle/chai";
 import { Router } from "../../src/router.js";
+import '../setup.js';
 import { cleanup } from "./test-utils.js";
 
 describe('urlFor', function () {
@@ -9,8 +10,6 @@ describe('urlFor', function () {
 
   let outlet: HTMLElement;
   let router: Router;
-
-  const DEFAULT_URL = location.href;
 
   before(() => {
     outlet = document.createElement('div');
@@ -22,7 +21,6 @@ describe('urlFor', function () {
   });
 
   beforeEach(async () => {
-    history.pushState(null, '', location.origin);
     cleanup(outlet);
 
     // create a new router instance
@@ -31,7 +29,6 @@ describe('urlFor', function () {
 
   afterEach(() => {
     router.unsubscribe();
-    history.pushState(null, '', DEFAULT_URL);
   });
 
   describe('urlForName method', () => {

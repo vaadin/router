@@ -10,6 +10,7 @@ import { expect, use } from "@esm-bundle/chai";
 import chaiDom from "chai-dom";
 import sinonChai from "sinon-chai";
 import matchRoute from "../../src/resolver/matchRoute.js";
+import '../setup.js';
 
 use(chaiDom);
 use(sinonChai);

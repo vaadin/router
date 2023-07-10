@@ -2,9 +2,6 @@ const karmaChromeLauncher = require('karma-chrome-launcher');
 const karmaCoverage = require('karma-coverage');
 const karmaMocha = require('karma-mocha');
 const karmaVite = require('karma-vite');
-const puppeteer = require('puppeteer');
-
-process.env.CHROME_BIN = puppeteer.executablePath();
 
 const isCI = !!process.env.CI;
 const watch = !!process.argv.find((arg) => arg.includes('watch')) && !isCI;
@@ -46,6 +43,12 @@ module.exports = (config) => {
 
     autoWatch: watch,
     singleRun: !watch,
+
+    client: {
+      mocha: {
+        reporter: 'html',
+      }
+    },
 
     coverageReporter: {
       dir: '.coverage/',

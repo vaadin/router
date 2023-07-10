@@ -1,6 +1,7 @@
 import { expect } from "@esm-bundle/chai";
 import sinon from "sinon";
 import animate from "../../src/transitions/animate.js";
+import '../setup.js';
 
 describe('animate', function() {
   // eslint-disable-next-line no-invalid-this

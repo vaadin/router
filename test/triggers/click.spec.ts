@@ -1,7 +1,7 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
 import { expect } from '@esm-bundle/chai';
-import { Router } from '../../src/router.js';
 import CLICK from '../../src/triggers/click.js';
+import '../setup.js';
 
 const TEMPLATE = `<a id="home" href="">home</a>
 <a id="in-app" href="in-app/link">in-app/link</a>
@@ -63,6 +63,18 @@ describe('NavigationTriggers.CLICK', function () {
         cancelable: true,
         composed: true,
       });
+
+      const o = event.preventDefault;
+
+      Object.defineProperty(event, 'preventDefault', {
+        configurable: true,
+        value() {
+          console.log('PREVENTED');
+          console.trace();
+          return o.call(this);
+        }
+      })
+
     } catch (e) {
       event = document.createEvent('MouseEvents');
       event.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, ctrl, alt, shift, meta, button, null);
@@ -77,9 +89,6 @@ describe('NavigationTriggers.CLICK', function () {
     target.dispatchEvent(event);
   }
 
-  // eslint-disable-next-line no-invalid-this
-  this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
-
   let preventNavigationDefault = true;
 
   const clicks = [];
@@ -90,6 +99,7 @@ describe('NavigationTriggers.CLICK', function () {
 
   const navigateEvents = [];
   function onWindowNavigate(event) {
+    console.log('preventNavigationDefault', preventNavigationDefault);
     if (preventNavigationDefault) {
       event.preventDefault();
     }
@@ -103,11 +113,7 @@ describe('NavigationTriggers.CLICK', function () {
 
   let outlet: HTMLElement;
 
-  const DEFAULT_URL = location.href;
-
   before(() => {
-    history.pushState(null, '', location.origin);
-
     const baseURLElement = document.createElement('base');
     baseURLElement.href = location.origin;
     document.head.append(baseURLElement);
@@ -134,28 +140,23 @@ describe('NavigationTriggers.CLICK', function () {
 
     // Setup click events preventing
     document.getElementById('default-preventer')?.addEventListener('click', (event) => event.preventDefault());
-
-    window.addEventListener('click', onWindowClick);
-    window.addEventListener('vaadin-router-go', onWindowNavigate);
   });
 
   after(() => {
     outlet.remove();
-    window.removeEventListener('vaadin-router-go', onWindowNavigate);
-    window.removeEventListener('click', onWindowClick);
-    history.pushState(null, '', DEFAULT_URL);
   });
 
   beforeEach(() => {
-    history.pushState(null, '', location.origin);
-
     // clear the array
     clicks.length = 0;
     navigateEvents.length = 0;
+    window.addEventListener('click', onWindowClick);
+    window.addEventListener('vaadin-router-go', onWindowNavigate);
   });
 
   afterEach(() => {
-    history.pushState(null, '', DEFAULT_URL);
+    window.removeEventListener('vaadin-router-go', onWindowNavigate);
+    window.removeEventListener('click', onWindowClick);
   });
 
   it('should expose the NavigationTrigger API', () => {
@@ -305,13 +306,13 @@ describe('NavigationTriggers.CLICK', function () {
       document.body.append(div);
 
       window.scrollTo(10, 10);
-      expect(window.scrollX).to.within(9, 11);
-      expect(window.scrollY).to.within(9, 11);
+      expect(window.scrollX).to.be.within(9, 11);
+      expect(window.scrollY).to.be.within(9, 11);
 
       emulateClick(document.getElementById('in-app'));
 
-      expect(window.scrollX).to.within(9, 11);
-      expect(window.scrollY).to.within(9, 11);
+      expect(window.scrollX).to.be.within(9, 11);
+      expect(window.scrollY).to.be.within(9, 11);
       document.body.removeChild(div);
 
       preventNavigationDefault = true;

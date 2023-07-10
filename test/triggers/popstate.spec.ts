@@ -3,17 +3,6 @@ import sinon from "sinon";
 import POPSTATE from "../../src/triggers/popstate.js";
 
 describe('NavigationTriggers.POPSTATE', () => {
-  let pathname, search, hash;
-  before(() => {
-    pathname = window.location.pathname;
-    search = window.location.search;
-    hash = window.location.hash;
-  });
-
-  after(() => {
-    window.history.pushState(null, '', pathname + search + hash);
-  });
-
   it('should expose the NavigationTrigger API', () => {
     expect(POPSTATE).to.have.property('activate').that.is.a('function');
     expect(POPSTATE).to.have.property('inactivate').that.is.a('function');

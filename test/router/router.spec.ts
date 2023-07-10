@@ -1,6 +1,7 @@
 import { expect } from "@esm-bundle/chai";
 import sinon from "sinon";
 import { Router } from "../../src/router.js";
+import '../setup.js';
 import { checkOutletContents, cleanup, onBeforeEnterAction } from "./test-utils.js";
 
 describe('Router', function() {
@@ -8,8 +9,6 @@ describe('Router', function() {
   this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
 
   const checkOutlet = values => checkOutletContents(outlet.children[0], 'tagName', values);
-
-  const DEFAULT_URL = location.href;
 
   let outlet: HTMLElement;
   let link: HTMLAnchorElement;
@@ -26,22 +25,16 @@ describe('Router', function() {
     outlet.remove();
   });
 
-  beforeEach(async function () {
-    // reset the window URL
-    window.history.pushState(null, '', location.origin);
-    console.log(this.currentTest.title);
-  });
-
   afterEach(function(){
-    console.log(this.currentTest.title);
     cleanup(outlet);
-    history.pushState(null, '', DEFAULT_URL);
   });
 
   describe('JS API (basic functionality)', () => {
     let router;
 
-    afterEach(() => router?.unsubscribe());
+    afterEach(async () => {
+      router?.unsubscribe();
+    });
 
     describe('new Router(outlet?, options?)', () => {
       it('should work without arguments', () => {
@@ -75,30 +68,16 @@ describe('Router', function() {
 
       it('should not fail silently if not configured (both routes and outlet missing)', async() => {
         router = new Router();
-        const onError = sinon.spy();
         const link = document.getElementById('admin-anchor');
         link.click();
-        await router.ready.catch(onError);
-
-        expect(onError).to.have.been.calledOnce;
-
-        const error = onError.args[0][0];
-        expect(error).to.be.an('error');
-        expect(error.message).to.match(/page not found/i);
+        await expect(router.ready).to.be.rejectedWith(Error, /page not found/i);
       });
 
       it('should not fail silently if not configured (outlet is set but routes are missing)', async() => {
         router = new Router(outlet);
-        const onError = sinon.spy();
         const link = document.getElementById('admin-anchor');
         link.click();
-        await router.ready.catch(onError);
-
-        expect(onError).to.have.been.calledOnce;
-
-        const error = onError.args[0][0];
-        expect(error).to.be.an('error');
-        expect(error.message).to.match(/page not found/i);
+        await expect(router.ready).to.be.rejectedWith(Error, /page not found/i);
       });
     });
 
@@ -202,8 +181,8 @@ describe('Router', function() {
         router = new Router(outlet);
       });
 
-      afterEach(() => {
-        router.unsubscribe();
+      afterEach(async () => {
+        router?.unsubscribe();
       });
 
       it('should set a correct location to history when receiving a string path', async() => {
@@ -469,8 +448,8 @@ describe('Router', function() {
         router = new Router(outlet);
       });
 
-      afterEach(() => {
-        router.unsubscribe();
+      afterEach(async () => {
+        router?.unsubscribe();
       });
 
       it('should be a promise', () => {
@@ -551,8 +530,8 @@ describe('Router', function() {
         router = new Router(outlet);
       });
 
-      afterEach(() => {
-        router.unsubscribe();
+      afterEach(async () => {
+        router?.unsubscribe();
       });
 
       it('should be a non-null object', () => {
@@ -819,10 +798,16 @@ describe('Router', function() {
     describe('first render', () => {
       let router;
       let onVaadinRouterGo;
+
       beforeEach(async() => {
         onVaadinRouterGo = sinon.spy();
         window.addEventListener('vaadin-router-go', onVaadinRouterGo);
       });
+
+      afterEach(async () => {
+        router.unsubscribe();
+      });
+
       it('should preserve pathname, search and hash', async() => {
         window.history.pushState(null, '', '/admin?a=b#hash');
         router = new Router(outlet);
@@ -876,10 +861,6 @@ describe('Router', function() {
         expect(router.location.searchParams.values().next().done).to.be.true;
         expect(router.location.hash).to.equal('');
       });
-
-      afterEach(() => {
-        router.unsubscribe();
-      });
     });
 
     describe('navigation events', () => {
@@ -896,7 +877,7 @@ describe('Router', function() {
       afterEach(async() => {
         router.unsubscribe();
         // wait for async tasks to finsish
-        await router.ready;
+        await router.ready.catch((err) => console.error(err));
       });
 
       it('should update the history state after navigation', async() => {
@@ -1160,8 +1141,9 @@ describe('Router', function() {
         router = new Router(outlet);
       });
 
-      afterEach(() => {
+      afterEach(async () => {
         router.unsubscribe();
+        await router.ready;
       });
 
       it('should bind named parameters to `location.params` property using string keys', async() => {
@@ -1319,6 +1301,11 @@ describe('Router', function() {
       let router;
       beforeEach(() => {
         router = new Router(outlet);
+      });
+
+      afterEach(async () => {
+        router.unsubscribe();
+        await router.ready;
       });
 
       it('action should be called with correct parameters', async() => {
@@ -1657,8 +1644,14 @@ describe('Router', function() {
 
     describe('route.action (function)', () => {
       let router;
+
       beforeEach(() => {
         router = new Router(outlet);
+      });
+
+      afterEach(async () => {
+        router.unsubscribe();
+        await router.ready;
       });
 
       it('result element should remain when rendering the same route', async() => {
@@ -1841,6 +1834,10 @@ describe('Router', function() {
         router = new Router(outlet);
       });
 
+      afterEach(async () => {
+        router?.unsubscribe();
+      });
+
       it('should keep the element instance in the DOM when reuse the same instance with different content', async() => {
         let sharedElementInstance = null;
         let dynamicContent = 'First content';
@@ -1961,6 +1958,10 @@ describe('Router', function() {
         router = new Router(outlet);
       });
 
+      afterEach(async () => {
+        router.unsubscribe();
+      });
+
       it('should be able to return a list of routes', async() => {
         const children = () => [
           {path: '/:user', component: 'x-user-profile'}
@@ -2078,12 +2079,16 @@ describe('Router', function() {
       });
 
       it('should be called with the resolver context as the only argument', async() => {
-        const children = sinon.spy();
+        const children = sinon.spy(() => ({
+          component: 'x-home-view',
+          path: '1'
+        }));
+
         router.setRoutes([
           {path: '/users', children}
         ]);
 
-        await router.render('/users/1').catch(() => {});
+        await router.render('/users/1');
 
         expect(children).to.have.been.calledOnce;
         expect(children.args[0].length).to.equal(1);
@@ -2187,7 +2192,7 @@ describe('Router', function() {
         observer = new window.MutationObserver(records => data = data.concat(records));
       });
 
-      afterEach(() => {
+      afterEach(async () => {
         observer.disconnect();
         router.unsubscribe();
       });

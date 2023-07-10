@@ -1,6 +1,7 @@
 import { expect } from "@esm-bundle/chai";
 import sinon from "sinon";
 import { setNavigationTriggers } from "../../src/triggers/navigationTriggers.js";
+import '../setup.js';
 
 describe('setNavigationTriggers', () => {
   function createTriggerMock() {

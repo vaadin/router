@@ -1,13 +1,14 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from "sinon";
+import Resolver from "../../src/resolver/resolver.js";
 import { Router, type RouterLocation } from '../../src/router.js';
-import Resolver from "../../src__/resolver/resolver.js";
+import '../setup.js';
 import {
   checkOutletContents,
   cleanup, onAfterEnterAction, onAfterLeaveAction,
   onBeforeEnterAction,
   onBeforeLeaveAction,
-  verifyActiveRoutes
+  verifyActiveRoutes, waitForNavigation
 } from "./test-utils.js";
 
 class XSpy extends HTMLElement {
@@ -92,17 +93,14 @@ describe('Vaadin Router lifecycle events', function () {
   });
 
   beforeEach(async function () {
-    // reset the window URL
-    window.history.pushState(null, '', location.origin);
     // create a new router instance
     router = new Router(outlet);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     router.unsubscribe();
     cleanup(outlet);
     callbacksLog = [];
-    history.pushState(null, '', DEFAULT_URL);
   });
 
   describe('onBeforeEnter', () => {
@@ -279,9 +277,6 @@ describe('Vaadin Router lifecycle events', function () {
         },
         { path: '/b', component: 'x-spy' },
       ]);
-
-      await router.render('/').catch(() => {});
-      callbacksLog = [];
 
       await router.render('/a');
 
@@ -1815,8 +1810,6 @@ describe('Vaadin Router lifecycle events', function () {
         },
       ]);
 
-      await router.ready.catch(() => {});
-      callbacksLog = [];
       await router.render('/a/b');
 
       verifyCallbacks([
@@ -1892,13 +1885,11 @@ describe('Vaadin Router lifecycle events', function () {
 
     it('should be triggered after location update', async () => {
       router.setRoutes([{ path: '/admin', component: 'x-admin-view' }]);
-
       let pathname;
       const checkLocation = () => {
         expect(router).to.have.nested.property('location.pathname', '/admin');
         pathname = window.location.pathname;
       };
-
       window.addEventListener('vaadin-router-location-changed', checkLocation);
       await router.render('/admin', true);
       window.removeEventListener('vaadin-router-location-changed', checkLocation);

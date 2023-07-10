@@ -1,6 +1,7 @@
 import { expect } from "@esm-bundle/chai";
 import sinon from "sinon";
 import { Router } from "../../src/router.js";
+import '../setup.js';
 import {
   checkOutletContents,
   cleanup,
@@ -13,8 +14,6 @@ describe('Router', function() {
   // eslint-disable-next-line no-invalid-this
   const suite = this;
   suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
-
-  const DEFAULT_URL = location.href;
 
   let outlet: HTMLElement;
   let router: Router;
@@ -29,8 +28,6 @@ describe('Router', function() {
   });
 
   beforeEach(async function () {
-    // reset the window URL
-    window.history.pushState(null, '', location.origin);
     // create a new router instance
     router = new Router(outlet);
   });
@@ -38,7 +35,6 @@ describe('Router', function() {
   afterEach(() => {
     router.unsubscribe();
     cleanup(outlet);
-    history.pushState(null, '', DEFAULT_URL);
   });
 
   describe('parent layouts rendering', () => {
