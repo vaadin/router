@@ -1,4 +1,4 @@
-import type { NavigationTrigger } from './types.js';
+import type { NavigationTrigger } from '../types.js';
 
 let triggers: readonly NavigationTrigger[] = [];
 
