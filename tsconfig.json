@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
@@ -9,19 +8,19 @@
     "moduleResolution": "bundler",
     "lib": ["es2021", "dom", "dom.iterable"],
     "allowArbitraryExtensions": true,
-    "skipLibCheck": true,
     "strict": true,
+    "strictBindCallApply": true,
     "sourceMap": true,
     "inlineSources": true,
     "noImplicitAny": true,
     "verbatimModuleSyntax": true,
     "noImplicitOverride": true,
     "useDefineForClassFields": true,
-    "useUnknownInCatchVariables": true,
-    "outDir": "dist"
+    "useUnknownInCatchVariables": true
   },
   "include": [
     "src/**/*.ts",
-    "test/**/*.ts"
+    "src/**/*.d.ts",
+//    "test/**/*"
   ]
 }
