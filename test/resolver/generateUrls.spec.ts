@@ -160,7 +160,6 @@ describe('generateUrls(router, options)(routeName, params)', () => {
           },
         ],
         name: 'a',
-        path: '',
       },
       options,
     );

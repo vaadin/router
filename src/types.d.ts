@@ -393,7 +393,7 @@ type Route = Readonly<
 > &
   Readonly<{
     animate?: AnimateCustomClasses | boolean;
-    path: string | readonly string[];
+    path?: string | readonly string[];
     name?: string;
   }>;
 

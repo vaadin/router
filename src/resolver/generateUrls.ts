@@ -53,7 +53,7 @@ function getRouteByName(routesByName: Map<string, InternalRoute[]>, routeName: s
 
 function getRoutePath(route: Route) {
   const { path } = route;
-  return Array.isArray(path) ? path[0] ?? '' : path;
+  return (Array.isArray(path) ? path[0] : path) ?? '';
 }
 
 export type StringifyQueryParams = (params: UrlParams) => string;
@@ -110,7 +110,7 @@ function generateUrls(
       while (rt) {
         const path = getRoutePath(rt);
         if (path) {
-          fullPath = `${path.replace(/\/$/u, '')}/${fullPath.replace(/^\//, '')}`;
+          fullPath = `${path.replace(/\/$/u, '')}/${fullPath.replace(/^\//u, '')}`;
         }
         rt = rt.parent;
       }
