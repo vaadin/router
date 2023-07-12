@@ -1,4 +1,4 @@
-import { RequireAtLeastOne } from 'type-fest';
+import type { RequireAtLeastOne } from 'type-fest';
 import type { Router } from './router.js';
 
 declare global {
@@ -8,9 +8,13 @@ declare global {
       location: RouterLocation;
     }>;
   }
+
+  interface ArrayConstructor {
+    isArray<T, A extends readonly T[]>(arg: unknown): arg is A;
+  }
 }
 
-export type MaybePromise<T> = T | Promise<T>;
+export type MaybePromise<T> = Promise<T> | T;
 
 export interface RedirectResult {
   readonly redirect: Readonly<{
@@ -33,23 +37,17 @@ export interface NotFoundResult {
   notFoundResultBrand: never;
 }
 
-export type ActionResult = void | null | HTMLElement | NotFoundResult | RedirectResult | PreventResult;
+export type ActionResult = HTMLElement | NotFoundResult | PreventResult | RedirectResult | null | undefined;
 
 /**
- * This is a type declaration. It exists for build-time type checking and
- * documentation purposes. It should not be used in any source code, and it
- * certainly does not exist at the run time.
- *
- * `RouterLocation` describes the state of a router at a given point in time. It
- * is available for your application code in several ways:
+ * Describes the state of a router at a given point in time. It is available for
+ * your application code in several ways:
  *  - as the `router.location` property,
  *  - as the `location` property set by Vaadin Router on every view Web
  *    Component,
  *  - as the `location` argument passed by Vaadin Router into view Web Component
  *    lifecycle callbacks,
  *  - as the `event.detail.location` of the global Vaadin Router events.
- *
- * @summary Type declaration for the `router.location` property.
  */
 export interface RouterLocation {
   /**
@@ -57,7 +55,6 @@ export interface RouterLocation {
    * ](#/classes/Router#property-baseUrl) in the Router.
    *
    * @public
-   * @type {string}
    */
   baseUrl: string;
 
@@ -138,7 +135,7 @@ export interface RouterLocation {
    *
    * @public
    */
-  routes: ReadonlyArray<Route>;
+  routes: readonly Route[];
 
   /**
    * A bag of key-value pairs with parameters for the current location. Named
@@ -158,7 +155,7 @@ export interface RouterLocation {
    * location. When the parameters object is given in the arguments,
    * the argument parameters override the location ones.
    *
-   * @param params optional object with parameters to override.
+   * @param params - optional object with parameters to override.
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    * @returns generated URL
@@ -254,15 +251,15 @@ export interface WebComponentInterface {
    *
    * Arguments:
    *
-   * @param location the `RouterLocation` object
-   * @param commands the commands object with the following methods:
+   * @param location - the `RouterLocation` object
+   * @param commands - the commands object with the following methods:
    *
    * | Property           | Description
    * | -------------------|-------------
    * | `commands.prevent()` | function that creates a special object that can be returned to abort the current
    *   navigation and fall back to the last one. If there is no existing one, an exception is thrown.
    *
-   * @param router the `Router` instance
+   * @param router - the `Router` instance
    */
   onBeforeLeave?(location: Location, commands: Commands, router: Router): void;
 
@@ -293,8 +290,8 @@ export interface WebComponentInterface {
    *
    * Arguments:
    *
-   * @param location the `RouterLocation` object
-   * @param commands the commands object with the following methods:
+   * @param location - the `RouterLocation` object
+   * @param commands - the commands object with the following methods:
    *
    * | Property                 | Description
    * | -------------------------|-------------
@@ -303,7 +300,7 @@ export interface WebComponentInterface {
    * | `commands.prevent()`       | function that creates a special object that can be returned to abort the current
    *   navigation and fall back to the last one. If there is no existing one, an exception is thrown.
    *
-   * @param router the `Router` instance
+   * @param router - the `Router` instance
    */
   onBeforeEnter?(location: Location, commands: Commands, router: Router): void;
 
@@ -326,9 +323,9 @@ export interface WebComponentInterface {
    *
    * Arguments:
    *
-   * @param location the `RouterLocation` object
-   * @param commands empty object
-   * @param router the `Router` instance
+   * @param location - the `RouterLocation` object
+   * @param commands - empty object
+   * @param router - the `Router` instance
    */
   onAfterLeave?(location: Location, commands: Commands, router: Router): void;
 
@@ -350,9 +347,9 @@ export interface WebComponentInterface {
    *
    * Arguments:
    *
-   * @param location the `RouterLocation` object
-   * @param commands empty object
-   * @param router the `Router` instance
+   * @param location - the `RouterLocation` object
+   * @param commands - empty object
+   * @param router - the `Router` instance
    */
   onAfterEnter?(location: Location, commands: Commands, router: Router): void;
 }
@@ -386,24 +383,24 @@ export type AnimateCustomClasses = Readonly<{
   leave?: string;
 }>;
 
-type Route = Readonly<{
-  animate?: boolean | AnimateCustomClasses;
-  path: string;
-  name?: string;
-}> &
-  Readonly<
-    RequireAtLeastOne<{
-      action?(context: Context, commands: Commands): MaybePromise<ActionResult>;
-      children?: readonly Route[] | ChildrenCallback;
-      component?: string;
-      redirect?: string;
-    }>
-  >;
+type Route = Readonly<
+  RequireAtLeastOne<{
+    children?: ChildrenCallback | readonly Route[];
+    component?: string;
+    redirect?: string;
+    action?(context: Context, commands: Commands): MaybePromise<ActionResult>;
+  }>
+> &
+  Readonly<{
+    animate?: AnimateCustomClasses | boolean;
+    path: string | readonly string[];
+    name?: string;
+  }>;
 
-export type ParamValue = string | string[];
+export type ParamValue = string[] | string;
 
 export type IndexedParams = Readonly<{
-  [key in string | number]: ParamValue;
+  [key in number | string]: ParamValue;
 }>;
 
 export type Params = IndexedParams | ParamValue[];
