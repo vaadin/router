@@ -44,12 +44,6 @@ module.exports = (config) => {
     autoWatch: watch,
     singleRun: !watch,
 
-    client: {
-      mocha: {
-        reporter: 'html',
-      }
-    },
-
     coverageReporter: {
       dir: '.coverage/',
       reporters: [!isCI && { type: 'html', subdir: 'html' }, { type: 'lcovonly', subdir: '.' }].filter(Boolean),
