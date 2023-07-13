@@ -11,6 +11,7 @@
   ],
   "rules": {
     "import/no-unassigned-import": "off",
+    "max-params": "off",
     "perfectionist/sort-enums": "error",
     "perfectionist/sort-exports": "error",
     "perfectionist/sort-jsx-props": "error",

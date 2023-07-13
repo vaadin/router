@@ -10,7 +10,7 @@ declare global {
   }
 
   interface ArrayConstructor {
-    isArray<T, A extends readonly T[]>(arg: unknown): arg is A;
+    isArray<T extends readonly unknown[]>(arg: unknown): arg is T;
   }
 }
 
@@ -400,7 +400,7 @@ type Route = Readonly<
 export type ParamValue = string[] | string;
 
 export type IndexedParams = Readonly<{
-  [key in number | string]: ParamValue;
+  [key in keyof any]?: ParamValue;
 }>;
 
 export type Params = IndexedParams | ParamValue[];

@@ -7,11 +7,11 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import { expect, use } from "@esm-bundle/chai";
-import chaiAsPromised from "chai-as-promised";
-import chaiDom from "chai-dom";
-import sinonChai from "sinon-chai";
-import matchPath from "../../src/resolver/matchPath.js";
+import { expect, use } from '@esm-bundle/chai';
+import chaiAsPromised from 'chai-as-promised';
+import chaiDom from 'chai-dom';
+import sinonChai from 'sinon-chai';
+import matchPath from '../../src/resolver/matchPath.js';
 import '../setup.js';
 
 use(chaiDom);
@@ -232,7 +232,7 @@ describe('matchPath(routepath, path, exact)', () => {
       expect(result).to.have.property('path', '/1');
       expect(result).to.have.property('keys').and.be.an('array').lengthOf(3);
       expect(result?.keys[0]).to.be.deep.equal(keys[0]);
-      expect(result).to.have.property('params').and.be.deep.equal({ x: 'y', a: '1', b: undefined });
+      expect(result).to.have.property('params').and.be.deep.equal({ a: '1', b: undefined, x: 'y' });
     });
 
     it('should override the provided param value with the route param of the same name', () => {
@@ -270,7 +270,7 @@ describe('matchPath(routepath, path, exact)', () => {
       const result = matchPath('/:user\\(:op\\)', '/tj(edit)');
       expect(result).to.have.property('path', '/tj(edit)');
       expect(result).to.have.property('keys').and.be.an('array').lengthOf(2);
-      expect(result).to.have.property('params').and.be.deep.equal({ user: 'tj', op: 'edit' });
+      expect(result).to.have.property('params').and.be.deep.equal({ op: 'edit', user: 'tj' });
     });
 
     it('should allow unnamed capturing groups', () => {
@@ -278,10 +278,10 @@ describe('matchPath(routepath, path, exact)', () => {
       const result2 = matchPath('/user(s)?/:user/:op', '/user/tj/edit');
 
       expect(result1).to.have.property('keys').and.be.an('array').lengthOf(3);
-      expect(result1).to.have.property('params').and.be.deep.equal({ 0: 's', user: 'tj', op: 'edit' });
+      expect(result1).to.have.property('params').and.be.deep.equal({ 0: 's', op: 'edit', user: 'tj' });
 
       expect(result2).to.have.property('keys').and.be.an('array').lengthOf(3);
-      expect(result2).to.have.property('params').and.be.deep.equal({ 0: undefined, user: 'tj', op: 'edit' });
+      expect(result2).to.have.property('params').and.be.deep.equal({ 0: undefined, op: 'edit', user: 'tj' });
     });
 
     it('should support repeat parameters (1)', () => {
@@ -330,11 +330,13 @@ describe('matchPath(routepath, path, exact)', () => {
 
   describe.skip('array of paths', () => {
     it('should match to an array of paths', () => {
+      // @ts-expect-error: currently unsupported feature
       const result = matchPath({ path: ['/e', '/f'] }, '/f');
-      expect(result).to.be.deep.equal({ path: '/f', keys: [], params: {} });
+      expect(result).to.be.deep.equal({ keys: [], params: {}, path: '/f' });
     });
 
     it('should not override existing param with undefined', () => {
+      // @ts-expect-error: currently unsupported feature
       const fn = () => matchPath({ path: ['/a/:c', '/b/:c'] }, '/a/x');
       expect(fn).to.not.throw();
       expect(fn()).to.have.property('params').and.be.deep.equal({ c: 'x' });

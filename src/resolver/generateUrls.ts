@@ -9,8 +9,8 @@
 
 import { parse, type ParseOptions, type Token, tokensToFunction, type TokensToFunctionOptions } from 'path-to-regexp';
 import type { InternalRoute } from '../internal.js';
-import type { ChildrenCallback, Params, Route } from '../types.js';
-import { isString } from '../utils.js';
+import type { ChildrenCallback, Params } from '../types.js';
+import { getRoutePath, isString } from '../utils.js';
 import Resolver from './resolver.js';
 
 export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> | number | string>>;
@@ -29,7 +29,7 @@ function cacheRoutes(
     }
   }
 
-  if (Array.isArray<InternalRoute, readonly InternalRoute[]>(routes)) {
+  if (Array.isArray<readonly InternalRoute[]>(routes)) {
     for (const childRoute of routes) {
       childRoute.parent = route;
       cacheRoutes(routesByName, childRoute, childRoute.__children ?? childRoute.children);
@@ -49,11 +49,6 @@ function getRouteByName(routesByName: Map<string, InternalRoute[]>, routeName: s
   }
 
   return undefined;
-}
-
-function getRoutePath(route: Route) {
-  const { path } = route;
-  return (Array.isArray(path) ? path[0] : path) ?? '';
 }
 
 export type StringifyQueryParams = (params: UrlParams) => string;

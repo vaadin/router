@@ -7,7 +7,18 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import matchPath from './matchPath.js';
+import type { Key } from 'path-to-regexp';
+import type { InternalRoute } from '../internal.js';
+import type { Params } from '../types.js';
+import { getRoutePath, unwrapChildren } from '../utils.js';
+import matchPath, { type Match } from './matchPath.js';
+
+export type MatchWithRoute = Match &
+  Readonly<{
+    route: InternalRoute;
+  }>;
+
+type RouteMatchIterator = Iterator<MatchWithRoute, undefined, InternalRoute | undefined>;
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from
@@ -48,31 +59,39 @@ import matchPath from './matchPath.js';
  *       remains significant
  *
  * Side effect:
- *   - the routes tree { path: '' } matches only the '' pathname
- *   - the routes tree { path: '', children: [ { path: '' } ] } matches any
+ *   - the routes tree `{ path: '' }` matches only the '' pathname
+ *   - the routes tree `{ path: '', children: [ { path: '' } ] }` matches any
  *     pathname (for the tree root)
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParams) {
-  let match;
-  let childMatches;
+function matchRoute(
+  route: InternalRoute,
+  pathname: string,
+  ignoreLeadingSlash: boolean,
+  parentKeys?: readonly Key[],
+  parentParams?: Params,
+): Iterator<MatchWithRoute, undefined, InternalRoute | undefined> {
+  let match: Match | null;
+  let childMatches: RouteMatchIterator | null;
   let childIndex = 0;
-  let routepath = route.path || '';
-  if (routepath.charAt(0) === '/') {
+  let routepath = getRoutePath(route);
+  if (routepath.startsWith('/')) {
     if (ignoreLeadingSlash) {
-      routepath = routepath.substr(1);
+      routepath = routepath.substring(1);
     }
+    // eslint-disable-next-line no-param-reassign
     ignoreLeadingSlash = true;
   }
 
   return {
-    next(routeToSkip) {
+    next(routeToSkip?: InternalRoute) {
       if (route === routeToSkip) {
-        return {done: true};
+        return { done: true };
       }
 
-      const children = route.__children = route.__children || route.children;
+      route.__children ??= unwrapChildren(route.children);
+      const children = route.__children;
 
       if (!match) {
         match = matchPath(routepath, pathname, !children, parentKeys, parentParams);
@@ -81,16 +100,16 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
           return {
             done: false,
             value: {
-              route,
               keys: match.keys,
               params: match.params,
-              path: match.path
+              path: match.path,
+              route,
             },
           };
         }
       }
 
-      if (match && children) {
+      if (match && children.length > 0) {
         while (childIndex < children.length) {
           if (!childMatches) {
             const childRoute = children[childIndex];
@@ -103,10 +122,10 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
 
             childMatches = matchRoute(
               childRoute,
-              pathname.substr(matchedLength),
+              pathname.substring(matchedLength),
               ignoreLeadingSlash,
               match.keys,
-              match.params
+              match.params,
             );
           }
 
@@ -119,11 +138,11 @@ function matchRoute(route, pathname, ignoreLeadingSlash, parentKeys, parentParam
           }
 
           childMatches = null;
-          childIndex++;
+          childIndex += 1;
         }
       }
 
-      return {done: true};
+      return { done: true };
     },
   };
 }
