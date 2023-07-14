@@ -9,16 +9,20 @@
 
 import type { Key } from 'path-to-regexp';
 import type { InternalRoute } from '../internal.js';
-import type { Params } from '../types.js';
+import type { EmptyRecord, IndexedParams } from '../types.js';
 import { getRoutePath, unwrapChildren } from '../utils.js';
 import matchPath, { type Match } from './matchPath.js';
 
-export type MatchWithRoute = Match &
+export type MatchWithRoute<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Match &
   Readonly<{
-    route: InternalRoute;
+    route: InternalRoute<T, R, C>;
   }>;
 
-type RouteMatchIterator = Iterator<MatchWithRoute, undefined, InternalRoute | undefined>;
+type RouteMatchIterator<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Iterator<
+  MatchWithRoute<T, R, C>,
+  undefined,
+  InternalRoute<T, R, C> | undefined
+>;
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from
@@ -65,15 +69,19 @@ type RouteMatchIterator = Iterator<MatchWithRoute, undefined, InternalRoute | un
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(
-  route: InternalRoute,
+function matchRoute<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+>(
+  route: InternalRoute<T, R, C>,
   pathname: string,
-  ignoreLeadingSlash: boolean,
+  ignoreLeadingSlash?: boolean,
   parentKeys?: readonly Key[],
-  parentParams?: Params,
-): Iterator<MatchWithRoute, undefined, InternalRoute | undefined> {
+  parentParams?: IndexedParams,
+): Iterator<MatchWithRoute<T, R, C>, undefined, InternalRoute<T, R, C> | undefined> {
   let match: Match | null;
-  let childMatches: RouteMatchIterator | null;
+  let childMatches: RouteMatchIterator<T, R, C> | null;
   let childIndex = 0;
   let routepath = getRoutePath(route);
   if (routepath.startsWith('/')) {
@@ -85,7 +93,7 @@ function matchRoute(
   }
 
   return {
-    next(routeToSkip?: InternalRoute) {
+    next(routeToSkip?: InternalRoute<T, R, C>) {
       if (route === routeToSkip) {
         return { done: true };
       }

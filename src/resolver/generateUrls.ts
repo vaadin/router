@@ -9,16 +9,16 @@
 
 import { parse, type ParseOptions, type Token, tokensToFunction, type TokensToFunctionOptions } from 'path-to-regexp';
 import type { InternalRoute } from '../internal.js';
-import type { ChildrenCallback, Params } from '../types.js';
+import type { ChildrenCallback, EmptyRecord, IndexedParams } from '../types.js';
 import { getRoutePath, isString } from '../utils.js';
 import Resolver from './resolver.js';
 
 export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> | number | string>>;
 
-function cacheRoutes(
-  routesByName: Map<string, InternalRoute[]>,
-  route: InternalRoute,
-  routes?: ChildrenCallback | readonly InternalRoute[],
+function cacheRoutes<R extends Record<string, unknown> = EmptyRecord, C extends Record<string, unknown> = EmptyRecord>(
+  routesByName: Map<string, Array<InternalRoute<R, C>>>,
+  route: InternalRoute<R, C>,
+  routes?: ChildrenCallback | ReadonlyArray<InternalRoute<R, C>>,
 ): void {
   const name = route.name ?? route.component;
   if (name) {
@@ -29,7 +29,7 @@ function cacheRoutes(
     }
   }
 
-  if (Array.isArray<readonly InternalRoute[]>(routes)) {
+  if (Array.isArray<ReadonlyArray<InternalRoute<R, C>>>(routes)) {
     for (const childRoute of routes) {
       childRoute.parent = route;
       cacheRoutes(routesByName, childRoute, childRoute.__children ?? childRoute.children);
@@ -37,7 +37,10 @@ function cacheRoutes(
   }
 }
 
-function getRouteByName(routesByName: Map<string, InternalRoute[]>, routeName: string): InternalRoute | undefined {
+function getRouteByName<
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+>(routesByName: Map<string, Array<InternalRoute<R, C>>>, routeName: string): InternalRoute | undefined {
   const routes = routesByName.get(routeName);
 
   if (routes) {
@@ -71,7 +74,7 @@ type RouteCacheRecord = Readonly<{
   tokens: Token[];
 }>;
 
-export type UrlGenerator = (routeName: string, params?: Params) => string;
+export type UrlGenerator = (routeName: string, params?: IndexedParams) => string;
 
 function generateUrls(
   resolver: Resolver,
@@ -86,7 +89,7 @@ function generateUrls(
   const cache = new Map<string, RouteCacheRecord>();
   const routesByName = new Map<string, InternalRoute[]>();
 
-  return (routeName: string, params?: Params) => {
+  return (routeName: string, params?: IndexedParams) => {
     let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache
@@ -127,7 +130,7 @@ function generateUrls(
     if (options.stringifyQueryParams && params) {
       const queryParams: Record<string, string | readonly string[]> = {};
       for (const [key, value] of Object.entries(params)) {
-        if (!(key in cached.keys)) {
+        if (!(key in cached.keys) && value) {
           queryParams[key] = value;
         }
       }

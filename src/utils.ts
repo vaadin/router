@@ -1,4 +1,5 @@
-import type { ChildrenCallback, Context, NotFoundResult, Route } from './types.js';
+import type { InternalContext } from './internal.js';
+import type { ChildrenCallback, NotFoundResult, Route, EmptyRecord } from './types.js';
 
 export function isObject(o: unknown): o is object {
   // guard against null passing the typeof check
@@ -79,17 +80,17 @@ export function fireRouterEvent<T>(type: string, detail: T): boolean {
 }
 
 export class NotFoundError extends Error {
-  readonly context: Context;
   readonly code: number;
+  readonly context: InternalContext;
 
-  constructor(context: Context) {
+  constructor(context: InternalContext) {
     super(log(`Page not found (${context.pathname})`));
     this.context = context;
     this.code = 404;
   }
 }
 
-export function getNotFoundError(context: Context): NotFoundError {
+export function getNotFoundError(context: InternalContext): NotFoundError {
   return new NotFoundError(context);
 }
 
@@ -100,10 +101,14 @@ export function resolvePath(path?: string | readonly string[]): string {
   return (Array.isArray(path) ? path[0] : path) ?? '';
 }
 
-export function getRoutePath(route: Route): string {
-  return resolvePath(route.path);
+export function getRoutePath(route: Route | undefined): string {
+  return resolvePath(route?.path);
 }
 
-export function unwrapChildren(children: ChildrenCallback | readonly Route[] | undefined): readonly Route[] {
-  return Array.isArray<readonly Route[]>(children) ? children : [];
+export function unwrapChildren<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+>(children: ChildrenCallback | ReadonlyArray<Route<T, R, C>> | undefined): ReadonlyArray<Route<T, R, C>> {
+  return Array.isArray<ReadonlyArray<Route<T, R, C>>>(children) ? children : [];
 }

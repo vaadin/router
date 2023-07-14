@@ -1,4 +1,4 @@
-import {usageStatistics} from '@vaadin/vaadin-usage-statistics/vaadin-usage-statistics.js';
+import { usageStatistics } from '@vaadin/vaadin-usage-statistics/vaadin-usage-statistics.js';
 
 window.Vaadin ??= {};
 window.Vaadin.registrations ??= [];

@@ -41,12 +41,6 @@ module.exports = (config) => {
 
     reporters: ['progress', coverage && 'coverage'].filter(Boolean),
 
-    client: {
-      mocha: {
-        reporter: 'html',
-      }
-    },
-
     autoWatch: watch,
     singleRun: !watch,
 

@@ -19,9 +19,9 @@ type Matcher = Readonly<{
 }>;
 
 export type Match = Readonly<{
-  path: string;
   keys: readonly Key[];
   params: IndexedParams;
+  path: string;
 }>;
 
 const cache = new Map<string, Matcher>();
@@ -41,7 +41,7 @@ function decodeParam(val: string): string {
 
 function matchPath(
   routepath: string,
-  path: string[] | string,
+  path?: string[] | string,
   exact: boolean = false,
   parentKeys: readonly Key[] = [],
   parentParams?: IndexedParams,

@@ -4,8 +4,8 @@ import type { Router } from './router.js';
 declare global {
   interface WindowEventMap {
     'vaadin-router-location-changed': CustomEvent<{
-      router: Router;
       location: RouterLocation;
+      router: Router;
     }>;
   }
 
@@ -14,13 +14,15 @@ declare global {
   }
 }
 
+export type EmptyRecord = Record<never, never>;
+
 export type MaybePromise<T> = Promise<T> | T;
 
 export interface RedirectResult {
   readonly redirect: Readonly<{
-    pathname: string;
     from: string;
     params: IndexedParams;
+    pathname: string;
   }>;
 }
 
@@ -37,7 +39,7 @@ export interface NotFoundResult {
   notFoundResultBrand: never;
 }
 
-export type ActionResult = HTMLElement | NotFoundResult | PreventResult | RedirectResult | null | undefined;
+export type ActionResult<T> = HTMLElement | NotFoundResult | PreventResult | RedirectResult | T | null | undefined;
 
 /**
  * Describes the state of a router at a given point in time. It is available for
@@ -49,7 +51,11 @@ export type ActionResult = HTMLElement | NotFoundResult | PreventResult | Redire
  *    lifecycle callbacks,
  *  - as the `event.detail.location` of the global Vaadin Router events.
  */
-export interface RouterLocation {
+export interface RouterLocation<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+> {
   /**
    * The base URL used in the router. See [the `baseUrl` property
    * ](#/classes/Router#property-baseUrl) in the Router.
@@ -59,33 +65,32 @@ export interface RouterLocation {
   baseUrl: string;
 
   /**
-   * The pathname as entered in the browser address bar
-   * (e.g. `/users/42/messages/12/edit`). It always starts with a `/` (slash).
-   *
-   * @public
-   */
-  pathname: string;
-
-  /**
-   * The query string portion of the current url.
-   *
-   * @public
-   */
-  search: string;
-
-  /**
-   * The query search parameters of the current url.
-   *
-   * @public
-   */
-  searchParams: URLSearchParams;
-
-  /**
    * The fragment identifier (including hash character) for the current page.
    *
    * @public
    */
   hash: string;
+
+  /**
+   * A bag of key-value pairs with parameters for the current location. Named
+   * parameters are available by name, unnamed ones - by index (e.g. for the
+   * `/users/:id` route the `:id` parameter is available as `location.params.id`).
+   *
+   * See the **Route Parameters** section of the
+   * [live demos](#/classes/Router/demos/demo/index.html) for more
+   * details.
+   *
+   * @public
+   */
+  params: IndexedParams;
+
+  /**
+   * The pathname, as it was entered in the browser address bar
+   * (e.g. `/users/42/messages/12/edit`). It always starts with a `/` (slash).
+   *
+   * @public
+   */
+  pathname: string;
 
   /**
    * The original pathname string in case if this location is a result of a
@@ -122,7 +127,7 @@ export interface RouterLocation {
    *
    * @public
    */
-  route: Route | null;
+  route: Route<T, R, C> | null;
 
   /**
    * A list of route objects that match the current pathname. This list has
@@ -135,20 +140,21 @@ export interface RouterLocation {
    *
    * @public
    */
-  routes: readonly Route[];
+  routes: ReadonlyArray<Route<T, R, C>>;
 
   /**
-   * A bag of key-value pairs with parameters for the current location. Named
-   * parameters are available by name, unnamed ones - by index (e.g. for the
-   * `/users/:id` route the `:id` parameter is available as `location.params.id`).
-   *
-   * See the **Route Parameters** section of the
-   * [live demos](#/classes/Router/demos/demo/index.html) for more
-   * details.
+   * The query string portion of the current url.
    *
    * @public
    */
-  params: IndexedParams;
+  search: string;
+
+  /**
+   * The query search parameters of the current url.
+   *
+   * @public
+   */
+  searchParams: URLSearchParams;
 
   /**
    * Returns a URL corresponding to the route path and the parameters of this
@@ -224,44 +230,59 @@ export interface RouterLocation {
  * Other examples can be found in the
  * [live demos](#/classes/Router/demos/demo/index.html) and tests.
  */
-export interface WebComponentInterface {
+export interface WebComponentInterface<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+> {
   /**
-   * Method that gets executed when user navigates away from the component
-   * that had defined the method. The user can prevent the navigation
-   * by returning `commands.prevent()` from the method or same value wrapped
-   * in `Promise`. This effectively means that the corresponding component
+   * Method that gets executed after the outlet contents is updated with the new
+   * element. If the router navigates to the same path twice in a row, and this results
+   * in rendering the same component name (if the component is created
+   * using `component` property in the route object) or the same component instance
+   * (if the component is created and returned inside `action` property of the route object),
+   * in the second time the method is not called. The WebComponent instance on which the callback
+   * has been invoked is available inside the callback through
+   * the `this` reference.
+   *
+   * This callback is called asynchronously after the native
+   * [`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)
+   * defined by the Custom Elements spec.
+   *
+   * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
+   *
+   * Arguments:
+   *
+   * @param location - the `RouterLocation` object
+   * @param commands - empty object
+   * @param router - the `Router` instance
+   */
+  onAfterEnter?(location: Location, commands: Commands, router: Router<T, R, C>): void;
+
+  /**
+   * Method that gets executed when user navigates away from the component that
+   * had defined the method, just before the element is to be removed
+   * from the DOM. The difference between this method and `onBeforeLeave`
+   * is that when this method is executed, there is no way to abort
+   * the navigation. This effectively means that the corresponding component
    * should be resolved by the router before the method can be executed.
    * If the router navigates to the same path twice in a row, and this results
    * in rendering the same component name (if the component is created
    * using `component` property in the route object) or the same component instance
    * (if the component is created and returned inside `action` property of the route object),
-   * in the second time the method is not called. In case of navigating to a different path
-   * but within the same route object, e.g. the path has parameter or wildcard,
-   * and this results in rendering the same component instance, the method is called if available.
-   * The WebComponent instance on which the callback has been invoked is available inside the callback through
+   * in the second time the method is not called. The WebComponent instance on which the callback
+   * has been invoked is available inside the callback through
    * the `this` reference.
    *
-   * Return values:
-   *
-   * - if the `commands.prevent()` result is returned (immediately or
-   * as a Promise), the navigation is aborted and the outlet contents
-   * is not updated.
-   * - any other return value is ignored and Vaadin Router proceeds with
-   * the navigation.
+   * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
    *
    * Arguments:
    *
    * @param location - the `RouterLocation` object
-   * @param commands - the commands object with the following methods:
-   *
-   * | Property           | Description
-   * | -------------------|-------------
-   * | `commands.prevent()` | function that creates a special object that can be returned to abort the current
-   *   navigation and fall back to the last one. If there is no existing one, an exception is thrown.
-   *
+   * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onBeforeLeave?(location: Location, commands: Commands, router: Router): void;
+  onAfterLeave?(location: Location, commands: Commands, router: Router<T, R, C>): void;
 
   /**
    * Method that gets executed before the outlet contents is updated with
@@ -302,100 +323,100 @@ export interface WebComponentInterface {
    *
    * @param router - the `Router` instance
    */
-  onBeforeEnter?(location: Location, commands: Commands, router: Router): void;
+  onBeforeEnter?(location: Location, commands: Commands, router: Router<T, R, C>): void;
 
   /**
-   * Method that gets executed when user navigates away from the component that
-   * had defined the method, just before the element is to be removed
-   * from the DOM. The difference between this method and `onBeforeLeave`
-   * is that when this method is executed, there is no way to abort
-   * the navigation. This effectively means that the corresponding component
+   * Method that gets executed when user navigates away from the component
+   * that had defined the method. The user can prevent the navigation
+   * by returning `commands.prevent()` from the method or same value wrapped
+   * in `Promise`. This effectively means that the corresponding component
    * should be resolved by the router before the method can be executed.
    * If the router navigates to the same path twice in a row, and this results
    * in rendering the same component name (if the component is created
    * using `component` property in the route object) or the same component instance
    * (if the component is created and returned inside `action` property of the route object),
-   * in the second time the method is not called. The WebComponent instance on which the callback
-   * has been invoked is available inside the callback through
+   * in the second time the method is not called. In case of navigating to a different path
+   * but within the same route object, e.g. the path has parameter or wildcard,
+   * and this results in rendering the same component instance, the method is called if available.
+   * The WebComponent instance on which the callback has been invoked is available inside the callback through
    * the `this` reference.
    *
-   * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
+   * Return values:
+   *
+   * - if the `commands.prevent()` result is returned (immediately or
+   * as a Promise), the navigation is aborted and the outlet contents
+   * is not updated.
+   * - any other return value is ignored and Vaadin Router proceeds with
+   * the navigation.
    *
    * Arguments:
    *
    * @param location - the `RouterLocation` object
-   * @param commands - empty object
+   * @param commands - the commands object with the following methods:
+   *
+   * | Property           | Description
+   * | -------------------|-------------
+   * | `commands.prevent()` | function that creates a special object that can be returned to abort the current
+   *   navigation and fall back to the last one. If there is no existing one, an exception is thrown.
+   *
    * @param router - the `Router` instance
    */
-  onAfterLeave?(location: Location, commands: Commands, router: Router): void;
-
-  /**
-   * Method that gets executed after the outlet contents is updated with the new
-   * element. If the router navigates to the same path twice in a row, and this results
-   * in rendering the same component name (if the component is created
-   * using `component` property in the route object) or the same component instance
-   * (if the component is created and returned inside `action` property of the route object),
-   * in the second time the method is not called. The WebComponent instance on which the callback
-   * has been invoked is available inside the callback through
-   * the `this` reference.
-   *
-   * This callback is called asynchronously after the native
-   * [`connectedCallback()`](https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-reactions)
-   * defined by the Custom Elements spec.
-   *
-   * Return values: any return value is ignored and Vaadin Router proceeds with the navigation.
-   *
-   * Arguments:
-   *
-   * @param location - the `RouterLocation` object
-   * @param commands - empty object
-   * @param router - the `Router` instance
-   */
-  onAfterEnter?(location: Location, commands: Commands, router: Router): void;
+  onBeforeLeave?(location: Location, commands: Commands, router: Router<T, R, C>): void;
 }
 
-export interface Context {
-  readonly pathname: string;
-  readonly search: string;
-  readonly hash: string;
-  readonly params: IndexedParams;
-  readonly route: Route;
-  next(): Promise<ActionResult>;
-}
+export type RouteContext<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+> = C &
+  Readonly<{
+    hash: string;
+    params: IndexedParams;
+    pathname: string;
+    route: Route<T, R, C>;
+    search: string;
+    next(): Promise<ActionResult<T>>;
+  }>;
 
 export interface Commands {
   component<K extends keyof HTMLElementTagNameMap>(name: K): HTMLElementTagNameMap[K];
   component(name: string): HTMLElement;
-  redirect(path: string): RedirectResult;
-
   /**
    * function that creates a special object that can be returned to abort
    * the current navigation and fall back to the last one. If there is no
    * existing one, an exception is thrown.
    */
   prevent(): PreventResult;
+  redirect(path: string): RedirectResult;
 }
 
-export type ChildrenCallback = (context: Context) => MaybePromise<readonly Route[]>;
+export type ChildrenCallback<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+> = (context: RouteContext<T, R, C>) => MaybePromise<ReadonlyArray<Route<T, R, C>>>;
 
 export type AnimateCustomClasses = Readonly<{
   enter?: string;
   leave?: string;
 }>;
 
-type Route = Readonly<
+export type Route<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+> = Readonly<
   RequireAtLeastOne<{
-    children?: ChildrenCallback | readonly Route[];
+    children?: ChildrenCallback | ReadonlyArray<Route<T, R, C>>;
     component?: string;
     redirect?: string;
-    action?(context: Context, commands: Commands): MaybePromise<ActionResult>;
-  }>
-> &
-  Readonly<{
+    action?(this: Route<T, R, C>, context: RouteContext, commands?: Commands): MaybePromise<ActionResult<T>>;
+  }> & {
     animate?: AnimateCustomClasses | boolean;
-    path?: string | readonly string[];
     name?: string;
-  }>;
+    path?: string | readonly string[];
+  }
+>;
 
 export type ParamValue = string[] | string;
 

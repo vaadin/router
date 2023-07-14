@@ -1,4 +1,11 @@
-import type { Route } from './types.js';
+import type Resolver from './resolver/resolver.js';
+import type { ActionResult, RouteContext, EmptyRecord, Route } from './types.js';
+
+export interface RegExpExecOptArray extends ReadonlyArray<string | undefined> {
+  0: string;
+  index: number;
+  input: string;
+}
 
 /** Extract from T those types that has K keys  */
 type ExtractByKey<T, K extends keyof any> = T extends infer R ? (K extends keyof R ? R : never) : never;
@@ -16,14 +23,39 @@ declare global {
   }
 }
 
-export type InternalRoute = Route & {
+export type InternalRoute<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Route<T, R, C> & {
+  __children?: ReadonlyArray<InternalRoute<T, R, C>>;
+  __synthetic?: true;
   fullPath?: string;
-  parent?: InternalRoute;
-  __children?: readonly InternalRoute[];
+  parent?: InternalRoute<T, R, C>;
 };
 
-export interface RegExpExecOptArray extends ReadonlyArray<string | undefined> {
-  index: number;
-  input: string;
-  0: string;
-}
+export type ChainItem<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = {
+  element?: Element;
+  path: string;
+  route?: InternalRoute<T, R, C>;
+};
+
+export type ResolveResult<T, R extends Record<string, unknown>, C extends Record<string, unknown>> =
+  | ActionResult<T>
+  | InternalContext<T, R, C>;
+
+export type InternalContext<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = RouteContext<
+  T,
+  R,
+  C
+> & {
+  __divergedChainIndex?: number;
+  __redirectCount?: number;
+  __renderId?: number;
+  __skipAttach?: boolean;
+  chain?: Array<ChainItem<T, R, C>>;
+  resolver?: Resolver<T, R, C>;
+  result?: ActionResult<T> | Error;
+  route?: InternalRoute<T, R, C>;
+  next(
+    resume?: boolean,
+    parent?: InternalRoute<T, R, C>,
+    prevResult?: ActionResult<T> | null,
+  ): Promise<ActionResult<T>>;
+};

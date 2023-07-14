@@ -5,11 +5,68 @@
     "vaadin/prettier",
     "vaadin/testing"
   ],
-  "plugins": [
-    "perfectionist",
-    "tsdoc"
-  ],
+  "plugins": ["perfectionist", "tsdoc"],
   "rules": {
+    "@typescript-eslint/member-ordering": [
+      "error",
+      {
+        "default": {
+          "memberTypes": ["field", "constructor", "method"],
+          "order": "alphabetically-case-insensitive"
+        },
+        "classes": {
+          "memberTypes": [
+            "signature",
+            "call-signature",
+
+            "static-field",
+            "protected-static-field",
+            "private-static-field",
+            "#private-static-field",
+
+            "static-initialization",
+
+            ["static-get", "static-set"],
+            "static-method",
+
+            ["protected-static-get", "protected-static-set"],
+            "protected-static-method",
+
+            ["private-static-get", "private-static-set"],
+            "private-static-method",
+            ["#private-static-get", "#private-static-set"],
+            "#private-static-method",
+
+            "field",
+
+            "protected-field",
+
+            "private-field",
+            "#private-field",
+
+            "constructor",
+            "public-constructor",
+            "protected-constructor",
+            "private-constructor",
+
+            ["get", "set"],
+
+            ["protected-get", "protected-set"],
+
+            ["private-get", "private-set"],
+            ["#private-get", "#private-set"],
+
+            "method",
+
+            "protected-method",
+
+            "private-method",
+            "#private-method"
+          ],
+          "order": "alphabetically-case-insensitive"
+        }
+      }
+    ],
     "import/no-unassigned-import": "off",
     "max-params": "off",
     "perfectionist/sort-enums": "error",
@@ -17,6 +74,7 @@
     "perfectionist/sort-jsx-props": "error",
     "perfectionist/sort-named-exports": "error",
     "perfectionist/sort-objects": "error",
+    "sort-keys": "off",
     "tsdoc/syntax": "error"
   }
 }

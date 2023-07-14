@@ -6,14 +6,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE.txt file in the root directory of this source tree.
  */
+import type { ActionResult, RouteContext } from '../types.js';
+import { isFunction } from '../utils.js';
 
-import {isFunction} from '../utils.js';
-
-function resolveRoute(context) {
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+export default async function resolveRoute(context: RouteContext): Promise<ActionResult> {
   if (isFunction(context.route.action)) {
     return context.route.action(context);
   }
   return undefined;
 }
-
-export default resolveRoute;

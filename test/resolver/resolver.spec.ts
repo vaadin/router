@@ -12,8 +12,9 @@ import chaiAsPromised from 'chai-as-promised';
 import chaiDom from 'chai-dom';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import Resolver, { type ErrorHandler } from '../../src/resolver/resolver.js';
+import Resolver from '../../src/resolver/resolver.js';
 import '../setup.js';
+import type { RouteContext } from '../../src/types.js';
 
 use(chaiDom);
 use(sinonChai);
@@ -23,67 +24,68 @@ describe('Resolver', () => {
   describe('new Resolver(routes, options)', () => {
     it('should throw an error in case of invalid routes', async () => {
       // @ts-expect-error: error-throwing test
-      expect(() => new Resolver()).to.throw(TypeError, /Invalid routes/);
+      expect(() => new Resolver()).to.throw(TypeError, /Invalid routes/u);
       // @ts-expect-error: error-throwing test
-      expect(() => new Resolver(12)).to.throw(TypeError, /Invalid routes/);
+      expect(() => new Resolver(12)).to.throw(TypeError, /Invalid routes/u);
       // @ts-expect-error: error-throwing test
-      expect(() => new Resolver(null)).to.throw(TypeError, /Invalid routes/);
+      expect(() => new Resolver(null)).to.throw(TypeError, /Invalid routes/u);
     });
 
     it('should support custom resolve option for declarative routes', async () => {
-      const resolveRoute = sinon.spy((context) => context.route.component || undefined);
+      const resolveRoute = sinon.spy((context: RouteContext) => context.route.component);
       const action = sinon.spy();
       const resolver = new Resolver(
         {
-          path: '/a',
           action,
           children: [
-            { path: '/:b', component: null, action },
-            { path: '/c', component: 'c', action },
-            { path: '/d', component: 'd', action },
+            { action, component: undefined, path: '/:b' },
+            { action, component: 'c', path: '/c' },
+            { action, component: 'd', path: '/d' },
           ],
+          path: '/a',
         },
         { resolveRoute },
       );
-      const context = await resolver.resolve('/a/c');
+      const result = await resolver.resolve('/a/c');
       expect(resolveRoute.calledThrice).to.be.true;
       expect(action.called).to.be.false;
-      expect(context.result).to.be.equal('c');
+      expect(result).to.be.equal('c');
     });
 
     it('should support custom error handler option', async () => {
-      const errorHandler = sinon.spy<ErrorHandler>(() => 'result');
+      const errorHandler = sinon.spy(() => 'result');
       const resolver = new Resolver([], { errorHandler });
-      const context = await resolver.resolve('/');
-      expect(context.result).to.be.equal('result');
+      const result = await resolver.resolve('/');
+      expect(result).to.be.equal('result');
       expect(errorHandler.calledOnce).to.be.true;
-      const error = errorHandler.args[0][0];
+      const error = errorHandler.firstCall.firstArg;
       expect(error).to.be.an('error');
-      expect(error.message).to.match(/Page not found/);
-      expect(error.code).to.be.equal(404);
-      expect(error.context.pathname).to.be.equal('/');
-      expect(error.context.resolver).to.be.equal(resolver);
+      expect(error)
+        .to.have.property('message')
+        .that.matches(/Page not found/u);
+      expect(error).to.have.property('code', 404);
+      expect(error).to.have.property('context').that.includes({ pathname: '/', resolver });
     });
 
     it('should handle route errors', async () => {
-      const errorHandler = sinon.spy<ErrorHandler>(() => 'result');
+      const errorHandler = sinon.spy(() => 'result');
       const route = {
-        path: '/',
         action: () => {
           throw new Error('custom');
         },
+        path: '/',
       };
       const resolver = new Resolver(route, { errorHandler });
-      const context = await resolver.resolve('/');
-      expect(context.result).to.be.equal('result');
-      expect(errorHandler.calledOnce).to.be.true;
-      const error = errorHandler.args[0][0];
+      const result = await resolver.resolve('/');
+      expect(result).to.be.equal('result');
+      expect(errorHandler).to.be.calledOnce;
+
+      const error = errorHandler.firstCall.firstArg;
       expect(error).to.be.an('error');
-      expect(error.message).to.be.equal('custom');
-      expect(error.code).to.be.equal(500);
-      expect(error.context.pathname).to.be.equal('/');
-      expect(error.context.resolver).to.be.equal(resolver);
-      expect(error.context.route).to.be.equal(route);
+      expect(error).to.have.property('message').that.equals('custom');
+      expect(error).to.have.property('code', 500);
+      expect(error).to.have.property('context').that.includes({ pathname: '/', resolver });
+      expect(error).to.have.nested.property('context.route').that.includes(route);
     });
   });
 
@@ -96,7 +98,7 @@ describe('Resolver', () => {
 
     it('should have a setter for the routes config', () => {
       const router = new Resolver([]);
-      router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+      router.setRoutes([{ component: 'x-home-view', path: '/' }]);
       const actual = router.getRoutes();
       expect(actual).to.be.an('array').that.has.lengthOf(1);
       expect(actual[0]).to.have.property('path', '/');
@@ -106,7 +108,7 @@ describe('Resolver', () => {
     it('should have a method for adding routes', () => {
       const router = new Resolver([]);
 
-      const newRoutes = router.addRoutes([{ path: '/', component: 'x-home-view' }]);
+      const newRoutes = router.addRoutes([{ component: 'x-home-view', path: '/' }]);
 
       const actual = router.getRoutes();
       expect(newRoutes).to.deep.equal(actual);
@@ -116,7 +118,7 @@ describe('Resolver', () => {
     });
 
     it('should have a method for removing routes', () => {
-      const router = new Resolver([{ path: '/', component: 'x-home-view' }]);
+      const router = new Resolver([{ component: 'x-home-view', path: '/' }]);
       expect(router.getRoutes()).to.be.an('array').that.has.lengthOf(1);
 
       router.removeRoutes();
@@ -144,7 +146,7 @@ describe('Resolver', () => {
 
     it("should execute the matching route's action method and return its result", async () => {
       const action = sinon.spy(() => 'b');
-      const resolver = new Resolver({ path: '/a', action });
+      const resolver = new Resolver({ action, path: '/a' });
       const context = await resolver.resolve('/a');
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.nested.property('route.path', '/a');
@@ -157,10 +159,10 @@ describe('Resolver', () => {
       const action3 = sinon.spy(() => 'c');
       const action4 = sinon.spy(() => 'd');
       const resolver = new Resolver([
-        { path: '/a', action: action1 },
-        { path: '/a', action: action2 },
-        { path: '/a', action: action3 },
-        { path: '/a', action: action4 },
+        { action: action1, path: '/a' },
+        { action: action2, path: '/a' },
+        { action: action3, path: '/a' },
+        { action: action4, path: '/a' },
       ]);
       const context = await resolver.resolve('/a');
       expect(context.result).to.be.equal('c');
@@ -172,7 +174,7 @@ describe('Resolver', () => {
 
     it('should be able to pass context variables to action methods', async () => {
       const action = sinon.spy(() => true);
-      const resolver = new Resolver([{ path: '/a', action }]);
+      const resolver = new Resolver([{ action, path: '/a' }]);
       const context = await resolver.resolve({ pathname: '/a', test: 'b' });
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.nested.property('route.path', '/a');
@@ -182,7 +184,7 @@ describe('Resolver', () => {
 
     it("should not call action methods of routes that don't match the URL path", async () => {
       const action = sinon.spy();
-      const resolver = new Resolver([{ path: '/a', action }]);
+      const resolver = new Resolver([{ action, path: '/a' }]);
       let err;
       try {
         await resolver.resolve('/b');
@@ -196,95 +198,94 @@ describe('Resolver', () => {
     });
 
     it('should support asynchronous route actions', async () => {
-      const resolver = new Resolver([{ path: '/a', action: async () => 'b' }]);
-      const context = await resolver.resolve('/a');
-      expect(context.result).to.be.equal('b');
+      const resolver = new Resolver([{ action: async () => 'b', path: '/a' }]);
+      const result = await resolver.resolve('/a');
+      expect(result).to.be.equal('b');
     });
 
     it('URL parameters are captured and added to context.params', async () => {
       const action = sinon.spy(() => true);
-      const resolver = new Resolver([{ path: '/:one/:two', action }]);
-      const context = await resolver.resolve({ pathname: '/a/b' });
+      const resolver = new Resolver([{ action, path: '/:one/:two' }]);
+      const result = await resolver.resolve({ pathname: '/a/b' });
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
-      expect(context.result).to.be.true;
+      expect(result).to.be.true;
     });
 
     it('context.chain contains the path to the last matched route if context.next() is called', async () => {
       const resolver = new Resolver([
-        { path: '/a', name: 'first', action: (context) => context.next() },
-        { path: '/a', name: 'second', action: () => true },
+        { action: async (context) => context.next(), name: 'first', path: '/a' },
+        { action: () => true, name: 'second', path: '/a' },
       ]);
-      const context = await resolver.resolve({ pathname: '/a' });
-      expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].route).to.be.an('object');
-      expect(context.chain[0].route.name).to.equal('second');
+      await resolver.resolve({ pathname: '/a' });
+      expect(resolver.context.chain).to.be.an('array').lengthOf(1);
+      expect(resolver.context.chain?.[0].route).to.be.an('object');
+      expect(resolver.context.chain?.[0].route?.name).to.equal('second');
     });
 
     it('the path to the route that produced the result, and the matched path are in the `context` (1))', async () => {
-      const resolver = new Resolver([{ path: '/a/b', action: () => true }]);
-      const context = await resolver.resolve({ pathname: '/a/b' });
-      expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].path).to.equal('/a/b');
-      expect(context.chain[0].route.path).to.equal('/a/b');
+      const resolver = new Resolver([{ action: () => true, path: '/a/b' }]);
+      await resolver.resolve({ pathname: '/a/b' });
+      expect(resolver.context.chain).to.be.an('array').lengthOf(1);
+      expect(resolver.context.chain?.[0].path).to.equal('/a/b');
+      expect(resolver.context.chain?.[0].route?.path).to.equal('/a/b');
     });
 
     it('paths with parameters should have each route activated without parameters replaced', async () => {
       const resolver = new Resolver([
-        { path: '/users/:user', action: () => 'x-user-profile' },
-        { path: '/image-:size(\\d+)px', action: () => 'x-image-view' },
-        { path: '/kb/:path+/:id', action: () => 'x-knowledge-base' },
+        { action: () => 'x-user-profile', path: '/users/:user' },
+        { action: () => 'x-image-view', path: '/image-:size(\\d+)px' },
+        { action: () => 'x-knowledge-base', path: '/kb/:path+/:id' },
       ]);
 
-      let context;
-      context = await resolver.resolve('/users/1');
-      expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].route.path).to.equal('/users/:user');
+      await resolver.resolve('/users/1');
+      expect(resolver.context.chain).to.be.an('array').lengthOf(1);
+      expect(resolver.context.chain?.[0].route?.path).to.equal('/users/:user');
 
-      context = await resolver.resolve('/image-15px');
-      expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].route.path).to.equal('/image-:size(\\d+)px');
+      await resolver.resolve('/image-15px');
+      expect(resolver.context.chain).to.be.an('array').lengthOf(1);
+      expect(resolver.context.chain?.[0].route?.path).to.equal('/image-:size(\\d+)px');
 
-      context = await resolver.resolve('/kb/folder/nested/1');
-      expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].route.path).to.equal('/kb/:path+/:id');
+      await resolver.resolve('/kb/folder/nested/1');
+      expect(resolver.context.chain).to.be.an('array').lengthOf(1);
+      expect(resolver.context.chain?.[0].route?.path).to.equal('/kb/:path+/:id');
     });
 
     it('the path to the route that produced the result is in the `context` (2)', async () => {
       const resolver = new Resolver([
         {
-          path: '/a',
           children: [
             {
-              path: '/b',
               action: () => true,
+              path: '/b',
             },
           ],
+          path: '/a',
         },
       ]);
-      const context = await resolver.resolve({ pathname: '/a/b' });
-      expect(context.chain).to.be.an('array').lengthOf(2);
-      expect(context.chain[0].route.path).to.equal('/a');
-      expect(context.chain[1].route.path).to.equal('/b');
+      await resolver.resolve({ pathname: '/a/b' });
+      expect(resolver.context.chain).to.be.an('array').lengthOf(2);
+      expect(resolver.context.chain?.[0].route?.path).to.equal('/a');
+      expect(resolver.context.chain?.[1].route?.path).to.equal('/b');
     });
 
     it('the path to the route that produced the result is in the `context` (3)', async () => {
       const resolver = new Resolver([
         {
-          path: '/',
           children: [
             {
-              path: '',
               children: [
                 {
-                  path: '/a',
                   action: () => true,
+                  path: '/a',
                 },
               ],
+              path: '',
             },
           ],
+          path: '/',
         },
-        { path: '/b', action: () => true },
+        { action: () => true, path: '/b' },
       ]);
       const context = await resolver.resolve({ pathname: '/b' });
       expect(context.chain).to.be.an('array').lengthOf(1);
@@ -296,14 +297,14 @@ describe('Resolver', () => {
       const action2 = sinon.spy(() => true);
       const resolver = new Resolver([
         {
-          path: '/:one',
           action: action1,
           children: [
             {
-              path: '/:two',
               action: action2,
+              path: '/:two',
             },
           ],
+          path: '/:one',
         },
       ]);
       const context = await resolver.resolve({ pathname: '/a/b' });
@@ -319,18 +320,18 @@ describe('Resolver', () => {
       const action2 = sinon.spy(() => true);
       const resolver = new Resolver([
         {
-          path: '/:one',
           action: action1,
           children: [
             {
-              path: '/:one',
               action: action1,
+              path: '/:one',
             },
             {
-              path: '/:two',
               action: action2,
+              path: '/:two',
             },
           ],
+          path: '/:one',
         },
       ]);
       const context = await resolver.resolve({ pathname: '/a/b' });
@@ -348,28 +349,28 @@ describe('Resolver', () => {
       const action3 = sinon.spy(() => true);
       const resolver = new Resolver([
         {
-          path: '/:one',
           action: action1,
           children: [
             {
-              path: '/:two',
               action: action1,
+              path: '/:two',
             },
           ],
+          path: '/:one',
         },
         {
-          path: '/:three',
           action: action2,
           children: [
             {
-              path: '/:four',
               action: action2,
+              path: '/:four',
             },
             {
-              path: '/:five',
               action: action3,
+              path: '/:five',
             },
           ],
+          path: '/:three',
         },
       ]);
       const context = await resolver.resolve({ pathname: '/a/b' });
@@ -378,9 +379,9 @@ describe('Resolver', () => {
       expect(action1.args[1][0]).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
       expect(action2.calledTwice).to.be.true;
       expect(action2.args[0][0]).to.have.property('params').that.deep.equals({ three: 'a' });
-      expect(action2.args[1][0]).to.have.property('params').that.deep.equals({ three: 'a', four: 'b' });
+      expect(action2.args[1][0]).to.have.property('params').that.deep.equals({ four: 'b', three: 'a' });
       expect(action3.calledOnce).to.be.true;
-      expect(action3.args[0][0]).to.have.property('params').that.deep.equals({ three: 'a', five: 'b' });
+      expect(action3.args[0][0]).to.have.property('params').that.deep.equals({ five: 'b', three: 'a' });
       expect(context.result).to.be.true;
     });
 
@@ -388,17 +389,20 @@ describe('Resolver', () => {
       const log = [];
       const resolver = new Resolver([
         {
-          path: '/test',
+          async action({ next }) {
+            log.push(1);
+            const result = await next();
+            log.push(10);
+            return result;
+          },
           children: [
             {
-              path: '',
               action() {
                 log.push(2);
               },
               children: [
                 {
-                  path: '',
-                  action({ next }) {
+                  async action({ next }) {
                     log.push(3);
                     return next().then(() => {
                       log.push(6);
@@ -406,64 +410,61 @@ describe('Resolver', () => {
                   },
                   children: [
                     {
-                      path: '',
-                      action({ next }) {
+                      async action({ next }) {
                         log.push(4);
                         return next().then(() => {
                           log.push(5);
                         });
                       },
+                      path: '',
                     },
                   ],
+                  path: '',
                 },
               ],
+              path: '',
             },
             {
-              path: '',
               action() {
                 log.push(7);
               },
               children: [
                 {
-                  path: '',
                   action() {
                     log.push(8);
                   },
+                  path: '',
                 },
                 {
-                  path: '(.*)',
                   action() {
                     log.push(9);
                   },
+                  path: '(.*)',
                 },
               ],
+              path: '',
             },
           ],
-          async action({ next }) {
-            log.push(1);
-            const result = await next();
-            log.push(10);
-            return result;
-          },
+          path: '/test',
         },
         {
-          path: '/:id',
           action() {
             log.push(11);
           },
+          path: '/:id',
         },
         {
-          path: '/test',
           action() {
             log.push(12);
             return 'done';
           },
+          path: '/test',
         },
         {
-          path: '/*',
           action() {
             log.push(13);
           },
+          path: '/*',
         },
       ]);
 
@@ -475,7 +476,7 @@ describe('Resolver', () => {
     it('should support next(true) across multiple routes', async () => {
       const log = [];
       const resolver = new Resolver({
-        action({ next }) {
+        async action({ next }) {
           log.push(1);
           return next().then((result) => {
             log.push(9);
@@ -484,24 +485,22 @@ describe('Resolver', () => {
         },
         children: [
           {
-            path: '/a/b/c',
-            action({ next }) {
+            async action({ next }) {
               log.push(2);
               return next(true).then((result) => {
                 log.push(8);
                 return result;
               });
             },
+            path: '/a/b/c',
           },
           {
-            path: '/a',
             action() {
               log.push(3);
             },
             children: [
               {
-                path: '/b',
-                action({ next }) {
+                async action({ next }) {
                   log.push(4);
                   return next().then((result) => {
                     log.push(6);
@@ -510,21 +509,23 @@ describe('Resolver', () => {
                 },
                 children: [
                   {
-                    path: '/c',
                     action() {
                       log.push(5);
                     },
+                    path: '/c',
                   },
                 ],
+                path: '/b',
               },
               {
-                path: '/b/c',
                 action() {
                   log.push(7);
                   return 'done';
                 },
+                path: '/b/c',
               },
             ],
+            path: '/a',
           },
         ],
       });
@@ -536,7 +537,7 @@ describe('Resolver', () => {
 
     it('should support parametrized routes 1', async () => {
       const action = sinon.spy(() => true);
-      const resolver = new Resolver([{ path: '/path/:a/other/:b', action }]);
+      const resolver = new Resolver([{ action, path: '/path/:a/other/:b' }]);
       const context = await resolver.resolve('/path/1/other/2');
       expect(action.calledOnce).to.be.true;
       expect(action.args[0][0]).to.have.nested.property('params.a', '1');
@@ -551,14 +552,14 @@ describe('Resolver', () => {
       const action2 = sinon.spy(() => true);
       const resolver = new Resolver([
         {
-          path: '',
           action: action1,
           children: [
             {
-              path: '/a',
               action: action2,
+              path: '/a',
             },
           ],
+          path: '',
         },
       ]);
 
@@ -575,14 +576,14 @@ describe('Resolver', () => {
       const action2 = sinon.spy(() => true);
       const resolver = new Resolver([
         {
-          path: '/a',
           action: action1,
           children: [
             {
-              path: '/b',
               action: action2,
+              path: '/b',
             },
           ],
+          path: '/a',
         },
       ]);
 
@@ -600,18 +601,18 @@ describe('Resolver', () => {
       const action3 = sinon.spy(() => true);
       const resolver = new Resolver([
         {
-          path: '/a',
           action: action1,
           children: [
             {
-              path: '/b',
               action: action2,
+              path: '/b',
             },
           ],
+          path: '/a',
         },
         {
-          path: '/a/b',
           action: action3,
+          path: '/a/b',
         },
       ]);
 
@@ -629,9 +630,9 @@ describe('Resolver', () => {
       const action = sinon.spy();
       const resolver = new Resolver([
         {
-          path: '/a',
-          action: action,
+          action,
           children: [],
+          path: '/a',
         },
       ]);
 
@@ -643,10 +644,10 @@ describe('Resolver', () => {
       const error = new Error('test error');
       const resolver = new Resolver([
         {
-          path: '/a',
           action() {
             throw error;
           },
+          path: '/a',
         },
       ]);
       let err;
@@ -661,13 +662,13 @@ describe('Resolver', () => {
     it('should respect baseUrl', async () => {
       const action = sinon.spy(() => 17);
       const routes = {
-        path: '/a',
         children: [
           {
+            children: [{ action, path: '/c' }],
             path: '/b',
-            children: [{ path: '/c', action }],
           },
         ],
+        path: '/a',
       };
       const resolver = new Resolver(routes, { baseUrl: '/base/' });
       const context = await resolver.resolve('/base/a/b/c');
@@ -695,14 +696,14 @@ describe('Resolver', () => {
 
     it('should match routes with trailing slashes', async () => {
       const resolver = new Resolver([
-        { path: '/', action: () => 'a' },
-        { path: '/page/', action: () => 'b' },
+        { action: () => 'a', path: '/' },
+        { action: () => 'b', path: '/page/' },
         {
-          path: '/child',
           children: [
-            { path: '/', action: () => 'c' },
-            { path: '/page/', action: () => 'd' },
+            { action: () => 'c', path: '/' },
+            { action: () => 'd', path: '/page/' },
           ],
+          path: '/child',
         },
       ]);
       expect((await resolver.resolve('/')).result).to.be.equal('a');
@@ -716,13 +717,13 @@ describe('Resolver', () => {
       const action = sinon.spy(() => 'skipped');
       const resolver = new Resolver([
         {
-          path: '/match',
           action: middleware,
           children: [{ action }],
+          path: '/match',
         },
         {
-          path: '/match',
           action: () => 404,
+          path: '/match',
         },
       ]);
 
@@ -737,13 +738,13 @@ describe('Resolver', () => {
       const action = sinon.spy(() => null);
       const resolver = new Resolver([
         {
-          path: '/match',
           action: middleware,
           children: [{ action }],
+          path: '/match',
         },
         {
-          path: '/match',
           action: () => 404,
+          path: '/match',
         },
       ]);
 
@@ -778,12 +779,12 @@ describe('Resolver', () => {
     });
 
     it('should return full base when baseUrl is set', () => {
-      expect(new Resolver([], { baseUrl: '/foo/' }).__effectiveBaseUrl).to.equal(location.origin + '/foo/');
+      expect(new Resolver([], { baseUrl: '/foo/' }).__effectiveBaseUrl).to.equal(`${location.origin}/foo/`);
     });
 
     it('should ignore everything after last slash', () => {
-      expect(new Resolver([], { baseUrl: '/foo' }).__effectiveBaseUrl).to.equal(location.origin + '/');
-      expect(new Resolver([], { baseUrl: '/foo/bar' }).__effectiveBaseUrl).to.equal(location.origin + '/foo/');
+      expect(new Resolver([], { baseUrl: '/foo' }).__effectiveBaseUrl).to.equal(`${location.origin}/`);
+      expect(new Resolver([], { baseUrl: '/foo/bar' }).__effectiveBaseUrl).to.equal(`${location.origin}/foo/`);
     });
 
     it('should invoke Resolver.__createUrl(path, base) hook', () => {
@@ -819,7 +820,7 @@ describe('Resolver', () => {
 
     it('should use __effectiveBaseUrl', () => {
       const resolver = new Resolver([], { baseUrl: '/foo/' });
-      const stub = sinon.stub().returns(location.origin + '/bar/');
+      const stub = sinon.stub().returns(`${location.origin}/bar/`);
       Object.defineProperty(resolver, '__effectiveBaseUrl', { get: stub });
       expect(resolver.__normalizePathname('/bar/')).to.equal('');
       expect(stub).to.be.called;
@@ -830,13 +831,13 @@ describe('Resolver', () => {
       try {
         // Absolute pathname: prepend origin
         new Resolver([], { baseUrl: '/foo/bar' }).__normalizePathname('/baz/');
-        expect(createUrlSpy).to.be.calledWith(location.origin + '/baz/', location.origin + '/foo/');
+        expect(createUrlSpy).to.be.calledWith(`${location.origin}/baz/`, `${location.origin}/foo/`);
 
         createUrlSpy.resetHistory();
 
         // Relative pathname: prepend dot path prefix
         new Resolver([], { baseUrl: '/foo/bar' }).__normalizePathname('baz');
-        expect(createUrlSpy).to.be.calledWith('./baz', location.origin + '/foo/');
+        expect(createUrlSpy).to.be.calledWith('./baz', `${location.origin}/foo/`);
       } finally {
         createUrlSpy.restore();
       }
