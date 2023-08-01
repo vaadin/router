@@ -40,13 +40,13 @@ function decodeParam(val: string): string {
 }
 
 function matchPath(
-  routepath: string,
+  routePath: string,
   path?: string[] | string,
   exact: boolean = false,
   parentKeys: readonly Key[] = [],
   parentParams?: IndexedParams,
 ): Match | null {
-  const cacheKey = `${routepath}|${String(exact)}`;
+  const cacheKey = `${routePath}|${String(exact)}`;
   const _path = resolvePath(path);
   let regexp = cache.get(cacheKey);
 
@@ -54,9 +54,9 @@ function matchPath(
     const keys: Key[] = [];
     regexp = {
       keys,
-      pattern: pathToRegexp(routepath, keys, {
+      pattern: pathToRegexp(routePath, keys, {
         end: exact,
-        strict: routepath === '',
+        strict: routePath === '',
       }),
     };
     cache.set(cacheKey, regexp);

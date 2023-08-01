@@ -79,18 +79,26 @@ export function fireRouterEvent<T>(type: string, detail: T): boolean {
   return !window.dispatchEvent(new CustomEvent(`vaadin-router-${type}`, { cancelable: type === 'go', detail }));
 }
 
-export class NotFoundError extends Error {
+export class NotFoundError<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+> extends Error {
   readonly code: number;
-  readonly context: InternalContext;
+  readonly context: InternalContext<T, R, C>;
 
-  constructor(context: InternalContext) {
+  constructor(context: InternalContext<T, R, C>) {
     super(log(`Page not found (${context.pathname})`));
     this.context = context;
     this.code = 404;
   }
 }
 
-export function getNotFoundError(context: InternalContext): NotFoundError {
+export function getNotFoundError<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+>(context: InternalContext<T, R, C>): NotFoundError {
   return new NotFoundError(context);
 }
 

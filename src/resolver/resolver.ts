@@ -7,7 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 import type { InternalContext, InternalRoute } from '../internal.js';
-import type { ActionResult, EmptyRecord, Route } from '../types.js';
+import type { RouteContext, ActionResult, EmptyRecord, Route } from '../types.js';
 import { ensureRoutes, getNotFoundError, getRoutePath, isString, notFoundResult, toArray } from '../utils.js';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
@@ -89,35 +89,40 @@ export type ErrorHandlerCallback<T> = (error: unknown) => ActionResult<T>;
 
 export type ResolveContext = Readonly<{ pathname: string }>;
 
-export type ResolverOptions<T, C extends Record<string, unknown> = EmptyRecord> = Readonly<{
+export type ResolveRouteCallback<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = (
+  context: RouteContext<T, R, C>,
+) => Promise<ActionResult<T>>;
+
+type BasicResolverOptions<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Readonly<{
   baseUrl?: string;
-  context?: C;
   errorHandler?: ErrorHandlerCallback<T>;
-  resolveRoute?: typeof defaultResolveRoute;
+  resolveRoute?: ResolveRouteCallback<T, R, C>;
 }>;
+
+export type ResolverOptions<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Readonly<
+  BasicResolverOptions<T, R, C> & (keyof C extends never ? object : { context: C })
+>;
 
 class Resolver<
   T = unknown,
   R extends Record<string, unknown> = EmptyRecord,
   C extends Record<string, unknown> = EmptyRecord,
 > {
-  /**
-   * URL constructor polyfill hook. Creates and returns a URL instance.
-   */
-  static __createUrl(...args) {
-    return new URL(...args);
-  }
-
   readonly baseUrl: string;
-  readonly defaultContext: InternalContext<T, R, C>
   context: InternalContext<T, R, C>;
   readonly errorHandler?: ErrorHandlerCallback<T>;
-  readonly resolveRoute: typeof defaultResolveRoute;
+  readonly resolveRoute: ResolveRouteCallback<T, R, C>;
   readonly root: InternalRoute<T, R, C>;
 
+  constructor(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>, options?: ResolverOptions<T, R, C>);
   constructor(
     routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>,
-    { baseUrl = '', context = {}, errorHandler, resolveRoute = defaultResolveRoute }: ResolverOptions<T> = {},
+    {
+      baseUrl = '',
+      context,
+      errorHandler,
+      resolveRoute = defaultResolveRoute,
+    }: BasicResolverOptions<T, R, C> & Readonly<{ context?: C }> = {},
   ) {
     if (Object(routes) !== routes) {
       throw new TypeError('Invalid routes');
@@ -130,13 +135,13 @@ class Resolver<
       ? {
           __children: routes,
           __synthetic: true,
-          action() {},
+          action: () => undefined,
           path: '',
         }
       : { ...routes, parent: undefined };
 
-    this.defaultContext = {
-      ...context,
+    this.context = {
+      ...context!,
       hash: '',
       async next() {
         return Promise.resolve(notFoundResult);

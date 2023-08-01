@@ -15,10 +15,14 @@ import Resolver from './resolver.js';
 
 export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> | number | string>>;
 
-function cacheRoutes<R extends Record<string, unknown> = EmptyRecord, C extends Record<string, unknown> = EmptyRecord>(
-  routesByName: Map<string, Array<InternalRoute<R, C>>>,
-  route: InternalRoute<R, C>,
-  routes?: ChildrenCallback | ReadonlyArray<InternalRoute<R, C>>,
+function cacheRoutes<
+  T,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+>(
+  routesByName: Map<string, Array<InternalRoute<T, R, C>>>,
+  route: InternalRoute<T, R, C>,
+  routes?: ChildrenCallback | ReadonlyArray<InternalRoute<T, R, C>>,
 ): void {
   const name = route.name ?? route.component;
   if (name) {
@@ -29,7 +33,7 @@ function cacheRoutes<R extends Record<string, unknown> = EmptyRecord, C extends 
     }
   }
 
-  if (Array.isArray<ReadonlyArray<InternalRoute<R, C>>>(routes)) {
+  if (Array.isArray<ReadonlyArray<InternalRoute<T, R, C>>>(routes)) {
     for (const childRoute of routes) {
       childRoute.parent = route;
       cacheRoutes(routesByName, childRoute, childRoute.__children ?? childRoute.children);
@@ -38,9 +42,10 @@ function cacheRoutes<R extends Record<string, unknown> = EmptyRecord, C extends 
 }
 
 function getRouteByName<
+  T = unknown,
   R extends Record<string, unknown> = EmptyRecord,
   C extends Record<string, unknown> = EmptyRecord,
->(routesByName: Map<string, Array<InternalRoute<R, C>>>, routeName: string): InternalRoute | undefined {
+>(routesByName: Map<string, Array<InternalRoute<T, R, C>>>, routeName: string): InternalRoute<T, R, C> | undefined {
   const routes = routesByName.get(routeName);
 
   if (routes) {
@@ -76,8 +81,12 @@ type RouteCacheRecord = Readonly<{
 
 export type UrlGenerator = (routeName: string, params?: IndexedParams) => string;
 
-function generateUrls(
-  resolver: Resolver,
+function generateUrls<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+>(
+  resolver: Resolver<T, R, C>,
   options: GenerateUrlOptions = {
     encode: encodeURIComponent,
   },
@@ -87,7 +96,7 @@ function generateUrls(
   }
 
   const cache = new Map<string, RouteCacheRecord>();
-  const routesByName = new Map<string, InternalRoute[]>();
+  const routesByName = new Map<string, Array<InternalRoute<T, R, C>>>();
 
   return (routeName: string, params?: IndexedParams) => {
     let route = getRouteByName(routesByName, routeName);

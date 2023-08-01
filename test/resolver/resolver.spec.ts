@@ -32,9 +32,9 @@ describe('Resolver', () => {
     });
 
     it('should support custom resolve option for declarative routes', async () => {
-      const resolveRoute = sinon.spy((context: RouteContext) => context.route.component);
-      const action = sinon.spy();
-      const resolver = new Resolver(
+      const resolveRoute = sinon.spy(async (context: RouteContext) => context.route.component);
+      const action = sinon.spy(() => '');
+      const resolver = new Resolver<string>(
         {
           action,
           children: [
@@ -75,7 +75,7 @@ describe('Resolver', () => {
         },
         path: '/',
       };
-      const resolver = new Resolver(route, { errorHandler });
+      const resolver = new Resolver<string>(route, { errorHandler });
       const result = await resolver.resolve('/');
       expect(result).to.be.equal('result');
       expect(errorHandler).to.be.calledOnce;
@@ -108,13 +108,14 @@ describe('Resolver', () => {
     it('should have a method for adding routes', () => {
       const router = new Resolver([]);
 
+      // @ts-expect-error: testing protected method
       const newRoutes = router.addRoutes([{ component: 'x-home-view', path: '/' }]);
 
       const actual = router.getRoutes();
       expect(newRoutes).to.deep.equal(actual);
-      expect(actual).to.be.an('array').that.has.lengthOf(1);
-      expect(actual[0]).to.have.property('path', '/');
-      expect(actual[0]).to.have.property('component', 'x-home-view');
+      expect(actual)
+        .to.be.an('array')
+        .that.deep.equals([{ component: 'x-home-view', path: '/' }]);
     });
 
     it('should have a method for removing routes', () => {
@@ -130,18 +131,18 @@ describe('Resolver', () => {
   describe('resolver.resolve({ pathname, ...context })', () => {
     it('should throw an error if no route found', async () => {
       const resolver = new Resolver([]);
-      let err;
+      let error;
       try {
         await resolver.resolve('/');
       } catch (e) {
-        err = e;
+        error = e;
       }
-      expect(err).to.be.an('error');
-      expect(err.message).to.match(/Page not found/);
-      expect(err.code).to.be.equal(404);
-      expect(err.context.pathname).to.be.equal('/');
-      expect(err.context.path).to.be.equal(undefined);
-      expect(err.context.resolver).to.be.equal(resolver);
+      expect(error).to.be.an('error');
+      expect(error)
+        .to.have.property('message')
+        .that.matches(/Page not found/u);
+      expect(error).to.have.property('code').that.equals(404);
+      expect(error).to.have.property('context').that.includes({ path: undefined, pathname: '/', resolver });
     });
 
     it("should execute the matching route's action method and return its result", async () => {
@@ -149,8 +150,8 @@ describe('Resolver', () => {
       const resolver = new Resolver({ action, path: '/a' });
       const context = await resolver.resolve('/a');
       expect(action.calledOnce).to.be.true;
-      expect(action.args[0][0]).to.have.nested.property('route.path', '/a');
-      expect(context.result).to.be.equal('b');
+      expect(action.firstCall.firstArg).to.have.nested.property('route.path', '/a');
+      expect(context).to.be.equal('b');
     });
 
     it('should find the first route whose action method !== undefined or null', async () => {
@@ -165,7 +166,7 @@ describe('Resolver', () => {
         { action: action4, path: '/a' },
       ]);
       const context = await resolver.resolve('/a');
-      expect(context.result).to.be.equal('c');
+      expect(context).to.be.equal('c');
       expect(action1.calledOnce).to.be.true;
       expect(action2.calledOnce).to.be.true;
       expect(action3.calledOnce).to.be.true;
@@ -177,9 +178,9 @@ describe('Resolver', () => {
       const resolver = new Resolver([{ action, path: '/a' }]);
       const context = await resolver.resolve({ pathname: '/a', test: 'b' });
       expect(action.calledOnce).to.be.true;
-      expect(action.args[0][0]).to.have.nested.property('route.path', '/a');
-      expect(action.args[0][0]).to.have.property('test', 'b');
-      expect(context.result).to.be.true;
+      expect(action.firstCall.firstArg).to.have.nested.property('route.path', '/a');
+      expect(action.firstCall.firstArg).to.have.property('test', 'b');
+      expect(context).to.be.true;
     });
 
     it("should not call action methods of routes that don't match the URL path", async () => {
@@ -192,8 +193,10 @@ describe('Resolver', () => {
         err = e;
       }
       expect(err).to.be.an('error');
-      expect(err.message).to.match(/Page not found/);
-      expect(err.code).to.be.equal(404);
+      expect(err)
+        .to.have.property('message')
+        .that.matches(/Page not found/u);
+      expect(err).to.have.property('code').that.equals(404);
       expect(action.called).to.be.false;
     });
 
@@ -208,7 +211,7 @@ describe('Resolver', () => {
       const resolver = new Resolver([{ action, path: '/:one/:two' }]);
       const result = await resolver.resolve({ pathname: '/a/b' });
       expect(action.calledOnce).to.be.true;
-      expect(action.args[0][0]).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
+      expect(action.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
       expect(result).to.be.true;
     });
 
@@ -287,9 +290,10 @@ describe('Resolver', () => {
         },
         { action: () => true, path: '/b' },
       ]);
-      const context = await resolver.resolve({ pathname: '/b' });
+      await resolver.resolve({ pathname: '/b' });
+      const { context } = resolver;
       expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain[0].route.path).to.equal('/b');
+      expect(context.chain?.[0].route?.path).to.equal('/b');
     });
 
     it('should provide all URL parameters to each route', async () => {
@@ -309,10 +313,10 @@ describe('Resolver', () => {
       ]);
       const context = await resolver.resolve({ pathname: '/a/b' });
       expect(action1.calledOnce).to.be.true;
-      expect(action1.args[0][0]).to.have.property('params').that.deep.equals({ one: 'a' });
+      expect(action1.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a' });
       expect(action2.calledOnce).to.be.true;
-      expect(action2.args[0][0]).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
-      expect(context.result).to.be.true;
+      expect(action2.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
+      expect(context).to.be.true;
     });
 
     it('should override URL parameters with same name in child route', async () => {
@@ -336,11 +340,11 @@ describe('Resolver', () => {
       ]);
       const context = await resolver.resolve({ pathname: '/a/b' });
       expect(action1.calledTwice).to.be.true;
-      expect(action1.args[0][0]).to.have.property('params').that.deep.equals({ one: 'a' });
+      expect(action1.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a' });
       expect(action1.args[1][0]).to.have.property('params').that.deep.equals({ one: 'b' });
       expect(action2.calledOnce).to.be.true;
-      expect(action2.args[0][0]).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
-      expect(context.result).to.be.true;
+      expect(action2.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
+      expect(context).to.be.true;
     });
 
     it('should not collect parameters from previous routes', async () => {
@@ -375,18 +379,18 @@ describe('Resolver', () => {
       ]);
       const context = await resolver.resolve({ pathname: '/a/b' });
       expect(action1.calledTwice).to.be.true;
-      expect(action1.args[0][0]).to.have.property('params').that.deep.equals({ one: 'a' });
-      expect(action1.args[1][0]).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
+      expect(action1.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a' });
+      expect(action1.secondCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
       expect(action2.calledTwice).to.be.true;
-      expect(action2.args[0][0]).to.have.property('params').that.deep.equals({ three: 'a' });
-      expect(action2.args[1][0]).to.have.property('params').that.deep.equals({ four: 'b', three: 'a' });
+      expect(action2.firstCall.firstArg).to.have.property('params').that.deep.equals({ three: 'a' });
+      expect(action2.secondCall.firstArg).to.have.property('params').that.deep.equals({ four: 'b', three: 'a' });
       expect(action3.calledOnce).to.be.true;
-      expect(action3.args[0][0]).to.have.property('params').that.deep.equals({ five: 'b', three: 'a' });
-      expect(context.result).to.be.true;
+      expect(action3.firstCall.firstArg).to.have.property('params').that.deep.equals({ five: 'b', three: 'a' });
+      expect(context).to.be.true;
     });
 
     it('should support next() across multiple routes', async () => {
-      const log = [];
+      const log: number[] = [];
       const resolver = new Resolver([
         {
           async action({ next }) {
@@ -470,11 +474,11 @@ describe('Resolver', () => {
 
       const context = await resolver.resolve('/test');
       expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-      expect(context.result).to.be.equal('done');
+      expect(context).to.be.equal('done');
     });
 
     it('should support next(true) across multiple routes', async () => {
-      const log = [];
+      const log: number[] = [];
       const resolver = new Resolver({
         async action({ next }) {
           log.push(1);
@@ -532,7 +536,7 @@ describe('Resolver', () => {
 
       const context = await resolver.resolve('/a/b/c');
       expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-      expect(context.result).to.be.equal('done');
+      expect(context).to.be.equal('done');
     });
 
     it('should support parametrized routes 1', async () => {
@@ -540,11 +544,11 @@ describe('Resolver', () => {
       const resolver = new Resolver([{ action, path: '/path/:a/other/:b' }]);
       const context = await resolver.resolve('/path/1/other/2');
       expect(action.calledOnce).to.be.true;
-      expect(action.args[0][0]).to.have.nested.property('params.a', '1');
-      expect(action.args[0][0]).to.have.nested.property('params.b', '2');
-      expect(action.args[0][0].params).to.have.property('a', '1');
-      expect(action.args[0][0].params).to.have.property('b', '2');
-      expect(context.result).to.be.true;
+      expect(action.firstCall.firstArg).to.have.nested.property('params.a', '1');
+      expect(action.firstCall.firstArg).to.have.nested.property('params.b', '2');
+      expect(action.firstCall.firstArg).to.have.nested.property('params.a', '1');
+      expect(action.firstCall.firstArg).to.have.nested.property('params.b', '2');
+      expect(context).to.be.true;
     });
 
     it('should support nested routes (1)', async () => {
@@ -565,10 +569,10 @@ describe('Resolver', () => {
 
       const context = await resolver.resolve('/a');
       expect(action1.calledOnce).to.be.true;
-      expect(action1.args[0][0]).to.have.nested.property('route.path', '');
+      expect(action1.firstCall.firstArg).to.have.nested.property('route.path', '');
       expect(action2.calledOnce).to.be.true;
-      expect(action2.args[0][0]).to.have.nested.property('route.path', '/a');
-      expect(context.result).to.be.true;
+      expect(action2.firstCall.firstArg).to.have.nested.property('route.path', '/a');
+      expect(context).to.be.true;
     });
 
     it('should support nested routes (2)', async () => {
@@ -589,10 +593,10 @@ describe('Resolver', () => {
 
       const context = await resolver.resolve('/a/b');
       expect(action1.calledOnce).to.be.true;
-      expect(action1.args[0][0]).to.have.nested.property('route.path', '/a');
+      expect(action1.firstCall.firstArg).to.have.nested.property('route.path', '/a');
       expect(action2.calledOnce).to.be.true;
-      expect(action2.args[0][0]).to.have.nested.property('route.path', '/b');
-      expect(context.result).to.be.true;
+      expect(action2.firstCall.firstArg).to.have.nested.property('route.path', '/b');
+      expect(context).to.be.true;
     });
 
     it('should support nested routes (3)', async () => {
@@ -618,12 +622,12 @@ describe('Resolver', () => {
 
       const context = await resolver.resolve('/a/b');
       expect(action1.calledOnce).to.be.true;
-      expect(action1.args[0][0]).to.have.nested.property('route.path', '/a');
+      expect(action1.firstCall.firstArg).to.have.nested.property('route.path', '/a');
       expect(action2.calledOnce).to.be.true;
-      expect(action2.args[0][0]).to.have.nested.property('route.path', '/b');
+      expect(action2.firstCall.firstArg).to.have.nested.property('route.path', '/b');
       expect(action3.calledOnce).to.be.true;
-      expect(action3.args[0][0]).to.have.nested.property('route.path', '/a/b');
-      expect(context.result).to.be.true;
+      expect(action3.firstCall.firstArg).to.have.nested.property('route.path', '/a/b');
+      expect(context).to.be.true;
     });
 
     it('should support an empty array of children', async () => {
@@ -673,11 +677,11 @@ describe('Resolver', () => {
       const resolver = new Resolver(routes, { baseUrl: '/base/' });
       const context = await resolver.resolve('/base/a/b/c');
       expect(action.calledOnce).to.be.true;
-      expect(action.args[0][0]).to.have.property('pathname', '/base/a/b/c');
-      expect(action.args[0][0]).to.have.nested.property('route.path', '/c');
-      expect(action.args[0][0]).to.have.property('route', routes.children[0].children[0]);
-      expect(action.args[0][0]).to.have.property('resolver', resolver);
-      expect(context.result).to.be.equal(17);
+      expect(action.firstCall.firstArg).to.have.property('pathname', '/base/a/b/c');
+      expect(action.firstCall.firstArg).to.have.nested.property('route.path', '/c');
+      expect(action.firstCall.firstArg).to.have.property('route', routes.children[0].children[0]);
+      expect(action.firstCall.firstArg).to.have.property('resolver', resolver);
+      expect(context).to.be.equal(17);
 
       let err;
       try {
@@ -687,11 +691,13 @@ describe('Resolver', () => {
       }
       expect(action.calledOnce).to.be.true;
       expect(err).to.be.an('error');
-      expect(err.message).to.match(/Page not found/);
-      expect(err.code).to.be.equal(404);
-      expect(err.context.pathname).to.be.equal('/a/b/c');
-      expect(err.context.path).to.be.equal(undefined);
-      expect(err.context.resolver).to.be.equal(resolver);
+      expect(err)
+        .to.have.property('message')
+        .that.matches(/Page not found/u);
+      expect(err).to.have.property('code').that.equals(404);
+      expect(err).to.have.nested.property('context.pathname').that.equals('/a/b/c');
+      expect(err).to.have.nested.property('context.path').that.equals(undefined);
+      expect(err).to.have.nested.property('context.resolver').that.equals(resolver);
     });
 
     it('should match routes with trailing slashes', async () => {
@@ -706,10 +712,10 @@ describe('Resolver', () => {
           path: '/child',
         },
       ]);
-      expect((await resolver.resolve('/')).result).to.be.equal('a');
-      expect((await resolver.resolve('/page/')).result).to.be.equal('b');
-      expect((await resolver.resolve('/child/')).result).to.be.equal('c');
-      expect((await resolver.resolve('/child/page/')).result).to.be.equal('d');
+      expect(await resolver.resolve('/')).to.be.equal('a');
+      expect(await resolver.resolve('/page/')).to.be.equal('b');
+      expect(await resolver.resolve('/child/')).to.be.equal('c');
+      expect(await resolver.resolve('/child/page/')).to.be.equal('d');
     });
 
     it('should skip nested routes when middleware route returns null', async () => {
@@ -728,7 +734,7 @@ describe('Resolver', () => {
       ]);
 
       const context = await resolver.resolve('/match');
-      expect(context.result).to.be.equal(404);
+      expect(context).to.be.equal(404);
       expect(action.called).to.be.false;
       expect(middleware.calledOnce).to.be.true;
     });
@@ -749,29 +755,29 @@ describe('Resolver', () => {
       ]);
 
       const context = await resolver.resolve('/match');
-      expect(context.result).to.be.equal(404);
+      expect(context).to.be.equal(404);
       expect(action.calledOnce).to.be.true;
       expect(middleware.calledOnce).to.be.true;
     });
   });
 
-  describe('Resolver.__createUrl(path, base) hook', () => {
-    it('should exist', () => {
-      expect(Resolver.__createUrl).to.be.instanceof(Function);
-    });
-
-    it('should return URL-like object', () => {
-      const absolutePathUrl = Resolver.__createUrl('/absolute/', 'http://example.com/base/url');
-      expect(absolutePathUrl).to.have.property('href', 'http://example.com/absolute/');
-      expect(absolutePathUrl).to.have.property('origin', 'http://example.com');
-      expect(absolutePathUrl).to.have.property('pathname', '/absolute/');
-
-      const relativePathUrl = Resolver.__createUrl('relative', 'http://example.com/base/url');
-      expect(relativePathUrl).to.have.property('href', 'http://example.com/base/relative');
-      expect(relativePathUrl).to.have.property('origin', 'http://example.com');
-      expect(relativePathUrl).to.have.property('pathname', '/base/relative');
-    });
-  });
+  // describe('Resolver.__createUrl(path, base) hook', () => {
+  //   it('should exist', () => {
+  //     expect(Resolver.__createUrl).to.be.instanceof(Function);
+  //   });
+  //
+  //   it('should return URL-like object', () => {
+  //     const absolutePathUrl = Resolver.__createUrl('/absolute/', 'http://example.com/base/url');
+  //     expect(absolutePathUrl).to.have.property('href', 'http://example.com/absolute/');
+  //     expect(absolutePathUrl).to.have.property('origin', 'http://example.com');
+  //     expect(absolutePathUrl).to.have.property('pathname', '/absolute/');
+  //
+  //     const relativePathUrl = Resolver.__createUrl('relative', 'http://example.com/base/url');
+  //     expect(relativePathUrl).to.have.property('href', 'http://example.com/base/relative');
+  //     expect(relativePathUrl).to.have.property('origin', 'http://example.com');
+  //     expect(relativePathUrl).to.have.property('pathname', '/base/relative');
+  //   });
+  // });
 
   describe('resolver.__effectiveBaseUrl getter', () => {
     it('should return empty string by default', () => {
@@ -787,34 +793,41 @@ describe('Resolver', () => {
       expect(new Resolver([], { baseUrl: '/foo/bar' }).__effectiveBaseUrl).to.equal(`${location.origin}/foo/`);
     });
 
-    it('should invoke Resolver.__createUrl(path, base) hook', () => {
-      sinon.spy(Resolver, '__createUrl');
-      try {
-        new Resolver([], { baseUrl: '/foo/bar' }).__effectiveBaseUrl;
-        expect(Resolver.__createUrl).to.be.calledWith('/foo/bar', document.baseURI || document.URL);
-      } finally {
-        Resolver.__createUrl.restore();
-      }
-    });
+    // it('should invoke Resolver.__createUrl(path, base) hook', () => {
+    //   sinon.spy(Resolver, '__createUrl');
+    //   try {
+    //     new Resolver([], { baseUrl: '/foo/bar' }).__effectiveBaseUrl;
+    //     expect(Resolver.__createUrl).to.be.calledWith('/foo/bar', document.baseURI || document.URL);
+    //   } finally {
+    //     Resolver.__createUrl.restore();
+    //   }
+    // });
   });
 
   describe('resolver.__normalizePathname(pathname) method', () => {
     it('should return unmodified pathname by default', () => {
       const resolver = new Resolver([]);
+      // @ts-expect-error: testing private method
       expect(resolver.__normalizePathname('foo')).to.equal('foo');
+      // @ts-expect-error: testing private method
       expect(resolver.__normalizePathname('/bar')).to.equal('/bar');
     });
 
     it('should undefined when pathname does not match baseUrl', () => {
       const resolver = new Resolver([], { baseUrl: '/foo/' });
+      // @ts-expect-error: testing private method
       expect(resolver.__normalizePathname('/')).to.equal(undefined);
+      // @ts-expect-error: testing private method
       expect(resolver.__normalizePathname('/bar')).to.equal(undefined);
     });
 
     it('should local path when pathname matches baseUrl', () => {
       const resolver = new Resolver([], { baseUrl: '/foo/' });
+      // @ts-expect-error: testing private method
       expect(resolver.__normalizePathname('/foo/')).to.equal('');
+      // @ts-expect-error: testing private method
       expect(resolver.__normalizePathname('/foo/bar')).to.equal('bar');
+      // @ts-expect-error: testing private method
       expect(resolver.__normalizePathname('baz')).to.equal('baz');
     });
 
@@ -822,25 +835,30 @@ describe('Resolver', () => {
       const resolver = new Resolver([], { baseUrl: '/foo/' });
       const stub = sinon.stub().returns(`${location.origin}/bar/`);
       Object.defineProperty(resolver, '__effectiveBaseUrl', { get: stub });
+      // @ts-expect-error: testing private method
       expect(resolver.__normalizePathname('/bar/')).to.equal('');
       expect(stub).to.be.called;
     });
 
-    it('should invoke Resolver.__createUrl(url, base) hook', () => {
-      const createUrlSpy = sinon.spy(Resolver, '__createUrl');
-      try {
-        // Absolute pathname: prepend origin
-        new Resolver([], { baseUrl: '/foo/bar' }).__normalizePathname('/baz/');
-        expect(createUrlSpy).to.be.calledWith(`${location.origin}/baz/`, `${location.origin}/foo/`);
-
-        createUrlSpy.resetHistory();
-
-        // Relative pathname: prepend dot path prefix
-        new Resolver([], { baseUrl: '/foo/bar' }).__normalizePathname('baz');
-        expect(createUrlSpy).to.be.calledWith('./baz', `${location.origin}/foo/`);
-      } finally {
-        createUrlSpy.restore();
-      }
-    });
+    // it('should invoke Resolver.__createUrl(url, base) hook', () => {
+    //   const createUrlSpy = sinon.spy(Resolver, '__createUrl');
+    //   try {
+    //     // Absolute pathname: prepend origin
+    //     new Resolver([], { baseUrl: '/foo/bar' })
+    //       // @ts-expect-error: testing private method
+    //       .__normalizePathname('/baz/');
+    //     expect(createUrlSpy).to.be.calledWith(`${location.origin}/baz/`, `${location.origin}/foo/`);
+    //
+    //     createUrlSpy.resetHistory();
+    //
+    //     // Relative pathname: prepend dot path prefix
+    //     new Resolver([], { baseUrl: '/foo/bar' })
+    //       // @ts-expect-error: testing private method
+    //       .__normalizePathname('baz');
+    //     expect(createUrlSpy).to.be.calledWith('./baz', `${location.origin}/foo/`);
+    //   } finally {
+    //     createUrlSpy.restore();
+    //   }
+    // });
   });
 });

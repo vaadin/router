@@ -34,18 +34,18 @@ describe('generateUrls(router, options)(routeName, params)', () => {
   });
 
   it('should throw an error if no route found', async () => {
-    const router = new Resolver({ name: 'a', path: '/a' });
+    const router = new Resolver({ action() {}, name: 'a', path: '/a' });
     const url = generateUrls(router);
     expect(() => url('hello')).to.throw(Error, /Route "hello" not found/u);
 
-    router.root.__children = [{ name: 'new', path: '/b' }];
+    router.root.__children = [{ action() {}, name: 'new', path: '/b' }];
     expect(url('new')).to.be.equal('/a/b');
   });
 
   it('should throw an error if route name is not unique', async () => {
     const router = new Resolver([
-      { name: 'example', path: '/a' },
-      { name: 'example', path: '/b' },
+      { action() {}, name: 'example', path: '/a' },
+      { action() {}, name: 'example', path: '/b' },
     ]);
     const url = generateUrls(router);
     expect(() => url('example')).to.throw(Error, /Duplicate route with name "example"/u);
@@ -53,46 +53,47 @@ describe('generateUrls(router, options)(routeName, params)', () => {
 
   it('should not throw an error for unique route name', async () => {
     const router = new Resolver([
-      { name: 'example', path: '/a' },
-      { name: 'example', path: '/b' },
-      { name: 'unique', path: '/c' },
+      { action() {}, name: 'example', path: '/a' },
+      { action() {}, name: 'example', path: '/b' },
+      { action() {}, name: 'unique', path: '/c' },
     ]);
     const url = generateUrls(router);
     expect(() => url('unique')).to.not.throw();
   });
 
   it('should generate url for named routes', async () => {
-    const router1 = new Resolver({ name: 'user', path: '/:name' });
+    const router1 = new Resolver({ action() {}, name: 'user', path: '/:name' });
     const url1 = generateUrls(router1);
     expect(url1('user', { name: 'koistya' })).to.be.equal('/koistya');
     expect(() => url1('user')).to.throw(TypeError, /Expected "name" to be a string/u);
 
-    const router2 = new Resolver({ name: 'user', path: '/user/:id' });
+    const router2 = new Resolver({ action() {}, name: 'user', path: '/user/:id' });
     const url2 = generateUrls(router2);
     expect(url2('user', { id: '123' })).to.be.equal('/user/123');
     expect(() => url2('user')).to.throw(TypeError, /Expected "id" to be a string/u);
 
-    const router3 = new Resolver({ path: '/user/:id' });
+    const router3 = new Resolver({ action() {}, path: '/user/:id' });
     const url3 = generateUrls(router3);
     expect(() => url3('user')).to.throw(Error, /Route "user" not found/u);
   });
 
   it('should generate urls for routes with array of paths', async () => {
-    const router1 = new Resolver({ name: 'user', path: ['/:name', '/user/:name'] });
+    const router1 = new Resolver({ action() {}, name: 'user', path: ['/:name', '/user/:name'] });
     const url1 = generateUrls(router1);
     expect(url1('user', { name: 'koistya' })).to.be.equal('/koistya');
 
-    const router2 = new Resolver({ name: 'user', path: ['/user/:id', /\/user\/(\d+)/iu] });
+    const router2 = new Resolver({ action() {}, name: 'user', path: ['/user/:id', /\/user\/(\d+)/iu] });
     const url2 = generateUrls(router2);
     expect(url2('user', { id: '123' })).to.be.equal('/user/123');
 
-    const router3 = new Resolver({ name: 'user', path: [] });
+    const router3 = new Resolver({ action() {}, name: 'user', path: [] });
     const url3 = generateUrls(router3);
     expect(url3('user')).to.be.equal('/');
   });
 
   it('should generate url for nested routes', async () => {
     const router = new Resolver({
+      // @ts-expect-error: setting the internal route
       __children: [
         {
           __children: [

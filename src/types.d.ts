@@ -375,7 +375,7 @@ export type RouteContext<
     pathname: string;
     route: Route<T, R, C>;
     search: string;
-    next(): Promise<ActionResult<T>>;
+    next(resume?: boolean): Promise<ActionResult<T>>;
   }>;
 
 export interface Commands {
@@ -414,7 +414,7 @@ export type Route<
   }> & {
     animate?: AnimateCustomClasses | boolean;
     name?: string;
-    path?: string | readonly string[];
+    path?: ReadonlyArray<RegExp | string> | RegExp | string;
   }
 >;
 
