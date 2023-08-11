@@ -7,26 +7,28 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import {pathToRegexp, type Key} from 'path-to-regexp';
-import type {ParamValue, Params} from "../types/params.js";
+import { type Key, pathToRegexp } from 'path-to-regexp';
+import type { Writable } from 'type-fest';
+import type { RegExpExecOptArray } from '../internal.js';
+import type { IndexedParams } from '../types.js';
+import { resolvePath } from '../utils.js';
 
 type Matcher = Readonly<{
-  keys: ReadonlyArray<Key>,
-  pattern: RegExp,
+  keys: readonly Key[];
+  pattern: RegExp;
 }>;
 
 export type Match = Readonly<{
-  path: string,
-  keys: ReadonlyArray<Key>,
-  params: Readonly<Record<string, ParamValue>>,
+  keys: readonly Key[];
+  params: IndexedParams;
+  path: string;
 }>;
 
-const {hasOwnProperty} = Object.prototype;
-const cache: Map<string, Matcher> = new Map();
+const cache = new Map<string, Matcher>();
 // see https://github.com/pillarjs/path-to-regexp/issues/148
 cache.set('|false', {
   keys: [],
-  pattern: /(?:)/
+  pattern: /(?:)/u,
 });
 
 function decodeParam(val: string): string {
@@ -37,39 +39,45 @@ function decodeParam(val: string): string {
   }
 }
 
-function matchPath(routepath: string, path: string, exact?: boolean, parentKeys?: ReadonlyArray<Key>, parentParams?: Params): Match | null {
-  exact = !!exact;
-  const cacheKey = `${routepath}|${exact}`;
+function matchPath(
+  routePath: string,
+  path?: string[] | string,
+  exact: boolean = false,
+  parentKeys: readonly Key[] = [],
+  parentParams?: IndexedParams,
+): Match | null {
+  const cacheKey = `${routePath}|${String(exact)}`;
+  const _path = resolvePath(path);
   let regexp = cache.get(cacheKey);
 
   if (!regexp) {
     const keys: Key[] = [];
     regexp = {
       keys,
-      pattern: pathToRegexp(routepath, keys, {
+      pattern: pathToRegexp(routePath, keys, {
         end: exact,
-        strict: routepath === ''
+        strict: routePath === '',
       }),
     };
     cache.set(cacheKey, regexp);
   }
 
-  const m = regexp.pattern.exec(path);
+  const m: RegExpExecOptArray | null = regexp.pattern.exec(_path);
   if (!m) {
     return null;
   }
 
-  const params = Object.assign({}, parentParams) as Record<string, ParamValue>;
+  const params: Writable<IndexedParams> = { ...parentParams };
 
   for (let i = 1; i < m.length; i++) {
     const key = regexp.keys[i - 1];
     const prop = key.name;
     const value = m[i];
-    if (value !== undefined || !hasOwnProperty.call(params, prop)) {
+    if (value !== undefined || !Object.hasOwn(params, prop)) {
       if (key.modifier === '+' || key.modifier === '*') {
         // by default, as of path-to-regexp 6.0.0, the default delimiters
         // are `/`, `#` and `?`.
-        params[prop] = value ? value.split(/[/?#]/).map(decodeParam) : [];
+        params[prop] = value ? value.split(/[/?#]/u).map(decodeParam) : [];
       } else {
         params[prop] = value ? decodeParam(value) : value;
       }
@@ -77,9 +85,9 @@ function matchPath(routepath: string, path: string, exact?: boolean, parentKeys?
   }
 
   return {
-    path: m[0],
-    keys: (parentKeys || []).concat(regexp.keys),
+    keys: [...parentKeys, ...regexp.keys],
     params,
+    path: m[0],
   };
 }
 

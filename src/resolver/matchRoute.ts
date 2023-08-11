@@ -7,15 +7,22 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import matchPath, { type Match } from './matchPath.js';
-import type { InternalRoute } from '../types/route.js';
 import type { Key } from 'path-to-regexp';
-import type { Params } from '../types/params.js';
+import type { InternalRoute } from '../internal.js';
+import type { EmptyRecord, IndexedParams } from '../types.js';
+import { getRoutePath, unwrapChildren } from '../utils.js';
+import matchPath, { type Match } from './matchPath.js';
 
-export type MatchWithRoute = Match &
+export type MatchWithRoute<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Match &
   Readonly<{
-    route: InternalRoute;
+    route: InternalRoute<T, R, C>;
   }>;
+
+type RouteMatchIterator<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Iterator<
+  MatchWithRoute<T, R, C>,
+  undefined,
+  InternalRoute<T, R, C> | undefined
+>;
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from
@@ -56,60 +63,61 @@ export type MatchWithRoute = Match &
  *       remains significant
  *
  * Side effect:
- *   - the routes tree { path: '' } matches only the '' pathname
- *   - the routes tree { path: '', children: [ { path: '' } ] } matches any
+ *   - the routes tree `{ path: '' }` matches only the '' pathname
+ *   - the routes tree `{ path: '', children: [ { path: '' } ] }` matches any
  *     pathname (for the tree root)
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute(
-  route: InternalRoute,
+function matchRoute<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+>(
+  route: InternalRoute<T, R, C>,
   pathname: string,
-  ignoreLeadingSlash: boolean,
-  parentKeys?: ReadonlyArray<Key>,
-  parentParams?: Params,
-): Iterator<MatchWithRoute, undefined, InternalRoute | undefined> {
+  ignoreLeadingSlash?: boolean,
+  parentKeys?: readonly Key[],
+  parentParams?: IndexedParams,
+): Iterator<MatchWithRoute<T, R, C>, undefined, InternalRoute<T, R, C> | undefined> {
   let match: Match | null;
-  let childMatches: ReturnType<typeof matchRoute> | null;
+  let childMatches: RouteMatchIterator<T, R, C> | null;
   let childIndex = 0;
-  let routepath = route.path || '';
-  if (routepath.charAt(0) === '/') {
+  let routepath = getRoutePath(route);
+  if (routepath.startsWith('/')) {
     if (ignoreLeadingSlash) {
       routepath = routepath.substring(1);
     }
+    // eslint-disable-next-line no-param-reassign
     ignoreLeadingSlash = true;
   }
 
   return {
-    next(routeToSkip?: InternalRoute) {
+    next(routeToSkip?: InternalRoute<T, R, C>) {
       if (route === routeToSkip) {
         return { done: true };
       }
 
-      if (Array.isArray(route.children)) {
-        route.__children = route.__children || route.children;
-      }
-
-      const shouldMatchChildren = Boolean(route.__children) || Boolean(route.children);
+      route.__children ??= unwrapChildren(route.children);
+      const children = route.__children;
 
       if (!match) {
-        match = matchPath(routepath, pathname, !shouldMatchChildren, parentKeys, parentParams);
+        match = matchPath(routepath, pathname, !children, parentKeys, parentParams);
 
         if (match) {
           return {
             done: false,
             value: {
-              route,
               keys: match.keys,
               params: match.params,
               path: match.path,
+              route,
             },
           };
         }
       }
 
-      if (match && shouldMatchChildren) {
-        const children = route.__children || [];
+      if (match && children.length > 0) {
         while (childIndex < children.length) {
           if (!childMatches) {
             const childRoute = children[childIndex];
@@ -122,7 +130,7 @@ function matchRoute(
 
             childMatches = matchRoute(
               childRoute,
-              pathname.substr(matchedLength),
+              pathname.substring(matchedLength),
               ignoreLeadingSlash,
               match.keys,
               match.params,
@@ -138,7 +146,7 @@ function matchRoute(
           }
 
           childMatches = null;
-          childIndex++;
+          childIndex += 1;
         }
       }
 

@@ -1,27 +1,25 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "lib": ["es2021", "dom", "dom.iterable"],
+    "lib": ["es2022", "dom", "dom.iterable"],
     "allowArbitraryExtensions": true,
-    "skipLibCheck": true,
     "strict": true,
+    "strictBindCallApply": true,
     "sourceMap": true,
     "inlineSources": true,
     "noImplicitAny": true,
     "verbatimModuleSyntax": true,
     "noImplicitOverride": true,
     "useDefineForClassFields": true,
-    "useUnknownInCatchVariables": true,
-    "outDir": "dist"
+    "useUnknownInCatchVariables": true
   },
   "include": [
-    "src/**/*",
-    "test/**/*"
+    "src/**/*.ts",
+    "test/**/*.ts"
   ]
 }

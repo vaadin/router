@@ -1,77 +1,80 @@
 {
-  "extends": "eslint:recommended",
-  "env": {
-    "browser": true,
-    "node": true,
-    "es6": true
-  },
-  "plugins": [
-    "html"
+  "extends": [
+    "vaadin/typescript-requiring-type-checking",
+    "vaadin/imports-typescript",
+    "vaadin/prettier",
+    "vaadin/testing"
   ],
-  "globals": {
-    "Polymer": false,
-    "Vaadin": false
-  },
-  "parserOptions": {
-    "sourceType": "module"
-  },
+  "plugins": ["perfectionist", "tsdoc"],
   "rules": {
-    "curly": 2,
-    "no-caller": 2,
-    "no-extend-native": 2,
-    "no-extra-bind": 2,
-    "no-invalid-this": 2,
-    "no-multi-spaces": 2,
-    "no-new-wrappers": 2,
-    "no-with": 2,
-    "array-bracket-spacing": [2, "never"],
-    "brace-style": 2,
+    "@typescript-eslint/member-ordering": [
+      "error",
+      {
+        "default": {
+          "memberTypes": ["field", "constructor", "method"],
+          "order": "alphabetically-case-insensitive"
+        },
+        "classes": {
+          "memberTypes": [
+            "signature",
+            "call-signature",
 
-    "camelcase": [2, {"properties": "never"}],
-    "comma-spacing": 2,
-    "comma-style": 2,
-    "computed-property-spacing": 2,
-    "func-call-spacing": 2,
-    "indent": [2, 2, {"SwitchCase": 1}],
-    "key-spacing": 2,
-    "keyword-spacing": 2,
-    "linebreak-style": 2,
-    "max-len": [2, {"code": 140}],
-    "no-array-constructor": 2,
-    "no-multiple-empty-lines": [2, {"max": 2}],
-    "no-new-object": 2,
-    "no-trailing-spaces": 2,
-    "object-curly-spacing": 2,
-    "quote-props": [2, "consistent"],
-    "quotes": [2, "single", {"allowTemplateLiterals": true}],
-    "semi-spacing": 2,
-    "semi": 2,
-    "space-before-blocks": 2,
-    "space-before-function-paren": [2, "never"],
-    "space-in-parens": 2,
-    "space-infix-ops": 2,
-    "spaced-comment": [2, "always"],
+            "static-field",
+            "protected-static-field",
+            "private-static-field",
+            "#private-static-field",
 
-    "arrow-spacing": 2,
-    "constructor-super": 2,
-    "no-confusing-arrow": 2,
-    "no-const-assign": 2,
-    "no-dupe-class-members": 2,
-    "no-duplicate-imports": 2,
-    "no-this-before-super": 2,
-    "no-useless-computed-key": 2,
-    "no-useless-constructor": 2,
-    "no-useless-rename": 2,
-    "prefer-const": 2,
-    "rest-spread-spacing": 2,
-    "template-curly-spacing": 2,
+            "static-initialization",
 
-    "no-unused-vars": ["error", { "args": "none" }]
-  },
-  "overrides": [{
-    "files": ["gulpfile.js"],
-    "parserOptions": {
-      "ecmaVersion": 2017
-    }
-  }]
+            ["static-get", "static-set"],
+            "static-method",
+
+            ["protected-static-get", "protected-static-set"],
+            "protected-static-method",
+
+            ["private-static-get", "private-static-set"],
+            "private-static-method",
+            ["#private-static-get", "#private-static-set"],
+            "#private-static-method",
+
+            "field",
+
+            "protected-field",
+
+            "private-field",
+            "#private-field",
+
+            "constructor",
+            "public-constructor",
+            "protected-constructor",
+            "private-constructor",
+
+            ["get", "set"],
+
+            ["protected-get", "protected-set"],
+
+            ["private-get", "private-set"],
+            ["#private-get", "#private-set"],
+
+            "method",
+
+            "protected-method",
+
+            "private-method",
+            "#private-method"
+          ],
+          "order": "alphabetically-case-insensitive"
+        }
+      }
+    ],
+    "import/no-unassigned-import": "off",
+    "max-params": "off",
+    "perfectionist/sort-enums": "error",
+    "perfectionist/sort-exports": "error",
+    "perfectionist/sort-jsx-props": "error",
+    "perfectionist/sort-named-exports": "error",
+    "perfectionist/sort-objects": "error",
+    "sort-keys": "off",
+    "tsdoc/syntax": "error"
+  }
 }

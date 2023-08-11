@@ -6,152 +6,189 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE.txt file in the root directory of this source tree.
  */
-
+import type { InternalContext, InternalRoute } from '../internal.js';
+import type { RouteContext, ActionResult, EmptyRecord, Route } from '../types.js';
+import { ensureRoutes, getNotFoundError, getRoutePath, isString, notFoundResult, toArray } from '../utils.js';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
-import resolveRoute from './resolveRoute.js';
-import {
-  type ContextWithChain,
-  ensureRoutes,
-  getNotFoundError,
-  type InternalContext,
-  isString,
-  notFoundResult,
-  type ResolveResult,
-  toArray,
-} from '../utils.js';
-import type { ActionResult, Context, InternalRoute, Route } from '../types/route.js';
-import type { InternalContextNextFn } from '../utils.js';
+import defaultResolveRoute from './resolveRoute.js';
 
-function isChildRoute(parentRoute?: Route | InternalRoute, childRoute?: InternalRoute) {
-  let route = childRoute;
-  while (route) {
-    route = route.parent;
-    if (route === parentRoute) {
+function isDescendantRoute<T, R extends Record<string, unknown>, C extends Record<string, unknown>>(
+  route?: InternalRoute<T, R, C>,
+  maybeParent?: InternalRoute<T, R, C>,
+) {
+  let _route = route;
+  while (_route) {
+    _route = _route.parent;
+    if (_route === maybeParent) {
       return true;
     }
   }
   return false;
 }
 
-function generateErrorMessage(currentContext: InternalContext): string {
-  let errorMessage = `Path '${currentContext.pathname}' is not properly resolved due to an error.`;
-  const routePath = (currentContext.route || {}).path;
+function generateErrorMessage<T, R extends Record<string, unknown>, C extends Record<string, unknown>>(
+  context: InternalContext<T, R, C>,
+) {
+  let errorMessage = `Path '${context.pathname}' is not properly resolved due to an error.`;
+
+  const routePath = getRoutePath(context.route);
   if (routePath) {
     errorMessage += ` Resolution had failed on route: '${routePath}'`;
   }
   return errorMessage;
 }
 
-function updateChainForRoute(
-  context: InternalContext,
-  match: { route: InternalRoute; path: string },
-): asserts context is ContextWithChain {
-  const { route, path } = match;
+export interface ResolutionErrorOptions extends ErrorOptions {
+  code?: number;
+}
+
+export class ResolutionError<T, R extends Record<string, unknown>, C extends Record<string, unknown>> extends Error {
+  readonly code?: number;
+  readonly context: InternalContext<T, R, C>;
+
+  constructor(context: InternalContext<T, R, C>, options?: ResolutionErrorOptions) {
+    super(generateErrorMessage(context), options);
+    this.code = options?.code;
+    this.context = context;
+  }
+
+  warn(): void {
+    console.warn(this.message);
+  }
+}
+
+type Match<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Readonly<{
+  path: string;
+  route?: InternalRoute<T, R, C>;
+}>;
+
+function updateChainForRoute<T, R extends Record<string, unknown>, C extends Record<string, unknown>>(
+  context: InternalContext<T, R, C>,
+  match: Match<T, R, C>,
+) {
+  const { path, route } = match;
 
   if (route && !route.__synthetic) {
     const item = { path, route };
     if (!context.chain) {
       context.chain = [];
-    } else {
-      // Discard old items
-      if (route.parent) {
-        let i = context.chain.length;
-        while (i-- && context.chain[i].route && context.chain[i].route !== route.parent) {
-          context.chain.pop();
+    } else if (route.parent) {
+      for (let i = context.chain.length - 1; i >= 0; i--) {
+        if (!context.chain[i].route || context.chain[i].route === route.parent) {
+          break;
         }
+
+        context.chain.pop();
       }
     }
     context.chain.push(item);
   }
 }
 
-export type ErrorHandlerFn = (error: any) => ActionResult;
+export type ErrorHandlerCallback<T> = (error: unknown) => ActionResult<T>;
 
-export type ResolverOptions = Readonly<{
+export type ResolveContext = Readonly<{ pathname: string }>;
+
+export type ResolveRouteCallback<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = (
+  context: RouteContext<T, R, C>,
+) => Promise<ActionResult<T>>;
+
+type BasicResolverOptions<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Readonly<{
   baseUrl?: string;
-  errorHandler?: ErrorHandlerFn;
-  resolveRoute?: typeof resolveRoute;
-  context?: Context;
+  errorHandler?: ErrorHandlerCallback<T>;
+  resolveRoute?: ResolveRouteCallback<T, R, C>;
 }>;
 
-/**
- */
-class Resolver {
-  baseUrl: string;
-  errorHandler?: ErrorHandlerFn;
-  resolveRoute: typeof resolveRoute;
-  context: InternalContext;
-  root: InternalRoute;
+export type ResolverOptions<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Readonly<
+  BasicResolverOptions<T, R, C> & (keyof C extends never ? object : { context: C })
+>;
 
-  constructor(routes: Route | Route[], options: ResolverOptions = {}) {
+class Resolver<
+  T = unknown,
+  R extends Record<string, unknown> = EmptyRecord,
+  C extends Record<string, unknown> = EmptyRecord,
+> {
+  readonly baseUrl: string;
+  context: InternalContext<T, R, C>;
+  readonly errorHandler?: ErrorHandlerCallback<T>;
+  readonly resolveRoute: ResolveRouteCallback<T, R, C>;
+  readonly root: InternalRoute<T, R, C>;
+
+  constructor(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>, options?: ResolverOptions<T, R, C>);
+  constructor(
+    routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>,
+    {
+      baseUrl = '',
+      context,
+      errorHandler,
+      resolveRoute = defaultResolveRoute,
+    }: BasicResolverOptions<T, R, C> & Readonly<{ context?: C }> = {},
+  ) {
     if (Object(routes) !== routes) {
       throw new TypeError('Invalid routes');
     }
 
-    this.baseUrl = options.baseUrl || '';
-    this.errorHandler = options.errorHandler;
-    this.resolveRoute = options.resolveRoute || resolveRoute;
+    this.baseUrl = baseUrl;
+    this.errorHandler = errorHandler;
+    this.resolveRoute = resolveRoute;
     this.root = Array.isArray(routes)
-      ? { action() {}, path: '', __children: routes, parent: undefined, __synthetic: true }
-      : routes;
-    this.root.parent = undefined;
-    this.context = Object.assign(
-      {
-        pathname: '',
-        search: '',
-        hash: '',
-        params: {},
-        route: this.root,
-        next: (() => Promise.resolve(notFoundResult)) as InternalContextNextFn,
+      ? {
+          __children: routes,
+          __synthetic: true,
+          action: () => undefined,
+          path: '',
+        }
+      : { ...routes, parent: undefined };
+
+    this.context = {
+      ...context!,
+      hash: '',
+      async next() {
+        return Promise.resolve(notFoundResult);
       },
-      (options.context || {}) as Partial<InternalContext>,
-    );
+      params: {},
+      pathname: '',
+      resolver: this,
+      route: this.root,
+      search: '',
+    };
+  }
+
+  /**
+   * If the baseUrl property is set, transforms the baseUrl and returns the full
+   * actual `base` string for using in the `new URL(path, base);` and for
+   * prepernding the paths with. The returned base ends with a trailing slash.
+   *
+   * Otherwise, returns empty string.
+   */
+  get __effectiveBaseUrl(): string {
+    return this.baseUrl ? new URL(this.baseUrl, document.baseURI || document.URL).href.replace(/[^/]*$/u, '') : '';
   }
 
   /**
    * Returns the current list of routes (as a shallow copy). Adding / removing
    * routes to / from the returned array does not affect the routing config,
    * but modifying the route objects does.
-   */
-  getRoutes(): Route[] {
-    return [...(this.root.__children || [])] as Route[];
-  }
-
-  /**
-   * Sets the routing config (replacing the existing one).
    *
-   * @param routes a single route or an array of those
-   *    (the array is shallow copied)
+   * @public
    */
-  setRoutes(routes: Route | ReadonlyArray<Route>): void {
-    ensureRoutes(routes);
-    this.root.__children = [...toArray(routes)];
-  }
-
-  /**
-   * Appends one or several routes to the routing config and returns the
-   * effective routing config after the operation.
-   *
-   * @param routes a single route or an array of those
-   *    (the array is shallow copied)
-   */
-  protected addRoutes(routes: Route | ReadonlyArray<Route>): ReadonlyArray<Route> {
-    ensureRoutes(routes);
-    this.root.__children?.push(...toArray(routes));
-    return this.getRoutes();
+  getRoutes(): ReadonlyArray<Route<T, R, C>> {
+    return [...(this.root.__children ?? [])];
   }
 
   /**
    * Removes all existing routes from the routing config.
+   *
+   * @public
    */
   removeRoutes(): void {
-    this.setRoutes([]);
+    this.root.__children = [];
   }
 
   /**
    * Asynchronously resolves the given pathname, i.e. finds all routes matching
    * the pathname and tries resolving them one after another in the order they
-   * are listed in the routes until the first non-null result.
+   * are listed in the routes config until the first non-null result.
    *
    * Returns a promise that is fulfilled with the return value of an object that consists of the first
    * route handler result that returns something other than `null` or `undefined` and context used to get this result.
@@ -160,99 +197,94 @@ class Resolver {
    * given pathname the returned promise is rejected with a 'page not found'
    * `Error`.
    *
-   * @param pathnameOrContext the pathname to resolve or a context object
-   * with a `pathname` property and other properties to pass to the route
-   * resolver functions.
+   * @param pathnameOrContext - the pathname to
+   *    resolve or a context object with a `pathname` property and other
+   *    properties to pass to the route resolver functions.
    */
-  resolve(pathnameOrContext: string | { pathname: string }): Promise<InternalContext> {
-    const context: InternalContext = Object.assign(
-      {},
-      this.context,
-      isString(pathnameOrContext) ? { pathname: pathnameOrContext } : pathnameOrContext,
-      { next: next },
-    );
-    const match = matchRoute(this.root, this.__normalizePathname(context.pathname) || context.pathname, !!this.baseUrl);
+  async resolve(pathnameOrContext: ResolveContext | string): Promise<ActionResult<T>> {
+    const self = this;
+    const context: InternalContext<T, R, C> = {
+      ...this.context,
+      ...(isString(pathnameOrContext) ? { pathname: pathnameOrContext } : pathnameOrContext),
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      next,
+    };
+    const match = matchRoute(this.root, this.__normalizePathname(context.pathname) ?? context.pathname, !!this.baseUrl);
     const resolve = this.resolveRoute;
-    let matches: IteratorResult<MatchWithRoute, undefined> | null = null;
-    let nextMatches: IteratorResult<MatchWithRoute, undefined> | null = null;
+    let matches: IteratorResult<MatchWithRoute<T, R, C>, undefined> | null = null;
+    let nextMatches: IteratorResult<MatchWithRoute<T, R, C>, undefined> | null = null;
     let currentContext = context;
 
     async function next(
       resume: boolean = false,
-      parent: InternalRoute | undefined = matches?.value?.route,
-      prevResult?: ResolveResult | null,
-    ): Promise<ResolveResult> {
+      parent: InternalRoute<T, R, C> | undefined = matches?.value?.route,
+      prevResult?: ActionResult<T> | null,
+    ): Promise<ActionResult<T>> {
       const routeToSkip = prevResult === null ? matches?.value?.route : undefined;
-      matches = nextMatches || match.next(routeToSkip);
+      matches = nextMatches ?? match.next(routeToSkip);
       nextMatches = null;
 
       if (!resume) {
-        if (matches.done || !isChildRoute(parent, matches.value.route)) {
+        if (matches.done || !isDescendantRoute(matches.value.route, parent)) {
           nextMatches = matches;
           return notFoundResult;
         }
       }
 
       if (matches.done) {
-        throw getNotFoundError(context as unknown as Context);
+        throw getNotFoundError(context);
       }
 
-      currentContext = Object.assign(
-        currentContext ? { chain: currentContext.chain ? currentContext.chain.slice(0) : [] } : {},
-        context,
-        matches.value,
-      );
+      currentContext = {
+        chain: currentContext.chain ? currentContext.chain.slice() : [],
+        ...context,
+        ...matches.value,
+      };
       updateChainForRoute(currentContext, matches.value);
 
-      return resolve(currentContext as unknown as Context).then((resolution) => {
-        if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
-          currentContext.result = ('result' in resolution ? resolution.result : resolution) as ActionResult;
-          return currentContext as ContextWithChain;
-        }
-        return next(resume, parent, resolution);
-      });
+      const resolution = await resolve(currentContext);
+
+      if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
+        currentContext.result = resolution;
+        self.context = currentContext;
+        return resolution;
+      }
+      return next(resume, parent, resolution);
     }
 
-    return (next(true, this.root) as Promise<InternalContext>).catch((error) => {
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+    // TODO: fix error handling
+    return next(true, this.root).catch((error: any) => {
       const errorMessage = generateErrorMessage(currentContext);
       if (!error) {
+        // eslint-disable-next-line no-param-reassign
         error = new Error(errorMessage);
       } else {
         console.warn(errorMessage);
       }
-      error.context = error.context || currentContext;
+      error.context ??= currentContext;
       // DOMException has its own code which is read-only
       if (!(error instanceof DOMException)) {
-        error.code = error.code || 500;
+        error.code ??= 500;
       }
       if (this.errorHandler) {
         currentContext.result = this.errorHandler(error);
-        return currentContext;
+        return currentContext.result;
       }
       throw error;
     });
+    /* eslint-enable @typescript-eslint/no-unsafe-member-access */
   }
 
   /**
-   * URL constructor polyfill hook. Creates and returns a URL instance.
-   */
-  static __createUrl(...args: ConstructorParameters<typeof URL>): InstanceType<typeof URL> {
-    return new URL(...args);
-  }
-
-  /**
-   * If the baseUrl property is set, transforms the baseUrl and returns the full
-   * actual `base` string for using in the `new URL(path, base);` and for
-   * prepending the paths with. The returned base ends with a trailing slash.
+   * Sets the routing config (replacing the existing one).
    *
-   * Otherwise, returns empty string.
+   * @param routes - a single route or an array of those
+   *    (the array is shallow copied)
    */
-  get __effectiveBaseUrl(): string {
-    return this.baseUrl
-      ? (this.constructor as typeof Resolver)
-          .__createUrl(this.baseUrl, document.baseURI || document.URL)
-          .href.replace(/[^/]*$/, '')
-      : '';
+  setRoutes(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>): void {
+    ensureRoutes(routes);
+    this.root.__children = [...toArray(routes)];
   }
 
   /**
@@ -263,7 +295,7 @@ class Resolver {
    *
    * If the `baseUrl` is not set, returns the unmodified pathname argument.
    */
-  __normalizePathname(pathname: string): string | undefined {
+  protected __normalizePathname(pathname: string): string | undefined {
     if (!this.baseUrl) {
       // No base URL, no need to transform the pathname.
       return pathname;
@@ -271,12 +303,26 @@ class Resolver {
 
     const base = this.__effectiveBaseUrl;
     // Convert pathname to a valid URL constructor argument
-    const url =
-      pathname[0] === '/' ? (this.constructor as typeof Resolver).__createUrl(base).origin + pathname : './' + pathname;
-    const normalizedUrl = (this.constructor as typeof Resolver).__createUrl(url, base).href;
-    if (normalizedUrl.slice(0, base.length) === base) {
+    const url = pathname.startsWith('/') ? new URL(base).origin + pathname : `./${pathname}`;
+    const normalizedUrl = new URL(url, base).href;
+    if (normalizedUrl.startsWith(base)) {
       return normalizedUrl.slice(base.length);
     }
+
+    return undefined;
+  }
+
+  /**
+   * Appends one or several routes to the routing config and returns the
+   * effective routing config after the operation.
+   *
+   * @param routes - a single route or an array of those
+   *    (the array is shallow copied)
+   */
+  protected addRoutes(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>): ReadonlyArray<Route<T, R, C>> {
+    ensureRoutes(routes);
+    this.root.__children = [...(this.root.__children ?? []), ...toArray(routes)];
+    return this.getRoutes();
   }
 }
 

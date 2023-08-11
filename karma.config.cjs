@@ -2,9 +2,6 @@ const karmaChromeLauncher = require('karma-chrome-launcher');
 const karmaCoverage = require('karma-coverage');
 const karmaMocha = require('karma-mocha');
 const karmaVite = require('karma-vite');
-const puppeteer = require('puppeteer');
-
-process.env.CHROME_BIN = puppeteer.executablePath();
 
 const isCI = !!process.env.CI;
 const watch = !!process.argv.find((arg) => arg.includes('watch')) && !isCI;
@@ -26,17 +23,16 @@ module.exports = (config) => {
       },
     },
 
+    captureTimeout: 60000, // it was already there
+    browserDisconnectTimeout : 10000,
+    browserDisconnectTolerance : 1,
+    browserNoActivityTimeout : 60000,//by default 10000
+
     frameworks: ['vite', 'mocha'],
 
     files: [
       {
         pattern: 'test/**/*.spec.ts',
-        type: 'module',
-        watched: false,
-        served: false,
-      },
-      {
-        pattern: 'test/**/*.spec.js',
         type: 'module',
         watched: false,
         served: false,
