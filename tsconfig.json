@@ -19,7 +19,7 @@
     "useUnknownInCatchVariables": true
   },
   "include": [
-    "src/**/*.ts",
+    "src2/**/*.ts",
     "test/**/*.ts"
   ]
 }
