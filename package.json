@@ -30,27 +30,18 @@
     "lint": "npm-run-all --parallel lint:*",
     "lint:js": "eslint --ext .html,.js src test demo *.js *.html",
     "lint:css": "stylelint demo/**/*.html",
-    "build": "tsc && npm-run-all --parallel build:minify.*",
+    "build": "tsc -p tsconfig.build.json && npm-run-all --parallel build:minify.*",
     "build:minify.browser": "uglifyjs dist/vaadin-router.js -c -m --mangle-props regex=/^__/ --toplevel --source-map --output dist/vaadin-router.min.js",
     "build:watch": "tsc -w",
     "start": "vite",
     "test": "karma start karma.config.cjs",
     "test:watch": "npm run test -- --watch",
     "test:coverage": "npm run test -- --coverage",
-    "size-control": "bundlesize",
-    "docs": "npm run build && npm run docs:analyze && gulp -f gulpfile.cjs docs",
-    "docs:analyze": "polymer analyze dist/vaadin-router.js src/documentation/*.js > analysis.json",
+    "docs": "npm run build && echo \"not implemented\" >&2 && exit 1",
     "browserslist": "browserslist && browserslist --coverage",
     "prepare": "npm run build",
-    "validate": "tsc -p test/tsconfig.json --noEmit",
     "version": "gulp -f gulpfile.cjs version:update"
   },
-  "bundlesize": [
-    {
-      "path": "dist/vaadin-router.min.js",
-      "maxSize": "8 kB"
-    }
-  ],
   "browserslist": [
     "last 1 Chrome major versions",
     "last 1 Firefox major versions",
@@ -80,7 +71,6 @@
     "bower": "^1.8.14",
     "browser-sync": "^2.29.3",
     "browserslist": "^4.21.9",
-    "bundlesize": "^0.18.1",
     "chai-as-promised": "^7.1.1",
     "chai-dom": "^1.11.0",
     "eslint": "^8.44.0",
@@ -101,17 +91,13 @@
     "karma-vite": "^1.0.4",
     "mocha": "^10.2.0",
     "npm-run-all": "^4.1.5",
-    "polymer-cli": "^1.9.11",
-    "polyserve": "^0.27.15",
     "prettier": "^2.8.8",
     "sinon": "^15.2.0",
     "sinon-chai": "^3.7.0",
     "stylelint": "^15.10.1",
-    "typescript": "^5.1.6",
+    "typescript": "^5.6.2",
     "uglify-es": "^3.3.9",
     "vite": "^4.4.2",
-    "wct-istanbul": "^0.14.3",
-    "web-component-tester": "^6.9.2",
     "yargs": "^17.7.2"
   }
 }
