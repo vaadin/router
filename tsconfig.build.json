@@ -1,26 +1,12 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
     "declarationMap": true,
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "lib": ["es2022", "dom", "dom.iterable"],
-    "allowArbitraryExtensions": true,
-    "strict": true,
-    "strictBindCallApply": true,
-    "sourceMap": true,
-    "inlineSources": true,
-    "noImplicitAny": true,
-    "verbatimModuleSyntax": true,
-    "noImplicitOverride": true,
-    "useDefineForClassFields": true,
-    "useUnknownInCatchVariables": true,
-    "outDir": "dist"
+    "rootDir": "src",
+    "outDir": "dist",
+    "isolatedModules": true
   },
   "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
+    "src"
   ]
 }
