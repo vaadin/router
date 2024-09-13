@@ -5,17 +5,20 @@ const isIE = /Trident/.test(navigator.userAgent);
 
 /* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
 if (isIE && !isFunction(window.PopStateEvent)) {
+  // @ts-ignore polyfill code
   window.PopStateEvent = function(inType, params) {
     params = params || {};
     var e = document.createEvent('Event');
     e.initEvent(inType, Boolean(params.bubbles), Boolean(params.cancelable));
+    // @ts-ignore old polyfill code
     e.state = params.state || null;
     return e;
   };
+  // @ts-ignore old polyfill code
   window.PopStateEvent.prototype = window.Event.prototype;
 }
 
-function vaadinRouterGlobalPopstateHandler(event) {
+function vaadinRouterGlobalPopstateHandler(event: PopStateEvent) {
   if (event.state === 'vaadin-router-ignore') {
     return;
   }

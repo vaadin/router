@@ -98,7 +98,7 @@ export function getNotFoundError<
   T = unknown,
   R extends Record<string, unknown> = EmptyRecord,
   C extends Record<string, unknown> = EmptyRecord,
->(context: InternalContext<T, R, C>): NotFoundError {
+>(context: InternalContext<T, R, C>): NotFoundError<T, R, C> {
   return new NotFoundError(context);
 }
 

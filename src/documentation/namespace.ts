@@ -1,4 +1,4 @@
 /**
  * @namespace Router
  */
-const Router = {};
+export const Router = {};

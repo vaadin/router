@@ -1,3 +1,4 @@
+// @ts-nocheck for documentation purposes only
 /**
  * This interface describes the lifecycle callbacks supported by Vaadin Router
  * on view Web Components. It exists only for documentation purposes, i.e.

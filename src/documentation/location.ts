@@ -1,3 +1,5 @@
+// @ts-nocheck for documentation purposes only
+
 /**
  * This is a type declaration. It exists for build-time type checking and
  * documentation purposes. It should not be used in any source code, and it

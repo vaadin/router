@@ -414,7 +414,7 @@ export type Route<
   }> & {
     animate?: AnimateCustomClasses | boolean;
     name?: string;
-    path?: ReadonlyArray<RegExp | string> | RegExp | string;
+    path?: ReadonlyArray<string> | string;
   }
 >;
 

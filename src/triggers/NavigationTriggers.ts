@@ -1,9 +1,9 @@
+import CLICK from './click.js';
+import POPSTATE from './popstate.js';
+
 import type { NavigationTrigger } from '../types.js';
 
 let triggers: readonly NavigationTrigger[] = [];
-
-import CLICK from './click.js';
-import POPSTATE from './popstate.js';
 
 const DEFAULT_TRIGGERS = {
   CLICK,

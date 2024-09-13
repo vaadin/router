@@ -1,9 +1,9 @@
-const willAnimate = elem => {
+const willAnimate = (elem: Element) => {
   const name = getComputedStyle(elem).getPropertyValue('animation-name');
   return name && name !== 'none';
 };
 
-const waitForAnimation = (elem, cb) => {
+const waitForAnimation = (elem: Element, cb: () => void) => {
   const listener = () => {
     elem.removeEventListener('animationend', listener);
     cb();
@@ -11,10 +11,10 @@ const waitForAnimation = (elem, cb) => {
   elem.addEventListener('animationend', listener);
 };
 
-function animate(elem, className) {
+async function animate(elem: Element, className: string): Promise<void> {
   elem.classList.add(className);
 
-  return new Promise(resolve => {
+  return new Promise((resolve: () => void) => {
     if (willAnimate(elem)) {
       const rect = elem.getBoundingClientRect();
       const size = `height: ${rect.bottom - rect.top}px; width: ${rect.right - rect.left}px`;

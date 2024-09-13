@@ -2,7 +2,7 @@ import type { NavigationTrigger } from "../types.js";
 import {fireRouterEvent} from '../utils.js';
 
 /* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
-function getAnchorOrigin(anchor) {
+function getAnchorOrigin(anchor: HTMLAnchorElement) {
   // IE11: on HTTP and HTTPS the default port is not included into
   // window.location.origin, so won't include it here either.
   const port = anchor.port;
@@ -15,10 +15,18 @@ function getAnchorOrigin(anchor) {
   return `${protocol}//${host}`;
 }
 
+function getNormalizedNodeName(e: EventTarget): string | undefined {
+  if (!(e instanceof Element)) {
+    return undefined;
+  }
+
+  return e.nodeName.toLowerCase();
+}
+
 // The list of checks is not complete:
 //  - SVG support is missing
 //  - the 'rel' attribute is not considered
-function vaadinRouterGlobalClickHandler(event) {
+function vaadinRouterGlobalClickHandler(event: MouseEvent) {
   // ignore the click if the default action is prevented
   if (event.defaultPrevented) {
     return;
@@ -35,29 +43,31 @@ function vaadinRouterGlobalClickHandler(event) {
   }
 
   // find the <a> element that the click is at (or within)
-  let anchor = event.target;
+  let anchorCandidate = event.target;
   const path = event.composedPath
     ? event.composedPath()
-    : (event.path || []);
+    : ((event as {path?: readonly EventTarget[]}).path || []);
 
   // FIXME(web-padawan): `Symbol.iterator` used by webcomponentsjs is broken for arrays
   // example to check: `for...of` loop here throws the "Not yet implemented" error
   for (let i = 0; i < path.length; i++) {
     const target = path[i];
-    if (target.nodeName && target.nodeName.toLowerCase() === 'a') {
-      anchor = target;
+    if ('nodeName' in target && (target as Element).nodeName.toLowerCase() === 'a') {
+      anchorCandidate = target;
       break;
     }
   }
 
-  while (anchor && anchor.nodeName.toLowerCase() !== 'a') {
-    anchor = anchor.parentNode;
+  while (anchorCandidate && anchorCandidate instanceof Node && getNormalizedNodeName(anchorCandidate) !== 'a') {
+    anchorCandidate = anchorCandidate.parentNode;
   }
 
   // ignore the click if not at an <a> element
-  if (!anchor || anchor.nodeName.toLowerCase() !== 'a') {
+  if (!anchorCandidate || getNormalizedNodeName(anchorCandidate) !== 'a') {
     return;
   }
+
+  const anchor = anchorCandidate as HTMLAnchorElement;
 
   // ignore the click if the <a> element has a non-default target
   if (anchor.target && anchor.target.toLowerCase() !== '_self') {
