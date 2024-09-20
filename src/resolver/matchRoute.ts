@@ -9,20 +9,16 @@
 
 import type { Key } from 'path-to-regexp';
 import type { InternalRoute } from '../internal.js';
-import type { EmptyRecord, IndexedParams } from '../types.js';
+import type { AnyObject, IndexedParams } from '../types.js';
 import { getRoutePath, unwrapChildren } from '../utils.js';
 import matchPath, { type Match } from './matchPath.js';
 
-export type MatchWithRoute<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Match &
+export type MatchWithRoute<R extends AnyObject> = Match &
   Readonly<{
-    route: InternalRoute<T, R, C>;
+    route: InternalRoute<R>;
   }>;
 
-type RouteMatchIterator<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Iterator<
-  MatchWithRoute<T, R, C>,
-  undefined,
-  InternalRoute<T, R, C> | undefined
->;
+type RouteMatchIterator<R extends AnyObject> = Iterator<MatchWithRoute<R>, undefined, InternalRoute<R> | undefined>;
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from
@@ -69,19 +65,16 @@ type RouteMatchIterator<T, R extends Record<string, unknown>, C extends Record<s
  *
  * Prefix matching can be enabled also by `children: true`.
  */
-function matchRoute<
-  T = unknown,
-  R extends Record<string, unknown> = EmptyRecord,
-  C extends Record<string, unknown> = EmptyRecord,
->(
-  route: InternalRoute<T, R, C>,
+// eslint-disable-next-line @typescript-eslint/max-params
+function matchRoute<R extends AnyObject>(
+  route: InternalRoute<R>,
   pathname: string,
   ignoreLeadingSlash?: boolean,
   parentKeys?: readonly Key[],
   parentParams?: IndexedParams,
-): Iterator<MatchWithRoute<T, R, C>, undefined, InternalRoute<T, R, C> | undefined> {
+): Iterator<MatchWithRoute<R>, undefined, InternalRoute<R> | undefined> {
   let match: Match | null;
-  let childMatches: RouteMatchIterator<T, R, C> | null;
+  let childMatches: RouteMatchIterator<R> | null;
   let childIndex = 0;
   let routepath = getRoutePath(route);
   if (routepath.startsWith('/')) {
@@ -93,7 +86,7 @@ function matchRoute<
   }
 
   return {
-    next(routeToSkip?: InternalRoute<T, R, C>) {
+    next(routeToSkip?: InternalRoute<R>) {
       if (route === routeToSkip) {
         return { done: true };
       }

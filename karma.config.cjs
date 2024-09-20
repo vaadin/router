@@ -24,9 +24,9 @@ module.exports = (config) => {
     },
 
     captureTimeout: 60000, // it was already there
-    browserDisconnectTimeout : 10000,
-    browserDisconnectTolerance : 1,
-    browserNoActivityTimeout : 60000,//by default 10000
+    browserDisconnectTimeout: 10000,
+    browserDisconnectTolerance: 1,
+    browserNoActivityTimeout: 60000, //by default 10000
 
     frameworks: ['vite', 'mocha'],
 
@@ -47,6 +47,10 @@ module.exports = (config) => {
     coverageReporter: {
       dir: '.coverage/',
       reporters: [!isCI && { type: 'html', subdir: 'html' }, { type: 'lcovonly', subdir: '.' }].filter(Boolean),
+    },
+
+    vite: {
+      autoInit: false,
     },
   });
 };

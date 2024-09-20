@@ -14,7 +14,7 @@ const waitForAnimation = (elem: Element, cb: () => void) => {
 async function animate(elem: Element, className: string): Promise<void> {
   elem.classList.add(className);
 
-  return new Promise((resolve: () => void) => {
+  return await new Promise((resolve: () => void) => {
     if (willAnimate(elem)) {
       const rect = elem.getBoundingClientRect();
       const size = `height: ${rect.bottom - rect.top}px; width: ${rect.right - rect.left}px`;

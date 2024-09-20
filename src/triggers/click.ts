@@ -1,17 +1,17 @@
-import type { NavigationTrigger } from "../types.js";
-import {fireRouterEvent} from '../utils.js';
+import type { NavigationTrigger } from '../types.js';
+import { fireRouterEvent } from '../utils.js';
 
 /* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
 function getAnchorOrigin(anchor: HTMLAnchorElement) {
   // IE11: on HTTP and HTTPS the default port is not included into
   // window.location.origin, so won't include it here either.
-  const port = anchor.port;
-  const protocol = anchor.protocol;
+  const { port, protocol } = anchor;
   const defaultHttp = protocol === 'http:' && port === '80';
   const defaultHttps = protocol === 'https:' && port === '443';
-  const host = (defaultHttp || defaultHttps)
-    ? anchor.hostname // does not include the port number (e.g. www.example.org)
-    : anchor.host; // does include the port number (e.g. www.example.org:80)
+  const host =
+    defaultHttp || defaultHttps
+      ? anchor.hostname // does not include the port number (e.g. www.example.org)
+      : anchor.host; // does include the port number (e.g. www.example.org:80)
   return `${protocol}//${host}`;
 }
 
@@ -23,10 +23,15 @@ function getNormalizedNodeName(e: EventTarget): string | undefined {
   return e.nodeName.toLowerCase();
 }
 
+// TODO: Name correctly when the type purpose is known
+type __Pathable = Readonly<{
+  path?: readonly EventTarget[];
+}>;
+
 // The list of checks is not complete:
 //  - SVG support is missing
 //  - the 'rel' attribute is not considered
-function vaadinRouterGlobalClickHandler(event: MouseEvent) {
+function vaadinRouterGlobalClickHandler(event: MouseEvent | __Pathable) {
   // ignore the click if the default action is prevented
   if (event.defaultPrevented) {
     return;
@@ -44,12 +49,11 @@ function vaadinRouterGlobalClickHandler(event: MouseEvent) {
 
   // find the <a> element that the click is at (or within)
   let anchorCandidate = event.target;
-  const path = event.composedPath
-    ? event.composedPath()
-    : ((event as {path?: readonly EventTarget[]}).path || []);
+  const path = event instanceof MouseEvent ? event.composedPath() : (event.path ?? []);
 
   // FIXME(web-padawan): `Symbol.iterator` used by webcomponentsjs is broken for arrays
   // example to check: `for...of` loop here throws the "Not yet implemented" error
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let i = 0; i < path.length; i++) {
     const target = path[i];
     if ('nodeName' in target && (target as Element).nodeName.toLowerCase() === 'a') {
@@ -97,10 +101,11 @@ function vaadinRouterGlobalClickHandler(event: MouseEvent) {
   }
 
   // if none of the above, convert the click into a navigation event
-  const {pathname, search, hash} = anchor;
-  if (fireRouterEvent('go', {pathname, search, hash})) {
+  const { hash, pathname, search } = anchor;
+  if (fireRouterEvent('go', { hash, pathname, search }) && event instanceof MouseEvent) {
     event.preventDefault();
     // for a click event, the scroll is reset to the top position.
+    // FIXME: undefined here?
     if (event && event.type === 'click') {
       window.scrollTo(0, 0);
     }
@@ -113,9 +118,6 @@ function vaadinRouterGlobalClickHandler(event: MouseEvent) {
  *
  * Only regular clicks on in-app links are translated (primary mouse button, no
  * modifier keys, the target href is within the app's URL space).
- *
- * @memberOf Router.NavigationTrigger
- * @type {NavigationTrigger}
  */
 const CLICK: NavigationTrigger = {
   activate() {
@@ -124,7 +126,7 @@ const CLICK: NavigationTrigger = {
 
   inactivate() {
     window.document.removeEventListener('click', vaadinRouterGlobalClickHandler);
-  }
+  },
 };
 
 export default CLICK;

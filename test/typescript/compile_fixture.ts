@@ -15,55 +15,54 @@ import {
   AfterLeaveObserver,
   PreventAndRedirectCommands,
   PreventCommands,
-  EmptyCommands
-} from '@vaadin/router';
+  EmptyCommands,
+} from '../../src/index.js';
 
 const outlet: Node = document.body.firstChild as Node;
 
-function expectTypeOfValue<T>(t: T): void { t; }
+function expectTypeOfValue<T>(t: T): void {
+  t;
+}
 
 // Instantiation styles
 new Router().unsubscribe();
 
 new Router(outlet).unsubscribe();
 new Router(outlet, {}).unsubscribe();
-new Router(outlet, {baseUrl: '/'}).unsubscribe();
+new Router(outlet, { baseUrl: '/' }).unsubscribe();
 new Router(null).unsubscribe();
 new Router(null, {}).unsubscribe();
-new Router(null, {baseUrl: '/'}).unsubscribe();
+new Router(null, { baseUrl: '/' }).unsubscribe();
 new Router(undefined).unsubscribe();
 new Router(undefined, {}).unsubscribe();
-new Router(undefined, {baseUrl: '/'}).unsubscribe();
+new Router(undefined, { baseUrl: '/' }).unsubscribe();
 
-const router = new Router(outlet, {baseUrl: '/'});
+const router = new Router(outlet, { baseUrl: '/' });
 
 // Static methods
 Router.setTriggers();
-const {CLICK, POPSTATE} = Router.NavigationTrigger;
+const { CLICK, POPSTATE } = Router.NavigationTrigger;
 Router.setTriggers(CLICK);
 Router.setTriggers(POPSTATE);
 Router.setTriggers(CLICK, POPSTATE);
 const MyNavigationTrigger: NavigationTrigger = {
   activate() {},
-  inactivate() {}
+  inactivate() {},
 };
 Router.setTriggers(CLICK, POPSTATE, MyNavigationTrigger);
-Router.setTriggers({activate() {}, inactivate() {}});
-Router.setTriggers(
-  {activate() {}, inactivate() {}},
-  {activate() {}, inactivate() {}}
-);
+Router.setTriggers({ activate() {}, inactivate() {} });
+Router.setTriggers({ activate() {}, inactivate() {} }, { activate() {}, inactivate() {} });
 // TODO(@platosha): remove deprecated namespaced cases
 const MyRouterNavigationTrigger: Router.NavigationTrigger = {
   activate() {},
-  inactivate() {}
+  inactivate() {},
 };
 Router.setTriggers(MyRouterNavigationTrigger);
 
 expectTypeOfValue<boolean>(Router.go('/'));
-expectTypeOfValue<boolean>(Router.go({pathname: '/'}));
-expectTypeOfValue<boolean>(Router.go({pathname: '/', search: '?foo=bar'}));
-expectTypeOfValue<boolean>(Router.go({pathname: '/', hash: '#baz'}));
+expectTypeOfValue<boolean>(Router.go({ pathname: '/' }));
+expectTypeOfValue<boolean>(Router.go({ pathname: '/', search: '?foo=bar' }));
+expectTypeOfValue<boolean>(Router.go({ pathname: '/', hash: '#baz' }));
 
 // Basic properties
 expectTypeOfValue<string>(router.baseUrl);
@@ -91,23 +90,23 @@ router.subscribe();
 router.unsubscribe();
 expectTypeOfValue<string>(router.urlForName('foo'));
 expectTypeOfValue<string>(router.urlForName('foo', null));
-expectTypeOfValue<string>(router.urlForName('foo', {bar: 'yes'}));
+expectTypeOfValue<string>(router.urlForName('foo', { bar: 'yes' }));
 expectTypeOfValue<string>(router.urlForName('foo', ['yes']));
 expectTypeOfValue<string>(router.urlForPath('foo'));
 expectTypeOfValue<string>(router.urlForPath('foo', null));
-expectTypeOfValue<string>(router.urlForPath('foo', {bar: 'yes'}));
+expectTypeOfValue<string>(router.urlForPath('foo', { bar: 'yes' }));
 expectTypeOfValue<string>(router.urlForPath('foo', ['yes']));
 
 // Empty routes
 router.setRoutes([]);
 
 // Standalone route
-const r: Route = {path: '/standalone', component: 'x-standalone'};
+const r: Route = { path: '/standalone', component: 'x-standalone' };
 r.redirect = '/x-standalone';
 r.action = () => {};
 router.setRoutes([r]);
 // TODO(@platosha): remove deprecated namespaced cases
-const rr: Router.Route = {path: '/standalone', component: 'x-standalone'};
+const rr: Router.Route = { path: '/standalone', component: 'x-standalone' };
 rr.redirect = '/x-standalone';
 rr.action = () => {};
 router.setRoutes([rr]);
@@ -157,71 +156,117 @@ r.action = (context: Router.Context, commands: Router.Commands) => {
 router.setRoutes([r]);
 
 // Single non-wrapped in Array route
-router.setRoutes({path: '/', action() {}});
+router.setRoutes({ path: '/', action() {} });
 
 // Inline routes
 router.setRoutes([
-  {path: 'component', component: 'x-component'},
-  {path: 'redirect', redirect: '/redirect'},
-  {path: 'parent', name: 'with-children', children: [
-    {path: 'child', children: []},
-  ]}
+  { path: 'component', component: 'x-component' },
+  { path: 'redirect', redirect: '/redirect' },
+  { path: 'parent', name: 'with-children', children: [{ path: 'child', children: [] }] },
 ]);
 
 // Various action return types
 router.setRoutes([
-  {path: 'action-nothing', action: () => {}},
-  {path: 'action-component', action: () => {
-    return document.createElement('x-foo');
-  }},
-  {path: 'action-commands-component', action: (_, commands: Commands) => {
-    return commands.component('x-foo');
-  }},
-  {path: 'action-commands-prevent', action: (_, commands: Commands) => {
-    return commands.prevent();
-  }},
-  {path: 'action-commands-redirect', action: (_, commands: Commands) => {
-    return commands.redirect('/');
-  }},
-  {path: 'action-next', action: (context) => {
-    return context.next();
-  }},
-  {path: 'async-action-nothing', action: () => Promise.resolve()},
-  {path: 'async-action-null', action: () => Promise.resolve(null)},
-  {path: 'async-action-component', action: () => {
-    return Promise.resolve(document.createElement('x-foo'));
-  } },
-  {path: 'async-action-commands-component', action: (_, commands: Commands) => {
-    return Promise.resolve(commands.component('x-foo'));
-  }},
-  {path: 'async-action-commands-prevent', action: (_, commands: Commands) => {
-    return Promise.resolve(commands.prevent());
-  }},
-  {path: 'async-action-commands-redirect', action: (_, commands: Commands) => {
-    return Promise.resolve(commands.redirect('/'));
-  }},
-  {path: 'async-action-next', action: (context) => {
-    return Promise.resolve(context.next());
-  }},
+  { path: 'action-nothing', action: () => {} },
+  {
+    path: 'action-component',
+    action: () => {
+      return document.createElement('x-foo');
+    },
+  },
+  {
+    path: 'action-commands-component',
+    action: (_, commands: Commands) => {
+      return commands.component('x-foo');
+    },
+  },
+  {
+    path: 'action-commands-prevent',
+    action: (_, commands: Commands) => {
+      return commands.prevent();
+    },
+  },
+  {
+    path: 'action-commands-redirect',
+    action: (_, commands: Commands) => {
+      return commands.redirect('/');
+    },
+  },
+  {
+    path: 'action-next',
+    action: (context) => {
+      return context.next();
+    },
+  },
+  { path: 'async-action-nothing', action: () => Promise.resolve() },
+  { path: 'async-action-null', action: () => Promise.resolve(null) },
+  {
+    path: 'async-action-component',
+    action: () => {
+      return Promise.resolve(document.createElement('x-foo'));
+    },
+  },
+  {
+    path: 'async-action-commands-component',
+    action: (_, commands: Commands) => {
+      return Promise.resolve(commands.component('x-foo'));
+    },
+  },
+  {
+    path: 'async-action-commands-prevent',
+    action: (_, commands: Commands) => {
+      return Promise.resolve(commands.prevent());
+    },
+  },
+  {
+    path: 'async-action-commands-redirect',
+    action: (_, commands: Commands) => {
+      return Promise.resolve(commands.redirect('/'));
+    },
+  },
+  {
+    path: 'async-action-next',
+    action: (context) => {
+      return Promise.resolve(context.next());
+    },
+  },
   // TODO(@platosha): remove deprecated namespaced cases
-  {path: 'action-commands-component', action: (_, commands: Router.Commands) => {
-    return commands.component('x-foo');
-  }},
-  {path: 'action-commands-prevent', action: (_, commands: Router.Commands) => {
-    return commands.prevent();
-  }},
-  {path: 'action-commands-redirect', action: (_, commands: Router.Commands) => {
-    return commands.redirect('/');
-  }},
-  {path: 'async-action-commands-component', action: (_, commands: Router.Commands) => {
-    return Promise.resolve(commands.component('x-foo'));
-  }},
-  {path: 'async-action-commands-prevent', action: (_, commands: Router.Commands) => {
-    return Promise.resolve(commands.prevent());
-  }},
-  {path: 'async-action-commands-redirect', action: (_, commands: Router.Commands) => {
-    return Promise.resolve(commands.redirect('/'));
-  }},
+  {
+    path: 'action-commands-component',
+    action: (_, commands: Router.Commands) => {
+      return commands.component('x-foo');
+    },
+  },
+  {
+    path: 'action-commands-prevent',
+    action: (_, commands: Router.Commands) => {
+      return commands.prevent();
+    },
+  },
+  {
+    path: 'action-commands-redirect',
+    action: (_, commands: Router.Commands) => {
+      return commands.redirect('/');
+    },
+  },
+  {
+    path: 'async-action-commands-component',
+    action: (_, commands: Router.Commands) => {
+      return Promise.resolve(commands.component('x-foo'));
+    },
+  },
+  {
+    path: 'async-action-commands-prevent',
+    action: (_, commands: Router.Commands) => {
+      return Promise.resolve(commands.prevent());
+    },
+  },
+  {
+    path: 'async-action-commands-redirect',
+    action: (_, commands: Router.Commands) => {
+      return Promise.resolve(commands.redirect('/'));
+    },
+  },
 ]);
 
 // setOutlet
@@ -250,7 +295,9 @@ class MyViewWithBeforeEnter extends HTMLElement implements BeforeEnterObserver {
     location.baseUrl;
     router.baseUrl;
     commands.prevent();
-    if ('component' in commands) { throw new Error('unexpected'); }
+    if ('component' in commands) {
+      throw new Error('unexpected');
+    }
     return commands.redirect('/');
   }
 }
@@ -261,7 +308,7 @@ class MyViewWithBeforeLeave extends HTMLElement implements BeforeLeaveObserver {
     this.localName;
     location.baseUrl;
     router.baseUrl;
-    if (('component' in commands) || ('redirect' in commands)) {
+    if ('component' in commands || 'redirect' in commands) {
       throw new Error('unexpected');
     }
     return commands.prevent();
@@ -273,7 +320,7 @@ class MyViewWithAfterEnter extends HTMLElement implements AfterEnterObserver {
   onAfterEnter(location: RouterLocation, commands: EmptyCommands, router: Router) {
     this.localName;
     location.baseUrl;
-    if (('component' in commands) || ('redirect' in commands) || ('prevent' in commands)) {
+    if ('component' in commands || 'redirect' in commands || 'prevent' in commands) {
       throw new Error('unexpected');
     }
     router.baseUrl;
@@ -285,7 +332,7 @@ class MyViewWithAfterLeave extends HTMLElement implements AfterLeaveObserver {
   onAfterLeave(location: RouterLocation, commands: EmptyCommands, router: Router) {
     this.localName;
     location.baseUrl;
-    if (('component' in commands) || ('redirect' in commands) || ('prevent' in commands)) {
+    if ('component' in commands || 'redirect' in commands || 'prevent' in commands) {
       throw new Error('unexpected');
     }
     router.baseUrl;

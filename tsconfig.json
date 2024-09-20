@@ -3,23 +3,22 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
-    "target": "esnext",
+    "target": "es2022",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "lib": ["es2022", "dom", "dom.iterable"],
+    "lib": ["es2022", "dom"],
     "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
     "strict": true,
     "strictBindCallApply": true,
     "sourceMap": true,
     "inlineSources": true,
-    "noImplicitAny": true,
     "verbatimModuleSyntax": true,
     "noImplicitOverride": true,
+    "noImplicitAny": true,
     "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true
   },
-  "include": [
-    "src",
-    "test"
-  ]
+  "include": ["scripts", "src", "test", "./vite.config.ts", "./karma.config.cjs"],
+  "exclude": ["scripts/**/*.js"]
 }

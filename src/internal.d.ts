@@ -1,5 +1,6 @@
+import type { SetOptional } from 'type-fest';
 import type Resolver from './resolver/resolver.js';
-import type { ActionResult, RouteContext, EmptyRecord, Route } from './types.js';
+import type { ActionResult, Route, AnyObject, WebComponentInterface, RouteChildrenContext } from './types.js';
 
 export interface RegExpExecOptArray extends ReadonlyArray<string | undefined> {
   0: string;
@@ -23,39 +24,35 @@ declare global {
   }
 }
 
-export type InternalRoute<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = Route<T, R, C> & {
-  __children?: ReadonlyArray<InternalRoute<T, R, C>>;
+export type InternalRoute<R extends AnyObject> = Route<R> & {
+  __children?: ReadonlyArray<InternalRoute<R>>;
   __synthetic?: true;
   fullPath?: string;
-  parent?: InternalRoute<T, R, C>;
+  parent?: InternalRoute<R>;
 };
 
-export type ChainItem<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = {
-  element?: Element;
+export type ChainItem<R extends AnyObject> = {
+  element?: WebComponentInterface<R>;
   path: string;
-  route?: InternalRoute<T, R, C>;
+  route?: InternalRoute<R>;
 };
 
-export type ResolveResult<T, R extends Record<string, unknown>, C extends Record<string, unknown>> =
-  | ActionResult<T>
-  | InternalContext<T, R, C>;
+export type ResolveResult<R extends Record<string, unknown>> = ActionResult | InternalRouteContext<R>;
 
-export type InternalContext<T, R extends Record<string, unknown>, C extends Record<string, unknown>> = RouteContext<
-  T,
-  R,
-  C
+export type InternalNextResult<R extends AnyObject> = ResolutionResult<InternalRouteContext<R>>;
+
+export type InternalRouteContext<R extends AnyObject> = SetOptional<
+  RouteChildrenContext<R>,
+  'params' | 'route' | 'hash' | 'search'
 > & {
   __divergedChainIndex?: number;
   __redirectCount?: number;
-  __renderId?: number;
+  __renderId: number;
   __skipAttach?: boolean;
-  chain?: Array<ChainItem<T, R, C>>;
-  resolver?: Resolver<T, R, C>;
-  result?: ActionResult<T> | Error;
-  route?: InternalRoute<T, R, C>;
-  next(
-    resume?: boolean,
-    parent?: InternalRoute<T, R, C>,
-    prevResult?: ActionResult<T> | null,
-  ): Promise<ActionResult<T>>;
+  chain?: Array<ChainItem<R>>;
+  resolver?: Resolver<R>;
+  redirectFrom?: string;
+  result?: ActionResult;
+  route?: InternalRoute<R>;
+  next?(resume?: boolean, parent?: InternalRoute<R>, prevResult?: ActionResult | null): Promise<InternalNextResult<R>>;
 };

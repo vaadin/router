@@ -34,11 +34,12 @@ cache.set('|false', {
 function decodeParam(val: string): string {
   try {
     return decodeURIComponent(val);
-  } catch (err) {
+  } catch {
     return val;
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/max-params
 function matchPath(
   routePath: string,
   path?: string[] | string,

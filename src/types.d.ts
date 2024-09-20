@@ -1,4 +1,4 @@
-import type { RequireAtLeastOne } from 'type-fest';
+import type { EmptyObject, RequireAtLeastOne } from 'type-fest';
 import type { Router } from './router.js';
 
 declare global {
@@ -14,16 +14,18 @@ declare global {
   }
 }
 
-export type EmptyRecord = Record<never, never>;
+export type AnyObject = Record<never, never>;
 
 export type MaybePromise<T> = Promise<T> | T;
 
+export type RedirectContextInfo = Readonly<{
+  from: string;
+  params: IndexedParams;
+  pathname: string;
+}>;
+
 export interface RedirectResult {
-  readonly redirect: Readonly<{
-    from: string;
-    params: IndexedParams;
-    pathname: string;
-  }>;
+  readonly redirect: RedirectContextInfo;
 }
 
 export interface PreventResult {
@@ -39,7 +41,9 @@ export interface NotFoundResult {
   notFoundResultBrand: never;
 }
 
-export type ActionResult<T> = HTMLElement | NotFoundResult | PreventResult | RedirectResult | T | null | undefined;
+export type ResolutionResult<T> = T | NotFoundResult | null | undefined;
+
+export type ActionResult = ResolutionResult<HTMLElement | PreventResult | RedirectResult>;
 
 /**
  * Describes the state of a router at a given point in time. It is available for
@@ -51,11 +55,7 @@ export type ActionResult<T> = HTMLElement | NotFoundResult | PreventResult | Red
  *    lifecycle callbacks,
  *  - as the `event.detail.location` of the global Vaadin Router events.
  */
-export interface RouterLocation<
-  T = unknown,
-  R extends Record<string, unknown> = EmptyRecord,
-  C extends Record<string, unknown> = EmptyRecord,
-> {
+export interface RouterLocation<R extends AnyObject> {
   /**
    * The base URL used in the router. See [the `baseUrl` property
    * ](#/classes/Router#property-baseUrl) in the Router.
@@ -127,7 +127,7 @@ export interface RouterLocation<
    *
    * @public
    */
-  route: Route<T, R, C> | null;
+  route: Route<R> | null;
 
   /**
    * A list of route objects that match the current pathname. This list has
@@ -140,7 +140,7 @@ export interface RouterLocation<
    *
    * @public
    */
-  routes: ReadonlyArray<Route<T, R, C>>;
+  routes: ReadonlyArray<Route<R>>;
 
   /**
    * The query string portion of the current url.
@@ -230,11 +230,9 @@ export interface RouterLocation<
  * Other examples can be found in the
  * [live demos](#/classes/Router/demos/demo/index.html) and tests.
  */
-export interface WebComponentInterface<
-  T = unknown,
-  R extends Record<string, unknown> = EmptyRecord,
-  C extends Record<string, unknown> = EmptyRecord,
-> {
+export interface WebComponentInterface<R extends AnyObject = EmptyObject> extends HTMLElement {
+  location: RouterLocation<R>;
+
   /**
    * Method that gets executed after the outlet contents is updated with the new
    * element. If the router navigates to the same path twice in a row, and this results
@@ -257,7 +255,7 @@ export interface WebComponentInterface<
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterEnter?(location: Location, commands: Commands, router: Router<T, R, C>): void;
+  onAfterEnter?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): void;
 
   /**
    * Method that gets executed when user navigates away from the component that
@@ -282,7 +280,7 @@ export interface WebComponentInterface<
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterLeave?(location: Location, commands: Commands, router: Router<T, R, C>): void;
+  onAfterLeave?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): void;
 
   /**
    * Method that gets executed before the outlet contents is updated with
@@ -323,7 +321,7 @@ export interface WebComponentInterface<
    *
    * @param router - the `Router` instance
    */
-  onBeforeEnter?(location: Location, commands: Commands, router: Router<T, R, C>): void;
+  onBeforeEnter?(location: RouterLocation<R>, commands: Commands, router: Router<R>): void;
 
   /**
    * Method that gets executed when user navigates away from the component
@@ -361,21 +359,24 @@ export interface WebComponentInterface<
    *
    * @param router - the `Router` instance
    */
-  onBeforeLeave?(location: Location, commands: Commands, router: Router<T, R, C>): void;
+  onBeforeLeave?(location: RouterLocation<R>, commands: Commands, router: Router<R>): void;
 }
 
-export type RouteContext<
-  T = unknown,
-  R extends Record<string, unknown> = EmptyRecord,
-  C extends Record<string, unknown> = EmptyRecord,
-> = C &
+export type ResolveContext = Readonly<{
+  hash: string;
+  pathname: string;
+  search: string;
+}>;
+
+export type RouteChildrenContext<R extends AnyObject> = ResolveContext &
   Readonly<{
-    hash: string;
     params: IndexedParams;
-    pathname: string;
-    route: Route<T, R, C>;
-    search: string;
-    next(resume?: boolean): Promise<ActionResult<T>>;
+    route: Route<R>;
+  }>;
+
+export type RouteContext<R extends AnyObject = EmptyObject> = RouteChildrenContext<R> &
+  Readonly<{
+    next(resume?: boolean): Promise<ActionResult>;
   }>;
 
 export interface Commands {
@@ -390,35 +391,33 @@ export interface Commands {
   redirect(path: string): RedirectResult;
 }
 
-export type ChildrenCallback<
-  T = unknown,
-  R extends Record<string, unknown> = EmptyRecord,
-  C extends Record<string, unknown> = EmptyRecord,
-> = (context: RouteContext<T, R, C>) => MaybePromise<ReadonlyArray<Route<T, R, C>>>;
+export type EmptyCommands = Empty;
+export type PreventCommands = Pick<Commands, 'prevent'>;
+export type PreventAndRedirectCommands = Pick<Commands, 'prevent' | 'redirect'>;
+
+export type ChildrenCallback<R extends AnyObject> = (
+  context: RouteChildrenContext<R>,
+) => MaybePromise<ReadonlyArray<Route<R>>>;
 
 export type AnimateCustomClasses = Readonly<{
   enter?: string;
   leave?: string;
 }>;
 
-export type Route<
-  T = unknown,
-  R extends Record<string, unknown> = EmptyRecord,
-  C extends Record<string, unknown> = EmptyRecord,
-> = Readonly<
+export type Route<R extends AnyObject> = Readonly<
   RequireAtLeastOne<{
-    children?: ChildrenCallback | ReadonlyArray<Route<T, R, C>>;
+    children?: ChildrenCallback<R> | ReadonlyArray<Route<R>>;
     component?: string;
     redirect?: string;
-    action?(this: Route<T, R, C>, context: RouteContext, commands?: Commands): MaybePromise<ActionResult<T>>;
+    action?(this: Route<R>, context: RouteContext<R>, commands?: Commands): MaybePromise<ActionResult<T>>;
   }> & {
     animate?: AnimateCustomClasses | boolean;
     name?: string;
-    path?: ReadonlyArray<string> | string;
+    path?: string | readonly string[];
   }
 >;
 
-export type ParamValue = string[] | string;
+export type ParamValue = readonly string[] | string;
 
 export type IndexedParams = Readonly<{
   [key in keyof any]?: ParamValue;

@@ -8,21 +8,18 @@
  */
 
 import { parse, type ParseOptions, type Token, tokensToFunction, type TokensToFunctionOptions } from 'path-to-regexp';
+import type { EmptyObject } from 'type-fest';
 import type { InternalRoute } from '../internal.js';
-import type { ChildrenCallback, EmptyRecord, IndexedParams } from '../types.js';
+import type { ChildrenCallback, AnyObject, IndexedParams } from '../types.js';
 import { getRoutePath, isString } from '../utils.js';
 import Resolver from './resolver.js';
 
 export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> | number | string>>;
 
-function cacheRoutes<
-  T,
-  R extends Record<string, unknown> = EmptyRecord,
-  C extends Record<string, unknown> = EmptyRecord,
->(
-  routesByName: Map<string, Array<InternalRoute<T, R, C>>>,
-  route: InternalRoute<T, R, C>,
-  routes?: ChildrenCallback | ReadonlyArray<InternalRoute<T, R, C>>,
+function cacheRoutes<R extends AnyObject = EmptyObject>(
+  routesByName: Map<string, Array<InternalRoute<R>>>,
+  route: InternalRoute<R>,
+  routes?: ChildrenCallback<R> | ReadonlyArray<InternalRoute<R>>,
 ): void {
   const name = route.name ?? route.component;
   if (name) {
@@ -33,7 +30,7 @@ function cacheRoutes<
     }
   }
 
-  if (Array.isArray<ReadonlyArray<InternalRoute<T, R, C>>>(routes)) {
+  if (Array.isArray<ReadonlyArray<InternalRoute<R>>>(routes)) {
     for (const childRoute of routes) {
       childRoute.parent = route;
       cacheRoutes(routesByName, childRoute, childRoute.__children ?? childRoute.children);
@@ -41,11 +38,10 @@ function cacheRoutes<
   }
 }
 
-function getRouteByName<
-  T = unknown,
-  R extends Record<string, unknown> = EmptyRecord,
-  C extends Record<string, unknown> = EmptyRecord,
->(routesByName: Map<string, Array<InternalRoute<T, R, C>>>, routeName: string): InternalRoute<T, R, C> | undefined {
+function getRouteByName<R extends AnyObject = EmptyObject>(
+  routesByName: Map<string, Array<InternalRoute<R>>>,
+  routeName: string,
+): InternalRoute<R> | undefined {
   const routes = routesByName.get(routeName);
 
   if (routes) {
@@ -81,24 +77,18 @@ type RouteCacheRecord = Readonly<{
 
 export type UrlGenerator = (routeName: string, params?: IndexedParams) => string;
 
-function generateUrls<
-  T = unknown,
-  R extends Record<string, unknown> = EmptyRecord,
-  C extends Record<string, unknown> = EmptyRecord,
->(
-  resolver: Resolver<T, R, C>,
-  options: GenerateUrlOptions = {
-    encode: encodeURIComponent,
-  },
+function generateUrls<R extends AnyObject = EmptyObject>(
+  resolver: Resolver<R>,
+  options: GenerateUrlOptions = { encode: encodeURIComponent },
 ): UrlGenerator {
   if (!(resolver instanceof Resolver)) {
     throw new TypeError('An instance of Resolver is expected');
   }
 
   const cache = new Map<string, RouteCacheRecord>();
-  const routesByName = new Map<string, Array<InternalRoute<T, R, C>>>();
+  const routesByName = new Map<string, Array<InternalRoute<R>>>();
 
-  return (routeName: string, params?: IndexedParams) => {
+  return (routeName, params) => {
     let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache
