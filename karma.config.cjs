@@ -9,6 +9,8 @@ const coverage = !!process.argv.find((arg) => arg.includes('--coverage'));
 
 module.exports = (config) => {
   config.set({
+    basePath: '',
+
     plugins: [karmaMocha, karmaChromeLauncher, karmaVite, karmaCoverage],
 
     browsers: ['ChromeHeadlessNoSandbox'],
@@ -50,7 +52,7 @@ module.exports = (config) => {
     },
 
     vite: {
-      autoInit: false,
+      autoInit: true,
     },
   });
 };
