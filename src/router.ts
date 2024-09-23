@@ -43,6 +43,8 @@ import {
 const MAX_REDIRECT_COUNT = 256;
 
 function getPathnameForRouter<R extends AnyObject>(pathname: string, resolver: Resolver<R>) {
+  // @FIXME: Fix later when we are ready to get rid of the universal-router
+  // @ts-expect-error: __effectiveBaseUrl is a private property
   const base = resolver.__effectiveBaseUrl;
   return base ? new URL(pathname.replace(/^\//u, ''), base).pathname : pathname;
 }
@@ -244,7 +246,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     this.subscribe();
   }
 
-  async __resolveRoute(context: InternalRouteContext<R>): Promise<InternalNextResult<R>> {
+  private async __resolveRoute(context: InternalRouteContext<R>): Promise<InternalNextResult<R>> {
     const { route } = context;
 
     if (isFunction(route?.children)) {
@@ -270,9 +272,9 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     };
 
     return await Promise.resolve()
-      .then(() => {
+      .then(async () => {
         if (this.__isLatestRender(context)) {
-          return maybeCall(route?.action, route, context as RouteContext<R>, commands);
+          return await maybeCall(route?.action, route, context as RouteContext<R>, commands);
         }
       })
       .then((result) => {
@@ -586,7 +588,9 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
       : await this.__amendWithOnBeforeCallbacks(contextAfterRedirects);
   }
 
-  async __findComponentContextAfterAllRedirects(context: InternalRouteContext<R>): Promise<InternalRouteContext<R>> {
+  private async __findComponentContextAfterAllRedirects(
+    context: InternalRouteContext<R>,
+  ): Promise<InternalRouteContext<R>> {
     const { result } = context;
     if (result instanceof HTMLElement) {
       renderElement(context, result as WebComponentInterface<R>);
@@ -607,7 +611,9 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
         );
   }
 
-  async __amendWithOnBeforeCallbacks(contextWithFullChain: InternalRouteContext<R>): Promise<InternalRouteContext<R>> {
+  private async __amendWithOnBeforeCallbacks(
+    contextWithFullChain: InternalRouteContext<R>,
+  ): Promise<InternalRouteContext<R>> {
     return await this.__runOnBeforeCallbacks(contextWithFullChain).then(async (amendedContext) => {
       if (amendedContext === this.__previousContext || amendedContext === contextWithFullChain) {
         return amendedContext;
@@ -616,7 +622,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     });
   }
 
-  async __runOnBeforeCallbacks(newContext: InternalRouteContext<R>): Promise<InternalRouteContext<R>> {
+  private async __runOnBeforeCallbacks(newContext: InternalRouteContext<R>): Promise<InternalRouteContext<R>> {
     const previousContext = (this.__previousContext ?? {}) as Partial<InternalRouteContext<R>>;
     const previousChain = previousContext.chain ?? [];
     const newChain = newContext.chain ?? [];
@@ -710,7 +716,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     });
   }
 
-  async __runOnBeforeLeaveCallbacks(
+  private async __runOnBeforeLeaveCallbacks(
     callbacks: Promise<ActionResult>,
     newContext: InternalRouteContext<R>,
     commands: PreventCommands,
@@ -731,7 +737,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  async __runOnBeforeEnterCallbacks(
+  private async __runOnBeforeEnterCallbacks(
     callbacks: Promise<ActionResult>,
     newContext: InternalRouteContext<R>,
     commands: PreventAndRedirectCommands,
@@ -747,7 +753,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  __isReusableElement(element?: ActionResult, otherElement?: ActionResult): boolean {
+  private __isReusableElement(element?: ActionResult, otherElement?: ActionResult): boolean {
     if (element instanceof Element && otherElement instanceof Element) {
       return this.__createdByRouter.has(element) && this.__createdByRouter.has(otherElement)
         ? element.localName === otherElement.localName
@@ -756,11 +762,11 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     return false;
   }
 
-  __isLatestRender(context: Partial<InternalRouteContext<R>>): boolean {
+  private __isLatestRender(context: Partial<InternalRouteContext<R>>): boolean {
     return context.__renderId === this.__lastStartedRenderId;
   }
 
-  async __redirect(
+  private async __redirect(
     redirectData: RedirectContextInfo,
     counter: number = 0,
     renderId: number = 0,
@@ -777,14 +783,17 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     });
   }
 
-  __ensureOutlet(outlet: ParentNode | undefined | null = this.__outlet): void {
+  private __ensureOutlet(outlet: ParentNode | undefined | null = this.__outlet): void {
     if (!(outlet instanceof Node)) {
       throw new TypeError(log(`Expected router outlet to be a valid DOM Node (but got ${outlet})`));
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this
-  __updateBrowserHistory({ pathname, search = '', hash = '' }: InternalRouteContext<R>, replace?: boolean): void {
+  private __updateBrowserHistory(
+    { pathname, search = '', hash = '' }: InternalRouteContext<R>,
+    replace?: boolean,
+  ): void {
     if (window.location.pathname !== pathname || window.location.search !== search || window.location.hash !== hash) {
       const changeState = replace ? 'replaceState' : 'pushState';
       window.history[changeState](null, document.title, pathname + search + hash);
@@ -792,7 +801,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  __copyUnchangedElements(
+  private __copyUnchangedElements(
     context: InternalRouteContext<R>,
     previousContext?: InternalRouteContext<R>,
   ): ParentNode | null | undefined {
@@ -813,7 +822,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     return deepestCommonParent;
   }
 
-  __addAppearingContent(context: InternalRouteContext<R>, previousContext?: InternalRouteContext<R>): void {
+  private __addAppearingContent(context: InternalRouteContext<R>, previousContext?: InternalRouteContext<R>): void {
     this.__ensureOutlet();
 
     // If the previous 'entering' animation has not completed yet,
@@ -853,7 +862,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  __removeDisappearingContent(): void {
+  private __removeDisappearingContent(): void {
     if (this.__disappearingContent) {
       Router.__removeDomNodes(this.__disappearingContent);
     }
@@ -861,7 +870,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     this.__appearingContent = null;
   }
 
-  __removeAppearingContent(): void {
+  private __removeAppearingContent(): void {
     if (this.__disappearingContent && this.__appearingContent) {
       Router.__removeDomNodes(this.__appearingContent);
       this.__disappearingContent = null;
@@ -869,7 +878,10 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  __runOnAfterLeaveCallbacks(currentContext: InternalRouteContext<R>, targetContext?: InternalRouteContext<R>): void {
+  private __runOnAfterLeaveCallbacks(
+    currentContext: InternalRouteContext<R>,
+    targetContext?: InternalRouteContext<R>,
+  ): void {
     if (!targetContext?.chain || currentContext.__divergedChainIndex == null) {
       return;
     }
@@ -895,7 +907,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  __runOnAfterEnterCallbacks(currentContext: InternalRouteContext<R>): void {
+  private __runOnAfterEnterCallbacks(currentContext: InternalRouteContext<R>): void {
     if (!currentContext.chain || currentContext.__divergedChainIndex == null) {
       return;
     }
@@ -914,7 +926,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  async __animateIfNeeded(context: InternalRouteContext<R>): Promise<InternalRouteContext<R>> {
+  private async __animateIfNeeded(context: InternalRouteContext<R>): Promise<InternalRouteContext<R>> {
     const from = this.__disappearingContent?.[0];
     const to = this.__appearingContent?.[0];
     const promises = [];
@@ -958,7 +970,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     window.removeEventListener('vaadin-router-go', this.__navigationEventHandler);
   }
 
-  __onNavigationEvent(event?: Event): void {
+  private __onNavigationEvent(event?: Event): void {
     const { pathname, search, hash } =
       event instanceof CustomEvent ? (event.detail as ResolveContext) : window.location;
 
@@ -1001,19 +1013,16 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
    * It is not possible to generate URLs using a name for routes set with
    * a children function.
    *
-   * @function urlForName
-   * @param name the route name or the route’s `component` name.
-   * @param {Params=} params Optional object with route path parameters.
+   * @param name - The route name or the route’s `component` name.
+   * @param params - Optional object with route path parameters.
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
-   *
-   * @return {string}
    */
   urlForName(name: string, params?: Params | null): string {
     if (!this.__urlForName) {
       this.__urlForName = generateUrls(this);
     }
-    return getPathnameForRouter(this.__urlForName(name, params || undefined), this);
+    return getPathnameForRouter(this.__urlForName(name, params ?? undefined), this);
   }
 
   /**
@@ -1021,7 +1030,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
    * substitution of parameters.
    *
    * @param path - String route path declared in [express.js
-   *   syntax](https://expressjs.com/en/guide/routing.html#route-paths).
+   * syntax](https://expressjs.com/en/guide/routing.html#route-paths).
    * @param params - Optional object with route path parameters.
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
@@ -1036,10 +1045,9 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
    * has handled the navigation (was subscribed and had `baseUrl` matching
    * the `path` argument), otherwise returns `false`.
    *
-   * @param path
-   *   a new in-app path string, or an URL-like object with `pathname`
-   *   string property, and optional `search` and `hash` string properties.
-   * @return
+   * @param path - A new in-app path string, or an URL-like object with
+   * `pathname` string property, and optional `search` and `hash` string
+   * properties.
    */
   static go(path: string | ResolveContext): boolean {
     const { pathname, search, hash } = isString(path)

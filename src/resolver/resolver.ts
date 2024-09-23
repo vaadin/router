@@ -8,10 +8,26 @@
  */
 import type { EmptyObject } from 'type-fest';
 import type { InternalRouteContext, InternalRoute } from '../internal.js';
-import type { RouteContext, ActionResult, AnyObject, Route } from '../types.js';
+import type { ActionResult, AnyObject, Route, MaybePromise } from '../types.js';
 import { ensureRoutes, getNotFoundError, getRoutePath, isString, notFoundResult, toArray } from '../utils.js';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
+
+export class RouteError<R extends AnyObject> extends Error {
+  readonly code: number;
+  readonly context: InternalRouteContext<R>;
+
+  constructor(code: number, context: InternalRouteContext<R>, cause?: Error) {
+    let errorMessage = `Path '${context.pathname}' is not properly resolved due to an error.`;
+    const routePath = getRoutePath(context.route);
+    if (routePath) {
+      errorMessage += ` Resolution had failed on route: '${routePath}'`;
+    }
+    super(errorMessage, cause);
+    this.code = code;
+    this.context = context;
+  }
+}
 
 function isDescendantRoute<R extends AnyObject>(route?: InternalRoute<R>, maybeParent?: InternalRoute<R>) {
   let _route = route;
@@ -24,16 +40,6 @@ function isDescendantRoute<R extends AnyObject>(route?: InternalRoute<R>, maybeP
   return false;
 }
 
-function generateErrorMessage<R extends AnyObject>(context: InternalRouteContext<R>) {
-  let errorMessage = `Path '${context.pathname}' is not properly resolved due to an error.`;
-
-  const routePath = getRoutePath(context.route);
-  if (routePath) {
-    errorMessage += ` Resolution had failed on route: '${routePath}'`;
-  }
-  return errorMessage;
-}
-
 export interface ResolutionErrorOptions extends ErrorOptions {
   code?: number;
 }
@@ -43,7 +49,12 @@ export class ResolutionError<R extends AnyObject> extends Error {
   readonly context: InternalRouteContext<R>;
 
   constructor(context: InternalRouteContext<R>, options?: ResolutionErrorOptions) {
-    super(generateErrorMessage(context), options);
+    let errorMessage = `Path '${context.pathname}' is not properly resolved due to an error.`;
+    const routePath = getRoutePath(context.route);
+    if (routePath) {
+      errorMessage += ` Resolution had failed on route: '${routePath}'`;
+    }
+    super(errorMessage, options);
     this.code = options?.code;
     this.context = context;
   }
@@ -63,7 +74,7 @@ function updateChainForRoute<R extends AnyObject>(context: InternalRouteContext<
 
   if (route && !route.__synthetic) {
     const item = { path, route };
-    if (route.parent) {
+    if (route.parent && context.chain) {
       for (let i = context.chain.length - 1; i >= 0; i--) {
         if (!context.chain[i].route || context.chain[i].route === route.parent) {
           break;
@@ -72,7 +83,7 @@ function updateChainForRoute<R extends AnyObject>(context: InternalRouteContext<
         context.chain.pop();
       }
     }
-    context.chain.push(item);
+    context.chain?.push(item);
   }
 }
 
@@ -80,7 +91,9 @@ export type ErrorHandlerCallback = (error: unknown) => ActionResult;
 
 export type ResolveContext = Readonly<{ pathname: string }>;
 
-export type ResolveRouteCallback<R extends AnyObject> = (context: InternalRouteContext<R>) => Promise<ActionResult>;
+export type ResolveRouteCallback<R extends AnyObject> = (
+  context: InternalRouteContext<R>,
+) => MaybePromise<ActionResult>;
 
 export type ResolverOptions<R extends AnyObject> = Readonly<{
   baseUrl?: string;
@@ -146,7 +159,7 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
    *
    * Otherwise, returns empty string.
    */
-  get __effectiveBaseUrl(): string {
+  protected get __effectiveBaseUrl(): string {
     return this.baseUrl ? new URL(this.baseUrl, document.baseURI || document.URL).href.replace(/[^/]*$/u, '') : '';
   }
 
@@ -223,7 +236,7 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
       currentContext = {
         ...context,
         ...matches.value,
-        chain: currentContext.chain.slice(),
+        chain: currentContext.chain?.slice(),
       };
       updateChainForRoute(currentContext, matches.value);
 
@@ -237,28 +250,15 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
       return await next(resume, parent, resolution);
     }
 
-    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-    // TODO: fix error handling
     return await next(true, this.root).catch((error: unknown) => {
-      const errorMessage = generateErrorMessage(currentContext);
-      if (!error) {
-        // eslint-disable-next-line no-param-reassign
-        error = new Error(errorMessage);
-      } else {
-        console.warn(errorMessage);
-      }
-      error.context ??= currentContext;
-      // DOMException has its own code which is read-only
-      if (!(error instanceof DOMException)) {
-        error.code ??= 500;
-      }
+      const _error = new ResolutionError(currentContext, { code: 500, cause: error });
+
       if (this.errorHandler) {
-        currentContext.result = this.errorHandler(error);
+        currentContext.result = this.errorHandler(_error);
         return currentContext.result;
       }
       throw error;
     });
-    /* eslint-enable @typescript-eslint/no-unsafe-member-access */
   }
 
   /**

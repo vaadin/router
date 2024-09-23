@@ -86,9 +86,9 @@ function matchRoute<R extends AnyObject>(
   }
 
   return {
-    next(routeToSkip?: InternalRoute<R>) {
+    next: function (routeToSkip?: InternalRoute<R>): IteratorResult<MatchWithRoute<R>, undefined> {
       if (route === routeToSkip) {
-        return { done: true };
+        return { done: true, value: undefined };
       }
 
       route.__children ??= unwrapChildren(route.children);
@@ -99,7 +99,6 @@ function matchRoute<R extends AnyObject>(
 
         if (match) {
           return {
-            done: false,
             value: {
               keys: match.keys,
               params: match.params,
@@ -143,7 +142,7 @@ function matchRoute<R extends AnyObject>(
         }
       }
 
-      return { done: true };
+      return { done: true, value: undefined };
     },
   };
 }

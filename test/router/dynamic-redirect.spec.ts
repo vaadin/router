@@ -1,39 +1,41 @@
-import { expect, use } from "@esm-bundle/chai";
-import chaiAsPromised from "chai-as-promised";
-import chaiDom from "chai-dom";
-import sinon from "sinon";
-import sinonChai from "sinon-chai";
+import { expect, use } from '@esm-bundle/chai';
+import chaiAsPromised from 'chai-as-promised';
+import chaiDom from 'chai-dom';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 import { Router } from '../../src/router.js';
 import '../setup.js';
-import { cleanup, verifyActiveRoutes } from "./test-utils.js";
+import { cleanup, verifyActiveRoutes } from './test-utils.js';
 
 use(chaiDom);
 use(sinonChai);
 use(chaiAsPromised);
 
-declare global {
-  interface Window {
-    ShadyDOM?: unknown;
-  }
-}
-
-describe('Vaadin.Router', function() {
-  const suite = this;
-  suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
-
+// eslint-disable-next-line prefer-arrow-callback
+describe('Vaadin.Router', () => {
   let outlet: HTMLElement;
   let router: Router;
+  let history: sinon.SinonStubbedInstance<History>;
 
   before(() => {
+    history = {
+      go: sinon.stub(window.history, 'go'),
+      back: sinon.stub(window.history, 'back'),
+      forward: sinon.stub(window.history, 'forward'),
+      pushState: sinon.stub(window.history, 'pushState'),
+      replaceState: sinon.stub(window.history, 'replaceState'),
+    };
+
     outlet = document.createElement('div');
     document.body.append(outlet);
   });
 
   after(() => {
+    Object.values(history).forEach((stub: sinon.SinonStub) => stub.restore());
     outlet.remove();
   });
 
-  beforeEach(async () => {
+  beforeEach(() => {
     cleanup(outlet);
 
     // create a new router instance
@@ -41,18 +43,15 @@ describe('Vaadin.Router', function() {
   });
 
   afterEach(() => {
+    Object.values(history).forEach((stub: sinon.SinonStub) => stub.resetHistory());
     router.unsubscribe();
   });
 
   describe('resolver chain and router features', () => {
-    it('redirect overwrites activated routes', async() => {
-      router.setRoutes([
-        {path: '/a', children: [
-            {path: '/b', children: [
-                {path: '/c', component: 'x-home-view'}
-              ]},
-          ]},
-        {path: '/', redirect: '/a/b/c'},
+    it('redirect overwrites activated routes', async () => {
+      await router.setRoutes([
+        { path: '/a', children: [{ path: '/b', children: [{ path: '/c', component: 'x-home-view' }] }] },
+        { path: '/', redirect: '/a/b/c' },
       ]);
 
       await router.render('/');
@@ -60,103 +59,52 @@ describe('Vaadin.Router', function() {
       verifyActiveRoutes(router, ['/a', '/b', '/c']);
     });
 
-    it('action that returns custom component activates route', async() => {
-      router.setRoutes([
-        {path: '/', action: (context, commands) => commands.component('x-home-view')},
-      ]);
+    it('action that returns custom component activates route', async () => {
+      await router.setRoutes([{ path: '/', action: (_context, commands) => commands.component('x-home-view') }]);
 
       await router.render('/');
 
       verifyActiveRoutes(router, ['/']);
     });
 
-    it('action that returns redirect activates redirect route', async() => {
-      router.setRoutes([
-        {path: '/', action: (context, commands) => commands.redirect('/a')},
-        {path: '/a', component: 'x-users-view'},
+    it('action that returns redirect activates redirect route', async () => {
+      await router.setRoutes([
+        { path: '/', action: (_context, commands) => commands.redirect('/a') },
+        { path: '/a', component: 'x-users-view' },
       ]);
 
       await router.render('/');
 
       verifyActiveRoutes(router, ['/a']);
-      expect(outlet.lastChild.tagName).to.match(/x-users-view/i);
+      expect(outlet.lastChild.tagName).to.match(/x-users-view/iu);
     });
 
-    it('should be able to have multiple action redirects', async() => {
-      router.setRoutes([
-        {path: '/', action: (context, commands) => commands.redirect('/u')},
-        {path: '/u', action: (context, commands) => commands.redirect('/users')},
-        {path: '/users', component: 'x-users-list'}
+    it('should be able to have multiple action redirects', async () => {
+      await router.setRoutes([
+        { path: '/', action: (_context, commands) => commands.redirect('/u') },
+        { path: '/u', action: (_context, commands) => commands.redirect('/users') },
+        { path: '/users', component: 'x-users-list' },
       ]);
 
       await router.render('/');
 
-      expect(outlet.lastChild.tagName).to.match(/x-users-list/i);
+      expect(outlet.lastChild.tagName).to.match(/x-users-list/iu);
       verifyActiveRoutes(router, ['/users']);
     });
 
-    it('should fail on recursive action redirects', async() => {
-      router.setRoutes([
-        {path: '/a', action: (context, commands) => commands.redirect('/b')},
-        {path: '/b', action: (context, commands) => commands.redirect('/c')},
-        {path: '/c', action: (context, commands) => commands.redirect('/a')},
+    it('should fail on recursive action redirects', async () => {
+      await router.setRoutes([
+        { path: '/a', action: (_context, commands) => commands.redirect('/b') },
+        { path: '/b', action: (_context, commands) => commands.redirect('/c') },
+        { path: '/c', action: (_context, commands) => commands.redirect('/a') },
       ]);
 
       const onError = sinon.spy();
+      // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
       await router.render('/a').catch(onError);
 
       expect(outlet.children).to.have.lengthOf(0);
       expect(onError).to.have.been.calledOnce;
-    });
-
-    xit('should use `window.replaceState()` when redirecting from action on first render', async() => {
-      const pushSpy = sinon.spy(window.history, 'pushState');
-      const replaceSpy = sinon.spy(window.history, 'replaceState');
-
-      router.setRoutes([
-        {path: '/', action: (context, commands) => commands.redirect('/a')},
-        {path: '/a', component: 'x-users-view'},
-      ], true);
-
-      await router.render('/', true);
-
-      expect(pushSpy).to.not.be.called;
-      expect(replaceSpy).to.be.calledOnce;
-
-      window.history.pushState.restore();
-      window.history.replaceState.restore();
-    });
-
-    xit('should use `window.pushState()` when redirecting from action on next renders', async() => {
-      router.setRoutes([
-        {path: '/', action: (context, commands) => commands.redirect('/a')},
-        {path: '/a', component: 'x-users-view'},
-        {path: '/b', component: 'x-users-view'},
-      ]);
-      await router.render('/b', true);
-
-      const pushSpy = sinon.spy(window.history, 'pushState');
-      const replaceSpy = sinon.spy(window.history, 'replaceState');
-
-      await router.render('/', true);
-
-      expect(pushSpy).to.be.calledOnce;
-      expect(replaceSpy).to.not.be.called;
-
-      // Make non-redirecting render to update the URL
-      await router.render('/b', true);
-
-      expect(pushSpy).to.be.calledTwice;
-      expect(replaceSpy).to.not.be.called;
-
-      // Redirecting navigation again
-      await router.render('/', true);
-
-      expect(pushSpy).to.be.calledThrice;
-      expect(replaceSpy).to.not.be.called;
-
-      window.history.pushState.restore();
-      window.history.replaceState.restore();
     });
   });
 });

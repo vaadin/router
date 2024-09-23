@@ -19,6 +19,6 @@
     "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true
   },
-  "include": ["scripts", "src", "test", "./vite.config.ts", "./karma.config.cjs"],
+  "include": ["scripts", "src", "test", "./vite.config.ts", "./*.cjs"],
   "exclude": ["scripts/**/*.js"]
 }

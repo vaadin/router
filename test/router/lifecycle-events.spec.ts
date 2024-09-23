@@ -1,15 +1,18 @@
 import { expect } from '@esm-bundle/chai';
-import sinon from "sinon";
-import Resolver from "../../src/resolver/resolver.js";
+import sinon from 'sinon';
+import Resolver from '../../src/resolver/resolver.js';
 import { Router, type RouterLocation } from '../../src/router.js';
 import '../setup.js';
 import {
   checkOutletContents,
-  cleanup, onAfterEnterAction, onAfterLeaveAction,
+  cleanup,
+  onAfterEnterAction,
+  onAfterLeaveAction,
   onBeforeEnterAction,
   onBeforeLeaveAction,
-  verifyActiveRoutes, waitForNavigation
-} from "./test-utils.js";
+  verifyActiveRoutes,
+  waitForNavigation,
+} from './test-utils.js';
 
 class XSpy extends HTMLElement {
   location?: RouterLocation;
@@ -55,7 +58,7 @@ const elementWithUserParameter = () => (context, commands) => {
   return component;
 };
 
-describe('Vaadin Router lifecycle events', function () {
+describe('Vaadin Router lifecycle events', () => {
   const verifyCallbacks = (expectedCallbacks) => {
     expect(callbacksLog).to.be.an('array');
     expect(expectedCallbacks).to.be.an('array');

@@ -4,7 +4,7 @@ import type { Router } from './router.js';
 declare global {
   interface WindowEventMap {
     'vaadin-router-location-changed': CustomEvent<{
-      location: RouterLocation;
+      location: RouterLocation<AnyObject>;
       router: Router;
     }>;
   }
@@ -391,7 +391,7 @@ export interface Commands {
   redirect(path: string): RedirectResult;
 }
 
-export type EmptyCommands = Empty;
+export type EmptyCommands = EmptyObject;
 export type PreventCommands = Pick<Commands, 'prevent'>;
 export type PreventAndRedirectCommands = Pick<Commands, 'prevent' | 'redirect'>;
 
@@ -404,12 +404,12 @@ export type AnimateCustomClasses = Readonly<{
   leave?: string;
 }>;
 
-export type Route<R extends AnyObject> = Readonly<
+export type Route<R extends AnyObject = EmptyObject> = Readonly<
   RequireAtLeastOne<{
     children?: ChildrenCallback<R> | ReadonlyArray<Route<R>>;
     component?: string;
     redirect?: string;
-    action?(this: Route<R>, context: RouteContext<R>, commands?: Commands): MaybePromise<ActionResult<T>>;
+    action?(this: Route<R>, context: RouteContext<R>, commands?: Commands): MaybePromise<ActionResult>;
   }> & {
     animate?: AnimateCustomClasses | boolean;
     name?: string;

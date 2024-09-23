@@ -1,13 +1,9 @@
-import { expect } from "@esm-bundle/chai";
-import { Router } from "../../src/router.js";
+import { expect } from '@esm-bundle/chai';
+import { Router } from '../../src/router.js';
 import '../setup.js';
-import { cleanup } from "./test-utils.js";
+import { cleanup } from './test-utils.js';
 
-describe('urlFor', function () {
-  // eslint-disable-next-line no-invalid-this
-  const suite = this;
-  suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
-
+describe('urlFor', () => {
   let outlet: HTMLElement;
   let router: Router;
 

@@ -11,11 +11,9 @@ import type { ActionResult, AnyObject, RouteContext } from '../types.js';
 import { isFunction } from '../utils.js';
 
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-export default async function resolveRoute<
-  T = unknown,
-  R extends AnyObject = EmptyObject,
-  C extends AnyObject = EmptyObject,
->(context: RouteContext<T, R, C>): Promise<ActionResult<T>> {
+export default async function resolveRoute<R extends AnyObject = EmptyObject>(
+  context: RouteContext<R>,
+): Promise<ActionResult> {
   if (isFunction(context.route.action)) {
     return await context.route.action(context);
   }

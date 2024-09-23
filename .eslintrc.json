@@ -16,16 +16,5 @@
     "tsdoc/syntax": "error",
     "import/prefer-default-export": "off"
   },
-  "overrides": [
-    {
-      "files": [ "vite.config.ts" ],
-      "rules": {
-        "import/no-extraneous-dependencies": [
-          "error", {
-            "devDependencies": true
-          }
-        ]
-      }
-    }
-  ]
+  "ignorePatterns": ["*.cjs"]
 }

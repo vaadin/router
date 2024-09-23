@@ -9,26 +9,30 @@
 import { expect, use } from '@esm-bundle/chai';
 import chaiDom from 'chai-dom';
 import sinonChai from 'sinon-chai';
+import type { EmptyObject } from 'type-fest';
+import type { InternalRoute } from '../../src/internal.js';
 import matchRoute from '../../src/resolver/matchRoute.js';
 import '../setup.js';
+import type { Route } from '../../src/types.js';
 
 use(chaiDom);
 use(sinonChai);
 
-function toArray(gen) {
+function toArray<T>(iter: Iterator<T>): readonly T[] {
   const arr = [];
-  let res = gen.next();
+  let res = iter.next();
   while (!res.done) {
     arr.push(res.value);
-    res = gen.next();
+    res = iter.next();
   }
   return arr;
 }
 
 describe('matchRoute(route, pathname)', () => {
   it('should return a valid iterator', () => {
-    const route = {
+    const route: InternalRoute<EmptyObject> = {
       path: '/a',
+      children: [],
     };
     const result = matchRoute(route, '/a');
     expect(result).to.be.an('object').and.not.be.null;
@@ -45,6 +49,7 @@ describe('matchRoute(route, pathname)', () => {
   it('should yield well-formed match objects', () => {
     const route = {
       path: '/a',
+      children: [],
     };
     const match = matchRoute(route, '/a').next().value;
     expect(match).to.have.property('route').that.is.an('object').and.is.not.null;
@@ -54,13 +59,13 @@ describe('matchRoute(route, pathname)', () => {
   });
 
   it('should treat null route path as ""', () => {
-    const result = toArray(matchRoute({ path: null }, ''));
+    const result = toArray(matchRoute({ path: undefined, children: [] }, ''));
     expect(result).to.have.lengthOf(1);
     expect(result[0]).to.have.nested.property('route.path', null);
   });
 
   it('should treat undefined route path as ""', () => {
-    const result = toArray(matchRoute({ path: undefined }, ''));
+    const result = toArray(matchRoute({ path: undefined, children: [] }, ''));
     expect(result).to.have.lengthOf(1);
     expect(result[0]).to.have.nested.property('route.path', undefined);
   });
@@ -69,24 +74,25 @@ describe('matchRoute(route, pathname)', () => {
     it('should not match a route if it does not match the path', () => {
       const route = {
         path: '/a',
+        children: [],
       };
       const result = toArray(matchRoute(route, '/b'));
       expect(result).to.have.lengthOf(0);
     });
 
     it('should not match a child route that would have matched if it was on the root level', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
-        children: [{ path: '/b' }],
+        children: [{ path: '/b', children: [] }],
       };
       const result = toArray(matchRoute(route, '/b'));
       expect(result).to.have.lengthOf(0);
     });
 
     it('should not match a route sequence which--when literally joined--matches the path', () => {
-      const route = {
+      const route: Route = {
         path: 'a',
-        children: [{ path: 'b' }],
+        children: [{ path: 'b', children: [] }],
       };
       const result = toArray(matchRoute(route, 'ab'));
       expect(result).to.have.lengthOf(0);
@@ -97,6 +103,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a route without children if it matches the path exactly', () => {
       const route = {
         path: '/a',
+        children: [],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(1);
@@ -106,6 +113,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not match a route without children if it matches only a prefix of the path', () => {
       const route = {
         path: '/a',
+        children: [],
       };
       const result = toArray(matchRoute(route, '/a/x'));
       expect(result).to.have.lengthOf(0);
@@ -114,7 +122,11 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a route with children if it matches the path exactly', () => {
       const route = {
         path: '/a',
-        children: [{ path: '/b' }, { path: '/c' }, { path: '/d' }],
+        children: [
+          { path: '/b', children: [] },
+          { path: '/c', children: [] },
+          { path: '/d', children: [] },
+        ],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(1);
@@ -124,7 +136,11 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a route with children if it matches only a prefix of the path', () => {
       const route = {
         path: '/a',
-        children: [{ path: '/b' }, { path: '/c' }, { path: '/d' }],
+        children: [
+          { path: '/b', children: [] },
+          { path: '/c', children: [] },
+          { path: '/d', children: [] },
+        ],
       };
       const result = toArray(matchRoute(route, '/a/x'));
       expect(result).to.have.lengthOf(1);
@@ -132,9 +148,9 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should use prefix-matching if the children property is truthy but is not an array of routes', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
-        children: true,
+        children: () => [{ path: '/b', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a/x'));
       expect(result).to.have.lengthOf(1);
@@ -144,6 +160,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a multi-segment route without children', () => {
       const route = {
         path: '/a/b',
+        children: [],
       };
       const result = toArray(matchRoute(route, '/a/b'));
       expect(result).to.have.lengthOf(1);
@@ -155,7 +172,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match both the parent and one child route (parent first) - single child', () => {
       const route = {
         path: '/a',
-        children: [{ path: '/b' }],
+        children: [{ path: '/b', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a/b'));
       expect(result).to.have.lengthOf(2);
@@ -166,7 +183,11 @@ describe('matchRoute(route, pathname)', () => {
     it('should match both the parent and one child route (parent first) - several children', () => {
       const route = {
         path: '/a',
-        children: [{ path: '/b' }, { path: '/c' }, { path: '/d' }],
+        children: [
+          { path: '/b', children: [] },
+          { path: '/c', children: [] },
+          { path: '/d', children: [] },
+        ],
       };
       const result = toArray(matchRoute(route, '/a/d'));
       expect(result).to.have.lengthOf(2);
@@ -179,7 +200,10 @@ describe('matchRoute(route, pathname)', () => {
     it('should match all sibling routes in their definition order', () => {
       const route = {
         path: '/a',
-        children: [{ path: '/b' }, { path: '/:id' }],
+        children: [
+          { path: '/b', children: [] },
+          { path: '/:id', children: [] },
+        ],
       };
       const result = toArray(matchRoute(route, '/a/b'));
       expect(result).to.have.lengthOf(3);
@@ -192,10 +216,10 @@ describe('matchRoute(route, pathname)', () => {
       const route = {
         path: '/a',
         children: [
-          { path: '/b/c' },
+          { path: '/b/c', children: [] },
           {
             path: '/b',
-            children: [{ path: '/c' }],
+            children: [{ path: '/c', children: [] }],
           },
         ],
       };
@@ -213,9 +237,9 @@ describe('matchRoute(route, pathname)', () => {
         children: [
           {
             path: '/b',
-            children: [{ path: '/c' }],
+            children: [{ path: '/c', children: [] }],
           },
-          { path: '/b/c' },
+          { path: '/b/c', children: [] },
         ],
       };
       const result = toArray(matchRoute(route, '/a/b/c'));
@@ -231,6 +255,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a relative route to a relative path', () => {
       const route = {
         path: 'a',
+        children: [],
       };
       const result = toArray(matchRoute(route, 'a'));
       expect(result).to.have.lengthOf(1);
@@ -240,6 +265,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not match an absolute route to a relative path', () => {
       const route = {
         path: '/a',
+        children: [],
       };
       const result = toArray(matchRoute(route, 'a'));
       expect(result).to.have.lengthOf(0);
@@ -248,6 +274,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not match a relative route to an absolute path', () => {
       const route = {
         path: 'a',
+        children: [],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(0);
@@ -256,6 +283,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a route with a trailing "/" and no children to a path with a trailing "/"', () => {
       const route = {
         path: 'a/',
+        children: [],
       };
       const result = toArray(matchRoute(route, 'a/'));
       expect(result).to.have.lengthOf(1);
@@ -265,7 +293,11 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a route with a trailing "/" and some children to a path with a trailing "/"', () => {
       const route = {
         path: 'a/',
-        children: [{ path: '/b' }, { path: '/c' }, { path: '/d' }],
+        children: [
+          { path: '/b', children: [] },
+          { path: '/c', children: [] },
+          { path: '/d', children: [] },
+        ],
       };
       const result = toArray(matchRoute(route, 'a/'));
       expect(result).to.have.lengthOf(1);
@@ -275,7 +307,11 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a route with a trailing "/" and some children to a path with more segments', () => {
       const route = {
         path: 'a/',
-        children: [{ path: '/b' }, { path: '/c' }, { path: '/d' }],
+        children: [
+          { path: '/b', children: [] },
+          { path: '/c', children: [] },
+          { path: '/d', children: [] },
+        ],
       };
       const result = toArray(matchRoute(route, 'a/x'));
       expect(result).to.have.lengthOf(1);
@@ -285,6 +321,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not match a route with a trailing "/" to a path without a trailing "/"', () => {
       const route = {
         path: '/a/',
+        children: [],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(0);
@@ -293,6 +330,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a route without a trailing "/" to a path with a trailing "/"', () => {
       const route = {
         path: '/a',
+        children: [],
       };
       const result = toArray(matchRoute(route, '/a/'));
       expect(result).to.have.lengthOf(1);
@@ -302,7 +340,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match child routes without the leading "/"', () => {
       const route = {
         path: '/a',
-        children: [{ path: 'b' }],
+        children: [{ path: 'b', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a/b'));
       expect(result).to.have.lengthOf(2);
@@ -313,7 +351,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match parent routes with a trailing "/" and child routes with a leading "/"', () => {
       const route = {
         path: '/a/',
-        children: [{ path: '/b' }],
+        children: [{ path: '/b', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a/b'));
       expect(result).to.have.lengthOf(2);
@@ -324,7 +362,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match parent routes with a trailing "/" and child routes without a leading "/"', () => {
       const route = {
         path: '/a/',
-        children: [{ path: 'b' }],
+        children: [{ path: 'b', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a/b'));
       expect(result).to.have.lengthOf(2);
@@ -338,7 +376,7 @@ describe('matchRoute(route, pathname)', () => {
         children: [
           {
             path: 'b',
-            children: [{ path: 'c' }],
+            children: [{ path: 'c', children: [] }],
           },
         ],
       };
@@ -352,7 +390,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match child routes if the path has a trailing "/"', () => {
       const route = {
         path: '/a',
-        children: [{ path: 'b' }],
+        children: [{ path: 'b', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a/b/'));
       expect(result).to.have.lengthOf(2);
@@ -363,15 +401,19 @@ describe('matchRoute(route, pathname)', () => {
 
   describe('"" and "/" routes', () => {
     it('should not match a "" route without children to any other path than ""', () => {
-      expect(toArray(matchRoute({ path: '' }, '/'))).to.have.lengthOf(0);
-      expect(toArray(matchRoute({ path: '' }, '/a'))).to.have.lengthOf(0);
-      expect(toArray(matchRoute({ path: '' }, 'a'))).to.have.lengthOf(0);
+      expect(toArray(matchRoute({ path: '', children: [] }, '/'))).to.have.lengthOf(0);
+      expect(toArray(matchRoute({ path: '', children: [] }, '/a'))).to.have.lengthOf(0);
+      expect(toArray(matchRoute({ path: '', children: [] }, 'a'))).to.have.lengthOf(0);
     });
 
     it('should match a "" route with children to an absolute path', () => {
       const route = {
         path: '',
-        children: [{ path: '/b' }, { path: '/c' }, { path: '/d' }],
+        children: [
+          { path: '/b', children: [] },
+          { path: '/c', children: [] },
+          { path: '/d', children: [] },
+        ],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(1);
@@ -381,7 +423,11 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a "" route with children to an relative path', () => {
       const route = {
         path: '',
-        children: [{ path: '/b' }, { path: '/c' }, { path: '/d' }],
+        children: [
+          { path: '/b', children: [] },
+          { path: '/c', children: [] },
+          { path: '/d', children: [] },
+        ],
       };
       const result = toArray(matchRoute(route, 'a'));
       expect(result).to.have.lengthOf(1);
@@ -391,7 +437,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match absolute children of a "" route to an absolute path', () => {
       const route = {
         path: '',
-        children: [{ path: '/a' }],
+        children: [{ path: '/a', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(2);
@@ -402,7 +448,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match relative children of a "" route to a relative path', () => {
       const route = {
         path: '',
-        children: [{ path: 'a' }],
+        children: [{ path: 'a', children: [] }],
       };
       const result = toArray(matchRoute(route, 'a'));
       expect(result).to.have.lengthOf(2);
@@ -413,7 +459,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not match absolute children of a "" route to an relative path', () => {
       const route = {
         path: '',
-        children: [{ path: '/a' }],
+        children: [{ path: '/a', children: [] }],
       };
       const result = toArray(matchRoute(route, 'a'));
       expect(result).to.have.lengthOf(1);
@@ -422,7 +468,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not match relative children of a "" route to an absolute path', () => {
       const route = {
         path: '',
-        children: [{ path: 'a' }],
+        children: [{ path: 'a', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(1);
@@ -431,7 +477,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a child "" route if the path does not have a trailing "/"', () => {
       const route = {
         path: '/a',
-        children: [{ path: '' }],
+        children: [{ path: '', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(2);
@@ -442,7 +488,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a child "" route if the path does have a trailing "/"', () => {
       const route = {
         path: '/a',
-        children: [{ path: '' }],
+        children: [{ path: '', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a/'));
       expect(result).to.have.lengthOf(2);
@@ -458,7 +504,7 @@ describe('matchRoute(route, pathname)', () => {
           {
             path: '',
             name: 'child',
-            children: [{ path: 'a' }],
+            children: [{ path: 'a', children: [] }],
           },
         ],
       };
@@ -481,7 +527,10 @@ describe('matchRoute(route, pathname)', () => {
               {
                 path: '',
                 name: 'level-3',
-                children: [{ path: '', name: 'level-4' }, { path: '/a' }],
+                children: [
+                  { path: '', name: 'level-4', children: [] },
+                  { path: '/a', children: [] },
+                ],
               },
             ],
           },
@@ -496,15 +545,19 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not match a "/" route without children to any other path than "/"', () => {
-      expect(toArray(matchRoute({ path: '/' }, ''))).to.have.lengthOf(0);
-      expect(toArray(matchRoute({ path: '/' }, '/a'))).to.have.lengthOf(0);
-      expect(toArray(matchRoute({ path: '/' }, 'a'))).to.have.lengthOf(0);
+      expect(toArray(matchRoute({ path: '/', children: [] }, ''))).to.have.lengthOf(0);
+      expect(toArray(matchRoute({ path: '/', children: [] }, '/a'))).to.have.lengthOf(0);
+      expect(toArray(matchRoute({ path: '/', children: [] }, 'a'))).to.have.lengthOf(0);
     });
 
     it('should match a "/" route with children to an absolute path', () => {
       const route = {
         path: '/',
-        children: [{ path: '/b' }, { path: '/c' }, { path: '/d' }],
+        children: [
+          { path: '/b', children: [] },
+          { path: '/c', children: [] },
+          { path: '/d', children: [] },
+        ],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(1);
@@ -514,7 +567,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not match a "/" route with children to a relative path', () => {
       const route = {
         path: '/',
-        children: [{ path: 'a' }],
+        children: [{ path: 'a', children: [] }],
       };
       const result = toArray(matchRoute(route, 'a'));
       expect(result).to.have.lengthOf(0);
@@ -523,7 +576,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match (absolute) children of a "/" route', () => {
       const route = {
         path: '/',
-        children: [{ path: '/a' }],
+        children: [{ path: '/a', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(2);
@@ -534,7 +587,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match (relative) children of a "/" route', () => {
       const route = {
         path: '/',
-        children: [{ path: 'a' }],
+        children: [{ path: 'a', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(2);
@@ -545,7 +598,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a child "/" route if the path does not have a trailing "/"', () => {
       const route = {
         path: '/a',
-        children: [{ path: '/' }],
+        children: [{ path: '/', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a'));
       expect(result).to.have.lengthOf(2);
@@ -556,7 +609,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should match a child "/" route if the path does have a trailing "/"', () => {
       const route = {
         path: '/a',
-        children: [{ path: '/' }],
+        children: [{ path: '/', children: [] }],
       };
       const result = toArray(matchRoute(route, '/a/'));
       expect(result).to.have.lengthOf(2);
@@ -572,7 +625,7 @@ describe('matchRoute(route, pathname)', () => {
           {
             path: '/',
             name: 'child',
-            children: [{ path: 'a' }],
+            children: [{ path: 'a', children: [] }],
           },
         ],
       };
@@ -595,7 +648,10 @@ describe('matchRoute(route, pathname)', () => {
               {
                 path: '/',
                 name: 'level-3',
-                children: [{ path: '/', name: 'level-4' }, { path: '/a' }],
+                children: [
+                  { path: '/', name: 'level-4', children: [] },
+                  { path: '/a', children: [] },
+                ],
               },
             ],
           },
@@ -617,7 +673,7 @@ describe('matchRoute(route, pathname)', () => {
           {
             path: '',
             name: 'child',
-            children: [{ path: '/a' }],
+            children: [{ path: '/a', children: [] }],
           },
         ],
       };
@@ -635,7 +691,7 @@ describe('matchRoute(route, pathname)', () => {
           {
             path: '',
             name: 'child',
-            children: [{ path: 'a' }],
+            children: [{ path: 'a', children: [] }],
           },
         ],
       };
@@ -651,6 +707,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should contain the keys and params of the matched route', () => {
       const route = {
         path: '/a/:b',
+        children: [],
       };
 
       const result = toArray(matchRoute(route, '/a/1'));
@@ -661,7 +718,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should contain the keys and params of the parent route', () => {
       const route = {
         path: '/a/:b',
-        children: [{ path: '/:c' }],
+        children: [{ path: '/:c', children: [] }],
       };
 
       const result = toArray(matchRoute(route, '/a/1/2'));
@@ -672,7 +729,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should be empty if neither the matched route nor its parents have any params', () => {
       const route = {
         path: '/a',
-        children: [{ path: '/b' }],
+        children: [{ path: '/b', children: [] }],
       };
 
       const result = toArray(matchRoute(route, '/a/b'));
@@ -685,7 +742,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not contain the keys and params of the child routes', () => {
       const route = {
         path: '/a/:b',
-        children: [{ path: '/:c' }],
+        children: [{ path: '/:c', children: [] }],
       };
 
       const result = toArray(matchRoute(route, '/a/1/2'));
@@ -696,7 +753,10 @@ describe('matchRoute(route, pathname)', () => {
     it('should not contain the keys and params of the sibling routes', () => {
       const route = {
         path: '/a/:b',
-        children: [{ path: '/:c' }, { path: '/2' }],
+        children: [
+          { path: '/:c', children: [] },
+          { path: '/2', children: [] },
+        ],
       };
 
       const result = toArray(matchRoute(route, '/a/1/2'));
@@ -707,7 +767,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should override a parent route param value with that of a child route if the param names collide', () => {
       const route = {
         path: '/a/:b',
-        children: [{ path: '/:b' }],
+        children: [{ path: '/:b', children: [] }],
       };
 
       const result = toArray(matchRoute(route, '/a/1/2'));
@@ -717,7 +777,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not override a parent route param value with `undefined` (for an optional child param)', () => {
       const route = {
         path: '/a/:b',
-        children: [{ path: '/:b?' }],
+        children: [{ path: '/:b?', children: [] }],
       };
 
       const result = toArray(matchRoute(route, '/a/1'));
@@ -727,7 +787,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not override a parent route param value in the parent match', () => {
       const route = {
         path: '/a/:b',
-        children: [{ path: '/:b' }],
+        children: [{ path: '/:b', children: [] }],
       };
 
       const result = toArray(matchRoute(route, '/a/1'));
