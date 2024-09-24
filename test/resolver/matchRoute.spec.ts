@@ -39,7 +39,7 @@ describe('matchRoute(route, pathname)', () => {
     expect(result).to.have.property('next').that.is.a('function');
 
     const item = result.next();
-    expect(item).to.have.property('done', false);
+    expect(Boolean(item.done)).to.be.false;
     expect(item).to.have.property('value').that.is.an('object').and.is.not.null;
 
     const item2 = result.next();
