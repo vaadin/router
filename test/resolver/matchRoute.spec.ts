@@ -58,12 +58,6 @@ describe('matchRoute(route, pathname)', () => {
     expect(match).to.have.property('path').that.is.an('string').and.is.not.null;
   });
 
-  it('should treat null route path as ""', () => {
-    const result = toArray(matchRoute({ path: undefined, children: [] }, ''));
-    expect(result).to.have.lengthOf(1);
-    expect(result[0]).to.have.nested.property('route.path', null);
-  });
-
   it('should treat undefined route path as ""', () => {
     const result = toArray(matchRoute({ path: undefined, children: [] }, ''));
     expect(result).to.have.lengthOf(1);
