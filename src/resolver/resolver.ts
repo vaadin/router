@@ -9,7 +9,15 @@
 import type { EmptyObject } from 'type-fest';
 import type { InternalRouteContext, InternalRoute } from '../internal.js';
 import type { ActionResult, AnyObject, Route, MaybePromise } from '../types.js';
-import { ensureRoutes, getNotFoundError, getRoutePath, isString, notFoundResult, toArray } from '../utils.js';
+import {
+  ensureRoutes,
+  getNotFoundError,
+  getRoutePath,
+  isString,
+  NotFoundError,
+  notFoundResult,
+  toArray
+} from '../utils.js';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
 
@@ -251,7 +259,8 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
     }
 
     return await next(true, this.root).catch((error: unknown) => {
-      const _error = new ResolutionError(currentContext, { code: 500, cause: error });
+      const _error =
+        error instanceof NotFoundError ? error : new ResolutionError(currentContext, { code: 500, cause: error });
 
       if (this.errorHandler) {
         currentContext.result = this.errorHandler(_error);

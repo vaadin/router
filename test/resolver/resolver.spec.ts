@@ -12,7 +12,7 @@ import chaiAsPromised from 'chai-as-promised';
 import chaiDom from 'chai-dom';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import Resolver from '../../src/resolver/resolver.js';
+import Resolver, { ResolutionError } from '../../src/resolver/resolver.js';
 import '../setup.js';
 import type { AnyObject, RouteContext } from '../../src/types.js';
 
@@ -53,10 +53,11 @@ describe('Resolver', () => {
     });
 
     it('should support custom error handler option', async () => {
-      const errorHandler = sinon.spy(() => 'result');
+      const errorResult = document.createElement('error-result');
+      const errorHandler = sinon.spy(() => errorResult);
       const resolver = new Resolver([], { errorHandler });
       const result = await resolver.resolve('/');
-      expect(result).to.be.equal('result');
+      expect(result).to.be.equal(errorResult);
       expect(errorHandler.calledOnce).to.be.true;
       const error = errorHandler.firstCall.firstArg;
       expect(error).to.be.an('error');
@@ -68,7 +69,8 @@ describe('Resolver', () => {
     });
 
     it('should handle route errors', async () => {
-      const errorHandler = sinon.spy(() => 'result');
+      const errorResult = document.createElement('error-result');
+      const errorHandler = sinon.spy(() => errorResult);
       const route = {
         action: () => {
           throw new Error('custom');
@@ -77,12 +79,13 @@ describe('Resolver', () => {
       };
       const resolver = new Resolver<string>(route, { errorHandler });
       const result = await resolver.resolve('/');
-      expect(result).to.be.equal('result');
+      expect(result).to.be.equal(errorResult);
       expect(errorHandler).to.be.calledOnce;
 
-      const error = errorHandler.firstCall.firstArg;
-      expect(error).to.be.an('error');
-      expect(error).to.have.property('message').that.equals('custom');
+      const error: ResolutionError<Error> = errorHandler.firstCall.firstArg;
+      expect(error).to.be.instanceof(ResolutionError);
+      expect(error.cause).to.be.an('error');
+      expect(error.cause).to.have.property('message').that.equals('custom');
       expect(error).to.have.property('code', 500);
       expect(error).to.have.property('context').that.includes({ pathname: '/', resolver });
       expect(error).to.have.nested.property('context.route').that.includes(route);
@@ -142,7 +145,7 @@ describe('Resolver', () => {
         .to.have.property('message')
         .that.matches(/Page not found/u);
       expect(error).to.have.property('code').that.equals(404);
-      expect(error).to.have.property('context').that.includes({ path: undefined, pathname: '/', resolver });
+      expect(error).to.have.property('context').that.includes({ pathname: '/', resolver });
     });
 
     it("should execute the matching route's action method and return its result", async () => {
