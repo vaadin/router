@@ -111,6 +111,6 @@ export function getRoutePath<R extends AnyObject>(route: Route<R> | undefined): 
 
 export function unwrapChildren<R extends AnyObject>(
   children: ChildrenCallback<R> | ReadonlyArray<Route<R>> | undefined,
-): ReadonlyArray<Route<R>> {
-  return Array.isArray<ReadonlyArray<Route<R>>>(children) ? children : [];
+): ReadonlyArray<Route<R>> | undefined {
+  return Array.isArray<ReadonlyArray<Route<R>>>(children) && children.length > 0 ? children : undefined;
 }

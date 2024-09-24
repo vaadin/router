@@ -92,10 +92,11 @@ function matchRoute<R extends AnyObject>(
       }
 
       route.__children ??= unwrapChildren(route.children);
-      const children = route.__children;
+      const children = route.__children ?? [];
+      const exact = !route.__children && !route.children;
 
       if (!match) {
-        match = matchPath(routepath, pathname, children.length === 0 && !(isFunction(route.children)), parentKeys, parentParams);
+        match = matchPath(routepath, pathname, exact, parentKeys, parentParams);
 
         if (match) {
           return {

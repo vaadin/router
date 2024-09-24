@@ -243,7 +243,8 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
 
       currentContext = {
         ...context,
-        ...matches.value,
+        params: matches.value.params,
+        route: matches.value.route,
         chain: currentContext.chain?.slice(),
       };
       updateChainForRoute(currentContext, matches.value);

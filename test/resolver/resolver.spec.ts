@@ -699,7 +699,7 @@ describe('Resolver', () => {
         .that.matches(/Page not found/u);
       expect(err).to.have.property('code').that.equals(404);
       expect(err).to.have.nested.property('context.pathname').that.equals('/a/b/c');
-      expect(err).to.have.nested.property('context.path').that.equals(undefined);
+      expect(err).to.not.have.nested.property('context.path');
       expect(err).to.have.nested.property('context.resolver').that.equals(resolver);
     });
 
