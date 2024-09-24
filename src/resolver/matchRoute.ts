@@ -10,7 +10,7 @@
 import type { Key } from 'path-to-regexp';
 import type { InternalRoute } from '../internal.js';
 import type { AnyObject, IndexedParams } from '../types.js';
-import { getRoutePath, unwrapChildren } from '../utils.js';
+import {getRoutePath, isFunction, unwrapChildren} from '../utils.js';
 import matchPath, { type Match } from './matchPath.js';
 
 export type MatchWithRoute<R extends AnyObject> = Match &
@@ -95,7 +95,7 @@ function matchRoute<R extends AnyObject>(
       const children = route.__children;
 
       if (!match) {
-        match = matchPath(routepath, pathname, !children, parentKeys, parentParams);
+        match = matchPath(routepath, pathname, children.length === 0 && !(isFunction(route.children)), parentKeys, parentParams);
 
         if (match) {
           return {
