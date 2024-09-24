@@ -1,71 +1,60 @@
-import { expect } from '@esm-bundle/chai';
+/* eslint-disable @typescript-eslint/no-unused-expressions, no-unused-expressions */
+/* eslint-enable chai-friendly/no-unused-expressions */
 
-export async function waitForNavigation() {
-  return new Promise((resolve) => {
-    window.addEventListener('popstate', resolve, { once: true });
+import { expect } from '@esm-bundle/chai';
+import type { Commands, RouteContext, Router, WebComponentInterface } from '../../src/index.js';
+
+export type NamedWebComponent = WebComponentInterface & { name?: string };
+
+export async function waitForNavigation(): Promise<void> {
+  return await new Promise((resolve) => {
+    window.addEventListener('popstate', () => resolve(), { once: true });
   });
 }
 
-export function cleanup(element: Element) {
+export function cleanup(element: Element): void {
   element.innerHTML = '';
 }
 
-export function verifyActiveRoutes(router, expectedSegments) {
-  expect(router.__previousContext.chain.map((item) => item.route.path)).to.deep.equal(expectedSegments);
+export function verifyActiveRoutes(router: Router, expectedSegments: string[]): void {
+  // @ts-expect-error: __previousContext is a private property
+  expect(router.__previousContext?.chain?.map((item) => item.route?.path)).to.deep.equal(expectedSegments);
 }
 
-export function onBeforeLeaveAction(componentName, callback, name) {
-  return (context, commands) => {
-    const component = commands.component(componentName);
-    component.name = name;
-    component.onBeforeLeave = callback;
-    return component;
-  };
+function createWebComponentAction<T extends keyof WebComponentInterface>(method: T) {
+  return (componentName: string, callback: WebComponentInterface[T], name: string = 'unknown') =>
+    (_context: RouteContext, commands: Commands): NamedWebComponent => {
+      const component = commands.component(componentName) as NamedWebComponent;
+      component.name = name;
+      component[method] = callback;
+      return component;
+    };
 }
 
-export function onBeforeEnterAction(componentName, callback, name) {
-  return (context, commands) => {
-    const component = commands.component(componentName);
-    component.name = name;
-    component.onBeforeEnter = callback;
-    return component;
-  };
-}
+export const onBeforeLeaveAction = createWebComponentAction('onBeforeLeave');
+export const onBeforeEnterAction = createWebComponentAction('onBeforeEnter');
+export const onAfterEnterAction = createWebComponentAction('onAfterEnter');
+export const onAfterLeaveAction = createWebComponentAction('onAfterLeave');
 
-export function onAfterEnterAction(componentName, callback, name) {
-  return (context, commands) => {
-    const component = commands.component(componentName);
-    component.name = name;
-    component.onAfterEnter = callback;
-    return component;
-  };
-}
-
-export function onAfterLeaveAction(componentName, callback, name) {
-  return (context, commands) => {
-    const component = commands.component(componentName);
-    component.name = name;
-    component.onAfterLeave = callback;
-    return component;
-  };
-}
-
-export function checkOutletContents(root, valueGetter, expectedValues) {
+export function checkOutletContents<T extends Element>(
+  root: T,
+  valueGetter: keyof T,
+  expectedValues: readonly string[],
+): void {
   let currentElementToCheck = root;
-  for (let i = 0; i < expectedValues.length; i++) {
-    const expectedValue = expectedValues[i];
-    expect(currentElementToCheck, `Failed to find a child '${expectedValue}'`).to.be.ok;
-    expect(currentElementToCheck[valueGetter]).to.match(new RegExp(expectedValue, 'i'));
+  for (const expectedValue of expectedValues) {
+    expect(currentElementToCheck, `Failed to find a child '${expectedValue}'`).to.exist;
+    expect(currentElementToCheck[valueGetter]).to.match(new RegExp(expectedValue, 'ui'));
     expect(
       currentElementToCheck.children.length,
       `Expect each outlet element to have no more than 1 child`,
     ).to.be.below(2);
-    currentElementToCheck = currentElementToCheck.children[0];
+    currentElementToCheck = currentElementToCheck.children[0] as T;
   }
   expect(
     currentElementToCheck,
-    `Got '${expectedValues}' values to check but got at least one more child in outlet: '${
-      (currentElementToCheck || {})[valueGetter]
-    }'`,
+    `Got '${String(expectedValues)}' values to check but got at least one more child in outlet: '${String(
+      currentElementToCheck[valueGetter],
+    )}'`,
   ).to.be.an('undefined');
 }

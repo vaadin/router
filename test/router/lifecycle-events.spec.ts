@@ -1,8 +1,9 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
+import { Router, type RouterLocation } from '../../src/index.js';
 import Resolver from '../../src/resolver/resolver.js';
-import { Router, type RouterLocation } from '../../src/router.js';
 import '../setup.js';
+import type { Commands, EmptyCommands, RouteContext, WebComponentInterface } from '../../src/types.js';
 import {
   checkOutletContents,
   cleanup,
@@ -11,47 +12,60 @@ import {
   onBeforeEnterAction,
   onBeforeLeaveAction,
   verifyActiveRoutes,
-  waitForNavigation,
+  type NamedWebComponent,
 } from './test-utils.js';
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'x-persistent-view': HTMLElement;
+    'x-spy': XSpy;
+  }
+}
+
+let callbacksLog: string[] = [];
 
 class XSpy extends HTMLElement {
   location?: RouterLocation;
   name?: string;
 
   connectedCallback() {
-    callbacksLog.push(`${this.name || 'x-spy'}.connectedCallback`);
+    callbacksLog.push(`${this.name ?? 'x-spy'}.connectedCallback`);
   }
   disconnectedCallback() {
-    callbacksLog.push(`${this.name || 'x-spy'}.disconnectedCallback`);
+    callbacksLog.push(`${this.name ?? 'x-spy'}.disconnectedCallback`);
   }
   onBeforeEnter() {
-    callbacksLog.push(`${this.name || 'x-spy'}.onBeforeEnter`);
+    callbacksLog.push(`${this.name ?? 'x-spy'}.onBeforeEnter`);
   }
   onAfterEnter() {
-    callbacksLog.push(`${this.name || 'x-spy'}.onAfterEnter`);
+    callbacksLog.push(`${this.name ?? 'x-spy'}.onAfterEnter`);
   }
   onBeforeLeave() {
-    callbacksLog.push(`${this.name || 'x-spy'}.onBeforeLeave`);
+    callbacksLog.push(`${this.name ?? 'x-spy'}.onBeforeLeave`);
   }
   onAfterLeave() {
-    callbacksLog.push(`${this.name || 'x-spy'}.onAfterLeave`);
+    callbacksLog.push(`${this.name ?? 'x-spy'}.onAfterLeave`);
   }
 }
 customElements.define('x-spy', XSpy);
 
-let callbacksLog: string[] = [];
+function extractLifeCycleCallbackCallArgs(
+  callback: sinon.SinonSpy,
+): readonly [location: RouterLocation, commands: Commands, router: Router] {
+  return callback.firstCall.args as [RouterLocation, Commands, Router];
+}
 
-const elementWithAllLifecycleCallbacks = (elementName) => (context, commands) => {
+const elementWithAllLifecycleCallbacks = (elementName: string) => (_context: RouteContext, commands: Commands) => {
   callbacksLog.push(`${elementName}.action`);
-  const component = commands.component('x-spy');
+  const component = commands.component('x-spy') as WebComponentInterface & { name?: string };
   component.name = elementName;
   return component;
 };
 
-const elementWithUserParameter = () => (context, commands) => {
-  const elementName = `x-user-${context.params.user}`;
+const elementWithUserParameter = () => (context: RouteContext, commands: Commands) => {
+  const elementName = `x-user-${String(context.params.user ?? '')}`;
   callbacksLog.push(`${elementName}.action`);
-  const component = commands.component('x-spy');
+  const component = commands.component('x-spy') as NamedWebComponent;
   if (!component.name) {
     component.name = elementName;
   }
@@ -59,25 +73,22 @@ const elementWithUserParameter = () => (context, commands) => {
 };
 
 describe('Vaadin Router lifecycle events', () => {
-  const verifyCallbacks = (expectedCallbacks) => {
+  const verifyCallbacks = (expectedCallbacks: readonly string[]) => {
     expect(callbacksLog).to.be.an('array');
     expect(expectedCallbacks).to.be.an('array');
 
     try {
       expect(callbacksLog).to.deep.equal(expectedCallbacks);
     } catch (e) {
-      if (console.table) {
-        const comparisonTable = [['expected', 'actual']];
-        for (let i = 0; i < Math.max(expectedCallbacks.length, callbacksLog.length); i++) {
-          comparisonTable.push([expectedCallbacks[i], callbacksLog[i]]);
-        }
-        console.table(comparisonTable);
+      const comparisonTable = [['expected', 'actual']];
+      for (let i = 0; i < Math.max(expectedCallbacks.length, callbacksLog.length); i++) {
+        comparisonTable.push([expectedCallbacks[i], callbacksLog[i]]);
       }
+      // eslint-disable-next-line no-console
+      console.table(comparisonTable);
       throw e;
     }
   };
-
-  const DEFAULT_URL = location.href;
 
   let outlet: HTMLElement;
   let router: Router;
@@ -91,12 +102,12 @@ describe('Vaadin Router lifecycle events', () => {
     outlet.remove();
   });
 
-  beforeEach(async function () {
+  beforeEach(() => {
     // create a new router instance
     router = new Router(outlet);
   });
 
-  afterEach(async () => {
+  afterEach(() => {
     router.unsubscribe();
     cleanup(outlet);
     callbacksLog = [];
@@ -105,46 +116,45 @@ describe('Vaadin Router lifecycle events', () => {
   describe('onBeforeEnter', () => {
     it('should be called with 3 arguments: [location, commands, router]', async () => {
       const onBeforeEnter = sinon.spy();
-      router.setRoutes([{ path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter) }], true);
+      await router.setRoutes([{ path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter) }], true);
 
       await router.render('/');
 
       expect(onBeforeEnter).to.have.been.calledOnce;
       expect(onBeforeEnter.args[0].length).to.equal(3);
 
-      const location = onBeforeEnter.args[0][0];
-      expect(location.pathname).to.equal('/');
-      expect(location.route.path).to.equal('/');
+      const [location, commands, routerArg] = extractLifeCycleCallbackCallArgs(onBeforeEnter);
 
-      const commands = onBeforeEnter.args[0][1];
+      expect(location.pathname).to.equal('/');
+      expect(location.route?.path).to.equal('/');
+
       expect(commands).to.be.an('object').that.is.not.null;
 
-      const routerArg = onBeforeEnter.args[0][2];
       expect(routerArg).to.equal(router);
 
-      expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+      expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
     });
 
     it('should be called on the route web component instance (as `this`)', async () => {
       const onBeforeEnter = sinon.spy();
-      router.setRoutes([{ path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter) }]);
+      await router.setRoutes([{ path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter) }]);
 
       await router.render('/');
 
       expect(onBeforeEnter).to.have.been.calledOn(outlet.children[0]);
-      expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+      expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
     });
 
     it('should be able to return a `prevent` command to prevent navigation', async () => {
-      router.setRoutes([
-        { path: '/', action: onBeforeEnterAction('whatever', (location, commands) => commands.prevent()) },
+      await router.setRoutes([
+        { path: '/', action: onBeforeEnterAction('whatever', (_location, commands) => commands.prevent()) },
         { path: '/users', component: 'x-users-list' },
       ]);
 
       await router.render('/users');
       await router.render('/');
 
-      expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+      expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
       verifyActiveRoutes(router, ['/users']);
     });
 
@@ -152,10 +162,10 @@ describe('Vaadin Router lifecycle events', () => {
       // this test is not failed on chrome before #365
       // probably because of https://bugs.chromium.org/p/chromium/issues/detail?id=983094
       let preventNavigation = false;
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/',
-          action: onBeforeEnterAction('x-home-view', (location, commands) => preventNavigation && commands.prevent()),
+          action: onBeforeEnterAction('x-home-view', (_location, commands) => preventNavigation && commands.prevent()),
         },
         { path: '/users', component: 'x-users-list' },
       ]);
@@ -170,58 +180,58 @@ describe('Vaadin Router lifecycle events', () => {
       await router.ready;
       expect(window.location.pathname).to.be.equal('/users');
 
-      expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+      expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
       verifyActiveRoutes(router, ['/users']);
     });
 
     it('should be able to return a `redirect` command to redirect navigation', async () => {
-      router.setRoutes([
-        { path: '/', action: onBeforeEnterAction('whatever', (location, commands) => commands.redirect('/users')) },
+      await router.setRoutes([
+        { path: '/', action: onBeforeEnterAction('whatever', (_location, commands) => commands.redirect('/users')) },
         { path: '/users', component: 'x-users-list' },
       ]);
 
       await router.render('/');
 
-      expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+      expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
       verifyActiveRoutes(router, ['/users']);
     });
 
     it('should be able to have multiple redirects', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/',
-          action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/u')),
+          action: onBeforeEnterAction('x-redirect-component', (_location, commands) => commands.redirect('/u')),
         },
         {
           path: '/u',
-          action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/users')),
+          action: onBeforeEnterAction('x-redirect-component', (_location, commands) => commands.redirect('/users')),
         },
         { path: '/users', component: 'x-users-list' },
       ]);
 
       await router.render('/');
 
-      expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+      expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
       verifyActiveRoutes(router, ['/users']);
     });
 
     it('should fail on recursive redirects', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/',
-          action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/u')),
+          action: onBeforeEnterAction('x-redirect-component', (_location, commands) => commands.redirect('/u')),
         },
         {
           path: '/u',
-          action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/users')),
+          action: onBeforeEnterAction('x-redirect-component', (_location, commands) => commands.redirect('/users')),
         },
         {
           path: '/users',
-          action: onBeforeEnterAction('x-redirect-component', (location, commands) => commands.redirect('/')),
+          action: onBeforeEnterAction('x-redirect-component', (_location, commands) => commands.redirect('/')),
         },
       ]);
 
-      const onError = sinon.spy();
+      const onError = sinon.spy((_: unknown) => {});
       await router.render('/').catch(onError);
 
       expect(outlet.children).to.have.lengthOf(0);
@@ -235,6 +245,7 @@ describe('Vaadin Router lifecycle events', () => {
         0,
         42,
         [],
+        // eslint-disable-next-line camelcase
         { not_a_redirect: true },
         null,
         undefined,
@@ -243,33 +254,32 @@ describe('Vaadin Router lifecycle events', () => {
         document.createElement('div'),
       ];
 
-      for (let i = 0; i < values.length; i += 1) {
-        const onBeforeEnter = sinon.stub().returns(values[i]);
-        router.setRoutes([
-          { path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter) },
-          { path: '/users', component: 'x-users-list' },
-        ]);
+      await Promise.all(
+        values.map(async (value) => {
+          const onBeforeEnter = sinon.stub().returns(value);
+          await router.setRoutes([
+            { path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter) },
+            { path: '/users', component: 'x-users-list' },
+          ]);
 
-        await router.render('/');
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-        verifyActiveRoutes(router, ['/']);
-      }
+          await router.render('/');
+          expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
+          verifyActiveRoutes(router, ['/']);
+        }),
+      );
     });
 
     it('should support returning a promise (and continue the resolve pass after the promise resolves)', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
           action: onBeforeEnterAction(
             'x-spy',
-            function () {
+            () => {
               callbacksLog.push('a.onBeforeEnter');
-              return new Promise((resolve) => {
-                setTimeout(() => {
-                  callbacksLog.push('a.onBeforeEnter.promise');
-                  resolve();
-                }, 100);
-              });
+              setTimeout(() => {
+                callbacksLog.push('a.onBeforeEnter.promise');
+              }, 100);
             },
             'a',
           ),
@@ -284,24 +294,25 @@ describe('Vaadin Router lifecycle events', () => {
 
     it('should not re-render the same component if `onBeforeLeave` prevented navigation', async () => {
       let counter = 0;
+
       customElements.define(
         'x-persistent-view',
-        class extends HTMLElement {
-          connectedCallback() {
-            counter++;
+        class PersistentView extends HTMLElement implements WebComponentInterface {
+          connectedCallback(): void {
+            counter += 1;
           }
-          onBeforeLeave(location, commands) {
+          onBeforeLeave(_location: RouterLocation, commands: Commands) {
             return commands.prevent();
           }
         },
       );
-      router.setRoutes([
+      await router.setRoutes([
         { path: '/', component: 'x-home-view' },
         { path: '/users', component: 'x-persistent-view' },
       ]);
       await router.render('/users');
       await router.render('/');
-      expect(outlet.children[0].tagName).to.match(/x-persistent-view/i);
+      expect(outlet.children[0].tagName).to.match(/x-persistent-view/iu);
       expect(counter).to.equal(1);
     });
   });
@@ -309,7 +320,7 @@ describe('Vaadin Router lifecycle events', () => {
   describe('onBeforeLeave', () => {
     it('should be called with 3 arguments: [location, commands, router]', async () => {
       const onBeforeLeave = sinon.spy();
-      router.setRoutes([
+      await router.setRoutes([
         { path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave) },
         { path: '/users', component: 'x-users-list' },
       ]);
@@ -322,22 +333,21 @@ describe('Vaadin Router lifecycle events', () => {
       expect(onBeforeLeave).to.have.been.calledOnce;
       expect(onBeforeLeave.args[0].length).to.equal(3);
 
-      const location = onBeforeLeave.args[0][0];
-      expect(location.pathname).to.equal('/users');
-      expect(location.route.path).to.equal('/users');
+      const [location, commands, routerArg] = extractLifeCycleCallbackCallArgs(onBeforeLeave);
 
-      const commands = onBeforeLeave.args[0][1];
+      expect(location.pathname).to.equal('/users');
+      expect(location.route?.path).to.equal('/users');
+
       expect(commands).to.be.an('object').that.is.not.null;
 
-      const routerArg = onBeforeLeave.args[0][2];
       expect(routerArg).to.equal(router);
 
-      expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+      expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
     });
 
     it('should be called on the route web component instance (as `this`)', async () => {
       const onBeforeLeave = sinon.spy();
-      router.setRoutes([
+      await router.setRoutes([
         { path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave) },
         { path: '/users', component: 'x-users-list' },
       ]);
@@ -348,19 +358,19 @@ describe('Vaadin Router lifecycle events', () => {
       await router.render('/users');
 
       expect(onBeforeLeave).to.have.been.calledOn(homeViewElement);
-      expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+      expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
     });
 
     it('should be able to return a `prevent` command to prevent navigation', async () => {
-      router.setRoutes([
-        { path: '/', action: onBeforeLeaveAction('x-home-view', (location, commands) => commands.prevent()) },
+      await router.setRoutes([
+        { path: '/', action: onBeforeLeaveAction('x-home-view', (_location, commands) => commands.prevent()) },
         { path: '/users', component: 'x-users-list' },
       ]);
 
       await router.render('/');
       await router.render('/users');
 
-      expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+      expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       verifyActiveRoutes(router, ['/']);
     });
 
@@ -368,10 +378,10 @@ describe('Vaadin Router lifecycle events', () => {
       // this test is not failed on chrome before #365
       // probably because of https://bugs.chromium.org/p/chromium/issues/detail?id=983094
       let preventNavigation = false;
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/',
-          action: onBeforeLeaveAction('x-home-view', (location, commands) => preventNavigation && commands.prevent()),
+          action: onBeforeLeaveAction('x-home-view', (_location, commands) => preventNavigation && commands.prevent()),
         },
         { path: '/users', component: 'x-users-list' },
       ]);
@@ -389,7 +399,7 @@ describe('Vaadin Router lifecycle events', () => {
       await router.ready;
       expect(window.location.pathname).to.be.equal('/');
 
-      expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+      expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       verifyActiveRoutes(router, ['/']);
     });
 
@@ -400,6 +410,7 @@ describe('Vaadin Router lifecycle events', () => {
         0,
         42,
         [],
+        // eslint-disable-next-line camelcase
         { not_a_redirect: true },
         { redirect: { pathname: '/' } },
         null,
@@ -409,34 +420,33 @@ describe('Vaadin Router lifecycle events', () => {
         document.createElement('div'),
       ];
 
-      for (let i = 0; i < values.length; i += 1) {
-        const onBeforeLeave = sinon.stub().returns(values[i]);
-        router.setRoutes([
-          { path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave) },
-          { path: '/users', component: 'x-users-list' },
-        ]);
+      await Promise.all(
+        values.map(async (value) => {
+          const onBeforeLeave = sinon.stub().returns(value);
+          await router.setRoutes([
+            { path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave) },
+            { path: '/users', component: 'x-users-list' },
+          ]);
 
-        await router.render('/');
-        await router.render('/users');
-        expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-        verifyActiveRoutes(router, ['/users']);
-      }
+          await router.render('/');
+          await router.render('/users');
+          expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
+          verifyActiveRoutes(router, ['/users']);
+        }),
+      );
     });
 
     it('should support returning a promise (and continue the resolve pass after the promise resolves)', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
           action: onBeforeLeaveAction(
             'x-spy',
-            function () {
+            () => {
               callbacksLog.push('a.onBeforeLeave');
-              return new Promise((resolve) => {
-                setTimeout(() => {
-                  callbacksLog.push('a.onBeforeLeave.promise');
-                  resolve();
-                }, 100);
-              });
+              setTimeout(() => {
+                callbacksLog.push('a.onBeforeLeave.promise');
+              }, 100);
             },
             'a',
           ),
@@ -466,26 +476,27 @@ describe('Vaadin Router lifecycle events', () => {
       customElements.define(
         'x-root-view',
         class extends HTMLElement {
-          connectedCallback() {
-            counter++;
+          // eslint-disable-next-line @typescript-eslint/class-methods-use-this
+          connectedCallback(): void {
+            counter += 1;
           }
         },
       );
       customElements.define(
         'x-disallowed-view',
-        class extends HTMLElement {
-          onBeforeEnter(location, commands) {
+        class extends HTMLElement implements WebComponentInterface {
+          onBeforeEnter(_location: RouterLocation, commands: Commands) {
             return commands.prevent();
           }
         },
       );
-      router.setRoutes([
+      await router.setRoutes([
         { path: '/', component: 'x-root-view' },
         { path: '/users', component: 'x-disallowed-view' },
       ]);
       await router.render('/');
       await router.render('/users');
-      expect(outlet.children[0].tagName).to.match(/x-root-view/i);
+      expect(outlet.children[0].tagName).to.match(/x-root-view/iu);
       expect(counter).to.equal(1);
     });
   });
@@ -493,7 +504,7 @@ describe('Vaadin Router lifecycle events', () => {
   describe('onAfterLeave', () => {
     it('should be called with 3 arguments: [location, commands, router]', async () => {
       const onAfterLeave = sinon.spy();
-      router.setRoutes([
+      await router.setRoutes([
         { path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave) },
         { path: '/users', component: 'x-users-list' },
       ]);
@@ -507,25 +518,27 @@ describe('Vaadin Router lifecycle events', () => {
       expect(onAfterLeave).to.have.been.calledOnce;
       expect(onAfterLeave.args[0].length).to.equal(3);
 
-      const location = onAfterLeave.args[0][0];
-      expect(location.pathname).to.equal('/users');
-      expect(location.route.path).to.equal('/users');
+      const [location, commands, routerArg] = extractLifeCycleCallbackCallArgs(onAfterLeave);
 
-      const commands = onAfterLeave.args[0][1];
+      expect(location.pathname).to.equal('/users');
+      expect(location.route?.path).to.equal('/users');
+
       expect(commands).to.be.an('object').that.is.not.null;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(commands.prevent).to.be.undefined;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(commands.redirect).to.be.undefined;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(commands.component).to.be.undefined;
 
-      const routerArg = onAfterLeave.args[0][2];
       expect(routerArg).to.equal(router);
 
-      expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+      expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
     });
 
     it('should be called on the route web component instance (as `this`)', async () => {
       const onAfterLeave = sinon.spy();
-      router.setRoutes([
+      await router.setRoutes([
         { path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave) },
         { path: '/users', component: 'x-users-list' },
       ]);
@@ -536,7 +549,7 @@ describe('Vaadin Router lifecycle events', () => {
       await router.render('/users');
 
       expect(onAfterLeave).to.have.been.calledOn(homeViewElement);
-      expect(outlet.children[0].tagName).to.match(/x-users-list/i);
+      expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
     });
 
     it('should ignore all return values', async () => {
@@ -546,6 +559,7 @@ describe('Vaadin Router lifecycle events', () => {
         0,
         42,
         [],
+        // eslint-disable-next-line camelcase
         { not_a_redirect: true },
         { redirect: { pathname: '/' } },
         { cancel: true },
@@ -556,55 +570,59 @@ describe('Vaadin Router lifecycle events', () => {
         document.createElement('div'),
       ];
 
-      for (let i = 0; i < values.length; i += 1) {
-        const onAfterLeave = sinon.stub().returns(values[i]);
-        router.setRoutes([
-          { path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave) },
-          { path: '/users', component: 'x-users-list' },
-        ]);
+      await Promise.all(
+        values.map(async (value) => {
+          const onAfterLeave = sinon.stub().returns(value);
+          await router.setRoutes([
+            { path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave) },
+            { path: '/users', component: 'x-users-list' },
+          ]);
 
-        await router.render('/');
-        await router.render('/users');
-        expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-        verifyActiveRoutes(router, ['/users']);
-      }
+          await router.render('/');
+          await router.render('/users');
+          expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
+          verifyActiveRoutes(router, ['/users']);
+        }),
+      );
     });
   });
 
   describe('onAfterEnter', () => {
     it('should be called with 3 argument: [location, commands, router]', async () => {
       const onAfterEnter = sinon.spy();
-      router.setRoutes([{ path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter) }]);
+      await router.setRoutes([{ path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter) }]);
 
       await router.render('/');
 
       expect(onAfterEnter).to.have.been.calledOnce;
       expect(onAfterEnter.args[0].length).to.equal(3);
 
-      const location = onAfterEnter.args[0][0];
-      expect(location.pathname).to.equal('/');
-      expect(location.route.path).to.equal('/');
+      const [location, commands, routerArg] = extractLifeCycleCallbackCallArgs(onAfterEnter);
 
-      const commands = onAfterEnter.args[0][1];
+      expect(location.pathname).to.equal('/');
+      expect(location.route?.path).to.equal('/');
+
       expect(commands).to.be.an('object').that.is.not.null;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(commands.prevent).to.be.undefined;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(commands.redirect).to.be.undefined;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(commands.component).to.be.undefined;
 
-      const routerArg = onAfterEnter.args[0][2];
       expect(routerArg).to.equal(router);
 
-      expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+      expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
     });
 
     it('should be called on the route web component instance (as `this`)', async () => {
       const onAfterEnter = sinon.spy();
-      router.setRoutes([{ path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter) }]);
+      await router.setRoutes([{ path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter) }]);
 
       await router.render('/');
 
       expect(onAfterEnter).to.have.been.calledOn(outlet.children[0]);
-      expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+      expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
     });
 
     it('should ignore all return values', async () => {
@@ -614,6 +632,7 @@ describe('Vaadin Router lifecycle events', () => {
         0,
         42,
         [],
+        // eslint-disable-next-line camelcase
         { not_a_redirect: true },
         { redirect: { pathname: '/' } },
         { cancel: true },
@@ -624,24 +643,31 @@ describe('Vaadin Router lifecycle events', () => {
         document.createElement('div'),
       ];
 
-      for (let i = 0; i < values.length; i += 1) {
-        const onAfterEnter = sinon.stub().returns(values[i]);
-        router.setRoutes([
-          { path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter) },
-          { path: '/users', component: 'x-users-list' },
-        ]);
+      await Promise.all(
+        values.map(async (value) => {
+          const onAfterEnter = sinon.stub().returns(value);
+          await router.setRoutes([
+            { path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter) },
+            { path: '/users', component: 'x-users-list' },
+          ]);
 
-        await router.render('/');
-        await router.render('/users');
-        expect(outlet.children[0].tagName).to.match(/x-users-list/i);
-        verifyActiveRoutes(router, ['/users']);
-      }
+          await router.render('/');
+          await router.render('/users');
+          expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
+          verifyActiveRoutes(router, ['/users']);
+        }),
+      );
     });
   });
 
   describe('the order of lifecycle events (without early returns)', () => {
+    function action() {
+      callbacksLog.push('a.action');
+      return undefined;
+    }
+
     it('(initial) -> /a', async () => {
-      router.setRoutes([{ path: '/a', action: elementWithAllLifecycleCallbacks('a') }]);
+      await router.setRoutes([{ path: '/a', action: elementWithAllLifecycleCallbacks('a') }]);
 
       await router.render('/').catch(() => {});
       callbacksLog = [];
@@ -651,7 +677,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('/a -> /b', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         { path: '/a', action: elementWithAllLifecycleCallbacks('a') },
         { path: '/b', action: elementWithAllLifecycleCallbacks('b') },
       ]);
@@ -672,12 +698,10 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('(initial) -> /a/b', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
-          action: () => {
-            callbacksLog.push('a.action');
-          },
+          action,
           children: [{ path: '/b', action: elementWithAllLifecycleCallbacks('b') }],
         },
       ]);
@@ -690,12 +714,10 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('/a/b -> /a/c', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
-          action: () => {
-            callbacksLog.push('a.action');
-          },
+          action,
           children: [
             { path: '/b', action: elementWithAllLifecycleCallbacks('b') },
             { path: '/c', action: elementWithAllLifecycleCallbacks('c') },
@@ -727,9 +749,7 @@ describe('Vaadin Router lifecycle events', () => {
       Resolver.prototype.setRoutes.call(router, [
         {
           path: '/a',
-          action: () => {
-            callbacksLog.push('a.action');
-          },
+          action,
           children: [{ path: '/b', action: elementWithAllLifecycleCallbacks('b') }],
         },
         { path: '(.*)', action: elementWithAllLifecycleCallbacks('asterisk') },
@@ -746,12 +766,10 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('/a/b -> /a/non-existent-path', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
-          action: () => {
-            callbacksLog.push('a.action');
-          },
+          action,
           children: [{ path: '/b', action: elementWithAllLifecycleCallbacks('b') }],
         },
         { path: '(.*)', action: elementWithAllLifecycleCallbacks('asterisk') },
@@ -774,17 +792,16 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('/a/c -> /a/d (/a gets visited, but does not get matched)', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
-          action: () => {
-            callbacksLog.push('a.action');
-          },
+          action,
           children: [
             {
               path: '/b',
-              action: () => {
+              action() {
                 callbacksLog.push('b.action');
+                return undefined;
               },
               component: 'x-spy',
             },
@@ -811,7 +828,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('/users/jane -> /users/john (when parameters are changed, all callbacks are called again)', async () => {
-      router.setRoutes([{ path: '/users/:user', action: elementWithUserParameter() }]);
+      await router.setRoutes([{ path: '/users/:user', action: elementWithUserParameter() }]);
 
       await router.render('/users/jane');
       callbacksLog = [];
@@ -830,10 +847,11 @@ describe('Vaadin Router lifecycle events', () => {
   });
 
   describe('lifecycle events for nested routes', () => {
-    const checkOutlet = (values) => checkOutletContents(outlet.children[0], 'name', values);
+    const checkOutlet = (values: readonly string[]) =>
+      checkOutletContents(outlet.children[0] as NamedWebComponent, 'name', values);
 
-    beforeEach(async function () {
-      router.setRoutes(
+    beforeEach(async () => {
+      await router.setRoutes(
         [
           { path: '/', component: 'div' },
           {
@@ -978,7 +996,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('/a/b -> /a/b/e with extra root path', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
           action: elementWithAllLifecycleCallbacks('x-a'),
@@ -1066,7 +1084,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('/a/b/e -> /a/b with extra root path', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
           action: elementWithAllLifecycleCallbacks('x-a'),
@@ -1122,7 +1140,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('lifecycle events work for routes added via children function', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
           component: 'x-a',
@@ -1143,7 +1161,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('/users/jane/edit -> /users/john/edit (when parameters changed, callbacks for nested routes are called)', async () => {
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/users',
@@ -1204,7 +1222,7 @@ describe('Vaadin Router lifecycle events', () => {
       const view = document.createElement('x-spy');
       view.name = 'foo';
 
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/([ab])',
@@ -1222,18 +1240,21 @@ describe('Vaadin Router lifecycle events', () => {
       );
 
       await router.render('/a');
-      expect(outlet.children[0]).to.be.equal(view);
-      expect(outlet.children[0].children.length).to.be.equal(1);
-      expect(outlet.children[0].location.pathname).to.be.equal('/a');
+
+      const cmp = outlet.children[0] as NamedWebComponent;
+
+      expect(cmp).to.be.equal(view);
+      expect(cmp.children.length).to.be.equal(1);
+      expect(cmp.location?.pathname).to.be.equal('/a');
       expect(router.location.pathname).to.be.equal('/a');
 
       await router.render('/b');
       // Should reuse the same view
-      expect(outlet.children[0]).to.be.equal(view);
+      expect(cmp).to.be.equal(view);
       // Should not modify the view content
-      expect(outlet.children[0].children.length).to.be.equal(2);
+      expect(cmp.children.length).to.be.equal(2);
       // Should update locations
-      expect(outlet.children[0].location.pathname).to.be.equal('/b');
+      expect(cmp.location?.pathname).to.be.equal('/b');
       expect(router.location.pathname).to.be.equal('/b');
 
       // See #355
@@ -1256,11 +1277,11 @@ describe('Vaadin Router lifecycle events', () => {
       view.name = 'foo';
       const userView = document.createElement('x-spy');
       userView.name = 'x-user';
-      router.setRoutes(
+      await router.setRoutes(
         {
           path: '/users/:id',
           action: () => {
-            callbacksLog.push(userView.name + '.action');
+            callbacksLog.push(`${userView.name}.action`);
             return userView;
           },
           children: [
@@ -1304,7 +1325,7 @@ describe('Vaadin Router lifecycle events', () => {
     it('lifecycle events when changing the last segment with parent layout', async () => {
       const view = document.createElement('x-spy');
       view.name = 'x-foo';
-      router.setRoutes(
+      await router.setRoutes(
         {
           path: '/',
           action: elementWithAllLifecycleCallbacks('x-layout'),
@@ -1357,7 +1378,7 @@ describe('Vaadin Router lifecycle events', () => {
     it('lifecycle when reusing element in different chains', async () => {
       const view = document.createElement('x-spy');
       view.name = 'bar';
-      const action = (ctx) => {
+      const action = (_: RouteContext) => {
         callbacksLog.push(`${view.name}.action`);
         // add a new div in each call to check that content is not touched
         const content = document.createElement('div');
@@ -1378,7 +1399,7 @@ describe('Vaadin Router lifecycle events', () => {
                 children: [
                   {
                     path: '/a',
-                    action: action,
+                    action,
                   },
                 ],
               },
@@ -1394,7 +1415,7 @@ describe('Vaadin Router lifecycle events', () => {
                 children: [
                   {
                     path: '/b',
-                    action: action,
+                    action,
                   },
                 ],
               },
@@ -1437,7 +1458,7 @@ describe('Vaadin Router lifecycle events', () => {
       const view = document.createElement('x-spy');
       view.name = 'x-spy';
 
-      const action = (ctx) => {
+      const action = (ctx: RouteContext) => {
         callbacksLog.push(`${view.name}.action`);
         // add a new div in each call to check that content is not touched
         const content = document.createElement('div');
@@ -1446,14 +1467,14 @@ describe('Vaadin Router lifecycle events', () => {
         // Returns always the same view
         return view;
       };
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/users/:name/',
-            action: (ctx) => document.createElement(`user-${ctx.params.name}`),
+            action: (ctx) => document.createElement(`user-${String(ctx.params.name)}`),
             children: [
-              { path: 'edit', action: action },
-              { path: 'profile', action: action },
+              { path: 'edit', action },
+              { path: 'profile', action },
             ],
           },
         ],
@@ -1495,15 +1516,16 @@ describe('Vaadin Router lifecycle events', () => {
       view2.name = 'view2';
 
       let cont = 0;
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/a',
-            action: (ctx) => {
-              const view = cont++ % 2 ? view2 : view1;
+            action: (_: RouteContext) => {
+              const view = cont % 2 ? view2 : view1;
+              cont += 1;
               callbacksLog.push(`${view.name}.action`);
               const content = document.createElement('div');
-              content.textContent = 'content-' + view.name;
+              content.textContent = `content-${view.name}`;
               view.appendChild(content);
               return view;
             },
@@ -1543,14 +1565,15 @@ describe('Vaadin Router lifecycle events', () => {
       view.name = 'view';
 
       let cont = 0;
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/a',
-            action: (ctx) => {
+            action: (_: RouteContext) => {
               callbacksLog.push(`${view.name}.action.${cont % 2}`);
               const content = document.createElement('div');
-              content.textContent = `content-${view.name}-${cont++ % 2}`;
+              content.textContent = `content-${view.name}-${cont % 2}`;
+              cont += 1;
               view.appendChild(content);
               return view;
             },
@@ -1583,7 +1606,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('do not reattach component for same path (#311, #331)', async () => {
-      router.setRoutes([{ path: '/a', component: 'x-spy' }], true);
+      await router.setRoutes([{ path: '/a', component: 'x-spy' }], true);
 
       await router.render('/a');
       verifyCallbacks([
@@ -1606,7 +1629,7 @@ describe('Vaadin Router lifecycle events', () => {
       const container = document.createElement('x-spy');
       const layout = document.createElement('div');
 
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/',
@@ -1666,7 +1689,7 @@ describe('Vaadin Router lifecycle events', () => {
       const serverContainer = document.createElement('h2');
       serverContainer.textContent = 'server';
 
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/',
@@ -1674,11 +1697,11 @@ describe('Vaadin Router lifecycle events', () => {
             children: [
               {
                 path: 'client',
-                action: (ctx) => clientContainer,
+                action: () => clientContainer,
               },
               {
                 path: 'server',
-                action: (ctx) => serverContainer,
+                action: () => serverContainer,
               },
             ],
           },
@@ -1695,7 +1718,7 @@ describe('Vaadin Router lifecycle events', () => {
 
     // https://github.com/vaadin/flow/issues/8081
     it('should keep lifecycle even when path remains same and search string remains empty', async () => {
-      router.setRoutes([{ path: '/a', component: 'x-spy' }], true);
+      await router.setRoutes([{ path: '/a', component: 'x-spy' }], true);
 
       // Pathname only means empty search string
       await router.render('/a');
@@ -1718,7 +1741,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should call lifecycle when path remains same and search string changes', async () => {
-      router.setRoutes([{ path: '/a', component: 'x-spy' }], true);
+      await router.setRoutes([{ path: '/a', component: 'x-spy' }], true);
 
       // Pathname only means empty search string
       await router.render('/a');
@@ -1742,18 +1765,17 @@ describe('Vaadin Router lifecycle events', () => {
 
   describe('lifecycle events with async action', () => {
     it('should invoke lifecycle events after action promise resolves', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         { path: '/', component: 'x-home-view' },
         {
           path: '/x-spy',
-          action: (context, commands) => {
-            return new Promise((resolve) => {
+          action: async (context, commands) =>
+            await new Promise((resolve) => {
               setTimeout(() => {
                 callbacksLog.push('action.promise');
                 resolve();
               }, 100);
-            });
-          },
+            }),
           component: 'x-spy',
         },
       ]);
@@ -1765,8 +1787,8 @@ describe('Vaadin Router lifecycle events', () => {
       verifyCallbacks(['action.promise', 'x-spy.onBeforeEnter', 'x-spy.connectedCallback', 'x-spy.onAfterEnter']);
     });
 
-    function registerSpyComponentAsync(tagname, name, delayms) {
-      return new Promise((resolve, reject) => {
+    async function registerSpyComponentAsync(tagname, name, delayms) {
+      return await new Promise((resolve, reject) => {
         setTimeout(() => {
           callbacksLog.push(`${name}.define`);
           window.customElements.define(
@@ -1788,7 +1810,7 @@ describe('Vaadin Router lifecycle events', () => {
       const parentTagname = `x-parent-layout-${unique}`;
       const childTagname = `x-child-${unique}`;
 
-      router.setRoutes([
+      await router.setRoutes([
         {
           path: '/a',
           component: parentTagname,
@@ -1828,7 +1850,7 @@ describe('Vaadin Router lifecycle events', () => {
 
   describe('the global `vaadin-router-location-changed` event', () => {
     it('should be triggered after a completed navigation', async () => {
-      router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+      await router.setRoutes([{ path: '/', component: 'x-home-view' }]);
 
       const onRouteChanged = sinon.spy();
       window.addEventListener('vaadin-router-location-changed', onRouteChanged);
@@ -1839,7 +1861,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should NOT be triggered after an abandoned navigation', async () => {
-      router.setRoutes([
+      await router.setRoutes([
         { path: '/', component: 'x-home-view' },
         { path: '/admin', component: 'x-admin-view' },
       ]);
@@ -1853,7 +1875,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should contain the new location as `event.detail.location`', async () => {
-      router.setRoutes([{ path: '/admin', component: 'x-admin-view' }]);
+      await router.setRoutes([{ path: '/admin', component: 'x-admin-view' }]);
 
       const onRouteChanged = sinon.spy();
       window.addEventListener('vaadin-router-location-changed', onRouteChanged);
@@ -1868,7 +1890,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should contain the router instance as `event.detail.router`', async () => {
-      router.setRoutes([{ path: '/admin', component: 'x-admin-view' }]);
+      await router.setRoutes([{ path: '/admin', component: 'x-admin-view' }]);
 
       const onRouteChanged = sinon.spy();
       window.addEventListener('vaadin-router-location-changed', onRouteChanged);
@@ -1883,7 +1905,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should be triggered after location update', async () => {
-      router.setRoutes([{ path: '/admin', component: 'x-admin-view' }]);
+      await router.setRoutes([{ path: '/admin', component: 'x-admin-view' }]);
       let pathname;
       const checkLocation = () => {
         expect(router).to.have.nested.property('location.pathname', '/admin');
@@ -1899,7 +1921,7 @@ describe('Vaadin Router lifecycle events', () => {
 
   describe('the global `vaadin-router-error` event', () => {
     it('should be triggered after a failed navigation', async () => {
-      router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+      await router.setRoutes([{ path: '/', component: 'x-home-view' }]);
 
       const onError = sinon.spy();
       window.addEventListener('vaadin-router-error', onError);
@@ -1910,7 +1932,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should NOT be triggered after an abandoned navigation', async () => {
-      router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+      await router.setRoutes([{ path: '/', component: 'x-home-view' }]);
 
       const onError = sinon.spy();
       window.addEventListener('vaadin-router-error', onError);
@@ -1924,7 +1946,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should contain the error as `event.detail.error`', async () => {
-      router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+      await router.setRoutes([{ path: '/', component: 'x-home-view' }]);
 
       const onError = sinon.spy();
       window.addEventListener('vaadin-router-error', onError);
@@ -1940,7 +1962,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should contain the router instance as `event.detail.router`', async () => {
-      router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+      await router.setRoutes([{ path: '/', component: 'x-home-view' }]);
 
       const onError = sinon.spy();
       window.addEventListener('vaadin-router-error', onError);
@@ -1955,7 +1977,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should contain the failed pathname as `event.detail.pathname`', async () => {
-      router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+      await router.setRoutes([{ path: '/', component: 'x-home-view' }]);
 
       const onError = sinon.spy();
       window.addEventListener('vaadin-router-error', onError);
@@ -1972,7 +1994,7 @@ describe('Vaadin Router lifecycle events', () => {
 
   describe('Simultaneous renders', async () => {
     const PAUSE_TIME = 100; // in ms
-    const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const sleep = async (ms) => await new Promise((resolve) => setTimeout(resolve, ms));
 
     const elementWithAction = (elementName) => {
       callbacksLog.push(`${elementName}.action`);
@@ -1997,12 +2019,11 @@ describe('Vaadin Router lifecycle events', () => {
       return el;
     };
 
-    const elementWithRenderId = (elementName) => async (context) => {
-      return elementWithAction(`${elementName}-render-${context.__renderId}`);
-    };
+    const elementWithRenderId = (elementName) => async (context) =>
+      elementWithAction(`${elementName}-render-${context.__renderId}`);
 
     it('should only run action when it is the last render', async () => {
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/',
@@ -2045,7 +2066,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should only run onBeforeEnter events when it is the last render', async () => {
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/',
@@ -2088,7 +2109,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should stop running onBeforeEnter events immediately when there is a new render', async () => {
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/',
@@ -2137,7 +2158,7 @@ describe('Vaadin Router lifecycle events', () => {
       ]);
     });
     it('should only run onBeforeLeave events when it is the last render', async () => {
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/',
@@ -2197,7 +2218,7 @@ describe('Vaadin Router lifecycle events', () => {
     });
 
     it('should only run onAfterEnter/onAfterLeave events when it is the last render', (done) => {
-      router.setRoutes(
+      await router.setRoutes(
         [
           {
             path: '/',

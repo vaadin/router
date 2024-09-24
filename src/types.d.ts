@@ -55,7 +55,7 @@ export type ActionResult = ResolutionResult<HTMLElement | PreventResult | Redire
  *    lifecycle callbacks,
  *  - as the `event.detail.location` of the global Vaadin Router events.
  */
-export interface RouterLocation<R extends AnyObject> {
+export interface RouterLocation<R extends AnyObject = EmptyObject> {
   /**
    * The base URL used in the router. See [the `baseUrl` property
    * ](#/classes/Router#property-baseUrl) in the Router.
@@ -231,7 +231,7 @@ export interface RouterLocation<R extends AnyObject> {
  * [live demos](#/classes/Router/demos/demo/index.html) and tests.
  */
 export interface WebComponentInterface<R extends AnyObject = EmptyObject> extends HTMLElement {
-  location: RouterLocation<R>;
+  location?: RouterLocation<R>;
 
   /**
    * Method that gets executed after the outlet contents is updated with the new
@@ -363,9 +363,9 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
 }
 
 export type ResolveContext = Readonly<{
-  hash: string;
+  hash?: string;
   pathname: string;
-  search: string;
+  search?: string;
 }>;
 
 export type RouteChildrenContext<R extends AnyObject> = ResolveContext &

@@ -24,7 +24,7 @@ describe('Router', () => {
     outlet.remove();
   });
 
-  beforeEach(async function () {
+  beforeEach(() => {
     // create a new router instance
     router = new Router(outlet);
   });
@@ -35,7 +35,7 @@ describe('Router', () => {
   });
 
   describe('parent layouts rendering', () => {
-    const checkOutlet = (values) => checkOutletContents(outlet.lastChild, 'tagName', values);
+    const checkOutlet = (values: readonly string[]) => checkOutletContents(outlet.lastChild, 'tagName', values);
 
     it('each of the nested route components are rendered as children to each other in the same hierarchy', async () => {
       router.setRoutes([

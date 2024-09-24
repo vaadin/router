@@ -22,7 +22,7 @@ use(chaiAsPromised);
 
 describe('Resolver', () => {
   describe('new Resolver(routes, options)', () => {
-    it('should throw an error in case of invalid routes', async () => {
+    it('should throw an error in case of invalid routes', () => {
       // @ts-expect-error: error-throwing test
       expect(() => new Resolver()).to.throw(TypeError, /Invalid routes/u);
       // @ts-expect-error: error-throwing test
