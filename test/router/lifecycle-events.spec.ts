@@ -77,10 +77,6 @@ describe('Vaadin Router lifecycle events', () => {
     }
   };
 
-  // eslint-disable-next-line no-invalid-this
-  const suite = this;
-  suite.title = suite.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
-
   const DEFAULT_URL = location.href;
 
   let outlet: HTMLElement;

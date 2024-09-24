@@ -4,9 +4,6 @@ import animate from "../../src/transitions/animate.js";
 import '../setup.js';
 
 describe('animate', function() {
-  // eslint-disable-next-line no-invalid-this
-  this.title = this.title + (window.ShadyDOM ? ' (Shady DOM)' : '');
-
   let target;
 
   function registerElement(element, template, props = {}) {
