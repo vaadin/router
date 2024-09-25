@@ -1,4 +1,3 @@
-import type { SetOptional } from 'type-fest';
 import type Resolver from './resolver/resolver.js';
 import type { ActionResult, Route, AnyObject, WebComponentInterface, RouteChildrenContext } from './types.js';
 
@@ -41,10 +40,7 @@ export type ResolveResult<R extends Record<string, unknown>> = ActionResult | In
 
 export type InternalNextResult<R extends AnyObject> = ResolutionResult<InternalRouteContext<R>>;
 
-export type InternalRouteContext<R extends AnyObject> = SetOptional<
-  RouteChildrenContext<R>,
-  'params' | 'route' | 'hash' | 'search'
-> & {
+export type InternalRouteContext<R extends AnyObject> = RouteChildrenContext<R> & {
   __divergedChainIndex?: number;
   __redirectCount?: number;
   __renderId: number;

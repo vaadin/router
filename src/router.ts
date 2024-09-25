@@ -156,6 +156,24 @@ function prevent(): PreventResult {
   return { cancel: true };
 }
 
+const rootContext: InternalRouteContext<AnyObject> = {
+  __renderId: -1,
+  params: {},
+  route: {
+    __synthetic: true,
+    children: [],
+    path: '',
+    action() {
+      return undefined;
+    },
+  },
+  pathname: '',
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async next() {
+    return notFoundResult;
+  },
+};
+
 /**
  * A simple client-side router for single-page applications. It uses
  * express-style middleware and has a first-class support for Web Components and
@@ -445,6 +463,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     this.__lastStartedRenderId += 1;
     const renderId = this.__lastStartedRenderId;
     const context = {
+      ...rootContext,
       ...(isString(pathnameOrContext) ? { hash: '', search: '', pathname: pathnameOrContext } : pathnameOrContext),
       __renderId: renderId,
     } satisfies InternalRouteContext<R>;
@@ -513,7 +532,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     } catch (error: unknown) {
       if (renderId === this.__lastStartedRenderId) {
         if (shouldUpdateHistory) {
-          this.__updateBrowserHistory(context);
+          this.__updateBrowserHistory(this.context);
         }
         Router.__removeDomNodes(this.__outlet?.children);
         this.location = createLocation(Object.assign(context, { resolver: this }));
@@ -776,6 +795,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
 
     return await this.resolve({
+      ...rootContext,
       pathname: this.urlForPath(redirectData.pathname, redirectData.params),
       redirectFrom: redirectData.from,
       __redirectCount: counter + 1,

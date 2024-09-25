@@ -46,10 +46,10 @@ describe('Resolver', () => {
         },
         { resolveRoute },
       );
-      const result = await resolver.resolve('/a/c');
+      const context = await resolver.resolve('/a/c');
       expect(resolveRoute.calledThrice).to.be.true;
       expect(action.called).to.be.false;
-      expect(result).to.be.equal('c');
+      expect(context.result).to.be.equal('c');
     });
 
     it('should support custom error handler option', async () => {
@@ -154,7 +154,7 @@ describe('Resolver', () => {
       const context = await resolver.resolve('/a');
       expect(action.calledOnce).to.be.true;
       expect(action.firstCall.firstArg).to.have.nested.property('route.path', '/a');
-      expect(context).to.be.equal('b');
+      expect(context.result).to.be.equal('b');
     });
 
     it('should find the first route whose action method !== undefined or null', async () => {
@@ -169,7 +169,7 @@ describe('Resolver', () => {
         { action: action4, path: '/a' },
       ]);
       const context = await resolver.resolve('/a');
-      expect(context).to.be.equal('c');
+      expect(context.result).to.be.equal('c');
       expect(action1.calledOnce).to.be.true;
       expect(action2.calledOnce).to.be.true;
       expect(action3.calledOnce).to.be.true;
@@ -183,7 +183,7 @@ describe('Resolver', () => {
       expect(action.calledOnce).to.be.true;
       expect(action.firstCall.firstArg).to.have.nested.property('route.path', '/a');
       expect(action.firstCall.firstArg).to.have.property('test', 'b');
-      expect(context).to.be.true;
+      expect(context.result).to.be.true;
     });
 
     it("should not call action methods of routes that don't match the URL path", async () => {
@@ -205,17 +205,17 @@ describe('Resolver', () => {
 
     it('should support asynchronous route actions', async () => {
       const resolver = new Resolver([{ action: async () => 'b', path: '/a' }]);
-      const result = await resolver.resolve('/a');
-      expect(result).to.be.equal('b');
+      const context = await resolver.resolve('/a');
+      expect(context.result).to.be.equal('b');
     });
 
     it('URL parameters are captured and added to context.params', async () => {
       const action = sinon.spy(() => true);
       const resolver = new Resolver([{ action, path: '/:one/:two' }]);
-      const result = await resolver.resolve({ pathname: '/a/b' });
+      const context = await resolver.resolve({ pathname: '/a/b' });
       expect(action.calledOnce).to.be.true;
       expect(action.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
-      expect(result).to.be.true;
+      expect(context.result).to.be.true;
     });
 
     it('context.chain contains the path to the last matched route if context.next() is called', async () => {
@@ -319,7 +319,7 @@ describe('Resolver', () => {
       expect(action1.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a' });
       expect(action2.calledOnce).to.be.true;
       expect(action2.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
-      expect(context).to.be.true;
+      expect(context.result).to.be.true;
     });
 
     it('should override URL parameters with same name in child route', async () => {
@@ -347,7 +347,7 @@ describe('Resolver', () => {
       expect(action1.args[1][0]).to.have.property('params').that.deep.equals({ one: 'b' });
       expect(action2.calledOnce).to.be.true;
       expect(action2.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
-      expect(context).to.be.true;
+      expect(context.result).to.be.true;
     });
 
     it('should not collect parameters from previous routes', async () => {
@@ -389,7 +389,7 @@ describe('Resolver', () => {
       expect(action2.secondCall.firstArg).to.have.property('params').that.deep.equals({ four: 'b', three: 'a' });
       expect(action3.calledOnce).to.be.true;
       expect(action3.firstCall.firstArg).to.have.property('params').that.deep.equals({ five: 'b', three: 'a' });
-      expect(context).to.be.true;
+      expect(context.result).to.be.true;
     });
 
     it('should support next() across multiple routes', async () => {
@@ -477,7 +477,7 @@ describe('Resolver', () => {
 
       const context = await resolver.resolve('/test');
       expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-      expect(context).to.be.equal('done');
+      expect(context.result).to.be.equal('done');
     });
 
     it('should support next(true) across multiple routes', async () => {
@@ -539,7 +539,7 @@ describe('Resolver', () => {
 
       const context = await resolver.resolve('/a/b/c');
       expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-      expect(context).to.be.equal('done');
+      expect(context.result).to.be.equal('done');
     });
 
     it('should support parametrized routes 1', async () => {
@@ -551,7 +551,7 @@ describe('Resolver', () => {
       expect(action.firstCall.firstArg).to.have.nested.property('params.b', '2');
       expect(action.firstCall.firstArg).to.have.nested.property('params.a', '1');
       expect(action.firstCall.firstArg).to.have.nested.property('params.b', '2');
-      expect(context).to.be.true;
+      expect(context.result).to.be.true;
     });
 
     it('should support nested routes (1)', async () => {
@@ -575,7 +575,7 @@ describe('Resolver', () => {
       expect(action1.firstCall.firstArg).to.have.nested.property('route.path', '');
       expect(action2.calledOnce).to.be.true;
       expect(action2.firstCall.firstArg).to.have.nested.property('route.path', '/a');
-      expect(context).to.be.true;
+      expect(context.result).to.be.true;
     });
 
     it('should support nested routes (2)', async () => {
@@ -599,7 +599,7 @@ describe('Resolver', () => {
       expect(action1.firstCall.firstArg).to.have.nested.property('route.path', '/a');
       expect(action2.calledOnce).to.be.true;
       expect(action2.firstCall.firstArg).to.have.nested.property('route.path', '/b');
-      expect(context).to.be.true;
+      expect(context.result).to.be.true;
     });
 
     it('should support nested routes (3)', async () => {
@@ -630,7 +630,7 @@ describe('Resolver', () => {
       expect(action2.firstCall.firstArg).to.have.nested.property('route.path', '/b');
       expect(action3.calledOnce).to.be.true;
       expect(action3.firstCall.firstArg).to.have.nested.property('route.path', '/a/b');
-      expect(context).to.be.true;
+      expect(context.result).to.be.true;
     });
 
     it('should support an empty array of children', async () => {
@@ -684,7 +684,7 @@ describe('Resolver', () => {
       expect(action.firstCall.firstArg).to.have.nested.property('route.path', '/c');
       expect(action.firstCall.firstArg).to.have.property('route', routes.children[0].children[0]);
       expect(action.firstCall.firstArg).to.have.property('resolver', resolver);
-      expect(context).to.be.equal(17);
+      expect(context.result).to.be.equal(17);
 
       let err;
       try {
@@ -715,10 +715,10 @@ describe('Resolver', () => {
           path: '/child',
         },
       ]);
-      expect(await resolver.resolve('/')).to.be.equal('a');
-      expect(await resolver.resolve('/page/')).to.be.equal('b');
-      expect(await resolver.resolve('/child/')).to.be.equal('c');
-      expect(await resolver.resolve('/child/page/')).to.be.equal('d');
+      expect((await resolver.resolve('/')).result).to.be.equal('a');
+      expect((await resolver.resolve('/page/')).result).to.be.equal('b');
+      expect((await resolver.resolve('/child/')).result).to.be.equal('c');
+      expect((await resolver.resolve('/child/page/')).result).to.be.equal('d');
     });
 
     it('should skip nested routes when middleware route returns null', async () => {
@@ -737,7 +737,7 @@ describe('Resolver', () => {
       ]);
 
       const context = await resolver.resolve('/match');
-      expect(context).to.be.equal(404);
+      expect(context.result).to.be.equal(404);
       expect(action.called).to.be.false;
       expect(middleware.calledOnce).to.be.true;
     });
@@ -758,7 +758,7 @@ describe('Resolver', () => {
       ]);
 
       const context = await resolver.resolve('/match');
-      expect(context).to.be.equal(404);
+      expect(context.result).to.be.equal(404);
       expect(action.calledOnce).to.be.true;
       expect(middleware.calledOnce).to.be.true;
     });

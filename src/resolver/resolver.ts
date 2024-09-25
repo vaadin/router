@@ -7,7 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 import type { EmptyObject } from 'type-fest';
-import type { InternalRouteContext, InternalRoute } from '../internal.js';
+import type { InternalRouteContext, InternalRoute, ResolveResult, InternalNextResult } from '../internal.js';
 import type { ActionResult, AnyObject, Route, MaybePromise } from '../types.js';
 import {
   ensureRoutes,
@@ -16,7 +16,7 @@ import {
   isString,
   NotFoundError,
   notFoundResult,
-  toArray
+  toArray,
 } from '../utils.js';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
@@ -207,7 +207,7 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
    *    resolve or a context object with a `pathname` property and other
    *    properties to pass to the route resolver functions.
    */
-  async resolve(pathnameOrContext: ResolveContext | string): Promise<ActionResult> {
+  async resolve(pathnameOrContext: ResolveContext | string): Promise<InternalRouteContext<R>> {
     const self = this;
     const context: InternalRouteContext<R> = {
       ...this.context,
@@ -225,7 +225,7 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
       resume: boolean = false,
       parent: InternalRoute<R> | undefined = matches?.value?.route,
       prevResult?: ActionResult | null,
-    ): Promise<ActionResult> {
+    ): Promise<InternalNextResult<R>> {
       const routeToSkip = prevResult === null ? matches?.value?.route : undefined;
       matches = nextMatches ?? match.next(routeToSkip);
       nextMatches = null;
@@ -254,7 +254,7 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
       if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
         currentContext.result = resolution;
         self.context = currentContext;
-        return resolution;
+        return currentContext;
       }
       return await next(resume, parent, resolution);
     }
