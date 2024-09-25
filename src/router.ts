@@ -81,7 +81,7 @@ function createLocation<R extends AnyObject>(
   };
 }
 
-function createRedirect<R extends AnyObject>(context: InternalRouteContext<R>, pathname: string): RedirectResult {
+function createRedirect<R extends AnyObject>(context: RouteContext<R>, pathname: string): RedirectResult {
   const params = { ...context.params };
   return {
     redirect: {
@@ -264,10 +264,10 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     this.subscribe();
   }
 
-  private async __resolveRoute(context: InternalRouteContext<R>): Promise<InternalNextResult<R>> {
+  private async __resolveRoute(context: RouteContext<R>): Promise<InternalNextResult<R>> {
     const { route } = context;
 
-    if (isFunction(route?.children)) {
+    if (isFunction(route.children)) {
       let children = await route.children(context as RouteChildrenContext<R>);
 
       // The route.children() callback might have re-written the
@@ -292,7 +292,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     return await Promise.resolve()
       .then(async () => {
         if (this.__isLatestRender(context)) {
-          return await maybeCall(route?.action, route, context as RouteContext<R>, commands);
+          return await maybeCall(route.action, route, context, commands);
         }
       })
       .then((result) => {
@@ -305,7 +305,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
           }
         }
 
-        if (isString(route?.redirect)) {
+        if (isString(route.redirect)) {
           return commands.redirect(route.redirect);
         }
       })
@@ -313,7 +313,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
         if (result != null) {
           return result;
         }
-        if (isString(route?.component)) {
+        if (isString(route.component)) {
           return commands.component(route.component);
         }
       });
@@ -579,14 +579,14 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
       parent: InternalRoute<R> | undefined = context.route,
       prevResult?: ActionResult | null,
     ): Promise<InternalNextResult<R>> => {
-      const nextContext = await context.next?.(false, parent, prevResult);
+      const nextContext = await context.next(false, parent, prevResult);
 
       if (nextContext === null || nextContext === notFoundResult) {
         // Next context is not found in children, ...
         if (isFound) {
           // ...but original context is already fully matching - use it
           return context;
-        } else if (parent?.parent != null) {
+        } else if (parent.parent != null) {
           // ...and there is no full match yet - step up to check siblings
           return await findNextContextIfAny(context, parent.parent, nextContext);
         }

@@ -83,9 +83,7 @@ export type ErrorHandlerCallback = (error: unknown) => ActionResult;
 
 export type ResolveContext = Readonly<{ pathname: string }>;
 
-export type ResolveRouteCallback<R extends AnyObject> = (
-  context: InternalRouteContext<R>,
-) => MaybePromise<ActionResult>;
+export type ResolveRouteCallback<R extends AnyObject> = (context: RouteContext<R>) => MaybePromise<ActionResult>;
 
 export type ResolverOptions<R extends AnyObject> = Readonly<{
   baseUrl?: string;

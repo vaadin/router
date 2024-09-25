@@ -50,5 +50,5 @@ export type InternalRouteContext<R extends AnyObject> = RouteChildrenContext<R> 
   redirectFrom?: string;
   result?: ActionResult;
   route?: InternalRoute<R>;
-  next?(resume?: boolean, parent?: InternalRoute<R>, prevResult?: ActionResult | null): Promise<InternalNextResult<R>>;
+  next(resume?: boolean, parent?: InternalRoute<R>, prevResult?: ActionResult | null): Promise<InternalNextResult<R>>;
 };
