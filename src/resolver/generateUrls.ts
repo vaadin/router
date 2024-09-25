@@ -10,7 +10,7 @@
 import { parse, type ParseOptions, type Token, tokensToFunction, type TokensToFunctionOptions } from 'path-to-regexp';
 import type { EmptyObject } from 'type-fest';
 import type { InternalRoute } from '../internal.js';
-import type { ChildrenCallback, AnyObject, IndexedParams } from '../types.js';
+import type { ChildrenCallback, AnyObject, Params } from '../types.js';
 import { getRoutePath, isString } from '../utils.js';
 import Resolver from './resolver.js';
 
@@ -75,7 +75,7 @@ type RouteCacheRecord = Readonly<{
   tokens: Token[];
 }>;
 
-export type UrlGenerator = (routeName: string, params?: IndexedParams) => string;
+export type UrlGenerator = (routeName: string, params?: Params) => string;
 
 function generateUrls<R extends AnyObject = EmptyObject>(
   resolver: Resolver<R>,
