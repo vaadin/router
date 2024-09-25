@@ -1,5 +1,5 @@
 export * from './router.js';
-export * from './types.js';
+export type * from './types.js';
 export { processNewChildren } from './routerUtils.js';
 export { amend } from './routerUtils.js';
 export { maybeCall } from './routerUtils.js';

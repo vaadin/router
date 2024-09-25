@@ -43,7 +43,7 @@ export interface NotFoundResult {
 
 export type ResolutionResult<T> = T | NotFoundResult | null | undefined;
 
-export type ActionResult = ResolutionResult<HTMLElement | PreventResult | RedirectResult>;
+export type ActionResult = ResolutionResult<HTMLElement | PreventResult | RedirectResult> | ResolutionResult<void>;
 
 /**
  * Describes the state of a router at a given point in time. It is available for
@@ -321,7 +321,11 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
    *
    * @param router - the `Router` instance
    */
-  onBeforeEnter?(location: RouterLocation<R>, commands: Commands, router: Router<R>): void;
+  onBeforeEnter?(
+    location: RouterLocation<R>,
+    commands: Commands,
+    router: Router<R>,
+  ): MaybePromise<PreventResult | RedirectResult> | MaybePromise<void>;
 
   /**
    * Method that gets executed when user navigates away from the component
@@ -359,7 +363,11 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
    *
    * @param router - the `Router` instance
    */
-  onBeforeLeave?(location: RouterLocation<R>, commands: Commands, router: Router<R>): void;
+  onBeforeLeave?(
+    location: RouterLocation<R>,
+    commands: Commands,
+    router: Router<R>,
+  ): MaybePromise<PreventResult> | MaybePromise<void>;
 }
 
 export type ResolveContext = Readonly<{

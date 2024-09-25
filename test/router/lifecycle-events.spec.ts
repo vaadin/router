@@ -72,6 +72,11 @@ const elementWithUserParameter = () => (context: RouteContext, commands: Command
   return component;
 };
 
+const sleep = async (ms: number) =>
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
 describe('Vaadin Router lifecycle events', () => {
   const verifyCallbacks = (expectedCallbacks: readonly string[]) => {
     expect(callbacksLog).to.be.an('array');
@@ -275,11 +280,10 @@ describe('Vaadin Router lifecycle events', () => {
           path: '/a',
           action: onBeforeEnterAction(
             'x-spy',
-            () => {
+            async () => {
               callbacksLog.push('a.onBeforeEnter');
-              setTimeout(() => {
-                callbacksLog.push('a.onBeforeEnter.promise');
-              }, 100);
+              await sleep(100);
+              callbacksLog.push('a.onBeforeEnter.promise');
             },
             'a',
           ),
@@ -442,11 +446,10 @@ describe('Vaadin Router lifecycle events', () => {
           path: '/a',
           action: onBeforeLeaveAction(
             'x-spy',
-            () => {
+            async () => {
               callbacksLog.push('a.onBeforeLeave');
-              setTimeout(() => {
-                callbacksLog.push('a.onBeforeLeave.promise');
-              }, 100);
+              await sleep(100);
+              callbacksLog.push('a.onBeforeLeave.promise');
             },
             'a',
           ),
@@ -1769,13 +1772,10 @@ describe('Vaadin Router lifecycle events', () => {
         { path: '/', component: 'x-home-view' },
         {
           path: '/x-spy',
-          action: async (context, commands) =>
-            await new Promise((resolve) => {
-              setTimeout(() => {
-                callbacksLog.push('action.promise');
-                resolve();
-              }, 100);
-            }),
+          action: async (_context, _commands) => {
+            await sleep(100);
+            callbacksLog.push('action.promise');
+          },
           component: 'x-spy',
         },
       ]);
@@ -1787,8 +1787,8 @@ describe('Vaadin Router lifecycle events', () => {
       verifyCallbacks(['action.promise', 'x-spy.onBeforeEnter', 'x-spy.connectedCallback', 'x-spy.onAfterEnter']);
     });
 
-    async function registerSpyComponentAsync(tagname, name, delayms) {
-      return await new Promise((resolve, reject) => {
+    async function registerSpyComponentAsync(tagname: string, name: string, delayms: number): Promise<void> {
+      return await new Promise((resolve) => {
         setTimeout(() => {
           callbacksLog.push(`${name}.define`);
           window.customElements.define(
@@ -1994,7 +1994,6 @@ describe('Vaadin Router lifecycle events', () => {
 
   describe('Simultaneous renders', async () => {
     const PAUSE_TIME = 100; // in ms
-    const sleep = async (ms) => await new Promise((resolve) => setTimeout(resolve, ms));
 
     const elementWithAction = (elementName) => {
       callbacksLog.push(`${elementName}.action`);
@@ -2217,7 +2216,7 @@ describe('Vaadin Router lifecycle events', () => {
       ]);
     });
 
-    it('should only run onAfterEnter/onAfterLeave events when it is the last render', (done) => {
+    it('should only run onAfterEnter/onAfterLeave events when it is the last render', async () => {
       await router.setRoutes(
         [
           {
@@ -2243,56 +2242,63 @@ describe('Vaadin Router lifecycle events', () => {
         ],
         true,
       );
-      const waitForLocation = async (event) => {
-        if (event.detail.location.pathname === '/b') {
-          window.removeEventListener('vaadin-router-location-changed', waitForLocation);
-          await router.render('/a/a-child');
-          try {
-            verifyActiveRoutes(router, ['/', 'a', 'a-child']);
-            verifyCallbacks([
-              'x-parent-layout-render-2.action',
-              'x-b-render-2.action',
-              'x-a-render-1.onBeforeLeave',
-              'x-parent-layout-render-1.onBeforeLeave',
-              'x-parent-layout-render-2.onBeforeEnter',
-              'x-b-render-2.onBeforeEnter',
-              'x-parent-layout-render-2.connectedCallback',
-              'x-b-render-2.connectedCallback',
-              // x-b-render-2.onAfterEnter is not executed here
-              // because the 3rd render already started
-              'x-parent-layout-render-3.action',
-              'x-a-render-3.action',
-              'x-a-child-render-3.action',
-              'x-a-render-1.onBeforeLeave',
-              'x-parent-layout-render-1.onBeforeLeave',
-              'x-parent-layout-render-3.onBeforeEnter',
-              'x-a-render-3.onBeforeEnter',
-              'x-a-child-render-3.onBeforeEnter',
-              'x-parent-layout-render-2.disconnectedCallback',
-              'x-b-render-2.disconnectedCallback',
-              'x-parent-layout-render-3.connectedCallback',
-              'x-a-render-3.connectedCallback',
-              'x-a-child-render-3.connectedCallback',
-              'x-parent-layout-render-3.onAfterEnter',
-              'x-a-render-3.onAfterEnter',
-              'x-a-child-render-3.onAfterEnter',
-              'x-a-render-1.onAfterLeave',
-              'x-parent-layout-render-1.onAfterLeave',
-              'x-a-render-1.disconnectedCallback',
-              'x-parent-layout-render-1.disconnectedCallback',
-            ]);
-            done();
-          } catch (e) {
-            done(e);
+      return await new Promise((resolve, reject) => {
+        const waitForLocation = async (event: CustomEvent<{ location: RouterLocation }>) => {
+          if (event.detail.location.pathname === '/b') {
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            window.removeEventListener('vaadin-router-location-changed', waitForLocation);
+            await router.render('/a/a-child');
+            try {
+              verifyActiveRoutes(router, ['/', 'a', 'a-child']);
+              verifyCallbacks([
+                'x-parent-layout-render-2.action',
+                'x-b-render-2.action',
+                'x-a-render-1.onBeforeLeave',
+                'x-parent-layout-render-1.onBeforeLeave',
+                'x-parent-layout-render-2.onBeforeEnter',
+                'x-b-render-2.onBeforeEnter',
+                'x-parent-layout-render-2.connectedCallback',
+                'x-b-render-2.connectedCallback',
+                // x-b-render-2.onAfterEnter is not executed here
+                // because the 3rd render already started
+                'x-parent-layout-render-3.action',
+                'x-a-render-3.action',
+                'x-a-child-render-3.action',
+                'x-a-render-1.onBeforeLeave',
+                'x-parent-layout-render-1.onBeforeLeave',
+                'x-parent-layout-render-3.onBeforeEnter',
+                'x-a-render-3.onBeforeEnter',
+                'x-a-child-render-3.onBeforeEnter',
+                'x-parent-layout-render-2.disconnectedCallback',
+                'x-b-render-2.disconnectedCallback',
+                'x-parent-layout-render-3.connectedCallback',
+                'x-a-render-3.connectedCallback',
+                'x-a-child-render-3.connectedCallback',
+                'x-parent-layout-render-3.onAfterEnter',
+                'x-a-render-3.onAfterEnter',
+                'x-a-child-render-3.onAfterEnter',
+                'x-a-render-1.onAfterLeave',
+                'x-parent-layout-render-1.onAfterLeave',
+                'x-a-render-1.disconnectedCallback',
+                'x-parent-layout-render-1.disconnectedCallback',
+              ]);
+              resolve();
+            } catch (e) {
+              reject(e as Error);
+            }
           }
-        }
-      };
-      // Attach a listener to `location-changed` event to trigger another render
-      // because the event happens just before 'onAfterEnter'/'onAfterLeave'.
-      window.addEventListener('vaadin-router-location-changed', waitForLocation);
-      router.render('/a').then(() => {
-        callbacksLog = [];
-        router.render('/b');
+        };
+
+        // Attach a listener to `location-changed` event to trigger another render
+        // because the event happens just before 'onAfterEnter'/'onAfterLeave'.
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        window.addEventListener('vaadin-router-location-changed', waitForLocation);
+        // eslint-disable-next-line no-void
+        void router.render('/a').then(() => {
+          callbacksLog = [];
+          // eslint-disable-next-line no-void
+          void router.render('/b');
+        });
       });
     });
   });
