@@ -1,11 +1,13 @@
 export * from './router.js';
 export type * from './types.js';
-export { processNewChildren } from './routerUtils.js';
-export { amend } from './routerUtils.js';
-export { maybeCall } from './routerUtils.js';
-export { renderElement } from './routerUtils.js';
-export { createRedirect } from './routerUtils.js';
-export { createLocation } from './routerUtils.js';
-export { getMatchedPath } from './routerUtils.js';
-export { getPathnameForRouter } from './routerUtils.js';
-export { copyContextWithoutNext } from './routerUtils.js';
+export {
+  processNewChildren,
+  amend,
+  maybeCall,
+  renderElement,
+  createRedirect,
+  createLocation,
+  getMatchedPath,
+  getPathnameForRouter,
+  copyContextWithoutNext,
+} from './routerUtils.js';

@@ -4,8 +4,6 @@
 import { expect } from '@esm-bundle/chai';
 import type { Commands, RouteContext, Router, WebComponentInterface } from '../../src/index.js';
 
-export type NamedWebComponent = WebComponentInterface & { name?: string };
-
 export async function waitForNavigation(): Promise<void> {
   return await new Promise((resolve) => {
     window.addEventListener('popstate', () => resolve(), { once: true });
@@ -23,8 +21,8 @@ export function verifyActiveRoutes(router: Router, expectedSegments: string[]): 
 
 function createWebComponentAction<T extends keyof WebComponentInterface>(method: T) {
   return (componentName: string, callback: WebComponentInterface[T], name: string = 'unknown') =>
-    (_context: RouteContext, commands: Commands): NamedWebComponent => {
-      const component = commands.component(componentName) as NamedWebComponent;
+    (_context: RouteContext, commands: Commands): WebComponentInterface => {
+      const component = commands.component(componentName) as WebComponentInterface;
       component.name = name;
       component[method] = callback;
       return component;

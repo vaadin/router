@@ -18,14 +18,7 @@ describe('Vaadin.Router', () => {
   let history: sinon.SinonStubbedInstance<History>;
 
   before(() => {
-    history = {
-      go: sinon.stub(window.history, 'go'),
-      back: sinon.stub(window.history, 'back'),
-      forward: sinon.stub(window.history, 'forward'),
-      pushState: sinon.stub(window.history, 'pushState'),
-      replaceState: sinon.stub(window.history, 'replaceState'),
-    };
-
+    history = sinon.createStubInstance(History);
     outlet = document.createElement('div');
     document.body.append(outlet);
   });
@@ -60,7 +53,7 @@ describe('Vaadin.Router', () => {
     });
 
     it('action that returns custom component activates route', async () => {
-      await router.setRoutes([{ path: '/', action: (_context, commands) => commands.component('x-home-view') }]);
+      await router.setRoutes([{ path: '/', action: (_context, commands) => commands?.component('x-home-view') }]);
 
       await router.render('/');
 
@@ -69,34 +62,38 @@ describe('Vaadin.Router', () => {
 
     it('action that returns redirect activates redirect route', async () => {
       await router.setRoutes([
-        { path: '/', action: (_context, commands) => commands.redirect('/a') },
+        { path: '/', action: (_context, commands) => commands?.redirect('/a') },
         { path: '/a', component: 'x-users-view' },
       ]);
 
       await router.render('/');
 
       verifyActiveRoutes(router, ['/a']);
-      expect(outlet.lastChild.tagName).to.match(/x-users-view/iu);
+      expect(outlet.lastChild)
+        .to.have.property('tagName')
+        .that.matches(/x-users-view/iu);
     });
 
     it('should be able to have multiple action redirects', async () => {
       await router.setRoutes([
-        { path: '/', action: (_context, commands) => commands.redirect('/u') },
-        { path: '/u', action: (_context, commands) => commands.redirect('/users') },
+        { path: '/', action: (_context, commands) => commands?.redirect('/u') },
+        { path: '/u', action: (_context, commands) => commands?.redirect('/users') },
         { path: '/users', component: 'x-users-list' },
       ]);
 
       await router.render('/');
 
-      expect(outlet.lastChild.tagName).to.match(/x-users-list/iu);
+      expect(outlet.lastChild)
+        .to.have.property('tagName')
+        .that.matches(/x-users-list/iu);
       verifyActiveRoutes(router, ['/users']);
     });
 
     it('should fail on recursive action redirects', async () => {
       await router.setRoutes([
-        { path: '/a', action: (_context, commands) => commands.redirect('/b') },
-        { path: '/b', action: (_context, commands) => commands.redirect('/c') },
-        { path: '/c', action: (_context, commands) => commands.redirect('/a') },
+        { path: '/a', action: (_context, commands) => commands?.redirect('/b') },
+        { path: '/b', action: (_context, commands) => commands?.redirect('/c') },
+        { path: '/c', action: (_context, commands) => commands?.redirect('/a') },
       ]);
 
       const onError = sinon.spy();

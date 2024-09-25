@@ -7,8 +7,8 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 import type { EmptyObject } from 'type-fest';
-import type { InternalRouteContext, InternalRoute, ResolveResult, InternalNextResult } from '../internal.js';
-import type { ActionResult, AnyObject, Route, MaybePromise } from '../types.js';
+import type { InternalRouteContext, InternalRoute, InternalNextResult } from '../internal.js';
+import type { ActionResult, AnyObject, Route, MaybePromise, RouteContext } from '../types.js';
 import {
   ensureRoutes,
   getNotFoundError,
@@ -20,22 +20,6 @@ import {
 } from '../utils.js';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
-
-export class RouteError<R extends AnyObject> extends Error {
-  readonly code: number;
-  readonly context: InternalRouteContext<R>;
-
-  constructor(code: number, context: InternalRouteContext<R>, cause?: Error) {
-    let errorMessage = `Path '${context.pathname}' is not properly resolved due to an error.`;
-    const routePath = getRoutePath(context.route);
-    if (routePath) {
-      errorMessage += ` Resolution had failed on route: '${routePath}'`;
-    }
-    super(errorMessage, cause);
-    this.code = code;
-    this.context = context;
-  }
-}
 
 function isDescendantRoute<R extends AnyObject>(route?: InternalRoute<R>, maybeParent?: InternalRoute<R>) {
   let _route = route;
@@ -52,11 +36,11 @@ export interface ResolutionErrorOptions extends ErrorOptions {
   code?: number;
 }
 
-export class ResolutionError<R extends AnyObject> extends Error {
+export class ResolutionError<R extends AnyObject = EmptyObject> extends Error {
   readonly code?: number;
-  readonly context: InternalRouteContext<R>;
+  readonly context: RouteContext<R>;
 
-  constructor(context: InternalRouteContext<R>, options?: ResolutionErrorOptions) {
+  constructor(context: RouteContext<R>, options?: ResolutionErrorOptions) {
     let errorMessage = `Path '${context.pathname}' is not properly resolved due to an error.`;
     const routePath = getRoutePath(context.route);
     if (routePath) {

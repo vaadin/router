@@ -1,12 +1,28 @@
 import type { EmptyObject, RequireAtLeastOne } from 'type-fest';
+import type { ResolutionError } from './resolver/resolver.js';
 import type { Router } from './router.js';
+
+export { ResolutionError };
+
+export type VaadinRouterLocationChangedEvent = CustomEvent<
+  Readonly<{
+    location: RouterLocation<AnyObject>;
+    router: Router;
+  }>
+>;
+
+export type VaadinRouterErrorEvent<R extends AnyObject = EmptyObject> = CustomEvent<
+  Readonly<{
+    error: ResolutionError<R>;
+    router: Router;
+  }> &
+    RouteContext<R>
+>;
 
 declare global {
   interface WindowEventMap {
-    'vaadin-router-location-changed': CustomEvent<{
-      location: RouterLocation<AnyObject>;
-      router: Router;
-    }>;
+    'vaadin-router-location-changed': VaadinRouterLocationChangedEvent;
+    'vaadin-router-error': VaadinRouterErrorEvent;
   }
 
   interface ArrayConstructor {
@@ -232,6 +248,7 @@ export interface RouterLocation<R extends AnyObject = EmptyObject> {
  */
 export interface WebComponentInterface<R extends AnyObject = EmptyObject> extends HTMLElement {
   location?: RouterLocation<R>;
+  name?: string;
 
   /**
    * Method that gets executed after the outlet contents is updated with the new
@@ -255,7 +272,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterEnter?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): void;
+  onAfterEnter?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): MaybePromise<void>;
 
   /**
    * Method that gets executed when user navigates away from the component that
@@ -280,7 +297,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterLeave?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): void;
+  onAfterLeave?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): MaybePromise<void>;
 
   /**
    * Method that gets executed before the outlet contents is updated with
@@ -318,6 +335,10 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
    *   value from the callback.
    * | `commands.prevent()`       | function that creates a special object that can be returned to abort the current
    *   navigation and fall back to the last one. If there is no existing one, an exception is thrown.
+   * | `commands.redirectResult(path)` | function that creates a redirect data for the path specified, to use as a return
+   *   value from the callback.
+   * | `commands.prevent()`       | function that creates a special object that can be returned to abort the current
+   *   navigation and fall back to the last one. If there is no existing one, an exception is thrown.
    *
    * @param router - the `Router` instance
    */
@@ -325,7 +346,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
     location: RouterLocation<R>,
     commands: Commands,
     router: Router<R>,
-  ): MaybePromise<PreventResult | RedirectResult> | MaybePromise<void>;
+  ): MaybePromise<PreventResult | RedirectResult | undefined>;
 
   /**
    * Method that gets executed when user navigates away from the component
@@ -367,7 +388,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
     location: RouterLocation<R>,
     commands: Commands,
     router: Router<R>,
-  ): MaybePromise<PreventResult> | MaybePromise<void>;
+  ): MaybePromise<PreventResult | undefined>;
 }
 
 export type ResolveContext = Readonly<{

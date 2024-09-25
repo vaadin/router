@@ -1,9 +1,18 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
+import type { EmptyObject } from 'type-fest';
 import { Router, type RouterLocation } from '../../src/index.js';
+import type { InternalRouteContext } from '../../src/internal.js';
 import Resolver from '../../src/resolver/resolver.js';
 import '../setup.js';
-import type { Commands, EmptyCommands, RouteContext, WebComponentInterface } from '../../src/types.js';
+import type {
+  Commands,
+  MaybePromise,
+  RouteContext,
+  VaadinRouterErrorEvent,
+  VaadinRouterLocationChangedEvent,
+  WebComponentInterface,
+} from '../../src/types.js';
 import {
   checkOutletContents,
   cleanup,
@@ -12,7 +21,6 @@ import {
   onBeforeEnterAction,
   onBeforeLeaveAction,
   verifyActiveRoutes,
-  type NamedWebComponent,
 } from './test-utils.js';
 
 declare global {
@@ -24,7 +32,7 @@ declare global {
 
 let callbacksLog: string[] = [];
 
-class XSpy extends HTMLElement {
+class XSpy extends HTMLElement implements WebComponentInterface {
   location?: RouterLocation;
   name?: string;
 
@@ -34,14 +42,16 @@ class XSpy extends HTMLElement {
   disconnectedCallback() {
     callbacksLog.push(`${this.name ?? 'x-spy'}.disconnectedCallback`);
   }
-  onBeforeEnter() {
+  onBeforeEnter(): MaybePromise<undefined> {
     callbacksLog.push(`${this.name ?? 'x-spy'}.onBeforeEnter`);
+    return undefined;
   }
   onAfterEnter() {
     callbacksLog.push(`${this.name ?? 'x-spy'}.onAfterEnter`);
   }
-  onBeforeLeave() {
+  onBeforeLeave(): MaybePromise<undefined> {
     callbacksLog.push(`${this.name ?? 'x-spy'}.onBeforeLeave`);
+    return undefined;
   }
   onAfterLeave() {
     callbacksLog.push(`${this.name ?? 'x-spy'}.onAfterLeave`);
@@ -57,7 +67,7 @@ function extractLifeCycleCallbackCallArgs(
 
 const elementWithAllLifecycleCallbacks = (elementName: string) => (_context: RouteContext, commands: Commands) => {
   callbacksLog.push(`${elementName}.action`);
-  const component = commands.component('x-spy') as WebComponentInterface & { name?: string };
+  const component = commands.component('x-spy') as WebComponentInterface;
   component.name = elementName;
   return component;
 };
@@ -65,7 +75,7 @@ const elementWithAllLifecycleCallbacks = (elementName: string) => (_context: Rou
 const elementWithUserParameter = () => (context: RouteContext, commands: Commands) => {
   const elementName = `x-user-${String(context.params.user ?? '')}`;
   callbacksLog.push(`${elementName}.action`);
-  const component = commands.component('x-spy') as NamedWebComponent;
+  const component = commands.component('x-spy') as WebComponentInterface;
   if (!component.name) {
     component.name = elementName;
   }
@@ -170,7 +180,9 @@ describe('Vaadin Router lifecycle events', () => {
       await router.setRoutes([
         {
           path: '/',
-          action: onBeforeEnterAction('x-home-view', (_location, commands) => preventNavigation && commands.prevent()),
+          action: onBeforeEnterAction('x-home-view', (_location, commands) =>
+            preventNavigation ? commands.prevent() : undefined,
+          ),
         },
         { path: '/users', component: 'x-users-list' },
       ]);
@@ -284,6 +296,7 @@ describe('Vaadin Router lifecycle events', () => {
               callbacksLog.push('a.onBeforeEnter');
               await sleep(100);
               callbacksLog.push('a.onBeforeEnter.promise');
+              return undefined;
             },
             'a',
           ),
@@ -385,7 +398,9 @@ describe('Vaadin Router lifecycle events', () => {
       await router.setRoutes([
         {
           path: '/',
-          action: onBeforeLeaveAction('x-home-view', (_location, commands) => preventNavigation && commands.prevent()),
+          action: onBeforeLeaveAction('x-home-view', (_location, commands) =>
+            preventNavigation ? commands.prevent() : undefined,
+          ),
         },
         { path: '/users', component: 'x-users-list' },
       ]);
@@ -450,6 +465,7 @@ describe('Vaadin Router lifecycle events', () => {
               callbacksLog.push('a.onBeforeLeave');
               await sleep(100);
               callbacksLog.push('a.onBeforeLeave.promise');
+              return undefined;
             },
             'a',
           ),
@@ -851,7 +867,7 @@ describe('Vaadin Router lifecycle events', () => {
 
   describe('lifecycle events for nested routes', () => {
     const checkOutlet = (values: readonly string[]) =>
-      checkOutletContents(outlet.children[0] as NamedWebComponent, 'name', values);
+      checkOutletContents(outlet.children[0] as WebComponentInterface, 'name', values);
 
     beforeEach(async () => {
       await router.setRoutes(
@@ -1244,7 +1260,7 @@ describe('Vaadin Router lifecycle events', () => {
 
       await router.render('/a');
 
-      const cmp = outlet.children[0] as NamedWebComponent;
+      const cmp = outlet.children[0] as WebComponentInterface;
 
       expect(cmp).to.be.equal(view);
       expect(cmp.children.length).to.be.equal(1);
@@ -1772,9 +1788,13 @@ describe('Vaadin Router lifecycle events', () => {
         { path: '/', component: 'x-home-view' },
         {
           path: '/x-spy',
-          action: async (_context, _commands) => {
-            await sleep(100);
-            callbacksLog.push('action.promise');
+          async action() {
+            return await new Promise((resolve) => {
+              setTimeout(() => {
+                callbacksLog.push('action.promise');
+                resolve(undefined);
+              }, 100);
+            });
           },
           component: 'x-spy',
         },
@@ -1814,17 +1834,19 @@ describe('Vaadin Router lifecycle events', () => {
         {
           path: '/a',
           component: parentTagname,
-          action: async (context) => {
+          async action() {
             callbacksLog.push(`x-parent-layout.action`);
             await registerSpyComponentAsync(parentTagname, 'x-parent-layout', 30);
+            return undefined;
           },
           children: [
             {
               path: '/b',
               component: childTagname,
-              action: async () => {
+              async action() {
                 callbacksLog.push(`x-child.action`);
                 await registerSpyComponentAsync(childTagname, 'x-child', 30);
+                return undefined;
               },
             },
           ],
@@ -1883,9 +1905,9 @@ describe('Vaadin Router lifecycle events', () => {
       window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
       expect(onRouteChanged).to.have.been.calledOnce;
-      expect(onRouteChanged.args[0].length).to.equal(1);
+      expect(onRouteChanged.firstCall.args.length).to.equal(1);
 
-      const event = onRouteChanged.args[0][0];
+      const event: VaadinRouterLocationChangedEvent = onRouteChanged.firstCall.firstArg;
       expect(event.detail.location).to.equal(router.location);
     });
 
@@ -1898,9 +1920,9 @@ describe('Vaadin Router lifecycle events', () => {
       window.removeEventListener('vaadin-router-location-changed', onRouteChanged);
 
       expect(onRouteChanged).to.have.been.calledOnce;
-      expect(onRouteChanged.args[0].length).to.equal(1);
+      expect(onRouteChanged.firstCall.args.length).to.equal(1);
 
-      const event = onRouteChanged.args[0][0];
+      const event: VaadinRouterLocationChangedEvent = onRouteChanged.firstCall.firstArg;
       expect(event.detail.router).to.equal(router);
     });
 
@@ -1909,7 +1931,7 @@ describe('Vaadin Router lifecycle events', () => {
       let pathname;
       const checkLocation = () => {
         expect(router).to.have.nested.property('location.pathname', '/admin');
-        pathname = window.location.pathname;
+        ({ pathname } = window.location);
       };
       window.addEventListener('vaadin-router-location-changed', checkLocation);
       await router.render('/admin', true);
@@ -1954,9 +1976,9 @@ describe('Vaadin Router lifecycle events', () => {
       window.removeEventListener('vaadin-router-error', onError);
 
       expect(onError).to.have.been.calledOnce;
-      expect(onError.args[0].length).to.equal(1);
+      expect(onError.firstCall.args.length).to.equal(1);
 
-      const event = onError.args[0][0];
+      const event: VaadinRouterErrorEvent = onError.firstCall.firstArg;
       expect(event.detail.error).to.be.an('error');
       expect(event.detail.error.context.pathname).to.equal('/non-existent');
     });
@@ -1970,9 +1992,9 @@ describe('Vaadin Router lifecycle events', () => {
       window.removeEventListener('vaadin-router-error', onError);
 
       expect(onError).to.have.been.calledOnce;
-      expect(onError.args[0].length).to.equal(1);
+      expect(onError.firstCall.args.length).to.equal(1);
 
-      const event = onError.args[0][0];
+      const event: VaadinRouterErrorEvent = onError.firstCall.firstArg;
       expect(event.detail.router).to.equal(router);
     });
 
@@ -1985,32 +2007,37 @@ describe('Vaadin Router lifecycle events', () => {
       window.removeEventListener('vaadin-router-error', onError);
 
       expect(onError).to.have.been.calledOnce;
-      expect(onError.args[0].length).to.equal(1);
+      expect(onError.firstCall.args.length).to.equal(1);
 
-      const event = onError.args[0][0];
+      const event: VaadinRouterErrorEvent = onError.firstCall.firstArg;
       expect(event.detail.pathname).to.equal('/non-existent');
     });
   });
 
-  describe('Simultaneous renders', async () => {
+  describe('Simultaneous renders', () => {
     const PAUSE_TIME = 100; // in ms
 
-    const elementWithAction = (elementName) => {
+    const elementWithAction = (elementName: string) => {
       callbacksLog.push(`${elementName}.action`);
       const el = document.createElement('x-spy');
       el.name = elementName;
       return el;
     };
-    const elementWithSlowBeforeEnter = (elementName) => async (context, commands) => {
-      const el = elementWithAction(`${elementName}-render-${context.__renderId}`);
+    const elementWithSlowBeforeEnter = (elementName: string) => (context: RouteContext) => {
+      const el = elementWithAction(
+        `${elementName}-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`,
+      );
       el.onBeforeEnter = async () => {
         callbacksLog.push(`${el.name}.onBeforeEnter`);
         await sleep(PAUSE_TIME);
+        return undefined;
       };
       return el;
     };
-    const elementWithSlowBeforeLeave = (elementName) => async (context, commands) => {
-      const el = elementWithAction(`${elementName}-render-${context.__renderId}`);
+    const elementWithSlowBeforeLeave = (elementName: string) => (context: RouteContext) => {
+      const el = elementWithAction(
+        `${elementName}-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`,
+      );
       el.onBeforeLeave = async () => {
         callbacksLog.push(`${el.name}.onBeforeLeave`);
         await sleep(PAUSE_TIME);
@@ -2018,27 +2045,31 @@ describe('Vaadin Router lifecycle events', () => {
       return el;
     };
 
-    const elementWithRenderId = (elementName) => async (context) =>
-      elementWithAction(`${elementName}-render-${context.__renderId}`);
+    const elementWithRenderId = (elementName: string) => (context: RouteContext) =>
+      elementWithAction(`${elementName}-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`);
 
     it('should only run action when it is the last render', async () => {
       await router.setRoutes(
         [
           {
             path: '/',
-            action: async (context) => {
-              const el = elementWithAction(`x-parent-layout-render-${context.__renderId}`);
+            async action(context: RouteContext) {
+              const el = elementWithAction(
+                `x-parent-layout-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`,
+              );
               await sleep(PAUSE_TIME);
               return el;
             },
             children: [
               {
                 path: 'a',
-                action: (context) => elementWithAction(`x-a-render-${context.__renderId}`),
+                action: (context: RouteContext) =>
+                  elementWithAction(`x-a-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`),
               },
               {
                 path: 'b',
-                action: (context) => elementWithAction(`x-b-render-${context.__renderId}`),
+                action: (context: RouteContext) =>
+                  elementWithAction(`x-b-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`),
               },
             ],
           },
@@ -2046,7 +2077,7 @@ describe('Vaadin Router lifecycle events', () => {
         true,
       );
       callbacksLog = [];
-      router.render('/a');
+      await router.render('/a');
       // render another path just before it runs action of `a`
       await sleep(PAUSE_TIME * 0.9);
       await router.render('/b');
@@ -2085,7 +2116,7 @@ describe('Vaadin Router lifecycle events', () => {
         true,
       );
       callbacksLog = [];
-      router.render('/a');
+      await router.render('/a');
       // wait until the end of parent.onBeforeEnter
       // then trigger a new render
       // so that `x-a.onBeforeEnter` won't be executed
@@ -2134,7 +2165,7 @@ describe('Vaadin Router lifecycle events', () => {
         true,
       );
       callbacksLog = [];
-      router.render('/a/a-child');
+      await router.render('/a/a-child');
       // give it enough time for running `parent.onBeforeEnter` and `x-a.onBeforeEnter`
       // then start a new render,
       // so `a-child.onBeforeEnter` shouldn't run at all
@@ -2184,7 +2215,7 @@ describe('Vaadin Router lifecycle events', () => {
       );
       await router.render('/a/a-child');
       callbacksLog = [];
-      router.render('/b');
+      await router.render('/b');
       await sleep(PAUSE_TIME * 0.9);
       await router.render('/a/a-child');
       verifyActiveRoutes(router, ['/', 'a', 'a-child']);
@@ -2242,64 +2273,67 @@ describe('Vaadin Router lifecycle events', () => {
         ],
         true,
       );
-      return await new Promise((resolve, reject) => {
-        const waitForLocation = async (event: CustomEvent<{ location: RouterLocation }>) => {
-          if (event.detail.location.pathname === '/b') {
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            window.removeEventListener('vaadin-router-location-changed', waitForLocation);
-            await router.render('/a/a-child');
-            try {
-              verifyActiveRoutes(router, ['/', 'a', 'a-child']);
-              verifyCallbacks([
-                'x-parent-layout-render-2.action',
-                'x-b-render-2.action',
-                'x-a-render-1.onBeforeLeave',
-                'x-parent-layout-render-1.onBeforeLeave',
-                'x-parent-layout-render-2.onBeforeEnter',
-                'x-b-render-2.onBeforeEnter',
-                'x-parent-layout-render-2.connectedCallback',
-                'x-b-render-2.connectedCallback',
-                // x-b-render-2.onAfterEnter is not executed here
-                // because the 3rd render already started
-                'x-parent-layout-render-3.action',
-                'x-a-render-3.action',
-                'x-a-child-render-3.action',
-                'x-a-render-1.onBeforeLeave',
-                'x-parent-layout-render-1.onBeforeLeave',
-                'x-parent-layout-render-3.onBeforeEnter',
-                'x-a-render-3.onBeforeEnter',
-                'x-a-child-render-3.onBeforeEnter',
-                'x-parent-layout-render-2.disconnectedCallback',
-                'x-b-render-2.disconnectedCallback',
-                'x-parent-layout-render-3.connectedCallback',
-                'x-a-render-3.connectedCallback',
-                'x-a-child-render-3.connectedCallback',
-                'x-parent-layout-render-3.onAfterEnter',
-                'x-a-render-3.onAfterEnter',
-                'x-a-child-render-3.onAfterEnter',
-                'x-a-render-1.onAfterLeave',
-                'x-parent-layout-render-1.onAfterLeave',
-                'x-a-render-1.disconnectedCallback',
-                'x-parent-layout-render-1.disconnectedCallback',
-              ]);
-              resolve();
-            } catch (e) {
-              reject(e as Error);
-            }
-          }
-        };
 
+      const waitForLocationPromise = new Promise<void>((resolve, reject) => {
+        const ctrl = new AbortController();
         // Attach a listener to `location-changed` event to trigger another render
         // because the event happens just before 'onAfterEnter'/'onAfterLeave'.
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        window.addEventListener('vaadin-router-location-changed', waitForLocation);
-        // eslint-disable-next-line no-void
-        void router.render('/a').then(() => {
-          callbacksLog = [];
-          // eslint-disable-next-line no-void
-          void router.render('/b');
-        });
+        window.addEventListener(
+          'vaadin-router-location-changed',
+          (event: VaadinRouterLocationChangedEvent) => {
+            if (event.detail.location.pathname === '/b') {
+              ctrl.abort();
+              router
+                .render('/a/a-child')
+                .then(() => {
+                  verifyActiveRoutes(router, ['/', 'a', 'a-child']);
+                  verifyCallbacks([
+                    'x-parent-layout-render-2.action',
+                    'x-b-render-2.action',
+                    'x-a-render-1.onBeforeLeave',
+                    'x-parent-layout-render-1.onBeforeLeave',
+                    'x-parent-layout-render-2.onBeforeEnter',
+                    'x-b-render-2.onBeforeEnter',
+                    'x-parent-layout-render-2.connectedCallback',
+                    'x-b-render-2.connectedCallback',
+                    // x-b-render-2.onAfterEnter is not executed here
+                    // because the 3rd render already started
+                    'x-parent-layout-render-3.action',
+                    'x-a-render-3.action',
+                    'x-a-child-render-3.action',
+                    'x-a-render-1.onBeforeLeave',
+                    'x-parent-layout-render-1.onBeforeLeave',
+                    'x-parent-layout-render-3.onBeforeEnter',
+                    'x-a-render-3.onBeforeEnter',
+                    'x-a-child-render-3.onBeforeEnter',
+                    'x-parent-layout-render-2.disconnectedCallback',
+                    'x-b-render-2.disconnectedCallback',
+                    'x-parent-layout-render-3.connectedCallback',
+                    'x-a-render-3.connectedCallback',
+                    'x-a-child-render-3.connectedCallback',
+                    'x-parent-layout-render-3.onAfterEnter',
+                    'x-a-render-3.onAfterEnter',
+                    'x-a-child-render-3.onAfterEnter',
+                    'x-a-render-1.onAfterLeave',
+                    'x-parent-layout-render-1.onAfterLeave',
+                    'x-a-render-1.disconnectedCallback',
+                    'x-parent-layout-render-1.disconnectedCallback',
+                  ]);
+                  resolve();
+                })
+                .catch((e: unknown) => {
+                  reject(new Error('Error happened', { cause: e }));
+                });
+            }
+          },
+          { signal: ctrl.signal },
+        );
       });
+
+      await router.render('/a');
+      callbacksLog = [];
+      await router.render('/b');
+      await waitForLocationPromise;
     });
   });
 });
