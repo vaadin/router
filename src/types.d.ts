@@ -272,7 +272,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterEnter?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): MaybePromise<void>;
+  onAfterEnter?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): void;
 
   /**
    * Method that gets executed when user navigates away from the component that
@@ -297,7 +297,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterLeave?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): MaybePromise<void>;
+  onAfterLeave?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): void;
 
   /**
    * Method that gets executed before the outlet contents is updated with
