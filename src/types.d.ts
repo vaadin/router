@@ -438,7 +438,11 @@ export type Route<R extends AnyObject = EmptyObject> = Readonly<
     children?: ChildrenCallback<R> | ReadonlyArray<Route<R>>;
     component?: string;
     redirect?: string;
-    action?(this: Route<R>, context: RouteContext<R>, commands?: Commands): MaybePromise<ActionResult>;
+    action?(
+      this: Route<R>,
+      context: RouteContext<R>,
+      commands?: Commands,
+    ): MaybePromise<ActionResult | RouteContext<R>>;
   }> & {
     animate?: AnimateCustomClasses | boolean;
     name?: string;

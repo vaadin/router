@@ -32,6 +32,10 @@ function isDescendantRoute<R extends AnyObject>(route?: InternalRoute<R>, maybeP
   return false;
 }
 
+function isRouteContext<R extends AnyObject>(value: ActionResult | RouteContext<R>): value is RouteContext<R> {
+  return !!value && typeof value === 'object' && 'result' in value;
+}
+
 export interface ResolutionErrorOptions extends ErrorOptions {
   code?: number;
 }
@@ -83,7 +87,9 @@ export type ErrorHandlerCallback = (error: unknown) => ActionResult;
 
 export type ResolveContext = Readonly<{ pathname: string }>;
 
-export type ResolveRouteCallback<R extends AnyObject> = (context: RouteContext<R>) => MaybePromise<ActionResult>;
+export type ResolveRouteCallback<R extends AnyObject> = (
+  context: RouteContext<R>,
+) => MaybePromise<ActionResult | RouteContext<R>>;
 
 export type ResolverOptions<R extends AnyObject> = Readonly<{
   baseUrl?: string;
@@ -213,7 +219,7 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
       nextMatches = null;
 
       if (!resume) {
-        if (matches.done ?? !isDescendantRoute(matches.value.route, parent)) {
+        if (!!matches.done || !isDescendantRoute(matches.value.route, parent)) {
           nextMatches = matches;
           return notFoundResult;
         }
@@ -234,7 +240,9 @@ export default class Resolver<R extends AnyObject = EmptyObject> {
       const resolution = await resolve(currentContext);
 
       if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
-        currentContext.result = resolution;
+        currentContext.result = isRouteContext(resolution)
+          ? (resolution as InternalRouteContext<R>).result
+          : resolution;
         self.context = currentContext;
         return currentContext;
       }

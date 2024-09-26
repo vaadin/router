@@ -12,7 +12,7 @@ import { isFunction } from '../utils.js';
 
 export default function resolveRoute<R extends AnyObject = EmptyObject>(
   context: RouteContext<R>,
-): MaybePromise<ActionResult> {
+): MaybePromise<ActionResult | RouteContext<R>> {
   if (isFunction(context.route.action)) {
     return context.route.action(context);
   }
