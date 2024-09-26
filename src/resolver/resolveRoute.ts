@@ -7,13 +7,14 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 import type { EmptyObject } from 'type-fest';
-import type { ActionResult, AnyObject, MaybePromise, RouteContext } from '../types.js';
-import { isFunction } from '../utils.js';
+import type { ActionResult, AnyObject, RouteContext } from './types.js';
+import { isFunction } from './utils.js';
 
-export default function resolveRoute<R extends AnyObject = EmptyObject>(
-  context: RouteContext<R>,
-): MaybePromise<ActionResult | RouteContext<R>> {
-  if (isFunction(context.route.action)) {
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+export default function resolveRoute<T, R extends AnyObject = EmptyObject>(
+  context: RouteContext<T, R>,
+): ActionResult<T> {
+  if (isFunction(context.route?.action)) {
     return context.route.action(context);
   }
   return undefined;

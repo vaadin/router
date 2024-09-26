@@ -38,7 +38,7 @@ import {
   logValue,
   notFoundResult,
   toArray,
-} from './utils.js';
+} from './resolver/utils.js';
 
 const MAX_REDIRECT_COUNT = 256;
 

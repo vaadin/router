@@ -11,7 +11,7 @@ import { type Key, pathToRegexp } from 'path-to-regexp';
 import type { Writable } from 'type-fest';
 import type { RegExpExecOptArray } from '../internal.js';
 import type { IndexedParams } from '../types.js';
-import { resolvePath } from '../utils.js';
+import { resolvePath } from './utils.js';
 
 type Matcher = Readonly<{
   keys: readonly Key[];

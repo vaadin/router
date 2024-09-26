@@ -5,10 +5,10 @@ import '../setup.js';
 import { checkOutletContents, cleanup, onBeforeEnterAction } from './test-utils.js';
 
 describe('Router', () => {
-  const checkOutlet = (values) => checkOutletContents(outlet.children[0], 'tagName', values);
-
   let outlet: HTMLElement;
   let link: HTMLAnchorElement;
+
+  const checkOutlet = (values: readonly string[]) => checkOutletContents(outlet.children[0], 'tagName', values);
 
   before(() => {
     link = document.createElement('a');
@@ -24,6 +24,7 @@ describe('Router', () => {
     history.back();
   });
 
+  afterEach(() => {
   afterEach(() => {
     cleanup(outlet);
   });
@@ -49,6 +50,8 @@ describe('Router', () => {
 
       it('should throw if the router outlet is truthy but is not valid a DOM Node', () => {
         [true, 42, '<slot></slot>', {}, [document.body], () => document.body].forEach((arg) => {
+          // @ts-expect-error: testing invalid arguments
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
           expect(() => new Router(arg), `${arg}`).to.throw(TypeError);
         });
       });
@@ -171,6 +174,7 @@ describe('Router', () => {
             const fulfilled = sinon.spy();
             const rejected = sinon.spy();
             const ready = router.render('/').then(fulfilled).catch(rejected);
+            // @ts-expect-error: testing invalid arguments
             router.setOutlet(invalidOutlet);
             await ready;
             expect(fulfilled).to.not.have.been.called;
@@ -205,7 +209,7 @@ describe('Router', () => {
         expect(outlet.children).to.have.lengthOf(0);
         await promise;
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('should return a promise that gets rejected on no-match', (done) => {
@@ -221,7 +225,7 @@ describe('Router', () => {
         await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
         await router.render('/');
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('should rethrow DOMException if the route `component` is not a valid tag name', async () => {
@@ -246,7 +250,7 @@ describe('Router', () => {
         await router.render('/');
         await router.render('/users');
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-users-view/iu);
       });
 
       it('should remove any pre-existing content of the router outlet on no-match', async () => {
@@ -271,7 +275,7 @@ describe('Router', () => {
           router.render('/admin'), // start the second resolve pass before the first is completed
         ]);
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-admin-view/iu);
       });
 
       it('should ignore an error result of a resolve pass if a new resolve pass is started before the first is completed', async () => {
@@ -288,7 +292,7 @@ describe('Router', () => {
           router.render('/admin'), // start the second resolve pass before the first is completed
         ]);
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-admin-view/iu);
       });
 
       it('should start a new resolve pass when route has "redirect" property', async () => {
@@ -308,8 +312,8 @@ describe('Router', () => {
         await router.render(from);
 
         expect(spy).to.be.calledTwice;
-        const firstResult = await spy.returnValues[0];
-        expect(firstResult.result).to.deep.equal(result);
+        const firstResult = await spy.firstCall.returnValue;
+        expect(firstResult).to.have.property('result').that.deep.equals(result);
 
         expect(spy.secondCall.args[0].redirectFrom).to.equal(from);
         expect(spy.secondCall.args[0].pathname).to.equal(pathname);
@@ -327,7 +331,7 @@ describe('Router', () => {
 
         await router.render('/a');
 
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('should fail on recursive redirects', async () => {
@@ -340,7 +344,7 @@ describe('Router', () => {
           true,
         );
 
-        const onError = sinon.spy();
+        const onError = sinon.stub<[unknown], undefined>();
         await router.render('/a').catch(onError);
 
         expect(outlet.children).to.have.lengthOf(0);
@@ -358,7 +362,7 @@ describe('Router', () => {
         );
         await router.render('/people');
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-users-view/iu);
       });
 
       it('should use `window.replaceState()` when redirecting on initial render', async () => {
@@ -377,9 +381,6 @@ describe('Router', () => {
 
         expect(pushSpy).to.not.be.called;
         expect(replaceSpy).to.be.calledOnce;
-
-        window.history.pushState.restore();
-        window.history.replaceState.restore();
       });
 
       it('should use `window.pushState()` when redirecting on next renders', async () => {
@@ -453,7 +454,7 @@ describe('Router', () => {
         void router.render('/');
         await router.ready.then((location) => {
           expect(outlet.children).to.have.lengthOf(1);
-          expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+          expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
         });
       });
 
@@ -478,7 +479,7 @@ describe('Router', () => {
       it('(render completed / ok) should get fulfilled with the last render result', async () => {
         await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
         await router.render('/').then(() =>
-          router.ready.then((location) => {
+          router.ready.then((_location) => {
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
           }),
@@ -602,7 +603,7 @@ describe('Router', () => {
 
       it('should contain the routes chain from the last completed render pass (single route)', async () => {
         const route = { path: '/', component: 'x-home-view' };
-        router.setRoutes(route);
+        await router.setRoutes(route);
 
         await router.ready;
 
@@ -754,7 +755,7 @@ describe('Router', () => {
         });
 
         it('should work in onBeforeEnter lifecycle method', async () => {
-          router.setRoutes([
+          await router.setRoutes([
             {
               path: '/',
               action: onBeforeEnterAction('x-foo', () => {
@@ -789,7 +790,7 @@ describe('Router', () => {
       let onVaadinRouterGo;
 
       beforeEach(async () => {
-        onVaadinRouterGo = sinon.spy();
+        onVaadinRouterGo = sinon.stub();
         window.addEventListener('vaadin-router-go', onVaadinRouterGo);
       });
 
@@ -882,7 +883,7 @@ describe('Router', () => {
       });
 
       it('should trigger a popstate event after navigation', async () => {
-        const onpopstate = sinon.spy();
+        const onpopstate = sinon.stub();
         window.addEventListener('popstate', onpopstate);
         window.dispatchEvent(new CustomEvent('vaadin-router-go', { detail: { pathname: '/admin' } }));
         await router.ready;
@@ -891,7 +892,7 @@ describe('Router', () => {
       });
 
       it('should not trigger a popstate event after navigation if the pathname has not changed', async () => {
-        const onpopstate = sinon.spy();
+        const onpopstate = sinon.stub();
         window.addEventListener('popstate', onpopstate);
         window.dispatchEvent(new CustomEvent('vaadin-router-go', { detail: { pathname: '/' } }));
         await router.ready;
@@ -900,7 +901,7 @@ describe('Router', () => {
       });
 
       it('should fire navigate event only once per single pathname change', async () => {
-        const navigateSpy = sinon.spy();
+        const navigateSpy = sinon.stub();
         window.addEventListener('vaadin-router-go', navigateSpy);
         const event = new CustomEvent('vaadin-router-go', { detail: { pathname: '/admin' } });
         window.dispatchEvent(event);
@@ -912,7 +913,7 @@ describe('Router', () => {
         window.dispatchEvent(new CustomEvent('vaadin-router-go', { detail: { pathname: '/' } }));
         await router.ready;
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('should unsubscribe from navigation events after an `unsubscribe()` method call', async () => {
@@ -920,7 +921,7 @@ describe('Router', () => {
         window.dispatchEvent(new CustomEvent('vaadin-router-go', { detail: { pathname: '/admin' } }));
         await router.ready;
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('should subscribe to navigation events after a `subscribe()` method call', async () => {
@@ -929,21 +930,21 @@ describe('Router', () => {
         window.dispatchEvent(new CustomEvent('vaadin-router-go', { detail: { pathname: '/' } }));
         await router.ready;
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('should handle updates to the routes config as navigation triggers', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }]);
         await router.ready;
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('should use the POPSTATE navigation trigger by default', async () => {
         window.dispatchEvent(new PopStateEvent('popstate'));
         await router.ready;
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('should use the CLICK navigation trigger by default', async () => {
@@ -951,7 +952,7 @@ describe('Router', () => {
         link.click();
         await router.ready;
         expect(outlet.children).to.have.lengthOf(1);
-        expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-admin-view/iu);
       });
 
       it('should respect search detail property of `vaadin-router-go` event', async () => {
@@ -985,11 +986,11 @@ describe('Router', () => {
           Router.go('/admin');
           await router.ready;
           expect(outlet.children).to.have.lengthOf(1);
-          expect(outlet.children[0].tagName).to.match(/x-admin-view/i);
+          expect(outlet.children[0].tagName).to.match(/x-admin-view/iu);
         });
 
         it('should trigger a `vaadin-router-go` event on the `window`', async () => {
-          const spy = sinon.spy();
+          const spy = sinon.stub();
           window.addEventListener('vaadin-router-go', spy);
           Router.go('/');
           window.removeEventListener('vaadin-router-go', spy);
@@ -998,7 +999,7 @@ describe('Router', () => {
         });
 
         it('should pass the given pathname in the `detail.pathname` property of the triggered event when Router.go() is called', () => {
-          const spy = sinon.spy();
+          const spy = sinon.stub();
           window.addEventListener('vaadin-router-go', spy);
           // use a valid route
           Router.go('/admin');
@@ -1008,7 +1009,7 @@ describe('Router', () => {
         });
 
         it('should support url with search string', () => {
-          const spy = sinon.spy();
+          const spy = sinon.stub();
           window.addEventListener('vaadin-router-go', spy);
           Router.go('/admin?foo=bar');
           window.removeEventListener('vaadin-router-go', spy);
@@ -1019,7 +1020,7 @@ describe('Router', () => {
         });
 
         it('should support url with hash string', () => {
-          const spy = sinon.spy();
+          const spy = sinon.stub();
           window.addEventListener('vaadin-router-go', spy);
           // use a valid route
           Router.go('/admin#foo');
@@ -1031,7 +1032,7 @@ describe('Router', () => {
         });
 
         it('should support url with search and hash strings', () => {
-          const spy = sinon.spy();
+          const spy = sinon.stub();
           window.addEventListener('vaadin-router-go', spy);
           // use a valid route
           Router.go('/admin?foo=bar#baz');
@@ -1043,7 +1044,7 @@ describe('Router', () => {
         });
 
         it('should support object argument with pathname, optional search, and optional hash', () => {
-          const spy = sinon.spy();
+          const spy = sinon.stub();
           window.addEventListener('vaadin-router-go', spy);
 
           Router.go({ pathname: '/admin' });
@@ -1304,7 +1305,7 @@ describe('Router', () => {
         );
         await router.render('/users/1');
         const elem = outlet.children[0];
-        expect(elem.tagName).to.match(/x-users-view/i);
+        expect(elem.tagName).to.match(/x-users-view/iu);
         expect(elem.location.params).to.be.an('object');
         expect(elem.location.params.id).to.equal('1');
       });
@@ -1320,13 +1321,13 @@ describe('Router', () => {
 
         await router.render('/users/1');
         const elemOne = outlet.children[0];
-        expect(elemOne.tagName).to.match(/x-users-view/i);
+        expect(elemOne.tagName).to.match(/x-users-view/iu);
         expect(elemOne.location.params).to.be.an('object');
         expect(elemOne.location.params.id).to.equal('1');
 
         await router.render('/users/2');
         const elemTwo = outlet.children[0];
-        expect(elemTwo.tagName).to.match(/x-users-view/i);
+        expect(elemTwo.tagName).to.match(/x-users-view/iu);
         expect(elemTwo).to.not.equal(elemOne);
         expect(elemTwo.location.params).to.be.an('object');
         expect(elemTwo.location.params.id).to.equal('2');
@@ -1400,7 +1401,7 @@ describe('Router', () => {
 
         await router.render('/');
 
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('action without return should be executed before redirect and allow it to happen', async () => {
@@ -1422,7 +1423,7 @@ describe('Router', () => {
 
         await router.render('/test');
 
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
         expect(actionExecuted).to.equal(true);
       });
 
@@ -1447,7 +1448,7 @@ describe('Router', () => {
 
         await router.render('/home');
 
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
         expect(actionExecuted).to.equal(true);
       });
 
@@ -1584,7 +1585,7 @@ describe('Router', () => {
         await router.render('/');
 
         expect(actionExecuted).to.equal(true);
-        expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-users-view/iu);
       });
 
       it('action can redirect by using the context method', async () => {
@@ -1599,7 +1600,7 @@ describe('Router', () => {
         await router.render('/users/1');
 
         const elem = outlet.children[0];
-        expect(elem.tagName).to.match(/x-users-view/i);
+        expect(elem.tagName).to.match(/x-users-view/iu);
         expect(elem.location.params).to.be.an('object');
         expect(elem.location.params.id).to.equal('1');
       });
@@ -1613,7 +1614,7 @@ describe('Router', () => {
         await router.render('/users/1');
 
         const elem = outlet.children[0];
-        expect(elem.tagName).to.match(/x-users-view/i);
+        expect(elem.tagName).to.match(/x-users-view/iu);
         expect(elem.location.params).to.be.an('object');
         expect(elem.location.params.id).to.equal('1');
       });
@@ -1627,7 +1628,7 @@ describe('Router', () => {
         await router.render('/users/1');
 
         const elem = outlet.children[0];
-        expect(elem.tagName).to.match(/x-users-view/i);
+        expect(elem.tagName).to.match(/x-users-view/iu);
         expect(elem.location.params).to.be.an('object');
         expect(elem.location.params.id).to.equal('1');
       });
@@ -1646,7 +1647,7 @@ describe('Router', () => {
         await router.render('/users/1');
 
         const elem = outlet.children[0];
-        expect(elem.tagName).to.match(/x-users-view/i);
+        expect(elem.tagName).to.match(/x-users-view/iu);
         expect(elem.location.params).to.be.an('object');
         expect(elem.location.params.id).to.equal('1');
       });
@@ -1662,7 +1663,7 @@ describe('Router', () => {
 
         await router.render('/test');
 
-        expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-users-view/iu);
       });
 
       it('action should be executed after children function', async () => {
@@ -1702,7 +1703,7 @@ describe('Router', () => {
 
         await router.render('/home/1');
 
-        expect(outlet.children[0].tagName).to.match(/x-users-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-users-view/iu);
         expect(children).to.have.been.called;
       });
 
@@ -1755,14 +1756,14 @@ describe('Router', () => {
       });
 
       it('commands.redirect() should work when invoked without the `this` context', async () => {
-        router.setRoutes([
+        await router.setRoutes([
           { path: '/', component: 'x-home-view' },
           { path: '/a', action: (context, { redirect }) => redirect('/') },
         ]);
 
         await router.render('/a');
 
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it("commands.redirect() should update redirect.from and the next action's context.redirectFrom", async () => {
@@ -1801,7 +1802,7 @@ describe('Router', () => {
 
         await router.render(from);
 
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it("commands.redirect() should not produce double slashes in redirect.from and the next action's context.redirectFrom", async () => {
@@ -1827,7 +1828,7 @@ describe('Router', () => {
 
         await router.render('/c');
 
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
         expect(from).to.be.equal('/c');
       });
 
@@ -1849,11 +1850,11 @@ describe('Router', () => {
         );
 
         await router.render('/');
-        expect(outlet.children[0].tagName).to.match(/x-login-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-login-view/iu);
 
         anonymous = false;
         await router.render('/');
-        expect(outlet.children[0].tagName).to.match(/x-home-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
       });
 
       it('should reuse DOM instance even when route has completely different path', async () => {
@@ -1891,17 +1892,17 @@ describe('Router', () => {
         );
 
         await router.render('/client-view');
-        expect(outlet.children[0].tagName).to.match(/x-client-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-client-view/iu);
 
         await router.render('/server-view');
         expect(outlet.children[0]).to.be.equal(sharedElementInstance);
-        expect(outlet.children[0].children[0].tagName).to.match(/server-side-server-view/i);
+        expect(outlet.children[0].children[0].tagName).to.match(/server-side-server-view/iu);
         expect(outlet.children[0].children[0].id).to.be.equal(`flow${serverSideComponentId}`);
         expect(outlet.children[0].children[0].textContent).to.be.equal('/server-view');
 
         await router.render('/reviews-list');
         expect(outlet.children[0]).to.be.equal(sharedElementInstance);
-        expect(outlet.children[0].children[0].tagName).to.match(/server-side-reviews-list/i);
+        expect(outlet.children[0].children[0].tagName).to.match(/server-side-reviews-list/iu);
         expect(outlet.children[0].children[0].id).to.be.equal(`flow${serverSideComponentId}`);
         expect(outlet.children[0].children[0].textContent).to.be.equal('/reviews-list');
       });
@@ -2058,17 +2059,17 @@ describe('Router', () => {
           true,
         );
         await router.render('/users/john/edit');
-        expect(outlet.children[0].tagName).to.match(/x-user/i);
-        expect(outlet.children[0].children[0].tagName).to.match(/x-fancy-name/i);
-        expect(outlet.children[0].children[0].textContent).to.match(/john/i);
-        expect(outlet.children[0].children[1].tagName).to.match(/x-edit/i);
+        expect(outlet.children[0].tagName).to.match(/x-user/iu);
+        expect(outlet.children[0].children[0].tagName).to.match(/x-fancy-name/iu);
+        expect(outlet.children[0].children[0].textContent).to.match(/john/iu);
+        expect(outlet.children[0].children[1].tagName).to.match(/x-edit/iu);
         expect(outlet.children[0].children[1].textContent).to.be.equal(textContent);
 
         await router.render('/users/cena/edit');
-        expect(outlet.children[0].tagName).to.match(/x-user/i);
-        expect(outlet.children[0].children[0].tagName).to.match(/x-fancy-name/i);
-        expect(outlet.children[0].children[0].textContent).to.match(/cena/i);
-        expect(outlet.children[0].children[1].tagName).to.match(/x-edit/i);
+        expect(outlet.children[0].tagName).to.match(/x-user/iu);
+        expect(outlet.children[0].children[0].tagName).to.match(/x-fancy-name/iu);
+        expect(outlet.children[0].children[0].textContent).to.match(/cena/iu);
+        expect(outlet.children[0].children[1].tagName).to.match(/x-edit/iu);
         expect(outlet.children[0].children[1].textContent).to.be.equal(textContent);
       });
     });
@@ -2091,7 +2092,7 @@ describe('Router', () => {
         await router.render('/users/2');
 
         const elem = outlet.children[0];
-        expect(elem.tagName).to.match(/x-user-profile/i);
+        expect(elem.tagName).to.match(/x-user-profile/iu);
         expect(elem.location.params).to.be.an('object');
         expect(elem.location.params.user).to.equal('2');
       });
@@ -2104,7 +2105,7 @@ describe('Router', () => {
         await router.render('/users/2');
 
         const elem = outlet.children[0];
-        expect(elem.tagName).to.match(/x-user-profile/i);
+        expect(elem.tagName).to.match(/x-user-profile/iu);
         expect(elem.location.params).to.be.an('object');
         expect(elem.location.params.user).to.equal('2');
       });
@@ -2117,10 +2118,10 @@ describe('Router', () => {
         await router.setRoutes([{ path: '/users', children }], true);
 
         await router.render('/users/2');
-        expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+        expect(outlet.children[0].tagName).to.match(/x-user-profile/iu);
 
         await router.render('/users/2');
-        expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+        expect(outlet.children[0].tagName).to.match(/x-user-profile/iu);
         expect(children).to.have.been.calledOnce;
       });
 
@@ -2130,10 +2131,10 @@ describe('Router', () => {
         await router.setRoutes([{ path: '/users', children }], true);
 
         await router.render('/users/1');
-        expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+        expect(outlet.children[0].tagName).to.match(/x-user-profile/iu);
 
         await router.render('/users/1');
-        expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+        expect(outlet.children[0].tagName).to.match(/x-user-profile/iu);
 
         expect(children).to.have.been.calledTwice;
       });
@@ -2162,10 +2163,10 @@ describe('Router', () => {
         );
 
         await router.render('/users/1');
-        expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
+        expect(outlet.children[0].tagName).to.match(/x-user-profile/iu);
 
         await router.render('/users/1');
-        expect(outlet.children[0].tagName).to.match(/x-not-found-view/i);
+        expect(outlet.children[0].tagName).to.match(/x-not-found-view/iu);
       });
 
       it('should not be called when resolver does not need the route children list', async () => {
@@ -2182,7 +2183,7 @@ describe('Router', () => {
 
         await router.render('/users');
 
-        expect(outlet.children[0].tagName).to.match(/x-users-layout/i);
+        expect(outlet.children[0].tagName).to.match(/x-users-layout/iu);
         expect(children).to.not.have.been.called;
       });
 
@@ -2206,7 +2207,7 @@ describe('Router', () => {
       });
 
       it('should be called on the route object (as `this`)', async () => {
-        const children = sinon.spy();
+        const children = sinon.stub();
         const route = { path: '/users', children };
         await router.setRoutes([route], true);
 
@@ -2293,7 +2294,7 @@ describe('Router', () => {
 
         await router.render('/a/b');
 
-        expect(outlet.children[0].tagName).to.match(/x-c/i);
+        expect(outlet.children[0].tagName).to.match(/x-c/iu);
       });
     });
 
@@ -2338,11 +2339,11 @@ describe('Router', () => {
         }
 
         expect(data.length).to.equal(4);
-        expect(data[0].target.tagName).to.match(/x-home-view/i);
-        expect(data[1].target.tagName).to.match(/x-home-view/i);
+        expect(data[0].target.tagName).to.match(/x-home-view/iu);
+        expect(data[1].target.tagName).to.match(/x-home-view/iu);
         expect(data[1].oldValue).to.equal('leaving');
-        expect(data[2].target.tagName).to.match(/x-animate-view/i);
-        expect(data[3].target.tagName).to.match(/x-animate-view/i);
+        expect(data[2].target.tagName).to.match(/x-animate-view/iu);
+        expect(data[3].target.tagName).to.match(/x-animate-view/iu);
         expect(data[3].oldValue).to.equal('entering');
       });
     });

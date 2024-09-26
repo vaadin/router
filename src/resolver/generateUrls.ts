@@ -8,20 +8,20 @@
  */
 
 import { parse, type ParseOptions, type Token, tokensToFunction, type TokensToFunctionOptions } from 'path-to-regexp';
-import type { EmptyObject } from 'type-fest';
-import type { InternalRoute } from '../internal.js';
-import type { ChildrenCallback, AnyObject, Params } from '../types.js';
-import { getRoutePath, isString } from '../utils.js';
+import type { EmptyObject, Writable } from 'type-fest';
 import Resolver from './resolver.js';
+import type { AnyObject, ChildrenCallback, Route } from './types.js';
+import { getRoutePath, isString } from './utils.js';
 
 export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> | number | string>>;
 
-function cacheRoutes<R extends AnyObject = EmptyObject>(
-  routesByName: Map<string, Array<InternalRoute<R>>>,
-  route: InternalRoute<R>,
-  routes?: ChildrenCallback<R> | ReadonlyArray<InternalRoute<R>>,
+function cacheRoutes<T, R extends AnyObject = EmptyObject>(
+  routesByName: Map<string, Array<Route<T, R>>>,
+  route: Writable<Route<T, R>>,
+  routes?: ChildrenCallback<T, R> | ReadonlyArray<Route<T, R>>,
+  cacheKeyProvider?: (route: Route<T, R>) => string,
 ): void {
-  const name = route.name ?? route.component;
+  const name = route.name ?? cacheKeyProvider?.(route);
   if (name) {
     if (routesByName.has(name)) {
       routesByName.get(name)?.push(route);
@@ -30,7 +30,7 @@ function cacheRoutes<R extends AnyObject = EmptyObject>(
     }
   }
 
-  if (Array.isArray<ReadonlyArray<InternalRoute<R>>>(routes)) {
+  if (Array.isArray<ReadonlyArray<Writable<Route<T, R>>>>(routes)) {
     for (const childRoute of routes) {
       childRoute.parent = route;
       cacheRoutes(routesByName, childRoute, childRoute.__children ?? childRoute.children);
@@ -39,9 +39,9 @@ function cacheRoutes<R extends AnyObject = EmptyObject>(
 }
 
 function getRouteByName<R extends AnyObject = EmptyObject>(
-  routesByName: Map<string, Array<InternalRoute<R>>>,
+  routesByName: Map<string, Array<Route<T, R>>>,
   routeName: string,
-): InternalRoute<R> | undefined {
+): Route<T, R> | undefined {
   const routes = routesByName.get(routeName);
 
   if (routes) {
@@ -57,7 +57,7 @@ function getRouteByName<R extends AnyObject = EmptyObject>(
 
 export type StringifyQueryParams = (params: UrlParams) => string;
 
-export type GenerateUrlOptions = ParseOptions &
+export type GenerateUrlOptions<T, R extends AnyObject> = ParseOptions &
   Readonly<{
     /**
      * Add a query string to generated url based on unknown route params.
@@ -67,6 +67,7 @@ export type GenerateUrlOptions = ParseOptions &
      * Generates a unique route name based on all parent routes with the specified separator.
      */
     uniqueRouteNameSep?: string;
+    cacheKeyProvider?(route: Route<T, R>): string;
   }> &
   TokensToFunctionOptions;
 
@@ -77,22 +78,27 @@ type RouteCacheRecord = Readonly<{
 
 export type UrlGenerator = (routeName: string, params?: Params) => string;
 
-function generateUrls<R extends AnyObject = EmptyObject>(
+function generateUrls<T, R extends AnyObject = EmptyObject>(
   resolver: Resolver<R>,
-  options: GenerateUrlOptions = { encode: encodeURIComponent },
+  options: GenerateUrlOptions<T, R> = { encode: encodeURIComponent },
 ): UrlGenerator {
   if (!(resolver instanceof Resolver)) {
     throw new TypeError('An instance of Resolver is expected');
   }
 
   const cache = new Map<string, RouteCacheRecord>();
-  const routesByName = new Map<string, Array<InternalRoute<R>>>();
+  const routesByName = new Map<string, Array<Route<T, R>>>();
 
   return (routeName, params) => {
     let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache
-      cacheRoutes(routesByName, resolver.root, resolver.root.__children);
+      cacheRoutes(
+        routesByName,
+        resolver.root as Writable<Route<T, R>>,
+        resolver.root.__children,
+        options.cacheKeyProvider,
+      );
 
       route = getRouteByName(routesByName, routeName);
       if (!route) {

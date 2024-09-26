@@ -8,17 +8,17 @@
  */
 
 import type { Key } from 'path-to-regexp';
-import type { InternalRoute } from '../internal.js';
-import type { AnyObject, IndexedParams } from '../types.js';
-import {getRoutePath, isFunction, unwrapChildren} from '../utils.js';
+import type { Writable } from 'type-fest';
 import matchPath, { type Match } from './matchPath.js';
+import type { AnyObject, IndexedParams, Route } from './types.js';
+import { getRoutePath, unwrapChildren } from './utils.js';
 
-export type MatchWithRoute<R extends AnyObject> = Match &
+export type MatchWithRoute<T, R extends AnyObject> = Match &
   Readonly<{
-    route: InternalRoute<R>;
+    route: Route<T, R>;
   }>;
 
-type RouteMatchIterator<R extends AnyObject> = Iterator<MatchWithRoute<R>, undefined, InternalRoute<R> | undefined>;
+type RouteMatchIterator<T, R extends AnyObject> = Iterator<MatchWithRoute<T, R>, undefined, Route<T, R> | undefined>;
 
 /**
  * Traverses the routes tree and matches its nodes to the given pathname from
@@ -66,15 +66,15 @@ type RouteMatchIterator<R extends AnyObject> = Iterator<MatchWithRoute<R>, undef
  * Prefix matching can be enabled also by `children: true`.
  */
 // eslint-disable-next-line @typescript-eslint/max-params
-function matchRoute<R extends AnyObject>(
-  route: InternalRoute<R>,
+function matchRoute<T, R extends AnyObject>(
+  route: Route<T, R>,
   pathname: string,
   ignoreLeadingSlash?: boolean,
   parentKeys?: readonly Key[],
   parentParams?: IndexedParams,
-): Iterator<MatchWithRoute<R>, undefined, InternalRoute<R> | undefined> {
+): Iterator<MatchWithRoute<T, R>, undefined, Route<T, R> | undefined> {
   let match: Match | null;
-  let childMatches: RouteMatchIterator<R> | null;
+  let childMatches: RouteMatchIterator<T, R> | null;
   let childIndex = 0;
   let routepath = getRoutePath(route);
   if (routepath.startsWith('/')) {
@@ -86,12 +86,12 @@ function matchRoute<R extends AnyObject>(
   }
 
   return {
-    next: function (routeToSkip?: InternalRoute<R>): IteratorResult<MatchWithRoute<R>, undefined> {
+    next(routeToSkip?: Route<T, R>): IteratorResult<MatchWithRoute<T, R>, undefined> {
       if (route === routeToSkip) {
         return { done: true, value: undefined };
       }
 
-      route.__children ??= unwrapChildren(route.children);
+      (route as Writable<Route<T, R>>).__children ??= unwrapChildren(route.children);
       const children = route.__children ?? [];
       const exact = !route.__children && !route.children;
 
@@ -114,7 +114,7 @@ function matchRoute<R extends AnyObject>(
         while (childIndex < children.length) {
           if (!childMatches) {
             const childRoute = children[childIndex];
-            childRoute.parent = route;
+            (childRoute as Writable<Route<T, R>>).parent = route;
 
             let matchedLength = match.path.length;
             if (matchedLength > 0 && pathname.charAt(matchedLength) === '/') {

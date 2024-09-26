@@ -10,7 +10,7 @@ import type {
   RouterLocation,
   WebComponentInterface,
 } from './types.js';
-import { ensureRoute, isObject, log, toArray } from './utils.js';
+import { ensureRoute, isObject, log, toArray } from './resolver/utils.js';
 
 export function copyContextWithoutNext<R extends AnyObject>({
   next: _,

@@ -424,9 +424,9 @@ export type EmptyCommands = EmptyObject;
 export type PreventCommands = Pick<Commands, 'prevent'>;
 export type PreventAndRedirectCommands = Pick<Commands, 'prevent' | 'redirect'>;
 
-export type ChildrenCallback<R extends AnyObject> = (
-  context: RouteChildrenContext<R>,
-) => MaybePromise<ReadonlyArray<Route<R>>>;
+// export type ChildrenCallback<R extends AnyObject> = (
+//   context: RouteChildrenContext<R>,
+// ) => MaybePromise<ReadonlyArray<Route<R>>>;
 
 export type AnimateCustomClasses = Readonly<{
   enter?: string;

@@ -15,6 +15,7 @@ import sinonChai from 'sinon-chai';
 import Resolver, { ResolutionError } from '../../src/resolver/resolver.js';
 import '../setup.js';
 import type { AnyObject, RouteContext } from '../../src/types.js';
+import type { InternalRouteContext } from '../../src/internal.js';
 
 use(chaiDom);
 use(sinonChai);
@@ -32,8 +33,10 @@ describe('Resolver', () => {
     });
 
     it('should support custom resolve option for declarative routes', async () => {
-      const resolveRoute = sinon.spy(<R extends AnyObject>(context: RouteContext<R>) => context.route.component);
-      const action = sinon.spy(() => undefined);
+      const resolveRoute = sinon.spy(
+        <R extends AnyObject>(context: InternalRouteContext<R>) => context.route.component,
+      );
+      const action = sinon.stub();
       const resolver = new Resolver<string>(
         {
           action,

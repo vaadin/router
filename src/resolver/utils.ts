@@ -1,5 +1,4 @@
-import type { InternalRouteContext } from './internal.js';
-import type { ChildrenCallback, NotFoundResult, Route, AnyObject } from './types.js';
+import type { AnyObject, Route, RouteContext } from './types.js';
 
 export function isObject(o: unknown): o is object {
   // guard against null passing the typeof check
@@ -35,7 +34,7 @@ export function logValue(value: unknown): string {
   return stringType;
 }
 
-export function ensureRoute<R extends AnyObject>(route?: Route<R>): void {
+export function ensureRoute<T, R extends AnyObject>(route?: Route<T, R>): void {
   if (!route || !isString(route.path)) {
     throw new Error(
       log(`Expected route config to be an object with a "path" string property, or an array of such objects`),
@@ -71,7 +70,7 @@ export function ensureRoute<R extends AnyObject>(route?: Route<R>): void {
   }
 }
 
-export function ensureRoutes<R extends AnyObject>(routes: Route<R> | ReadonlyArray<Route<R>>): void {
+export function ensureRoutes<T, R extends AnyObject>(routes: Route<T, R> | ReadonlyArray<Route<T, R>>): void {
   toArray(routes).forEach((route) => ensureRoute(route));
 }
 
@@ -79,22 +78,20 @@ export function fireRouterEvent<T>(type: string, detail: T): boolean {
   return !window.dispatchEvent(new CustomEvent(`vaadin-router-${type}`, { cancelable: type === 'go', detail }));
 }
 
-export class NotFoundError<R extends AnyObject> extends Error {
+export class NotFoundError<T, R extends AnyObject> extends Error {
   readonly code: number;
-  readonly context: InternalRouteContext<R>;
+  readonly context: RouteContext<T, R>;
 
-  constructor(context: InternalRouteContext<R>) {
+  constructor(context: RouteContext<T, R>) {
     super(log(`Page not found (${context.pathname})`));
     this.context = context;
     this.code = 404;
   }
 }
 
-export function getNotFoundError<
-  T = unknown,
-  R extends Record<string, unknown> = AnyObject,
-  C extends Record<string, unknown> = AnyObject,
->(context: InternalRouteContext<R>): NotFoundError<R> {
+export function getNotFoundError<T = unknown, R extends Record<string, unknown> = AnyObject>(
+  context: RouteContext<T, R>,
+): NotFoundError<T, R> {
   return new NotFoundError(context);
 }
 
@@ -105,12 +102,12 @@ export function resolvePath(path?: string | readonly string[]): string {
   return (Array.isArray(path) ? path[0] : path) ?? '';
 }
 
-export function getRoutePath<R extends AnyObject>(route: Route<R> | undefined): string {
+export function getRoutePath<T, R extends AnyObject>(route: Route<T, R> | undefined): string {
   return resolvePath(route?.path);
 }
 
-export function unwrapChildren<R extends AnyObject>(
-  children: ChildrenCallback<R> | ReadonlyArray<Route<R>> | undefined,
-): ReadonlyArray<Route<R>> | undefined {
-  return Array.isArray<ReadonlyArray<Route<R>>>(children) && children.length > 0 ? children : undefined;
+export function unwrapChildren<T, R extends AnyObject>(
+  children: ChildrenCallback<T, R> | ReadonlyArray<Route<T, R>> | undefined,
+): ReadonlyArray<Route<T, R>> | undefined {
+  return Array.isArray<ReadonlyArray<Route<T, R>>>(children) && children.length > 0 ? children : undefined;
 }
