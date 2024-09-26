@@ -2,6 +2,7 @@ const karmaChromeLauncher = require('karma-chrome-launcher');
 const karmaCoverage = require('karma-coverage');
 const karmaMocha = require('karma-mocha');
 const karmaVite = require('karma-vite');
+const karmaSpecReporter = require('karma-spec-reporter');
 
 const isCI = !!process.env.CI;
 const watch = !!process.argv.find((arg) => arg.includes('watch')) && !isCI;
@@ -11,7 +12,7 @@ module.exports = (config) => {
   config.set({
     basePath: '',
 
-    plugins: [karmaMocha, karmaChromeLauncher, karmaVite, karmaCoverage],
+    plugins: [karmaMocha, karmaChromeLauncher, karmaVite, karmaCoverage, karmaSpecReporter],
 
     browsers: ['ChromeHeadlessNoSandbox'],
 
@@ -41,7 +42,7 @@ module.exports = (config) => {
       },
     ],
 
-    reporters: ['progress', coverage && 'coverage'].filter(Boolean),
+    reporters: ['spec', coverage && 'coverage'].filter(Boolean),
 
     autoWatch: watch,
     singleRun: !watch,
