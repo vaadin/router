@@ -40,13 +40,16 @@ describe('Router', () => {
       checkOutletContents(outlet.lastChild as Element, 'tagName', values);
 
     it('each of the nested route components are rendered as children to each other in the same hierarchy', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [{ path: '/b', component: 'x-b', children: [{ path: '/c', component: 'x-c' }] }],
-        },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [{ path: '/b', component: 'x-b', children: [{ path: '/c', component: 'x-c' }] }],
+          },
+        ],
+        true,
+      );
 
       await router.render('/a/b/c');
 

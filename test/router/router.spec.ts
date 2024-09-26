@@ -22,7 +22,7 @@ describe('Router', () => {
     outlet.remove();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     cleanup(outlet);
   });
 
@@ -53,7 +53,7 @@ describe('Router', () => {
 
       it('route should throw when created with only path property', () => {
         router = new Router(outlet);
-        expect(() => router.setRoutes([{ path: '/' }])).to.throw(Error);
+        expect(() => router.setRoutes([{ path: '/' }], true)).to.throw(Error);
       });
 
       it('should not fail silently if not configured (both routes and outlet missing)', async () => {
@@ -92,24 +92,24 @@ describe('Router', () => {
         baseElement.setAttribute('href', '/foo/');
 
         router = new Router(null);
-        expect(router).to.have.property('baseUrl', location.origin + '/foo/');
+        expect(router).to.have.property('baseUrl', `${location.origin}/foo/`);
       });
 
-      it('should resolve relative base href when setting baseUrl', async () => {
+      it('should resolve relative base href when setting baseUrl', () => {
         baseElement.setAttribute('href', './foo/../bar/asdf');
 
         router = new Router(null);
-        expect(router).to.have.property('baseUrl', location.origin + '/bar/');
+        expect(router).to.have.property('baseUrl', `${location.origin}/bar/`);
       });
 
-      it('should use absolute base href when setting baseUrl', async () => {
+      it('should use absolute base href when setting baseUrl', () => {
         baseElement.setAttribute('href', '/my/base/');
 
         router = new Router(null);
-        expect(router).to.have.property('baseUrl', location.origin + '/my/base/');
+        expect(router).to.have.property('baseUrl', `${location.origin}/my/base/`);
       });
 
-      it('should use custom base href when setting baseUrl', async () => {
+      it('should use custom base href when setting baseUrl', () => {
         baseElement.setAttribute('href', 'http://localhost:8080/my/custom/base/');
 
         router = new Router(null);
@@ -118,37 +118,26 @@ describe('Router', () => {
 
       it('should use baseUrl when matching relative routes', async () => {
         router = new Router(outlet, { baseUrl: '/foo/' });
-        router.setRoutes([{ path: 'home', component: 'x-home-view' }]);
-        try {
-          await router.ready;
-        } catch (e) {
-          // eslint-disable-line no-empty
-        }
-
+        await router.setRoutes([{ path: 'home', component: 'x-home-view' }], true);
         await router.render('/foo/home');
         checkOutlet(['x-home-view']);
       });
 
       it('should use baseUrl when matching absolute routes', async () => {
         router = new Router(outlet, { baseUrl: '/foo/' });
-        router.setRoutes([{ path: '/home', component: 'x-home-view' }]);
-        try {
-          await router.ready;
-        } catch (e) {
-          // eslint-disable-line no-empty
-        }
+        await router.setRoutes([{ path: '/home', component: 'x-home-view' }], true);
 
         await router.render('/foo/home');
         checkOutlet(['x-home-view']);
       });
 
       it('should not throw when base path starts with double slash', async () => {
-        baseElement.setAttribute('href', location.origin + '//foo');
+        baseElement.setAttribute('href', `${location.origin}//foo`);
 
         router = new Router(outlet);
-        expect(router).to.have.property('baseUrl', location.origin + '//');
+        expect(router).to.have.property('baseUrl', `${location.origin}//`);
 
-        router.setRoutes([{ path: '(.*)', component: 'x-home-view' }]);
+        await router.setRoutes([{ path: '(.*)', component: 'x-home-view' }], true);
 
         await router.render('//');
         checkOutlet(['x-home-view']);
@@ -156,11 +145,10 @@ describe('Router', () => {
     });
 
     describe('router.render(pathname)', () => {
-      const add100msDelay = () => {
-        return new Promise((resolve, reject) => {
+      const add100msDelay = async () =>
+        await new Promise((resolve, reject) => {
           setTimeout(() => resolve(), 100);
         });
-      };
 
       let router;
       beforeEach(() => {
@@ -172,7 +160,7 @@ describe('Router', () => {
       });
 
       it('should set a correct location to history when receiving a string path', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
         await router.render('/', true);
         expect(window.location.pathname).to.be.equal('/');
         expect(window.location.search).to.be.equal('');
@@ -183,7 +171,7 @@ describe('Router', () => {
         await Promise.all(
           [undefined, null, 0, false, '', NaN].map(async (invalidOutlet) => {
             const router = new Router(outlet);
-            router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+            await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
             const fulfilled = sinon.spy();
             const rejected = sinon.spy();
             const ready = router.render('/').then(fulfilled).catch(rejected);
@@ -198,7 +186,7 @@ describe('Router', () => {
       });
 
       it('should return a promise that resolves to the router.location', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
         const result = router.render('/');
         expect(result).to.be.a('promise');
         const actual = await result;
@@ -216,7 +204,7 @@ describe('Router', () => {
       });
 
       it('should return a promise that resolves when the rendered content is appended to the DOM', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
         const promise = router.render('/');
         expect(outlet.children).to.have.lengthOf(0);
         await promise;
@@ -234,14 +222,14 @@ describe('Router', () => {
       });
 
       it('should create and append a route `component` into the router outlet', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
         await router.render('/');
         expect(outlet.children).to.have.lengthOf(1);
         expect(outlet.children[0].tagName).to.match(/x-home-view/i);
       });
 
       it('should rethrow DOMException if the route `component` is not a valid tag name', async () => {
-        router.setRoutes([{ path: '/', component: 'src/x-home-view' }]);
+        await router.setRoutes([{ path: '/', component: 'src/x-home-view' }], true);
         const fulfilled = sinon.spy();
         const rejected = sinon.spy();
         const ready = router.render('/').then(fulfilled).catch(rejected);
@@ -252,10 +240,13 @@ describe('Router', () => {
       });
 
       it('should replace any pre-existing content of the router outlet', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/users', component: 'x-users-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/users', component: 'x-users-view' },
+          ],
+          true,
+        );
         await router.render('/');
         await router.render('/users');
         expect(outlet.children).to.have.lengthOf(1);
@@ -263,7 +254,7 @@ describe('Router', () => {
       });
 
       it('should remove any pre-existing content of the router outlet on no-match', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
         await router.render('/');
 
         await router.render('/path/not/defined').catch(() => {});
@@ -271,11 +262,14 @@ describe('Router', () => {
       });
 
       it('should ignore a successful result of a resolve pass if a new resolve pass is started before the first is completed', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/slow', action: add100msDelay, children: [{ path: '/users', component: 'x-users-view' }] },
-          { path: '/admin', component: 'x-admin-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/slow', action: add100msDelay, children: [{ path: '/users', component: 'x-users-view' }] },
+            { path: '/admin', component: 'x-admin-view' },
+          ],
+          true,
+        );
         await Promise.all([
           router.render('/slow/users'), // start the first resolve pass
           router.render('/admin'), // start the second resolve pass before the first is completed
@@ -285,11 +279,14 @@ describe('Router', () => {
       });
 
       it('should ignore an error result of a resolve pass if a new resolve pass is started before the first is completed', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/slow', action: add100msDelay, children: [{ path: '/users', component: 'x-users-view' }] },
-          { path: '/admin', component: 'x-admin-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/slow', action: add100msDelay, children: [{ path: '/users', component: 'x-users-view' }] },
+            { path: '/admin', component: 'x-admin-view' },
+          ],
+          true,
+        );
         await Promise.all([
           router.render('/slow/non-existent').catch(() => {}), // start the first resolve pass
           router.render('/admin'), // start the second resolve pass before the first is completed
@@ -303,11 +300,14 @@ describe('Router', () => {
         const pathname = '/users';
         const result = { redirect: { pathname, from, params: {} } };
 
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/people', redirect: '/users' },
-          { path: '/users', component: 'x-users-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/people', redirect: '/users' },
+            { path: '/users', component: 'x-users-view' },
+          ],
+          true,
+        );
         const spy = sinon.spy(router, 'resolve');
         await router.render(from);
 
@@ -320,11 +320,14 @@ describe('Router', () => {
       });
 
       it('should handle multiple redirects', async () => {
-        router.setRoutes([
-          { path: '/a', redirect: '/b' },
-          { path: '/b', redirect: '/c' },
-          { path: '/c', component: 'x-home-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/a', redirect: '/b' },
+            { path: '/b', redirect: '/c' },
+            { path: '/c', component: 'x-home-view' },
+          ],
+          true,
+        );
 
         await router.render('/a');
 
@@ -332,11 +335,14 @@ describe('Router', () => {
       });
 
       it('should fail on recursive redirects', async () => {
-        router.setRoutes([
-          { path: '/a', redirect: '/b' },
-          { path: '/b', redirect: '/c' },
-          { path: '/c', redirect: '/a' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/a', redirect: '/b' },
+            { path: '/b', redirect: '/c' },
+            { path: '/c', redirect: '/a' },
+          ],
+          true,
+        );
 
         const onError = sinon.spy();
         await router.render('/a').catch(onError);
@@ -346,11 +352,14 @@ describe('Router', () => {
       });
 
       it('should render a component for the new route when redirecting', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/people', redirect: '/users' },
-          { path: '/users', component: 'x-users-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/people', redirect: '/users' },
+            { path: '/users', component: 'x-users-view' },
+          ],
+          true,
+        );
         await router.render('/people');
         expect(outlet.children).to.have.lengthOf(1);
         expect(outlet.children[0].tagName).to.match(/x-users-view/i);
@@ -360,7 +369,7 @@ describe('Router', () => {
         const pushSpy = sinon.spy(window.history, 'pushState');
         const replaceSpy = sinon.spy(window.history, 'replaceState');
 
-        router.setRoutes(
+        await router.setRoutes(
           [
             { path: '/', component: 'x-home-view' },
             { path: '/people', redirect: '/users' },
@@ -378,7 +387,7 @@ describe('Router', () => {
       });
 
       it('should use `window.pushState()` when redirecting on next renders', async () => {
-        router.setRoutes(
+        await router.setRoutes(
           [
             { path: '/', component: 'x-home-view' },
             { path: '/people', redirect: '/users' },
@@ -415,11 +424,14 @@ describe('Router', () => {
       });
 
       it('should set the `location.redirectFrom` property on the route component in case of redirect', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/people', redirect: '/users' },
-          { path: '/users', component: 'x-users-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/people', redirect: '/users' },
+            { path: '/users', component: 'x-users-view' },
+          ],
+          true,
+        );
         await router.render('/people');
         expect(outlet.children[0]).to.have.nested.property('location.redirectFrom', '/people');
       });
@@ -440,8 +452,9 @@ describe('Router', () => {
       });
 
       it('(render in progress / ok) should get fulfilled after the render is completed', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
-        router.render('/');
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
+        // eslint-disable-next-line no-void
+        void router.render('/');
         await router.ready.then((location) => {
           expect(outlet.children).to.have.lengthOf(1);
           expect(outlet.children[0].tagName).to.match(/x-home-view/i);
@@ -449,8 +462,9 @@ describe('Router', () => {
       });
 
       it('(render in progress / error) should get rejected with the current render error', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
-        router.render('non-existent-path');
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
+        // eslint-disable-next-line no-void
+        void router.render('non-existent-path');
         await router.ready
           .then(() => {
             throw new Error('the `ready` promise should have been rejected');
@@ -466,19 +480,19 @@ describe('Router', () => {
       });
 
       it('(render completed / ok) should get fulfilled with the last render result', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
-        await router.render('/').then(() => {
-          return router.ready.then((location) => {
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
+        await router.render('/').then(() =>
+          router.ready.then((location) => {
             expect(outlet.children).to.have.lengthOf(1);
             expect(outlet.children[0].tagName).to.match(/x-home-view/i);
-          });
-        });
+          }),
+        );
       });
 
       it('(render completed / error) should get rejected with the last render error', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
-        await router.render('non-existent-path').catch(() => {
-          return router.ready
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
+        await router.render('non-existent-path').catch(() =>
+          router.ready
             .then((location) => {
               throw new Error('the `ready` promise should have been rejected');
             })
@@ -488,8 +502,8 @@ describe('Router', () => {
               expect(error)
                 .to.have.property('message')
                 .that.matches(/non-existent-path/);
-            });
-        });
+            }),
+        );
       });
 
       it('(no renders yet) should get fulfilled before the first render completes', async () => {
@@ -499,7 +513,7 @@ describe('Router', () => {
           sequence.push('no render yet');
         });
 
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
         const p2 = router.render('/').then(() => {
           expect(outlet.children).to.have.lengthOf(1);
           sequence.push('first render done');
@@ -536,12 +550,7 @@ describe('Router', () => {
         router.unsubscribe();
         router = new Router(outlet, { baseUrl: '/foo/' });
 
-        router.setRoutes([{ path: '', component: 'x-root' }]);
-        try {
-          await router.ready;
-        } catch (e) {
-          // eslint-disable-line no-empty
-        }
+        await router.setRoutes([{ path: '', component: 'x-root' }], true);
 
         await router.render('/foo/');
 
@@ -549,10 +558,13 @@ describe('Router', () => {
       });
 
       it('should contain the pathname from the last completed render pass', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-root' },
-          { path: '/a/b/c', component: 'x-a' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-root' },
+            { path: '/a/b/c', component: 'x-a' },
+          ],
+          true,
+        );
 
         await router.render('/');
         await router.render('/a/b/c');
@@ -561,7 +573,7 @@ describe('Router', () => {
       });
 
       it('should contain the pathname from the last completed render pass (with params)', async () => {
-        router.setRoutes([{ path: '/a/b/:c', component: 'x-a' }]);
+        await router.setRoutes([{ path: '/a/b/:c', component: 'x-a' }], true);
 
         await router.render('/a/b/42');
 
@@ -569,10 +581,13 @@ describe('Router', () => {
       });
 
       it('should contain the final and the original pathnames from the last completed render pass (redirected)', async () => {
-        router.setRoutes([
-          { path: '/a', redirect: '/c' },
-          { path: '/c', component: 'x-a' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/a', redirect: '/c' },
+            { path: '/c', component: 'x-a' },
+          ],
+          true,
+        );
 
         await router.render('/a');
 
@@ -581,7 +596,7 @@ describe('Router', () => {
       });
 
       it('should contain the pathname after a failed render', async () => {
-        router.setRoutes([{ path: '/a', component: 'x-a' }]);
+        await router.setRoutes([{ path: '/a', component: 'x-a' }], true);
 
         await router.render('/a');
         await router.render('/non-existent-path').catch(() => {});
@@ -604,7 +619,7 @@ describe('Router', () => {
         const routeB = { path: '/b', component: 'x-b', children: [routeC] };
         const routeA = { path: '/a', component: 'x-a', children: [routeB] };
 
-        router.setRoutes(routeA);
+        await router.setRoutes(routeA, true);
         await router.render('/a/b/c');
 
         expect(router.location.routes).to.have.lengthOf(3);
@@ -614,7 +629,7 @@ describe('Router', () => {
       });
 
       it('should contain an empty routes chain array after a failed render', async () => {
-        router.setRoutes([{ path: '/', component: 'x-home-view' }]);
+        await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
         await router.render('/');
         await router.render('/non-existent').catch(() => {});
 
@@ -626,7 +641,7 @@ describe('Router', () => {
         const routeB = { path: '/b', component: 'x-b', children: [routeC] };
         const routeA = { path: '/a', component: 'x-a', children: [routeB] };
 
-        router.setRoutes(routeA);
+        await router.setRoutes(routeA, true);
         await router.render('/a/b/c');
 
         expect(router.location.route).to.equal(routeC);
@@ -637,7 +652,7 @@ describe('Router', () => {
         const routeB = { path: '/b', component: 'x-b', children: [routeC] };
         const routeA = { path: '/a', component: 'x-a', children: [routeB] };
 
-        router.setRoutes(routeA);
+        await router.setRoutes(routeA, true);
         await router.render('/a/b/c');
         await router.render('/non-existent').catch(() => {});
 
@@ -645,10 +660,13 @@ describe('Router', () => {
       });
 
       it('should contain the parameters from the last completed render pass', async () => {
-        router.setRoutes([
-          { path: '/a/:b', component: 'x-a' },
-          { path: '/:a/:b', component: 'x-any' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/a/:b', component: 'x-a' },
+            { path: '/:a/:b', component: 'x-any' },
+          ],
+          true,
+        );
 
         await router.render('/any/thing');
         await router.render('/a/42');
@@ -657,10 +675,13 @@ describe('Router', () => {
       });
 
       it('should contain the parameters from the last completed render pass (redirected)', async () => {
-        router.setRoutes([
-          { path: '/a/:id', redirect: '/b/:id' },
-          { path: '/b/:id', component: 'x-b' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/a/:id', redirect: '/b/:id' },
+            { path: '/b/:id', component: 'x-b' },
+          ],
+          true,
+        );
 
         await router.render('/a/42');
 
@@ -668,7 +689,7 @@ describe('Router', () => {
       });
 
       it('should contain an empty parameters set after a failed render', async () => {
-        router.setRoutes([{ path: '/a/:id', component: 'x-a' }]);
+        await router.setRoutes([{ path: '/a/:id', component: 'x-a' }], true);
 
         await router.render('/a/42');
         await router.render('/non-existent-path').catch(() => {});
@@ -686,7 +707,7 @@ describe('Router', () => {
             }
           },
         );
-        router.setRoutes([{ path: '/x-connected-location-test', component: 'x-connected-location-test' }]);
+        await router.setRoutes([{ path: '/x-connected-location-test', component: 'x-connected-location-test' }], true);
         await router.render('/x-connected-location-test');
       });
 
@@ -696,7 +717,7 @@ describe('Router', () => {
         });
 
         it('should return current location url with empty arguments', async () => {
-          router.setRoutes([{ path: '/a/:id', component: 'x-a' }]);
+          await router.setRoutes([{ path: '/a/:id', component: 'x-a' }], true);
 
           await router.render('/a/42');
 
@@ -704,7 +725,7 @@ describe('Router', () => {
         });
 
         it('should substitute in route path when given parameters', async () => {
-          router.setRoutes([{ path: '/a/:id', component: 'x-a' }]);
+          await router.setRoutes([{ path: '/a/:id', component: 'x-a' }], true);
 
           await router.render('/a/42');
 
@@ -712,7 +733,7 @@ describe('Router', () => {
         });
 
         it('should ignore unknown parameters', async () => {
-          router.setRoutes([{ path: '/a/:id', component: 'x-a' }]);
+          await router.setRoutes([{ path: '/a/:id', component: 'x-a' }], true);
 
           await router.render('/a/42');
 
@@ -721,10 +742,13 @@ describe('Router', () => {
 
         it('should prepend baseUrl', async () => {
           router.baseUrl = '/base/';
-          router.setRoutes([
-            { path: '/a', component: 'x-a' },
-            { path: 'b', component: 'x-b' },
-          ]);
+          await router.setRoutes(
+            [
+              { path: '/a', component: 'x-a' },
+              { path: 'b', component: 'x-b' },
+            ],
+            true,
+          );
 
           await router.render('/base/a');
           expect(router.location.getUrl()).to.equal('/base/a');
@@ -749,7 +773,7 @@ describe('Router', () => {
 
         // cannot mock the call to `compile()` from the 'pathToRegexp' package
         xit('should invoke pathToRegexp', async () => {
-          router.setRoutes([{ path: '/a/:id', component: 'x-a' }]);
+          await router.setRoutes([{ path: '/a/:id', component: 'x-a' }], true);
 
           await router.render('/a/42');
 
@@ -780,7 +804,8 @@ describe('Router', () => {
       it('should preserve pathname, search and hash', async () => {
         window.history.pushState(null, '', '/admin?a=b#hash');
         router = new Router(outlet);
-        router.setRoutes([
+        // eslint-disable-next-line no-void
+        void router.setRoutes([
           { path: '/', component: 'x-home-view' },
           { path: '/admin', component: 'x-admin-view' },
         ]);
@@ -801,7 +826,8 @@ describe('Router', () => {
       it('should preserve pathname and search', async () => {
         window.history.pushState(null, '', '/admin?a=b');
         router = new Router(outlet);
-        router.setRoutes([
+        // eslint-disable-next-line no-void
+        void router.setRoutes([
           { path: '/', component: 'x-home-view' },
           { path: '/admin', component: 'x-admin-view' },
         ]);
@@ -815,7 +841,8 @@ describe('Router', () => {
       it('should preserve pathname', async () => {
         window.history.pushState(null, '', '/admin');
         router = new Router(outlet);
-        router.setRoutes([
+        // eslint-disable-next-line no-void
+        void router.setRoutes([
           { path: '/', component: 'x-home-view' },
           { path: '/admin', component: 'x-admin-view' },
         ]);
@@ -837,10 +864,13 @@ describe('Router', () => {
       beforeEach(async () => {
         router = new Router(outlet);
         // configure router and let it render '/'
-        await router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/admin', component: 'x-admin-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/admin', component: 'x-admin-view' },
+          ],
+          true,
+        );
       });
 
       afterEach(async () => {
@@ -1121,7 +1151,8 @@ describe('Router', () => {
     });
 
     describe('route parameters', () => {
-      let router;
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      let router: Router;
       beforeEach(() => {
         router = new Router(outlet);
       });
@@ -1132,11 +1163,15 @@ describe('Router', () => {
       });
 
       it('should bind named parameters to `location.params` property using string keys', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/:user', component: 'x-user-profile' },
-        ]);
-        router.render('/foo');
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/:user', component: 'x-user-profile' },
+          ],
+          true,
+        );
+        // eslint-disable-next-line no-void
+        void router.render('/foo');
         await router.ready.then((location) => {
           const elem = outlet.children[0];
           expect(elem.location).to.be.an('object');
@@ -1146,11 +1181,15 @@ describe('Router', () => {
       });
 
       it('should bind unnamed parameters to `location.params` property using numeric indexes', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/(user[s]?)/:id', component: 'x-users-view' },
-        ]);
-        router.render('/users/1');
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/(user[s]?)/:id', component: 'x-users-view' },
+          ],
+          true,
+        );
+        // eslint-disable-next-line no-void
+        void router.render('/users/1');
         await router.ready.then((location) => {
           const elem = outlet.children[0];
           expect(elem.location).to.be.an('object');
@@ -1160,11 +1199,15 @@ describe('Router', () => {
       });
 
       it('should bind named custom parameters to `location.params` property using string keys', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/image-:size(\\d+)px', component: 'x-image-view' },
-        ]);
-        router.render('/image-15px');
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/image-:size(\\d+)px', component: 'x-image-view' },
+          ],
+          true,
+        );
+        // eslint-disable-next-line no-void
+        void router.render('/image-15px');
         await router.ready.then((location) => {
           const elem = outlet.children[0];
           expect(elem.location).to.be.an('object');
@@ -1174,11 +1217,15 @@ describe('Router', () => {
       });
 
       it('should bind named segments to the `location.params` property using string keys', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/kb/:path+/:id', component: 'x-knowledge-base' },
-        ]);
-        router.render('/kb/folder/nested/1');
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/kb/:path+/:id', component: 'x-knowledge-base' },
+          ],
+          true,
+        );
+        // eslint-disable-next-line no-void
+        void router.render('/kb/folder/nested/1');
         await router.ready.then((location) => {
           const elem = outlet.children[0];
           expect(elem.location).to.be.an('object');
@@ -1189,21 +1236,27 @@ describe('Router', () => {
       });
 
       it('should set the `location.pathname` property on the route component', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/admin', component: 'x-admin-view' },
-          { path: '(.*)', component: 'x-not-found-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/admin', component: 'x-admin-view' },
+            { path: '(.*)', component: 'x-not-found-view' },
+          ],
+          true,
+        );
         await router.render('/non-existent/path');
         expect(outlet.children[0]).to.have.nested.property('location.pathname', '/non-existent/path');
       });
 
       it('should set the `location` properties on the route component', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/admin', component: 'x-admin-view' },
-          { path: '(.*)', component: 'x-not-found-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/admin', component: 'x-admin-view' },
+            { path: '(.*)', component: 'x-not-found-view' },
+          ],
+          true,
+        );
         await router.render({
           pathname: '/non-existent/path',
           search: '?foo=bar',
@@ -1215,7 +1268,7 @@ describe('Router', () => {
       });
 
       it('should update the `location` properties on the route component', async () => {
-        router.setRoutes([{ path: '(.*)', component: 'x-not-found-view' }]);
+        await router.setRoutes([{ path: '(.*)', component: 'x-not-found-view' }], true);
         await router.render({
           pathname: '/non-existent/path',
           search: '?foo=bar',
@@ -1232,7 +1285,7 @@ describe('Router', () => {
       });
 
       it('should update the `location` properties on the route component on router.render(pathname)', async () => {
-        router.setRoutes([{ path: '(.*)', component: 'x-not-found-view' }]);
+        await router.setRoutes([{ path: '(.*)', component: 'x-not-found-view' }], true);
         await router.render({
           pathname: '/non-existent/path',
           search: '?foo=bar',
@@ -1245,11 +1298,14 @@ describe('Router', () => {
       });
 
       it('should keep route parameters when redirecting to different route', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/users/:id', redirect: '/user/:id' },
-          { path: '/user/:id', component: 'x-users-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/users/:id', redirect: '/user/:id' },
+            { path: '/user/:id', component: 'x-users-view' },
+          ],
+          true,
+        );
         await router.render('/users/1');
         const elem = outlet.children[0];
         expect(elem.tagName).to.match(/x-users-view/i);
@@ -1258,10 +1314,13 @@ describe('Router', () => {
       });
 
       it('should create new component instance for the same route with different parameters', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/users/:id', component: 'x-users-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/users/:id', component: 'x-users-view' },
+          ],
+          true,
+        );
 
         await router.render('/users/1');
         const elemOne = outlet.children[0];
@@ -1291,7 +1350,7 @@ describe('Router', () => {
 
       it('action should be called with correct parameters', async () => {
         const action = sinon.spy();
-        router.setRoutes([{ path: '/', component: 'x-home-view', action: action }]);
+        await router.setRoutes([{ path: '/', component: 'x-home-view', action }], true);
 
         await router.render('/');
 
@@ -1328,17 +1387,20 @@ describe('Router', () => {
       });
 
       it('action.this points to the route that defines action', async () => {
-        router.setRoutes([
-          {
-            path: '/',
-            component: 'x-home-view',
-            action: function (context) {
-              expect(this.path).to.equal('/');
-              expect(this.component).to.equal('x-home-view');
-              expect(this).to.be.equal(context.route);
+        await router.setRoutes(
+          [
+            {
+              path: '/',
+              component: 'x-home-view',
+              action(context) {
+                expect(this.path).to.equal('/');
+                expect(this.component).to.equal('x-home-view');
+                expect(this).to.be.equal(context.route);
+              },
             },
-          },
-        ]);
+          ],
+          true,
+        );
 
         await router.render('/');
 
@@ -1348,16 +1410,19 @@ describe('Router', () => {
       it('action without return should be executed before redirect and allow it to happen', async () => {
         let actionExecuted = false;
 
-        router.setRoutes([
-          {
-            path: '/test',
-            redirect: '/home',
-            action: () => {
-              actionExecuted = true;
+        await router.setRoutes(
+          [
+            {
+              path: '/test',
+              redirect: '/home',
+              action: () => {
+                actionExecuted = true;
+              },
             },
-          },
-          { path: '/home', component: 'x-home-view' },
-        ]);
+            { path: '/home', component: 'x-home-view' },
+          ],
+          true,
+        );
 
         await router.render('/test');
 
@@ -1368,18 +1433,21 @@ describe('Router', () => {
       it('action with return should be executed before redirect and stop it from happening', async () => {
         let actionExecuted = false;
 
-        router.setRoutes([
-          {
-            path: '/home',
-            redirect: '/users',
-            action: (context) => {
-              actionExecuted = true;
-              return context.next();
+        await router.setRoutes(
+          [
+            {
+              path: '/home',
+              redirect: '/users',
+              action: (context) => {
+                actionExecuted = true;
+                return context.next();
+              },
             },
-          },
-          { path: '/home', component: 'x-home-view' },
-          { path: '/users', component: 'x-users-view' },
-        ]);
+            { path: '/home', component: 'x-home-view' },
+            { path: '/users', component: 'x-users-view' },
+          ],
+          true,
+        );
 
         await router.render('/home');
 
@@ -1388,33 +1456,35 @@ describe('Router', () => {
       });
 
       it('action with HTMLElement return should prevent redirect', async () => {
-        router.setRoutes([
-          {
-            path: '/',
-            action: (context, { component }) => {
-              return component('x-main-layout');
+        await router.setRoutes(
+          [
+            {
+              path: '/',
+              action: (context, { component }) => component('x-main-layout'),
+              redirect: '/users',
             },
-            redirect: '/users',
-          },
-          { path: '/users', component: 'x-users-view' },
-        ]);
+            { path: '/users', component: 'x-users-view' },
+          ],
+          true,
+        );
 
         await router.render('/');
         checkOutlet(['x-main-layout']);
       });
 
       it('action with redirect return should prevent matching children', async () => {
-        router.setRoutes([
-          {
-            path: '/home',
-            action: (context, { redirect }) => {
-              return redirect('/users');
+        await router.setRoutes(
+          [
+            {
+              path: '/home',
+              action: (context, { redirect }) => redirect('/users'),
+              component: 'x-main-layout',
+              children: () => [{ path: '/', component: 'x-home-view' }],
             },
-            component: 'x-main-layout',
-            children: () => [{ path: '/', component: 'x-home-view' }],
-          },
-          { path: '/users', component: 'x-users-view' },
-        ]);
+            { path: '/users', component: 'x-users-view' },
+          ],
+          true,
+        );
 
         await router.render('/home');
         checkOutlet(['x-users-view']);
@@ -1422,15 +1492,16 @@ describe('Router', () => {
       });
 
       it('action with HTMLElement return should not prevent matching children', async () => {
-        router.setRoutes([
-          {
-            path: '/',
-            action: (context, { component }) => {
-              return component('x-main-layout');
+        await router.setRoutes(
+          [
+            {
+              path: '/',
+              action: (context, { component }) => component('x-main-layout'),
+              children: () => [{ path: '/', component: 'x-home-view' }],
             },
-            children: () => [{ path: '/', component: 'x-home-view' }],
-          },
-        ]);
+          ],
+          true,
+        );
 
         await router.render('/');
         checkOutlet(['x-main-layout', 'x-home-view']);
@@ -1443,17 +1514,20 @@ describe('Router', () => {
               const router = new Router(outlet);
               const erroneousPath = '/error';
               let actionExecuted = false;
-              router.setRoutes([
-                {
-                  path: erroneousPath,
-                  redirect: '/users',
-                  action: () => {
-                    actionExecuted = true;
-                    return returnValue;
+              await router.setRoutes(
+                [
+                  {
+                    path: erroneousPath,
+                    redirect: '/users',
+                    action: () => {
+                      actionExecuted = true;
+                      return returnValue;
+                    },
                   },
-                },
-                { path: '/users', component: 'x-users-view' },
-              ]);
+                  { path: '/users', component: 'x-users-view' },
+                ],
+                true,
+              );
 
               await router.render(erroneousPath);
               expect(actionExecuted).to.equal(true);
@@ -1470,17 +1544,20 @@ describe('Router', () => {
               const router = new Router(outlet);
               const erroneousPath = '/error';
               let actionExecuted = false;
-              router.setRoutes([
-                {
-                  path: erroneousPath,
-                  redirect: '/users',
-                  action: () => {
-                    actionExecuted = true;
-                    return Promise.resolve(returnValue);
+              await router.setRoutes(
+                [
+                  {
+                    path: erroneousPath,
+                    redirect: '/users',
+                    action: async () => {
+                      actionExecuted = true;
+                      return await Promise.resolve(returnValue);
+                    },
                   },
-                },
-                { path: '/users', component: 'x-users-view' },
-              ]);
+                  { path: '/users', component: 'x-users-view' },
+                ],
+                true,
+              );
 
               await router.render(erroneousPath);
               expect(actionExecuted).to.equal(true);
@@ -1493,17 +1570,20 @@ describe('Router', () => {
       it('action with return should be executed before component and stop it from loading', async () => {
         let actionExecuted = false;
 
-        router.setRoutes([
-          {
-            path: '/',
-            component: 'x-home-view',
-            action: (context) => {
-              actionExecuted = true;
-              return context.next();
+        await router.setRoutes(
+          [
+            {
+              path: '/',
+              component: 'x-home-view',
+              action: (context) => {
+                actionExecuted = true;
+                return context.next();
+              },
             },
-          },
-          { path: '/', component: 'x-users-view' },
-        ]);
+            { path: '/', component: 'x-users-view' },
+          ],
+          true,
+        );
 
         await router.render('/');
 
@@ -1512,10 +1592,13 @@ describe('Router', () => {
       });
 
       it('action can redirect by using the context method', async () => {
-        router.setRoutes([
-          { path: '/users/:id', action: (context, commands) => commands.redirect('/user/:id') },
-          { path: '/user/:id', component: 'x-users-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/users/:id', action: (context, commands) => commands.redirect('/user/:id') },
+            { path: '/user/:id', component: 'x-users-view' },
+          ],
+          true,
+        );
 
         await router.render('/users/1');
 
@@ -1526,7 +1609,10 @@ describe('Router', () => {
       });
 
       it('action can render components by using the context method', async () => {
-        router.setRoutes([{ path: '/users/:id', action: (context, commands) => commands.component('x-users-view') }]);
+        await router.setRoutes(
+          [{ path: '/users/:id', action: (context, commands) => commands.component('x-users-view') }],
+          true,
+        );
 
         await router.render('/users/1');
 
@@ -1537,9 +1623,10 @@ describe('Router', () => {
       });
 
       it('action can render components by returning HTMLElement directly', async () => {
-        router.setRoutes([
-          { path: '/users/:id', action: (context, commands) => document.createElement('x-users-view') },
-        ]);
+        await router.setRoutes(
+          [{ path: '/users/:id', action: (context, commands) => document.createElement('x-users-view') }],
+          true,
+        );
 
         await router.render('/users/1');
 
@@ -1550,12 +1637,15 @@ describe('Router', () => {
       });
 
       it('action can render components by returning Promise to HTMLElement', async () => {
-        router.setRoutes([
-          {
-            path: '/users/:id',
-            action: (context, commands) => Promise.resolve(document.createElement('x-users-view')),
-          },
-        ]);
+        await router.setRoutes(
+          [
+            {
+              path: '/users/:id',
+              action: async (context, commands) => await Promise.resolve(document.createElement('x-users-view')),
+            },
+          ],
+          true,
+        );
 
         await router.render('/users/1');
 
@@ -1566,10 +1656,13 @@ describe('Router', () => {
       });
 
       it('redirect should be executed before component and stop it from loading', async () => {
-        router.setRoutes([
-          { path: '/test', redirect: '/users', component: 'x-home-view' },
-          { path: '/users', component: 'x-users-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/test', redirect: '/users', component: 'x-home-view' },
+            { path: '/users', component: 'x-users-view' },
+          ],
+          true,
+        );
 
         await router.render('/test');
 
@@ -1580,17 +1673,20 @@ describe('Router', () => {
         const children = sinon.stub().returns([]);
         let actionExecuted = false;
 
-        router.setRoutes([
-          {
-            path: '/test',
-            children,
-            component: 'x-test',
-            action: () => {
-              actionExecuted = true;
-              expect(children).to.have.been.called;
+        await router.setRoutes(
+          [
+            {
+              path: '/test',
+              children,
+              component: 'x-test',
+              action: () => {
+                actionExecuted = true;
+                expect(children).to.have.been.called;
+              },
             },
-          },
-        ]);
+          ],
+          true,
+        );
 
         await router.render('/test');
 
@@ -1600,10 +1696,13 @@ describe('Router', () => {
       it('redirect should be executed after children function', async () => {
         const children = sinon.stub().returns([]);
 
-        router.setRoutes([
-          { path: '/home', children, redirect: '/users' },
-          { path: '/users', component: 'x-users-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/home', children, redirect: '/users' },
+            { path: '/users', component: 'x-users-view' },
+          ],
+          true,
+        );
 
         await router.render('/home/1');
 
@@ -1612,16 +1711,19 @@ describe('Router', () => {
       });
 
       it('should match routes with trailing slashes', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-a' },
-          {
-            path: '/child',
-            children: [
-              { path: '/', component: 'x-b' },
-              { path: '/page/', component: 'x-c' },
-            ],
-          },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-a' },
+            {
+              path: '/child',
+              children: [
+                { path: '/', component: 'x-b' },
+                { path: '/page/', component: 'x-c' },
+              ],
+            },
+          ],
+          true,
+        );
 
         await router.render('/');
         checkOutlet(['x-a']);
@@ -1670,33 +1772,36 @@ describe('Router', () => {
       it("commands.redirect() should update redirect.from and the next action's context.redirectFrom", async () => {
         const from = '/a/b/c';
 
-        router.setRoutes([
-          {
-            path: '/a',
-            children: [
-              {
-                path: '/b',
-                children: [
-                  {
-                    path: '/c',
-                    action: (context, commands) => {
-                      const redirectObject = commands.redirect('/d');
-                      expect(redirectObject.redirect.from).to.be.equal(from);
-                      return redirectObject;
+        await router.setRoutes(
+          [
+            {
+              path: '/a',
+              children: [
+                {
+                  path: '/b',
+                  children: [
+                    {
+                      path: '/c',
+                      action: (context, commands) => {
+                        const redirectObject = commands.redirect('/d');
+                        expect(redirectObject.redirect.from).to.be.equal(from);
+                        return redirectObject;
+                      },
                     },
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: '/d',
-            component: 'x-home-view',
-            action: (context) => {
-              expect(context.redirectFrom).to.be.equal(from);
+                  ],
+                },
+              ],
             },
-          },
-        ]);
+            {
+              path: '/d',
+              component: 'x-home-view',
+              action: (context) => {
+                expect(context.redirectFrom).to.be.equal(from);
+              },
+            },
+          ],
+          true,
+        );
 
         await router.render(from);
 
@@ -1705,21 +1810,24 @@ describe('Router', () => {
 
       it("commands.redirect() should not produce double slashes in redirect.from and the next action's context.redirectFrom", async () => {
         let from = '';
-        router.setRoutes([
-          {
-            path: '/',
-            children: [
-              { path: '', children: [{ path: '/c', action: (context, commands) => commands.redirect('/d') }] },
-            ],
-          },
-          {
-            path: '/d',
-            component: 'x-home-view',
-            action: (context) => {
-              from = context.redirectFrom;
+        await router.setRoutes(
+          [
+            {
+              path: '/',
+              children: [
+                { path: '', children: [{ path: '/c', action: (context, commands) => commands.redirect('/d') }] },
+              ],
             },
-          },
-        ]);
+            {
+              path: '/d',
+              component: 'x-home-view',
+              action: (context) => {
+                from = context.redirectFrom;
+              },
+            },
+          ],
+          true,
+        );
 
         await router.render('/c');
 
@@ -1729,7 +1837,7 @@ describe('Router', () => {
 
       it('should be able to return different components for consecutive calls', async () => {
         let anonymous = true;
-        router.setRoutes(
+        await router.setRoutes(
           [
             {
               path: '/',
@@ -1756,34 +1864,36 @@ describe('Router', () => {
         let sharedElementInstance = null;
         let serverSideComponentId = 0;
         const action = (context) => {
-          const elm = sharedElementInstance || (sharedElementInstance = document.createElement('flow-root-outlet'));
+          const elm = (sharedElementInstance ||= document.createElement('flow-root-outlet'));
           // clear content
           elm.innerHTML = '';
           // Assumed this is an element return by server
           const content = document.createElement(`server-side-${context.pathname.substring(1)}`);
           content.textContent = context.pathname;
-          content.id = 'flow' + ++serverSideComponentId;
+          content.id = `flow${++serverSideComponentId}`;
           elm.appendChild(content);
           // Return always the same instance of flow-root-outlet
           return elm;
         };
-        router.setRoutes([
-          {
-            path: '/',
-            children: [
-              {
-                path: 'client-view',
-                component: 'x-client-view',
-              },
-              {
-                path: '(.*)',
-                action: action,
-              },
-            ],
-          },
-        ]);
+        await router.setRoutes(
+          [
+            {
+              path: '/',
+              children: [
+                {
+                  path: 'client-view',
+                  component: 'x-client-view',
+                },
+                {
+                  path: '(.*)',
+                  action,
+                },
+              ],
+            },
+          ],
+          true,
+        );
 
-        await router.ready;
         await router.render('/client-view');
         expect(outlet.children[0].tagName).to.match(/x-client-view/i);
 
@@ -1806,7 +1916,7 @@ describe('Router', () => {
           view.textContent = ctx.pathname;
           return view;
         };
-        router.setRoutes(
+        await router.setRoutes(
           [
             {
               path: '/',
@@ -1818,7 +1928,7 @@ describe('Router', () => {
                 },
                 {
                   path: '(.*)',
-                  action: action,
+                  action,
                 },
               ],
             },
@@ -1860,7 +1970,7 @@ describe('Router', () => {
         let sharedElementInstance = null;
         let dynamicContent = 'First content';
         const action = (config) => {
-          const elm = sharedElementInstance || (sharedElementInstance = document.createElement('div'));
+          const elm = (sharedElementInstance ||= document.createElement('div'));
           // clear content
           elm.innerHTML = '';
           // Add some new content to the element
@@ -1870,7 +1980,7 @@ describe('Router', () => {
           // Return always the same instance of the element
           return elm;
         };
-        router.setRoutes([{ path: '/', action: action }]);
+        await router.setRoutes([{ path: '/', action }], true);
 
         await router.ready;
         await router.render('/');
@@ -1897,7 +2007,7 @@ describe('Router', () => {
           // Return always the same instance of the element
           return elm;
         };
-        router.setRoutes([{ path: '/', action: action }]);
+        await router.setRoutes([{ path: '/', action }], true);
 
         await router.render('/');
         expect(outlet.textContent).to.be.equal(dynamicContent);
@@ -1912,7 +2022,7 @@ describe('Router', () => {
         const textContent = 'Text content';
         let sharedElementInstance = null;
         const action = (config) => {
-          const elm = sharedElementInstance || (sharedElementInstance = document.createElement('x-edit'));
+          const elm = (sharedElementInstance ||= document.createElement('x-edit'));
           // clear content
           elm.innerHTML = '';
           // Add some new content to the element
@@ -1922,33 +2032,35 @@ describe('Router', () => {
           // Return always the same instance of the element
           return elm;
         };
-        router.setRoutes([
-          {
-            path: '/',
-            component: 'x-home',
-          },
-          {
-            path: '/users/:name/',
-            action: (context) => {
-              const userEl = document.createElement('x-user');
-              const avatarEl = document.createElement('x-fancy-name');
-              avatarEl.textContent = context.params.name;
-              userEl.appendChild(avatarEl);
-              return userEl;
+        await router.setRoutes(
+          [
+            {
+              path: '/',
+              component: 'x-home',
             },
-            children: [
-              {
-                path: 'edit',
-                action: action,
+            {
+              path: '/users/:name/',
+              action: (context) => {
+                const userEl = document.createElement('x-user');
+                const avatarEl = document.createElement('x-fancy-name');
+                avatarEl.textContent = context.params.name;
+                userEl.appendChild(avatarEl);
+                return userEl;
               },
-              {
-                path: 'profile',
-                component: 'x-profile',
-              },
-            ],
-          },
-        ]);
-        await router.ready;
+              children: [
+                {
+                  path: 'edit',
+                  action,
+                },
+                {
+                  path: 'profile',
+                  component: 'x-profile',
+                },
+              ],
+            },
+          ],
+          true,
+        );
         await router.render('/users/john/edit');
         expect(outlet.children[0].tagName).to.match(/x-user/i);
         expect(outlet.children[0].children[0].tagName).to.match(/x-fancy-name/i);
@@ -1978,7 +2090,7 @@ describe('Router', () => {
       it('should be able to return a list of routes', async () => {
         const children = () => [{ path: '/:user', component: 'x-user-profile' }];
 
-        router.setRoutes([{ path: '/users', children }]);
+        await router.setRoutes([{ path: '/users', children }], true);
 
         await router.render('/users/2');
 
@@ -1989,9 +2101,9 @@ describe('Router', () => {
       });
 
       it('should be able to return a promise', async () => {
-        const children = () => Promise.resolve([{ path: '/:user', component: 'x-user-profile' }]);
+        const children = async () => await Promise.resolve([{ path: '/:user', component: 'x-user-profile' }]);
 
-        router.setRoutes([{ path: '/users', children }]);
+        await router.setRoutes([{ path: '/users', children }], true);
 
         await router.render('/users/2');
 
@@ -2006,7 +2118,7 @@ describe('Router', () => {
           context.route.children = [{ path: '/:user', component: 'x-user-profile' }];
         });
 
-        router.setRoutes([{ path: '/users', children }]);
+        await router.setRoutes([{ path: '/users', children }], true);
 
         await router.render('/users/2');
         expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
@@ -2019,7 +2131,7 @@ describe('Router', () => {
       it('should be called every time when resolver needs the route children list', async () => {
         const children = sinon.spy(() => [{ path: '/:user', component: 'x-user-profile' }]);
 
-        router.setRoutes([{ path: '/users', children }]);
+        await router.setRoutes([{ path: '/users', children }], true);
 
         await router.render('/users/1');
         expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
@@ -2031,26 +2143,27 @@ describe('Router', () => {
       });
 
       it('should throw if the return result is not an object or array', async () => {
-        const children = () =>
-          new Promise((resolve) => {
+        const children = async () =>
+          await new Promise((resolve) => {
             resolve(null);
           });
 
-        router.setRoutes([{ path: '/users', children }]);
+        await router.setRoutes([{ path: '/users', children }], true);
 
         await expectException(router.render('/users/1'), ['Incorrect "children" value']);
       });
 
       it('should discard the previous return value and use the new one', async () => {
         let callCount = 0;
-        const children = () => {
-          return ++callCount === 1 ? [{ path: '/:user', component: 'x-user-profile' }] : [];
-        };
+        const children = () => (++callCount === 1 ? [{ path: '/:user', component: 'x-user-profile' }] : []);
 
-        router.setRoutes([
-          { path: '/users', children },
-          { path: '(.*)', component: 'x-not-found-view' },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/users', children },
+            { path: '(.*)', component: 'x-not-found-view' },
+          ],
+          true,
+        );
 
         await router.render('/users/1');
         expect(outlet.children[0].tagName).to.match(/x-user-profile/i);
@@ -2061,10 +2174,13 @@ describe('Router', () => {
 
       it('should not be called when resolver does not need the route children list', async () => {
         const children = sinon.spy();
-        router.setRoutes([
-          { path: '/users', component: 'x-users-layout' },
-          { path: '/', children },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/users', component: 'x-users-layout' },
+            { path: '/', children },
+          ],
+          true,
+        );
         await router.ready.catch(() => {});
         children.resetHistory();
 
@@ -2080,7 +2196,7 @@ describe('Router', () => {
           path: '1',
         }));
 
-        router.setRoutes([{ path: '/users', children }]);
+        await router.setRoutes([{ path: '/users', children }], true);
 
         await router.render('/users/1');
 
@@ -2096,7 +2212,7 @@ describe('Router', () => {
       it('should be called on the route object (as `this`)', async () => {
         const children = sinon.spy();
         const route = { path: '/users', children };
-        router.setRoutes([route]);
+        await router.setRoutes([route], true);
 
         await router.render('/users/1').catch(() => {});
 
@@ -2116,7 +2232,7 @@ describe('Router', () => {
         ];
 
         for (let i = 0; i < incorrectRoutes.length; i++) {
-          router.setRoutes({ path: '/a', children: () => incorrectRoutes[i] });
+          await router.setRoutes({ path: '/a', children: async () => await incorrectRoutes[i] }, true);
 
           let exceptionThrown = false;
           await router.render('/a').catch(() => {
@@ -2131,33 +2247,36 @@ describe('Router', () => {
       });
 
       it('if the return value is a tree of nested routes, they should get resolved correctly', async () => {
-        router.setRoutes([
-          {
-            path: '/',
-            component: 'x-root',
-            children: [
-              {
-                path: '/a',
-                children: () => ({
-                  path: '/b',
-                  children: () =>
-                    new Promise((resolve) =>
-                      resolve({
-                        path: '/c',
-                        component: 'x-c',
-                        children: [
-                          {
-                            path: '/d',
-                            component: 'x-d',
-                          },
-                        ],
-                      }),
-                    ),
-                }),
-              },
-            ],
-          },
-        ]);
+        await router.setRoutes(
+          [
+            {
+              path: '/',
+              component: 'x-root',
+              children: [
+                {
+                  path: '/a',
+                  children: () => ({
+                    path: '/b',
+                    children: async () =>
+                      await new Promise((resolve) =>
+                        resolve({
+                          path: '/c',
+                          component: 'x-c',
+                          children: [
+                            {
+                              path: '/d',
+                              component: 'x-d',
+                            },
+                          ],
+                        }),
+                      ),
+                  }),
+                },
+              ],
+            },
+          ],
+          true,
+        );
 
         await router.render('/a/b/c/d');
 
@@ -2165,13 +2284,16 @@ describe('Router', () => {
       });
 
       it('if the return value is route with a `redirect`, it should get resolved correctly', async () => {
-        router.setRoutes({
-          path: '/a',
-          children: () => [
-            { path: '/b', redirect: '/a/c', component: 'x-b' },
-            { path: '/c', component: 'x-c' },
-          ],
-        });
+        await router.setRoutes(
+          {
+            path: '/a',
+            children: () => [
+              { path: '/b', redirect: '/a/c', component: 'x-b' },
+              { path: '/c', component: 'x-c' },
+            ],
+          },
+          true,
+        );
 
         await router.render('/a/b');
 
@@ -2180,9 +2302,9 @@ describe('Router', () => {
     });
 
     describe('animated transitions', () => {
-      let router,
-        observer,
-        data = [];
+      let router;
+      let observer;
+      let data = [];
 
       beforeEach(() => {
         router = new Router(outlet);
@@ -2195,10 +2317,13 @@ describe('Router', () => {
       });
 
       it('should set and then remove the CSS classes, if `animate` is set to true', async () => {
-        router.setRoutes([
-          { path: '/', component: 'x-home-view' },
-          { path: '/animate', component: 'x-animate-view', animate: true },
-        ]);
+        await router.setRoutes(
+          [
+            { path: '/', component: 'x-home-view' },
+            { path: '/animate', component: 'x-animate-view', animate: true },
+          ],
+          true,
+        );
 
         await router.render('/');
 
@@ -2212,7 +2337,7 @@ describe('Router', () => {
         await router.render('/animate');
 
         // FIXME(web-padawan): force IE11 to pick up mutations
-        if (/Trident/.test(navigator.userAgent) && data.length !== 4) {
+        if (navigator.userAgent.includes('Trident') && data.length !== 4) {
           data = observer.takeRecords();
         }
 
@@ -2236,9 +2361,9 @@ describe('Router', () => {
     });
 
     describe('__removeDomNodes (function)', () => {
-      let parent,
-        childA,
-        childB = [];
+      let parent;
+      let childA;
+      let childB = [];
 
       beforeEach(() => {
         parent = document.createElement('div');
@@ -2267,7 +2392,7 @@ async function expectException(callback, expectedContentsArray) {
     await callback;
   } catch (e) {
     exceptionThrown = true;
-    if (expectedContentsArray && expectedContentsArray.length) {
+    if (expectedContentsArray?.length) {
       const exceptionString = e.message || JSON.stringify(e);
       for (let i = 0; i < expectedContentsArray.length; i++) {
         expect(exceptionString).to.contain(expectedContentsArray[i]);
