@@ -43,7 +43,7 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     const url = generateUrls(router);
     expect(() => url('hello')).to.throw(Error, /Route "hello" not found/u);
 
-    router.#root.__children = [{ action, name: 'new', path: '/b' }];
+    (router.root.__children as Array<InternalRoute<EmptyObject>>) = [{ action, name: 'new', path: '/b' }];
     expect(url('new')).to.be.equal('/a/b');
   });
 
@@ -126,7 +126,7 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     // let routesByName = Array.from(router.routesByName.keys());
     // expect(routesByName).to.have.all.members(['a', 'b', 'c']);
 
-    (resolver.#root.__children as Array<InternalRoute<EmptyObject>>).push({ name: 'new', path: '/new', children: [] });
+    (resolver.root.__children as Array<InternalRoute<EmptyObject>>).push({ name: 'new', path: '/new', children: [] });
     expect(url('new')).to.be.equal('/new');
     // TODO(platosha): Re-enable assergin `routesByName` when the API is exposed
     // // the .keys assertion does not work with ES6 Maps until chai 4.x
@@ -177,7 +177,7 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     expect(url3('c', { x: 'x' })).to.be.equal('/c/x');
     expect(url3('d', { x: 'x', y: 'y' })).to.be.equal('/c/x/d/y');
 
-    (router3.#root.__children as Array<InternalRoute<AnyObject>>).push({ name: 'new', path: '/new', children: [] });
+    (router3.root.__children as Array<InternalRoute<AnyObject>>).push({ name: 'new', path: '/new', children: [] });
     expect(url3('new')).to.be.equal('/new');
   });
 
