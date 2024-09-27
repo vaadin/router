@@ -16,10 +16,12 @@ describe('Router', () => {
     link.id = 'admin-anchor';
     outlet = document.createElement('div');
     document.body.append(link, outlet);
+    history.pushState(null, '', '/');
   });
 
   after(() => {
     outlet.remove();
+    history.back();
   });
 
   afterEach(() => {
@@ -27,10 +29,10 @@ describe('Router', () => {
   });
 
   describe('JS API (basic functionality)', () => {
-    let router;
+    let router: Router;
 
-    afterEach(async () => {
-      router?.unsubscribe();
+    afterEach(() => {
+      router.unsubscribe();
     });
 
     describe('new Router(outlet?, options?)', () => {
@@ -51,23 +53,22 @@ describe('Router', () => {
         });
       });
 
-      it('route should throw when created with only path property', () => {
+      it('route should throw when created with only path property', async () => {
         router = new Router(outlet);
-        expect(() => router.setRoutes([{ path: '/' }], true)).to.throw(Error);
+        // @ts-expect-error route is missing required properties, expecting runtime error
+        await expect(router.setRoutes([{ path: '/' }], true)).to.be.rejectedWith(Error, / either/ui);
       });
 
       it('should not fail silently if not configured (both routes and outlet missing)', async () => {
         router = new Router();
-        const link = document.getElementById('admin-anchor');
         link.click();
-        await expect(router.ready).to.be.rejectedWith(Error, /page not found/i);
+        await expect(router.ready).to.be.rejectedWith(Error, /page not found/ui);
       });
 
       it('should not fail silently if not configured (outlet is set but routes are missing)', async () => {
         router = new Router(outlet);
-        const link = document.getElementById('admin-anchor');
         link.click();
-        await expect(router.ready).to.be.rejectedWith(Error, /page not found/i);
+        await expect(router.ready).to.be.rejectedWith(Error, /page not found/ui);
       });
     });
 
