@@ -25,7 +25,6 @@ describe('Router', () => {
   });
 
   afterEach(() => {
-  afterEach(() => {
     cleanup(outlet);
   });
 
