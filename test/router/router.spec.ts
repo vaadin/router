@@ -59,19 +59,19 @@ describe('Router', () => {
       it('route should throw when created with only path property', async () => {
         router = new Router(outlet);
         // @ts-expect-error route is missing required properties, expecting runtime error
-        await expect(router.setRoutes([{ path: '/' }], true)).to.be.rejectedWith(Error, / either/ui);
+        await expect(router.setRoutes([{ path: '/' }], true)).to.be.rejectedWith(Error, / either/iu);
       });
 
       it('should not fail silently if not configured (both routes and outlet missing)', async () => {
         router = new Router();
         link.click();
-        await expect(router.ready).to.be.rejectedWith(Error, /page not found/ui);
+        await expect(router.ready).to.be.rejectedWith(Error, /page not found/iu);
       });
 
       it('should not fail silently if not configured (outlet is set but routes are missing)', async () => {
         router = new Router(outlet);
         link.click();
-        await expect(router.ready).to.be.rejectedWith(Error, /page not found/ui);
+        await expect(router.ready).to.be.rejectedWith(Error, /page not found/iu);
       });
     });
 
@@ -169,18 +169,18 @@ describe('Router', () => {
       it('should throw if the router outlet is a not valid DOM Node (on finish)', async () => {
         await Promise.all(
           [undefined, null, 0, false, '', NaN].map(async (invalidOutlet) => {
-            const router = new Router(outlet);
-            await router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
-            const fulfilled = sinon.spy();
-            const rejected = sinon.spy();
-            const ready = router.render('/').then(fulfilled).catch(rejected);
+            const _router = new Router(outlet);
+            await _router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
+            const fulfilled: sinon.SinonSpy<unknown[], void> = sinon.spy();
+            const rejected: sinon.SinonSpy<unknown[], void> = sinon.spy();
+            const ready = _router.render('/').then(fulfilled).catch(rejected);
             // @ts-expect-error: testing invalid arguments
-            router.setOutlet(invalidOutlet);
+            _router.setOutlet(invalidOutlet);
             await ready;
             expect(fulfilled).to.not.have.been.called;
             expect(rejected).to.have.been.calledOnce;
             expect(rejected.args[0][0]).to.be.instanceof(TypeError);
-            router.unsubscribe();
+            _router.unsubscribe();
           }),
         );
       });
@@ -230,8 +230,8 @@ describe('Router', () => {
 
       it('should rethrow DOMException if the route `component` is not a valid tag name', async () => {
         await router.setRoutes([{ path: '/', component: 'src/x-home-view' }], true);
-        const fulfilled = sinon.spy();
-        const rejected = sinon.spy();
+        const fulfilled: sinon.SinonSpy<unknown[], void> = sinon.spy();
+        const rejected: sinon.SinonSpy<unknown[], void> = sinon.spy();
         const ready = router.render('/').then(fulfilled).catch(rejected);
         await ready;
         expect(fulfilled).to.not.have.been.called;
