@@ -147,17 +147,12 @@ describe('Router', () => {
 
     describe('router.render(pathname)', () => {
       const add100msDelay = async () =>
-        await new Promise((resolve, reject) => {
-          setTimeout(() => resolve(), 100);
+        await new Promise((resolve) => {
+          setTimeout(resolve, 100);
         });
 
-      let router;
       beforeEach(() => {
         router = new Router(outlet);
-      });
-
-      afterEach(async () => {
-        router?.unsubscribe();
       });
 
       it('should set a correct location to history when receiving a string path', async () => {
