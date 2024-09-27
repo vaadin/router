@@ -150,7 +150,7 @@ describe('Router', () => {
 
     describe('router.render(pathname)', () => {
       const add100msDelay = async () =>
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
           setTimeout(resolve, 100);
         });
 
@@ -381,6 +381,9 @@ describe('Router', () => {
 
         expect(pushSpy).to.not.be.called;
         expect(replaceSpy).to.be.calledOnce;
+
+        pushSpy.restore();
+        replaceSpy.restore();
       });
 
       it('should use `window.pushState()` when redirecting on next renders', async () => {
@@ -416,8 +419,8 @@ describe('Router', () => {
         expect(pushSpy).to.be.calledThrice;
         expect(replaceSpy).to.not.be.called;
 
-        window.history.pushState.restore();
-        window.history.replaceState.restore();
+        pushSpy.restore();
+        replaceSpy.restore();
       });
 
       it('should set the `location.redirectFrom` property on the route component in case of redirect', async () => {
