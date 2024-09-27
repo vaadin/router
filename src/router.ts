@@ -61,7 +61,15 @@ function getMatchedPath<R extends AnyObject>(chain: ReadonlyArray<ChainItem<R>>)
 }
 
 function createLocation<R extends AnyObject>(
-  { chain = [], hash = '', params = {}, pathname = '', resolver, search = '' }: Partial<InternalRouteContext<R>>,
+  {
+    chain = [],
+    hash = '',
+    params = {},
+    pathname = '',
+    resolver,
+    search = '',
+    redirectFrom,
+  }: Partial<InternalRouteContext<R>>,
   route?: Route<R>,
 ): RouterLocation<R> {
   const routes = chain.map((item) => item.route as Route<R>);
@@ -74,6 +82,7 @@ function createLocation<R extends AnyObject>(
     hash,
     params,
     pathname,
+    redirectFrom,
     route: route ?? (routes.length ? routes[routes.length - 1] : undefined) ?? null,
     routes,
     search,
