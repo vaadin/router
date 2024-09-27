@@ -109,6 +109,7 @@ describe('matchRoute(route, pathname)', () => {
     it('should not match a route without children if it matches only a prefix of the path', () => {
       const route = {
         path: '/a',
+        action: () => {},
       };
       const result = toArray(matchRoute(route, '/a/x'));
       expect(result).to.have.lengthOf(0);
