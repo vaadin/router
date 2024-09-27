@@ -35,24 +35,24 @@ export const onAfterEnterAction = createWebComponentAction('onAfterEnter');
 export const onAfterLeaveAction = createWebComponentAction('onAfterLeave');
 
 export function checkOutletContents<T extends Element>(
-  root: T,
+  root: T | undefined,
   valueGetter: keyof T,
   expectedValues: readonly string[],
 ): void {
   let currentElementToCheck = root;
   for (const expectedValue of expectedValues) {
     expect(currentElementToCheck, `Failed to find a child '${expectedValue}'`).to.exist;
-    expect(currentElementToCheck[valueGetter]).to.match(new RegExp(expectedValue, 'ui'));
+    expect(currentElementToCheck![valueGetter]).to.match(new RegExp(expectedValue, 'ui'));
     expect(
-      currentElementToCheck.children.length,
+      currentElementToCheck!.children.length,
       `Expect each outlet element to have no more than 1 child`,
     ).to.be.below(2);
-    currentElementToCheck = currentElementToCheck.children[0] as T;
+    currentElementToCheck = currentElementToCheck!.children[0] as T | undefined;
   }
   expect(
     currentElementToCheck,
     `Got '${String(expectedValues)}' values to check but got at least one more child in outlet: '${String(
-      currentElementToCheck[valueGetter],
+      currentElementToCheck ? currentElementToCheck[valueGetter] : undefined,
     )}'`,
   ).to.be.an('undefined');
 }
