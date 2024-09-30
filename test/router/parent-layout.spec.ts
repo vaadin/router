@@ -58,17 +58,20 @@ describe('Router', () => {
     });
 
     it('should preserve references to same DOM node and reuse it on subsequent renders', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [
-            { path: '/b', component: 'x-b' },
-            { path: '/c', component: 'x-c' },
-            { path: '/d', component: 'x-d' },
-          ],
-        },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [
+              { path: '/b', component: 'x-b' },
+              { path: '/c', component: 'x-c' },
+              { path: '/d', component: 'x-d' },
+            ],
+          },
+        ],
+        true,
+      );
 
       await router.render('/a/b');
       const first = outlet.lastChild;
@@ -86,17 +89,20 @@ describe('Router', () => {
     });
 
     it('should update parent location when reusing layout', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [
-            { path: '/b', component: 'x-b' },
-            { path: '/c', component: 'x-c' },
-            { path: '/([de])', component: 'x-d' },
-          ],
-        },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [
+              { path: '/b', component: 'x-b' },
+              { path: '/c', component: 'x-c' },
+              { path: '/([de])', component: 'x-d' },
+            ],
+          },
+        ],
+        true,
+      );
 
       await router.render('/a/b');
       expect(outlet.lastElementChild).to.have.deep.property('location.pathname').that.equals('/a/b');
@@ -112,10 +118,13 @@ describe('Router', () => {
     });
 
     it('should remove nested route components when the parent route is navigated to', async () => {
-      await router.setRoutes([
-        { path: '/a', component: 'x-a', children: [{ path: '/b', component: 'x-b' }] },
-        { path: '/c', component: 'x-c' },
-      ]);
+      await router.setRoutes(
+        [
+          { path: '/a', component: 'x-a', children: [{ path: '/b', component: 'x-b' }] },
+          { path: '/c', component: 'x-c' },
+        ],
+        true,
+      );
 
       await router.render('/a/b');
       await router.render('/c');
@@ -126,19 +135,22 @@ describe('Router', () => {
     });
 
     it('when action returns a component result, it is rendered the same way as if it was a component property', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [
-            {
-              path: '/b',
-              action: (_context, commands) => commands?.component('x-b'),
-              children: [{ path: '/c', action: (_context, commands) => commands?.component('x-c') }],
-            },
-          ],
-        },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [
+              {
+                path: '/b',
+                action: (_context, commands) => commands?.component('x-b'),
+                children: [{ path: '/c', action: (_context, commands) => commands?.component('x-c') }],
+              },
+            ],
+          },
+        ],
+        true,
+      );
 
       await router.render('/a/b/c');
 
@@ -147,19 +159,22 @@ describe('Router', () => {
     });
 
     it('extra child view in route chain is not rendered, if path does not match', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [
-            {
-              path: '/b',
-              component: 'x-b',
-              children: [{ path: '/c', component: 'x-c', children: [{ path: '/d', component: 'x-d' }] }],
-            },
-          ],
-        },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [
+              {
+                path: '/b',
+                component: 'x-b',
+                children: [{ path: '/c', component: 'x-c', children: [{ path: '/d', component: 'x-d' }] }],
+              },
+            ],
+          },
+        ],
+        true,
+      );
 
       await router.render('/a/b/c');
 
@@ -168,7 +183,7 @@ describe('Router', () => {
     });
 
     it('should not render the root component, if path does not match', async () => {
-      await router.setRoutes([{ path: '/', component: 'x-root', children: [{ path: '/a', component: 'x-a' }] }]);
+      await router.setRoutes([{ path: '/', component: 'x-root', children: [{ path: '/a', component: 'x-a' }] }], true);
       let exception;
       await router.render('/c').catch((e: unknown) => {
         exception = e;
@@ -177,17 +192,20 @@ describe('Router', () => {
     });
 
     it('should allow parent route paths with trailing slashes', async () => {
-      await router.setRoutes([
-        { path: '/', component: 'x-root' },
-        {
-          path: '/a/',
-          component: 'x-a',
-          children: [
-            { path: '/b', component: 'x-b' },
-            { path: '(.+)', component: 'x-any' },
-          ],
-        },
-      ]);
+      await router.setRoutes(
+        [
+          { path: '/', component: 'x-root' },
+          {
+            path: '/a/',
+            component: 'x-a',
+            children: [
+              { path: '/b', component: 'x-b' },
+              { path: '(.+)', component: 'x-any' },
+            ],
+          },
+        ],
+        true,
+      );
 
       await router.render('/');
       checkOutlet(['x-root']);
@@ -203,13 +221,16 @@ describe('Router', () => {
       'when not all nested views have components, all present components are rendered as children ' +
         'to each other in the same hierarchy',
       async () => {
-        await router.setRoutes([
-          {
-            path: '/a',
-            component: 'x-a',
-            children: [{ path: '/b', children: [{ path: '/c', children: [{ path: '/d', component: 'x-d' }] }] }],
-          },
-        ]);
+        await router.setRoutes(
+          [
+            {
+              path: '/a',
+              component: 'x-a',
+              children: [{ path: '/b', children: [{ path: '/c', children: [{ path: '/d', component: 'x-d' }] }] }],
+            },
+          ],
+          true,
+        );
 
         await router.render('/a/b/c/d');
 
@@ -288,18 +309,21 @@ describe('Router', () => {
     });
 
     it('should render the matching child route even if it is not under the first matching parent', async () => {
-      await router.setRoutes([
-        {
-          path: '/',
-          component: 'x-layout-a',
-          children: [{ path: '/a', component: 'x-a' }],
-        },
-        {
-          path: '/',
-          component: 'x-layout-b',
-          children: [{ path: '/b', component: 'x-b' }],
-        },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/',
+            component: 'x-layout-a',
+            children: [{ path: '/a', component: 'x-a' }],
+          },
+          {
+            path: '/',
+            component: 'x-layout-b',
+            children: [{ path: '/b', component: 'x-b' }],
+          },
+        ],
+        true,
+      );
 
       await router.render('/b');
 
@@ -308,14 +332,17 @@ describe('Router', () => {
     });
 
     it('redirect property amends previous path', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [{ path: '/b', component: 'x-b', children: [{ path: '/c', component: 'x-c', redirect: '/d' }] }],
-        },
-        { path: '/d', component: 'x-d', children: [{ path: '/e', component: 'x-e' }] },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [{ path: '/b', component: 'x-b', children: [{ path: '/c', component: 'x-c', redirect: '/d' }] }],
+          },
+          { path: '/d', component: 'x-d', children: [{ path: '/e', component: 'x-e' }] },
+        ],
+        true,
+      );
 
       await router.render('/a/b/c');
 
@@ -324,21 +351,24 @@ describe('Router', () => {
     });
 
     it('action with redirect result amends previous path', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [
-            {
-              path: '/b',
-              action: (_context, commands) => commands?.redirect('/d/e'),
-              component: 'x-b',
-              children: [{ path: '/c', component: 'x-c' }],
-            },
-          ],
-        },
-        { path: '/d', component: 'x-d', children: [{ path: '/e', component: 'x-e' }] },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [
+              {
+                path: '/b',
+                action: (_context, commands) => commands?.redirect('/d/e'),
+                component: 'x-b',
+                children: [{ path: '/c', component: 'x-c' }],
+              },
+            ],
+          },
+          { path: '/d', component: 'x-d', children: [{ path: '/e', component: 'x-e' }] },
+        ],
+        true,
+      );
 
       await router.render('/a/b/c');
 
@@ -348,13 +378,16 @@ describe('Router', () => {
 
     it('child layout: onAfterEnter should receive correct route parameters', async () => {
       const onAfterEnter = sinon.spy();
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [{ path: '/b/:id', action: onAfterEnterAction('x-b', onAfterEnter) }],
-        },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [{ path: '/b/:id', action: onAfterEnterAction('x-b', onAfterEnter) }],
+          },
+        ],
+        true,
+      );
 
       await router.render('/a/b/123');
 
@@ -371,20 +404,23 @@ describe('Router', () => {
     });
 
     it('child layout: onBeforeEnter with redirect result amends previous path', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [
-            {
-              path: '/b',
-              action: onBeforeEnterAction('x-b', (_location, commands) => commands.redirect('/d/e')),
-              children: [{ path: '/c', component: 'x-c' }],
-            },
-          ],
-        },
-        { path: '/d', component: 'x-d', children: [{ path: '/e', component: 'x-e' }] },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [
+              {
+                path: '/b',
+                action: onBeforeEnterAction('x-b', (_location, commands) => commands.redirect('/d/e')),
+                children: [{ path: '/c', component: 'x-c' }],
+              },
+            ],
+          },
+          { path: '/d', component: 'x-d', children: [{ path: '/e', component: 'x-e' }] },
+        ],
+        true,
+      );
 
       await router.render('/a/b/c');
 
@@ -393,18 +429,21 @@ describe('Router', () => {
     });
 
     it('child layout: onBeforeEnter with cancel result aborts current resolution', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [{ path: '/b', component: 'x-b', children: [{ path: '/c', component: 'x-c' }] }],
-        },
-        {
-          path: '/d',
-          action: onBeforeEnterAction('x-d', (_location, commands) => commands.prevent()),
-          children: [{ path: '/e', component: 'x-e' }],
-        },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [{ path: '/b', component: 'x-b', children: [{ path: '/c', component: 'x-c' }] }],
+          },
+          {
+            path: '/d',
+            action: onBeforeEnterAction('x-d', (_location, commands) => commands.prevent()),
+            children: [{ path: '/e', component: 'x-e' }],
+          },
+        ],
+        true,
+      );
 
       await router.render('/a/b/c');
       await router.render('/d/e');
@@ -414,20 +453,23 @@ describe('Router', () => {
     });
 
     it('child layout: onBeforeLeave with cancel result aborts current resolution', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          component: 'x-a',
-          children: [
-            {
-              path: '/b',
-              action: onBeforeLeaveAction('x-b', (_location, commands) => commands.prevent()),
-              children: [{ path: '/c', component: 'x-c' }],
-            },
-          ],
-        },
-        { path: '/d', component: 'x-d', children: [{ path: '/e', component: 'x-e' }] },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            component: 'x-a',
+            children: [
+              {
+                path: '/b',
+                action: onBeforeLeaveAction('x-b', (_location, commands) => commands.prevent()),
+                children: [{ path: '/c', component: 'x-c' }],
+              },
+            ],
+          },
+          { path: '/d', component: 'x-d', children: [{ path: '/e', component: 'x-e' }] },
+        ],
+        true,
+      );
 
       await router.render('/a/b/c');
       await router.render('/d/e');
