@@ -49,8 +49,8 @@ function getPathnameForRouter<R extends AnyObject>(pathname: string, resolver: R
   return base ? new URL(pathname.replace(/^\//u, ''), base).pathname : pathname;
 }
 
-function getMatchedPath<R extends AnyObject>(chain: ReadonlyArray<ChainItem<R>>) {
-  return chain
+function getMatchedPath(pathItems: ReadonlyArray<Readonly<{ path: string }>>) {
+  return pathItems
     .map((item) => item.path)
     .reduce((a, b) => {
       if (b.length) {
@@ -58,6 +58,10 @@ function getMatchedPath<R extends AnyObject>(chain: ReadonlyArray<ChainItem<R>>)
       }
       return a;
     }, '');
+}
+
+function getRoutePath<R extends AnyObject>(chain: ReadonlyArray<ChainItem<R>>): string {
+  return getMatchedPath(chain.map(chainItem => chainItem.route));
 }
 
 function createLocation<R extends AnyObject>(
@@ -76,7 +80,7 @@ function createLocation<R extends AnyObject>(
   return {
     baseUrl: resolver?.baseUrl ?? '',
     getUrl: (userParams = {}) => {
-      const _pathname = compile(getMatchedPath(chain))({ ...params, ...userParams });
+      const _pathname = compile(getRoutePath(chain))({ ...params, ...userParams });
       return resolver ? getPathnameForRouter(_pathname, resolver) : _pathname;
     },
     hash,
