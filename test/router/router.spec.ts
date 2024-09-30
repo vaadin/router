@@ -19,6 +19,10 @@ describe('Router', () => {
     history.pushState(null, '', '/');
   });
 
+  beforeEach(() => {
+    history.replaceState(null, '', '/');
+  });
+
   after(() => {
     outlet.remove();
     history.back();
@@ -778,16 +782,18 @@ describe('Router', () => {
     });
 
     describe('first render', () => {
-      let router;
-      let onVaadinRouterGo;
+      const onVaadinRouterGo = sinon.stub();
 
-      beforeEach(async () => {
-        onVaadinRouterGo = sinon.stub();
+      before(() => {
         window.addEventListener('vaadin-router-go', onVaadinRouterGo);
       });
 
-      afterEach(async () => {
-        router.unsubscribe();
+      afterEach(() => {
+        onVaadinRouterGo.resetHistory();
+      });
+
+      after(() => {
+        window.removeEventListener('vaadin-router-go', onVaadinRouterGo);
       });
 
       it('should preserve pathname, search and hash', async () => {
