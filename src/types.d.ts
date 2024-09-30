@@ -1,5 +1,6 @@
 import type { EmptyObject, RequireAtLeastOne } from 'type-fest';
 import type { ResolutionError } from './resolver/resolver.js';
+import type { ChildrenCallback } from './resolver/types.js';
 import type { Router } from './router.js';
 
 export { ResolutionError };
@@ -346,7 +347,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
     location: RouterLocation<R>,
     commands: Commands,
     router: Router<R>,
-  ): MaybePromise<PreventResult | RedirectResult | undefined>;
+  ): MaybePromise<PreventResult | RedirectResult> | MaybePromise<void>;
 
   /**
    * Method that gets executed when user navigates away from the component
@@ -388,13 +389,14 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject> extend
     location: RouterLocation<R>,
     commands: Commands,
     router: Router<R>,
-  ): MaybePromise<PreventResult | undefined>;
+  ): MaybePromise<PreventResult> | MaybePromise<void>;
 }
 
 export type ResolveContext = Readonly<{
   hash?: string;
   pathname: string;
   search?: string;
+  redirectFrom?: string;
 }>;
 
 export type RouteChildrenContext<R extends AnyObject> = ResolveContext &
@@ -438,11 +440,7 @@ export type Route<R extends AnyObject = EmptyObject> = Readonly<
     children?: ChildrenCallback<R> | ReadonlyArray<Route<R>>;
     component?: string;
     redirect?: string;
-    action?(
-      this: Route<R>,
-      context: RouteContext<R>,
-      commands?: Commands,
-    ): MaybePromise<ActionResult | RouteContext<R>>;
+    action?(this: Route<R>, context: RouteContext<R>, commands: Commands): MaybePromise<ActionResult | RouteContext<R>>;
   }> & {
     animate?: AnimateCustomClasses | boolean;
     name?: string;

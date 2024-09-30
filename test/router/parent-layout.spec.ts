@@ -143,8 +143,8 @@ describe('Router', () => {
             children: [
               {
                 path: '/b',
-                action: (_context, commands) => commands?.component('x-b'),
-                children: [{ path: '/c', action: (_context, commands) => commands?.component('x-c') }],
+                action: (_context, commands) => commands.component('x-b'),
+                children: [{ path: '/c', action: (_context, commands) => commands.component('x-c') }],
               },
             ],
           },
@@ -359,7 +359,7 @@ describe('Router', () => {
             children: [
               {
                 path: '/b',
-                action: (_context, commands) => commands?.redirect('/d/e'),
+                action: (_context, commands) => commands.redirect('/d/e'),
                 component: 'x-b',
                 children: [{ path: '/c', component: 'x-c' }],
               },

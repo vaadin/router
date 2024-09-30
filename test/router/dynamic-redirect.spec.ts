@@ -54,7 +54,7 @@ describe('Vaadin.Router', () => {
     });
 
     it('action that returns custom component activates route', async () => {
-      await router.setRoutes([{ path: '/', action: (_context, commands) => commands?.component('x-home-view') }], true);
+      await router.setRoutes([{ path: '/', action: (_context, commands) => commands.component('x-home-view') }], true);
 
       await router.render('/');
 
@@ -62,10 +62,13 @@ describe('Vaadin.Router', () => {
     });
 
     it('action that returns redirect activates redirect route', async () => {
-      await router.setRoutes([
-        { path: '/', action: (_context, commands) => commands?.redirect('/a') },
-        { path: '/a', component: 'x-users-view' },
-      ], true);
+      await router.setRoutes(
+        [
+          { path: '/', action: (_context, commands) => commands.redirect('/a') },
+          { path: '/a', component: 'x-users-view' },
+        ],
+        true,
+      );
 
       await router.render('/');
 
@@ -76,11 +79,14 @@ describe('Vaadin.Router', () => {
     });
 
     it('should be able to have multiple action redirects', async () => {
-      await router.setRoutes([
-        { path: '/', action: (_context, commands) => commands?.redirect('/u') },
-        { path: '/u', action: (_context, commands) => commands?.redirect('/users') },
-        { path: '/users', component: 'x-users-list' },
-      ], true);
+      await router.setRoutes(
+        [
+          { path: '/', action: (_context, commands) => commands.redirect('/u') },
+          { path: '/u', action: (_context, commands) => commands.redirect('/users') },
+          { path: '/users', component: 'x-users-list' },
+        ],
+        true,
+      );
 
       await router.render('/');
 
@@ -91,11 +97,14 @@ describe('Vaadin.Router', () => {
     });
 
     it('should fail on recursive action redirects', async () => {
-      await router.setRoutes([
-        { path: '/a', action: (_context, commands) => commands?.redirect('/b') },
-        { path: '/b', action: (_context, commands) => commands?.redirect('/c') },
-        { path: '/c', action: (_context, commands) => commands?.redirect('/a') },
-      ], true);
+      await router.setRoutes(
+        [
+          { path: '/a', action: (_context, commands) => commands.redirect('/b') },
+          { path: '/b', action: (_context, commands) => commands.redirect('/c') },
+          { path: '/c', action: (_context, commands) => commands.redirect('/a') },
+        ],
+        true,
+      );
 
       const onError = sinon.spy();
       // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable

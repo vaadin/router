@@ -56,7 +56,7 @@ export type RouteContext<T, R extends AnyObject = EmptyObject> = ResolutionOptio
   }>;
 
 export type ChildrenCallback<T, R extends AnyObject> = (
-  context: RouteContext<T, R>,
+  context: RouteChildrenContext<T, R>,
 ) => MaybePromise<ReadonlyArray<Route<T, R>>>;
 
 export type ParamValue = readonly string[] | string;
