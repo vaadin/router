@@ -437,13 +437,8 @@ describe('Router', () => {
     });
 
     describe('router.ready', () => {
-      let router;
       beforeEach(() => {
         router = new Router(outlet);
-      });
-
-      afterEach(async () => {
-        router?.unsubscribe();
       });
 
       it('should be a promise', () => {

@@ -5,6 +5,18 @@ import type { ChainItem, InternalNextResult, InternalRoute, InternalRouteContext
 import generateUrls from './resolver/generateUrls.js';
 import Resolver, { type ResolverOptions } from './resolver/resolver.js';
 import './router-config.js';
+import {
+  ensureRoute,
+  fireRouterEvent,
+  getNotFoundError,
+  isFunction,
+  isObject,
+  isString,
+  log,
+  logValue,
+  notFoundResult,
+  toArray,
+} from './resolver/utils.js';
 import animate from './transitions/animate.js';
 import { DEFAULT_TRIGGERS, setNavigationTriggers } from './triggers/navigation.js';
 import type {
@@ -27,18 +39,6 @@ import type {
   RouterLocation,
   WebComponentInterface,
 } from './types.js';
-import {
-  ensureRoute,
-  fireRouterEvent,
-  getNotFoundError,
-  isFunction,
-  isObject,
-  isString,
-  log,
-  logValue,
-  notFoundResult,
-  toArray,
-} from './resolver/utils.js';
 
 const MAX_REDIRECT_COUNT = 256;
 
@@ -465,18 +465,22 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
    * @param shouldUpdateHistory - update browser history with the rendered
    * location
    */
-  async render(
-    pathnameOrContext: string | ResolveContext,
-    shouldUpdateHistory: boolean = false,
-  ): Promise<RouterLocation<R>> {
+  // eslint-disable-next-line @typescript-eslint/promise-function-async
+  render(pathnameOrContext: string | ResolveContext, shouldUpdateHistory: boolean = false): Promise<RouterLocation<R>> {
     this.__lastStartedRenderId += 1;
     const renderId = this.__lastStartedRenderId;
     const context = {
-      ...rootContext,
+      ...(rootContext as InternalRouteContext<R>),
       ...(isString(pathnameOrContext) ? { hash: '', search: '', pathname: pathnameOrContext } : pathnameOrContext),
       __renderId: renderId,
     } satisfies InternalRouteContext<R>;
 
+    this.ready = this.#doRender(context, shouldUpdateHistory);
+    return this.ready;
+  }
+
+  async #doRender(context: InternalRouteContext<R>, shouldUpdateHistory: boolean) {
+    const { __renderId } = context;
     try {
       // Find the first route that resolves to a non-empty result
       const internalContext = await this.resolve(context);
@@ -506,7 +510,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
       if (shouldUpdateHistory) {
         // Replace only if first render redirects, so that we don’t leave
         // the redirecting record in the history
-        this.__updateBrowserHistory(contextWithChain, renderId === 1);
+        this.__updateBrowserHistory(contextWithChain, __renderId === 1);
       }
 
       fireRouterEvent('location-changed', {
@@ -539,7 +543,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
         return this.location;
       }
     } catch (error: unknown) {
-      if (renderId === this.__lastStartedRenderId) {
+      if (__renderId === this.__lastStartedRenderId) {
         if (shouldUpdateHistory) {
           this.__updateBrowserHistory(this.context);
         }
@@ -819,10 +823,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
   }
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this
-  private __updateBrowserHistory(
-    { pathname, search = '', hash = '' }: InternalRouteContext<R>,
-    replace?: boolean,
-  ): void {
+  private __updateBrowserHistory({ pathname, search = '', hash = '' }: ResolveContext, replace?: boolean): void {
     if (window.location.pathname !== pathname || window.location.search !== search || window.location.hash !== hash) {
       const changeState = replace ? 'replaceState' : 'pushState';
       window.history[changeState](null, document.title, pathname + search + hash);
@@ -1007,7 +1008,8 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
       if (event?.preventDefault) {
         event.preventDefault();
       }
-      this.ready = this.render({ pathname, search, hash }, true);
+      // eslint-disable-next-line no-void
+      void this.render({ pathname, search, hash }, true);
     }
   }
 
