@@ -61,7 +61,7 @@ function getMatchedPath(pathItems: ReadonlyArray<Readonly<{ path: string }>>) {
 }
 
 function getRoutePath<R extends AnyObject>(chain: ReadonlyArray<ChainItem<R>>): string {
-  return getMatchedPath(chain.map(chainItem => chainItem.route));
+  return getMatchedPath(chain.map((chainItem) => chainItem.route));
 }
 
 function createLocation<R extends AnyObject>(
@@ -469,8 +469,10 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
    * @param shouldUpdateHistory - update browser history with the rendered
    * location
    */
-  // eslint-disable-next-line @typescript-eslint/promise-function-async
-  render(pathnameOrContext: string | ResolveContext, shouldUpdateHistory: boolean = false): Promise<RouterLocation<R>> {
+  async render(
+    pathnameOrContext: string | ResolveContext,
+    shouldUpdateHistory: boolean = false,
+  ): Promise<RouterLocation<R>> {
     this.__lastStartedRenderId += 1;
     const renderId = this.__lastStartedRenderId;
     const context = {
@@ -480,7 +482,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     } satisfies InternalRouteContext<R>;
 
     this.ready = this.#doRender(context, shouldUpdateHistory);
-    return this.ready;
+    return await this.ready;
   }
 
   async #doRender(context: InternalRouteContext<R>, shouldUpdateHistory: boolean) {
