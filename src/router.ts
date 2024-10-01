@@ -281,7 +281,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     const { route } = context;
 
     if (isFunction(route.children)) {
-      let children = await route.children(context as RouteChildrenContext<R>);
+      let children = await route.children({ ...context, next: undefined } as RouteChildrenContext<R>);
 
       // The route.children() callback might have re-written the
       // route.children property instead of returning a value
