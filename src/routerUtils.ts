@@ -1,6 +1,7 @@
 import { compile } from 'path-to-regexp';
 import type { ChainItem, InternalRoute, InternalRouteContext } from './internal.js';
 import type Resolver from './resolver/resolver.js';
+import { isFunction, isObject, isString, log, toArray } from './resolver/utils.js';
 import type {
   ActionResult,
   AnyObject,
@@ -10,7 +11,46 @@ import type {
   RouterLocation,
   WebComponentInterface,
 } from './types.js';
-import { ensureRoute, isObject, log, toArray } from './resolver/utils.js';
+
+export function ensureRoute(route?: Route): void {
+  if (!route || !isString(route.path)) {
+    throw new Error(
+      log(`Expected route config to be an object with a "path" string property, or an array of such objects`),
+    );
+  }
+
+  if (
+    !isFunction(route.action) &&
+    !Array.isArray(route.children) &&
+    !isFunction(route.children) &&
+    !isString(route.component) &&
+    !isString(route.redirect)
+  ) {
+    throw new Error(
+      log(
+        `Expected route config "${String(route.path)}" to include either "component, redirect" ` +
+          `or "action" function but none found.`,
+      ),
+    );
+  }
+
+  if (route.redirect) {
+    ['bundle', 'component'].forEach((overriddenProp) => {
+      if (overriddenProp in route) {
+        console.warn(
+          log(
+            `Route config "${String(route.path)}" has both "redirect" and "${overriddenProp}" properties, ` +
+              `and "redirect" will always override the latter. Did you mean to only use "${overriddenProp}"?`,
+          ),
+        );
+      }
+    });
+  }
+}
+
+export function ensureRoutes(routes: readonly Route[]): void {
+  toArray(routes).forEach((route) => ensureRoute(route));
+}
 
 export function copyContextWithoutNext<R extends AnyObject>({
   next: _,
@@ -40,7 +80,7 @@ export function createLocation<R extends AnyObject>(
   { chain = [], hash = '', params = {}, pathname = '', redirectFrom, resolver, search = '' }: InternalRouteContext<R>,
   route?: Route<R>,
 ): RouterLocation {
-  const routes = chain.map((item) => item.route).filter((item) => item != null);
+  const routes = chain.map((item) => item.route);
   return {
     baseUrl: resolver?.baseUrl ?? '',
     getUrl: (userParams = {}) =>
@@ -67,7 +107,7 @@ export function createRedirect<R extends AnyObject>(context: InternalRouteContex
   };
 }
 
-export function renderElement<T extends WebComponentInterface, R extends AnyObject>(
+export function renderElement<T extends WebComponentInterface<R>, R extends AnyObject>(
   context: InternalRouteContext<R>,
   element: T,
 ): T {
@@ -128,4 +168,20 @@ export function processNewChildren<R extends AnyObject>(
   const children = toArray(newChildren);
   children.forEach((child) => ensureRoute(child));
   route.__children = children;
+}
+
+export function fireRouterEvent(type: string, detail: unknown): boolean {
+  return !window.dispatchEvent(new CustomEvent(`vaadin-router-${type}`, { cancelable: type === 'go', detail }));
+}
+
+export function logValue(value: unknown): string {
+  if (typeof value !== 'object') {
+    return String(value);
+  }
+
+  const [stringType = 'Unknown'] = / (.*)\]$/u.exec(String(value)) ?? [];
+  if (stringType === 'Object' || stringType === 'Array') {
+    return `${stringType} ${JSON.stringify(value)}`;
+  }
+  return stringType;
 }

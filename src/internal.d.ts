@@ -1,5 +1,12 @@
 import type Resolver from './resolver/resolver.js';
-import type { ActionResult, Route, AnyObject, WebComponentInterface, RouteChildrenContext } from './types.js';
+import type {
+  ActionResult,
+  Route,
+  AnyObject,
+  WebComponentInterface,
+  RouteChildrenContext,
+  ResolutionResult,
+} from './types.js';
 
 export interface RegExpExecOptArray extends ReadonlyArray<string | undefined> {
   0: string;
@@ -33,7 +40,7 @@ export type InternalRoute<R extends AnyObject> = Route<R> & {
 export type ChainItem<R extends AnyObject> = {
   element?: WebComponentInterface<R>;
   path: string;
-  route?: InternalRoute<R>;
+  route: InternalRoute<R>;
 };
 
 export type ResolveResult<R extends Record<string, unknown>> = ActionResult | InternalRouteContext<R>;

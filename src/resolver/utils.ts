@@ -22,18 +22,6 @@ export function log(msg: string): string {
   return `[Vaadin.Router] ${msg}`;
 }
 
-export function logValue(value: unknown): string {
-  if (typeof value !== 'object') {
-    return String(value);
-  }
-
-  const [stringType = 'Unknown'] = / (.*)\]$/u.exec(String(value)) ?? [];
-  if (stringType === 'Object' || stringType === 'Array') {
-    return `${stringType} ${JSON.stringify(value)}`;
-  }
-  return stringType;
-}
-
 export class NotFoundError<T, R extends AnyObject> extends Error {
   readonly code: number;
   readonly context: RouteContext<T, R>;

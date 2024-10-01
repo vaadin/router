@@ -72,7 +72,7 @@ function updateChainForRoute<T, R extends AnyObject, C extends AnyObject>(
     const item = { path, route };
     if (route.parent && context.chain) {
       for (let i = context.chain.length - 1; i >= 0; i--) {
-        if (!context.chain[i].route || context.chain[i].route === route.parent) {
+        if (context.chain[i].route === route.parent) {
           break;
         }
 
@@ -288,7 +288,6 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C 
    *    (the array is shallow copied)
    */
   setRoutes(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>): void {
-    // ensureRoutes(routes);
     this.#root.__children = [...toArray(routes)];
   }
 
@@ -325,7 +324,6 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C 
    *    (the array is shallow copied)
    */
   protected addRoutes(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>): ReadonlyArray<Route<T, R, C>> {
-    // ensureRoutes(routes);
     this.#root.__children = [...(this.#root.__children ?? []), ...toArray(routes)];
     return this.getRoutes();
   }

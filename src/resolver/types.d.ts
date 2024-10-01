@@ -45,7 +45,7 @@ export type Match<T, R extends AnyObject, C extends AnyObject> = Readonly<{
 export type ChainItem<T, R extends AnyObject, C extends AnyObject> = Readonly<{
   element?: Element;
   path: string;
-  route?: Route<T, R, C>;
+  route: Route<T, R, C>;
 }>;
 
 export type ResolutionOptions = Readonly<{

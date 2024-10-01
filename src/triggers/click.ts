@@ -1,5 +1,5 @@
+import { fireRouterEvent } from '../routerUtils.js';
 import type { NavigationTrigger } from '../types.js';
-import { fireRouterEvent } from '../resolver/utils.js';
 
 /* istanbul ignore next: coverage is calculated in Chrome, this code is for IE */
 function getAnchorOrigin(anchor: HTMLAnchorElement) {
@@ -31,7 +31,7 @@ type __Pathable = Readonly<{
 // The list of checks is not complete:
 //  - SVG support is missing
 //  - the 'rel' attribute is not considered
-function vaadinRouterGlobalClickHandler(event: MouseEvent | __Pathable) {
+function vaadinRouterGlobalClickHandler(event: MouseEvent & __Pathable) {
   // ignore the click if the default action is prevented
   if (event.defaultPrevented) {
     return;
@@ -49,7 +49,7 @@ function vaadinRouterGlobalClickHandler(event: MouseEvent | __Pathable) {
 
   // find the <a> element that the click is at (or within)
   let anchorCandidate = event.target;
-  const path = event instanceof MouseEvent ? event.composedPath() : (event.path ?? []);
+  const path = event instanceof MouseEvent ? event.composedPath() : ((event as __Pathable).path ?? []);
 
   // FIXME(web-padawan): `Symbol.iterator` used by webcomponentsjs is broken for arrays
   // example to check: `for...of` loop here throws the "Not yet implemented" error
@@ -106,7 +106,7 @@ function vaadinRouterGlobalClickHandler(event: MouseEvent | __Pathable) {
     event.preventDefault();
     // for a click event, the scroll is reset to the top position.
     // FIXME: undefined here?
-    if (event && event.type === 'click') {
+    if (event.type === 'click') {
       window.scrollTo(0, 0);
     }
   }

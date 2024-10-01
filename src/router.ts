@@ -5,18 +5,8 @@ import type { ChainItem, InternalNextResult, InternalRoute, InternalRouteContext
 import generateUrls from './resolver/generateUrls.js';
 import Resolver, { type ResolverOptions } from './resolver/resolver.js';
 import './router-config.js';
-import {
-  ensureRoute,
-  fireRouterEvent,
-  getNotFoundError,
-  isFunction,
-  isObject,
-  isString,
-  log,
-  logValue,
-  notFoundResult,
-  toArray,
-} from './resolver/utils.js';
+import { getNotFoundError, isFunction, isObject, isString, log, notFoundResult, toArray } from './resolver/utils.js';
+import { ensureRoute, ensureRoutes, fireRouterEvent, logValue } from './routerUtils.js';
 import animate from './transitions/animate.js';
 import { DEFAULT_TRIGGERS, setNavigationTriggers } from './triggers/navigation.js';
 import type {
@@ -441,11 +431,17 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
   override async setRoutes(routes: Route<R> | ReadonlyArray<Route<R>>, skipRender = false): Promise<RouterLocation<R>> {
     this.__previousContext = undefined;
     this.__urlForName = undefined;
+    ensureRoutes(routes);
     super.setRoutes(routes);
     if (!skipRender) {
       this.__onNavigationEvent();
     }
     return await this.ready;
+  }
+
+  override addRoutes(routes: Route<R> | ReadonlyArray<Route<R>>) {
+    ensureRoutes(routes);
+    super.addRoutes(routes);
   }
 
   declare ['resolve']: (context: InternalRouteContext<R>) => Promise<InternalNextResult<R>>;
@@ -970,8 +966,8 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     const { chain = [] } = context;
     let config;
     for (let i = chain.length - 1; i >= 0; i--) {
-      if (chain[i].route?.animate) {
-        config = chain[i].route!.animate;
+      if (chain[i].route.animate) {
+        config = chain[i].route.animate;
         break;
       }
     }
