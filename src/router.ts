@@ -309,7 +309,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
         }
       })
       .then((result) => {
-        if (result != null) {
+        if (result != null && typeof result === 'object') {
           // Actions like `() => import('my-view.js')` are not expected to
           // end the resolution, despite the result is not empty. Checking
           // the result with a whitelist of values that end the resolution.
