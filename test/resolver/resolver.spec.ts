@@ -59,8 +59,8 @@ describe('Resolver', () => {
       const errorResult = document.createElement('error-result');
       const errorHandler = sinon.spy(() => errorResult);
       const resolver = new Resolver([], { errorHandler });
-      const result = await resolver.resolve('/');
-      expect(result).to.be.equal(errorResult);
+      const context = await resolver.resolve('/');
+      expect(context.result).to.be.equal(errorResult);
       expect(errorHandler.calledOnce).to.be.true;
       const error = errorHandler.firstCall.firstArg;
       expect(error).to.be.an('error');
@@ -81,8 +81,8 @@ describe('Resolver', () => {
         path: '/',
       };
       const resolver = new Resolver<string>(route, { errorHandler });
-      const result = await resolver.resolve('/');
-      expect(result).to.be.equal(errorResult);
+      const context = await resolver.resolve('/');
+      expect(context.result).to.be.equal(errorResult);
       expect(errorHandler).to.be.calledOnce;
 
       const error: ResolutionError<Error> = errorHandler.firstCall.firstArg;
