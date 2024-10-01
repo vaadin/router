@@ -1,6 +1,7 @@
 import type { EmptyObject, RequireAtLeastOne } from 'type-fest';
 import type { ResolutionError } from './resolver/resolver.js';
 import type { ChildrenCallback, IndexedParams, Params, ParamValue, PrimitiveParamValue } from './resolver/types.js';
+import type { NotFoundResult } from './resolver/utils.js';
 import type { Router } from './router.js';
 
 export type { ResolutionError, IndexedParams, Params, ParamValue, PrimitiveParamValue };
@@ -52,10 +53,6 @@ export interface PreventResult {
 export interface NavigationTrigger {
   activate(): void;
   inactivate(): void;
-}
-
-export interface NotFoundResult {
-  notFoundResultBrand: never;
 }
 
 export type ResolutionResult<T> = T | NotFoundResult | null | undefined;
