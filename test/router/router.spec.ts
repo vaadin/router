@@ -2232,14 +2232,16 @@ describe('Router', () => {
         ];
 
         for (const incorrectRoute of incorrectRoutes) {
-          // eslint-disable-next-line no-await-in-loop
-          await router.setRoutes({ path: '/a', children: async () => await incorrectRoute }, true);
-
           let exceptionThrown = false;
-          // eslint-disable-next-line no-await-in-loop
-          await router.render('/a').catch(() => {
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            await router.setRoutes({ path: '/a', children: async () => await incorrectRoute }, true);
+
+            // eslint-disable-next-line no-await-in-loop
+            await router.render('/a');
+          } catch {
             exceptionThrown = true;
-          });
+          }
 
           expect(
             exceptionThrown,
