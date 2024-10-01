@@ -111,15 +111,18 @@ describe('Vaadin Router lifecycle events', () => {
   before(() => {
     outlet = document.createElement('div');
     document.body.append(outlet);
+    history.pushState(null, '', '/');
   });
 
   after(() => {
     outlet.remove();
+    history.back();
   });
 
   beforeEach(() => {
     // create a new router instance
     router = new Router(outlet);
+    history.replaceState(null, '', '/');
   });
 
   afterEach(() => {
@@ -286,22 +289,22 @@ describe('Vaadin Router lifecycle events', () => {
         document.createElement('div'),
       ];
 
-      await Promise.all(
-        values.map(async (value) => {
-          const onBeforeEnter = sinon.stub().returns(value);
-          await router.setRoutes(
-            [
-              { path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter) },
-              { path: '/users', component: 'x-users-list' },
-            ],
-            true,
-          );
+      for (const value of values) {
+        const onBeforeEnter = sinon.stub().returns(value);
+        // eslint-disable-next-line no-await-in-loop
+        await router.setRoutes(
+          [
+            { path: '/', action: onBeforeEnterAction('x-home-view', onBeforeEnter) },
+            { path: '/users', component: 'x-users-list' },
+          ],
+          true,
+        );
 
-          await router.render('/');
-          expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
-          verifyActiveRoutes(router, ['/']);
-        }),
-      );
+        // eslint-disable-next-line no-await-in-loop
+        await router.render('/');
+        expect(outlet.children[0].tagName).to.match(/x-home-view/iu);
+        verifyActiveRoutes(router, ['/']);
+      }
     });
 
     it('should support returning a promise (and continue the resolve pass after the promise resolves)', async () => {
@@ -466,39 +469,43 @@ describe('Vaadin Router lifecycle events', () => {
         document.createElement('div'),
       ];
 
-      await Promise.all(
-        values.map(async (value) => {
-          const onBeforeLeave = sinon.stub().returns(value);
-          await router.setRoutes([
-            { path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave) },
-            { path: '/users', component: 'x-users-list' },
-          ]);
+      for (const value of values) {
+        const onBeforeLeave = sinon.stub().returns(value);
+        // eslint-disable-next-line no-await-in-loop
+        await router.setRoutes([
+          { path: '/', action: onBeforeLeaveAction('x-home-view', onBeforeLeave) },
+          { path: '/users', component: 'x-users-list' },
+        ]);
 
-          await router.render('/');
-          await router.render('/users');
-          expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
-          verifyActiveRoutes(router, ['/users']);
-        }),
-      );
+        // eslint-disable-next-line no-await-in-loop
+        await router.render('/');
+        // eslint-disable-next-line no-await-in-loop
+        await router.render('/users');
+        expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
+        verifyActiveRoutes(router, ['/users']);
+      }
     });
 
     it('should support returning a promise (and continue the resolve pass after the promise resolves)', async () => {
-      await router.setRoutes([
-        {
-          path: '/a',
-          action: onBeforeLeaveAction(
-            'x-spy',
-            async () => {
-              callbacksLog.push('a.onBeforeLeave');
-              await sleep(100);
-              callbacksLog.push('a.onBeforeLeave.promise');
-              return undefined;
-            },
-            'a',
-          ),
-        },
-        { path: '/b', action: elementWithAllLifecycleCallbacks('b') },
-      ]);
+      await router.setRoutes(
+        [
+          {
+            path: '/a',
+            action: onBeforeLeaveAction(
+              'x-spy',
+              async () => {
+                callbacksLog.push('a.onBeforeLeave');
+                await sleep(100);
+                callbacksLog.push('a.onBeforeLeave.promise');
+                return undefined;
+              },
+              'a',
+            ),
+          },
+          { path: '/b', action: elementWithAllLifecycleCallbacks('b') },
+        ],
+        true,
+      );
 
       await router.render('/').catch(() => {});
       await router.render('/a');
@@ -619,20 +626,21 @@ describe('Vaadin Router lifecycle events', () => {
         document.createElement('div'),
       ];
 
-      await Promise.all(
-        values.map(async (value) => {
-          const onAfterLeave = sinon.stub().returns(value);
-          await router.setRoutes([
-            { path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave) },
-            { path: '/users', component: 'x-users-list' },
-          ]);
+      for (const value of values) {
+        const onAfterLeave = sinon.stub().returns(value);
+        // eslint-disable-next-line no-await-in-loop
+        await router.setRoutes([
+          {path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave)},
+          {path: '/users', component: 'x-users-list'},
+        ]);
 
-          await router.render('/');
-          await router.render('/users');
-          expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
-          verifyActiveRoutes(router, ['/users']);
-        }),
-      );
+        // eslint-disable-next-line no-await-in-loop
+        await router.render('/');
+        // eslint-disable-next-line no-await-in-loop
+        await router.render('/users');
+        expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
+        verifyActiveRoutes(router, ['/users']);
+      }
     });
   });
 
@@ -692,23 +700,24 @@ describe('Vaadin Router lifecycle events', () => {
         document.createElement('div'),
       ];
 
-      await Promise.all(
-        values.map(async (value) => {
-          const onAfterEnter = sinon.stub().returns(value);
-          await router.setRoutes(
-            [
-              { path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter) },
-              { path: '/users', component: 'x-users-list' },
-            ],
-            true,
-          );
+      for (const value of values) {
+        const onAfterEnter = sinon.stub().returns(value);
+        // eslint-disable-next-line no-await-in-loop
+        await router.setRoutes(
+          [
+            { path: '/', action: onAfterEnterAction('x-home-view', onAfterEnter) },
+            { path: '/users', component: 'x-users-list' },
+          ],
+          true,
+        );
 
-          await router.render('/');
-          await router.render('/users');
-          expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
-          verifyActiveRoutes(router, ['/users']);
-        }),
-      );
+        // eslint-disable-next-line no-await-in-loop
+        await router.render('/');
+        // eslint-disable-next-line no-await-in-loop
+        await router.render('/users');
+        expect(outlet.children[0].tagName).to.match(/x-users-list/iu);
+        verifyActiveRoutes(router, ['/users']);
+      }
     });
   });
 

@@ -126,7 +126,11 @@ function amend<
   ...args: A
 ): (result: ActionResult) => MaybePromise<ActionResult | undefined> {
   return async (amendmentResult: ActionResult) => {
-    if (amendmentResult && ('cancel' in amendmentResult || 'redirect' in amendmentResult)) {
+    if (
+      amendmentResult &&
+      isObject(amendmentResult) &&
+      ('cancel' in amendmentResult || 'redirect' in amendmentResult)
+    ) {
       return amendmentResult;
     }
 
@@ -737,7 +741,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
       }
     }
     return await callbacks.then(async (amendmentResult: ActionResult) => {
-      if (amendmentResult) {
+      if (amendmentResult && isObject(amendmentResult)) {
         if ('cancel' in amendmentResult && this.__previousContext) {
           this.__previousContext.__renderId = newContext.__renderId;
           return this.__previousContext;
@@ -766,7 +770,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
       result = (await beforeLeaveFunction(await callbacks)) as ResolveResult<R> | undefined;
     }
 
-    if (result && !('redirect' in (result as object))) {
+    if (result && !(isObject(result) && 'redirect' in (result as object))) {
       return result as ActionResult;
     }
   }
