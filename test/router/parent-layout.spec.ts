@@ -1,7 +1,7 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
 import { Router } from '../../src/router.js';
-import type { ResolutionError, RouterLocation } from '../../src/types.js';
+import type { ResolutionError, RouterLocation, WebComponentInterface } from '../../src/types.js';
 import '../setup.js';
 import {
   checkOutletContents,
@@ -74,18 +74,19 @@ describe('Router', () => {
       );
 
       await router.render('/a/b');
-      const first = outlet.lastChild;
-      expect(first).to.have.deep.property('firstElementChild.tagName').that.matches(/x-b/iu);
+      const first = outlet.lastElementChild;
+      expect(first).to.be.not.null;
+      expect(first!.firstElementChild).to.have.property('localName').that.matches(/x-b/iu);
 
       await router.render('/a/c');
-      const second = outlet.lastChild;
+      const second = outlet.lastElementChild;
       expect(second).to.equal(first);
-      expect(second).to.have.deep.property('firstElementChild.tagName').that.matches(/x-c/iu);
+      expect(second!.firstElementChild).to.have.property('localName').that.matches(/x-c/iu);
 
       await router.render('/a/d');
-      const third = outlet.lastChild;
+      const third = outlet.lastElementChild;
       expect(third).to.equal(second);
-      expect(third).to.have.deep.property('firstElementChild.tagName').that.matches(/x-d/iu);
+      expect(third!.firstElementChild).to.have.property('localName').that.matches(/x-d/iu);
     });
 
     it('should update parent location when reusing layout', async () => {
@@ -105,16 +106,24 @@ describe('Router', () => {
       );
 
       await router.render('/a/b');
-      expect(outlet.lastElementChild).to.have.deep.property('location.pathname').that.equals('/a/b');
+      expect((outlet.lastElementChild as WebComponentInterface).location)
+        .to.have.property('pathname')
+        .that.equals('/a/b');
 
       await router.render('/a/c');
-      expect(outlet.lastElementChild).to.have.deep.property('location.pathname').that.equals('/a/c');
+      expect((outlet.lastElementChild as WebComponentInterface).location)
+        .to.have.property('pathname')
+        .that.equals('/a/c');
 
       await router.render('/a/d');
-      expect(outlet.lastElementChild).to.have.deep.property('location.pathname').that.equals('/a/d');
+      expect((outlet.lastElementChild as WebComponentInterface).location)
+        .to.have.property('pathname')
+        .that.equals('/a/d');
 
       await router.render('/a/e');
-      expect(outlet.lastElementChild).to.have.deep.property('location.pathname').that.equals('/a/e');
+      expect((outlet.lastElementChild as WebComponentInterface).location)
+        .to.have.property('pathname')
+        .that.equals('/a/e');
     });
 
     it('should remove nested route components when the parent route is navigated to', async () => {
