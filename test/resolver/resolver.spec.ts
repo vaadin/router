@@ -12,10 +12,10 @@ import chaiAsPromised from 'chai-as-promised';
 import chaiDom from 'chai-dom';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import type { EmptyObject } from 'type-fest';
 import Resolver, { ResolutionError } from '../../src/resolver/resolver.js';
 import '../setup.js';
-import type { AnyObject, RouteContext } from '../../src/types.js';
-import type { InternalRouteContext } from '../../src/internal.js';
+import type { Route, RouteContext } from '../../src/resolver/types.js';
 
 use(chaiDom);
 use(sinonChai);
@@ -26,18 +26,19 @@ describe('Resolver', () => {
     it('should throw an error in case of invalid routes', () => {
       // @ts-expect-error: error-throwing test
       expect(() => new Resolver()).to.throw(TypeError, /Invalid routes/u);
-      // @ts-expect-error: error-throwing test
       expect(() => new Resolver(12)).to.throw(TypeError, /Invalid routes/u);
       // @ts-expect-error: error-throwing test
       expect(() => new Resolver(null)).to.throw(TypeError, /Invalid routes/u);
     });
 
     it('should support custom resolve option for declarative routes', async () => {
-      const resolveRoute = sinon.spy(
-        <R extends AnyObject>(context: InternalRouteContext<R>) => context.route.component,
-      );
+      type CustomResolveOption = Readonly<{
+        component?: string;
+      }>;
+
+      const resolveRoute = sinon.spy((context: RouteContext<string, CustomResolveOption>) => context.route?.component);
       const action = sinon.stub();
-      const resolver = new Resolver<string>(
+      const resolver = new Resolver<string, CustomResolveOption>(
         {
           action,
           children: [
@@ -52,7 +53,7 @@ describe('Resolver', () => {
       const context = await resolver.resolve('/a/c');
       expect(resolveRoute.calledThrice).to.be.true;
       expect(action.called).to.be.false;
-      expect(context.result).to.be.equal('c');
+      expect((context as RouteContext<string, CustomResolveOption>).result).to.be.equal('c');
     });
 
     it('should support custom error handler option', async () => {
@@ -60,7 +61,7 @@ describe('Resolver', () => {
       const errorHandler = sinon.spy(() => errorResult);
       const resolver = new Resolver([], { errorHandler });
       const context = await resolver.resolve('/');
-      expect(context.result).to.be.equal(errorResult);
+      expect(context).to.have.property('result').that.equals(errorResult);
       expect(errorHandler.calledOnce).to.be.true;
       const error = errorHandler.firstCall.firstArg;
       expect(error).to.be.an('error');
@@ -80,9 +81,9 @@ describe('Resolver', () => {
         },
         path: '/',
       };
-      const resolver = new Resolver<string>(route, { errorHandler });
+      const resolver = new Resolver<HTMLElement>(route, { errorHandler });
       const context = await resolver.resolve('/');
-      expect(context.result).to.be.equal(errorResult);
+      expect(context).to.have.property('result').that.equals(errorResult);
       expect(errorHandler).to.be.calledOnce;
 
       const error: ResolutionError<Error> = errorHandler.firstCall.firstArg;
@@ -92,45 +93,6 @@ describe('Resolver', () => {
       expect(error).to.have.property('code', 500);
       expect(error).to.have.property('context').that.includes({ pathname: '/', resolver });
       expect(error).to.have.nested.property('context.route').that.includes(route);
-    });
-  });
-
-  describe('router JS API', () => {
-    it('should have a getter for the routes config', () => {
-      const router = new Resolver([]);
-      const actual = router.getRoutes();
-      expect(actual).to.be.an('array').that.is.empty;
-    });
-
-    it('should have a setter for the routes config', () => {
-      const router = new Resolver([]);
-      router.setRoutes([{ component: 'x-home-view', path: '/' }]);
-      const actual = router.getRoutes();
-      expect(actual).to.be.an('array').that.has.lengthOf(1);
-      expect(actual[0]).to.have.property('path', '/');
-      expect(actual[0]).to.have.property('component', 'x-home-view');
-    });
-
-    it('should have a method for adding routes', () => {
-      const router = new Resolver([]);
-
-      // @ts-expect-error: testing protected method
-      const newRoutes = router.addRoutes([{ component: 'x-home-view', path: '/' }]);
-
-      const actual = router.getRoutes();
-      expect(newRoutes).to.deep.equal(actual);
-      expect(actual)
-        .to.be.an('array')
-        .that.deep.equals([{ component: 'x-home-view', path: '/' }]);
-    });
-
-    it('should have a method for removing routes', () => {
-      const router = new Resolver([{ component: 'x-home-view', path: '/' }]);
-      expect(router.getRoutes()).to.be.an('array').that.has.lengthOf(1);
-
-      router.removeRoutes();
-
-      expect(router.getRoutes()).to.be.an('array').that.has.lengthOf(0);
     });
   });
 
@@ -157,7 +119,7 @@ describe('Resolver', () => {
       const context = await resolver.resolve('/a');
       expect(action.calledOnce).to.be.true;
       expect(action.firstCall.firstArg).to.have.nested.property('route.path', '/a');
-      expect(context.result).to.be.equal('b');
+      expect((context as RouteContext<undefined>).result).to.be.equal('b');
     });
 
     it('should find the first route whose action method !== undefined or null', async () => {
@@ -172,7 +134,7 @@ describe('Resolver', () => {
         { action: action4, path: '/a' },
       ]);
       const context = await resolver.resolve('/a');
-      expect(context.result).to.be.equal('c');
+      expect((context as RouteContext<undefined>).result).to.be.equal('c');
       expect(action1.calledOnce).to.be.true;
       expect(action2.calledOnce).to.be.true;
       expect(action3.calledOnce).to.be.true;
@@ -181,12 +143,12 @@ describe('Resolver', () => {
 
     it('should be able to pass context variables to action methods', async () => {
       const action = sinon.spy(() => true);
-      const resolver = new Resolver([{ action, path: '/a' }]);
+      const resolver = new Resolver<boolean, EmptyObject, { test: string }>([{ action, path: '/a' }]);
       const context = await resolver.resolve({ pathname: '/a', test: 'b' });
       expect(action.calledOnce).to.be.true;
       expect(action.firstCall.firstArg).to.have.nested.property('route.path', '/a');
       expect(action.firstCall.firstArg).to.have.property('test', 'b');
-      expect(context.result).to.be.true;
+      expect((context as RouteContext<undefined>).result).to.be.true;
     });
 
     it("should not call action methods of routes that don't match the URL path", async () => {
@@ -207,9 +169,9 @@ describe('Resolver', () => {
     });
 
     it('should support asynchronous route actions', async () => {
-      const resolver = new Resolver([{ action: async () => 'b', path: '/a' }]);
+      const resolver = new Resolver([{ action: async () => await Promise.resolve('b'), path: '/a' }]);
       const context = await resolver.resolve('/a');
-      expect(context.result).to.be.equal('b');
+      expect(context).to.have.property('result').that.equals('b');
     });
 
     it('URL parameters are captured and added to context.params', async () => {
@@ -218,12 +180,12 @@ describe('Resolver', () => {
       const context = await resolver.resolve({ pathname: '/a/b' });
       expect(action.calledOnce).to.be.true;
       expect(action.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
-      expect(context.result).to.be.true;
+      expect(context).to.have.property('result').that.is.true;
     });
 
     it('context.chain contains the path to the last matched route if context.next() is called', async () => {
       const resolver = new Resolver([
-        { action: async (context) => context.next(), name: 'first', path: '/a' },
+        { action: async (context) => await context.next?.(), name: 'first', path: '/a' },
         { action: () => true, name: 'second', path: '/a' },
       ]);
       await resolver.resolve({ pathname: '/a' });
@@ -279,7 +241,7 @@ describe('Resolver', () => {
     });
 
     it('the path to the route that produced the result is in the `context` (3)', async () => {
-      const resolver = new Resolver([
+      const resolver = new Resolver<boolean>([
         {
           children: [
             {
@@ -322,7 +284,7 @@ describe('Resolver', () => {
       expect(action1.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a' });
       expect(action2.calledOnce).to.be.true;
       expect(action2.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
-      expect(context.result).to.be.true;
+      expect(context).to.have.property('result').that.is.true;
     });
 
     it('should override URL parameters with same name in child route', async () => {
@@ -350,7 +312,7 @@ describe('Resolver', () => {
       expect(action1.args[1][0]).to.have.property('params').that.deep.equals({ one: 'b' });
       expect(action2.calledOnce).to.be.true;
       expect(action2.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
-      expect(context.result).to.be.true;
+      expect(context).to.have.property('result').that.is.true;
     });
 
     it('should not collect parameters from previous routes', async () => {
@@ -392,7 +354,7 @@ describe('Resolver', () => {
       expect(action2.secondCall.firstArg).to.have.property('params').that.deep.equals({ four: 'b', three: 'a' });
       expect(action3.calledOnce).to.be.true;
       expect(action3.firstCall.firstArg).to.have.property('params').that.deep.equals({ five: 'b', three: 'a' });
-      expect(context.result).to.be.true;
+      expect(context).to.have.property('result').that.is.true;
     });
 
     it('should support next() across multiple routes', async () => {
@@ -401,7 +363,7 @@ describe('Resolver', () => {
         {
           async action({ next }) {
             log.push(1);
-            const result = await next();
+            const result = await next?.();
             log.push(10);
             return result;
           },
@@ -414,7 +376,7 @@ describe('Resolver', () => {
                 {
                   async action({ next }) {
                     log.push(3);
-                    return next().then(() => {
+                    return await next?.().then(() => {
                       log.push(6);
                     });
                   },
@@ -422,7 +384,7 @@ describe('Resolver', () => {
                     {
                       async action({ next }) {
                         log.push(4);
-                        return next().then(() => {
+                        return await next?.().then(() => {
                           log.push(5);
                         });
                       },
@@ -480,7 +442,7 @@ describe('Resolver', () => {
 
       const context = await resolver.resolve('/test');
       expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-      expect(context.result).to.be.equal('done');
+      expect(context).to.have.property('result').that.equals('done');
     });
 
     it('should support next(true) across multiple routes', async () => {
@@ -488,7 +450,7 @@ describe('Resolver', () => {
       const resolver = new Resolver({
         async action({ next }) {
           log.push(1);
-          return next().then((result) => {
+          return await next?.().then((result) => {
             log.push(9);
             return result;
           });
@@ -497,7 +459,7 @@ describe('Resolver', () => {
           {
             async action({ next }) {
               log.push(2);
-              return next(true).then((result) => {
+              return await next?.(true).then((result) => {
                 log.push(8);
                 return result;
               });
@@ -512,7 +474,7 @@ describe('Resolver', () => {
               {
                 async action({ next }) {
                   log.push(4);
-                  return next().then((result) => {
+                  return await next?.().then((result) => {
                     log.push(6);
                     return result;
                   });
@@ -542,7 +504,7 @@ describe('Resolver', () => {
 
       const context = await resolver.resolve('/a/b/c');
       expect(log).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-      expect(context.result).to.be.equal('done');
+      expect(context).to.have.property('result').that.equals('done');
     });
 
     it('should support parametrized routes 1', async () => {
@@ -554,7 +516,7 @@ describe('Resolver', () => {
       expect(action.firstCall.firstArg).to.have.nested.property('params.b', '2');
       expect(action.firstCall.firstArg).to.have.nested.property('params.a', '1');
       expect(action.firstCall.firstArg).to.have.nested.property('params.b', '2');
-      expect(context.result).to.be.true;
+      expect(context).to.have.property('result').that.is.true;
     });
 
     it('should support nested routes (1)', async () => {
@@ -578,7 +540,7 @@ describe('Resolver', () => {
       expect(action1.firstCall.firstArg).to.have.nested.property('route.path', '');
       expect(action2.calledOnce).to.be.true;
       expect(action2.firstCall.firstArg).to.have.nested.property('route.path', '/a');
-      expect(context.result).to.be.true;
+      expect(context).to.have.property('result').that.is.true;
     });
 
     it('should support nested routes (2)', async () => {
@@ -602,14 +564,14 @@ describe('Resolver', () => {
       expect(action1.firstCall.firstArg).to.have.nested.property('route.path', '/a');
       expect(action2.calledOnce).to.be.true;
       expect(action2.firstCall.firstArg).to.have.nested.property('route.path', '/b');
-      expect(context.result).to.be.true;
+      expect(context).to.have.property('result').that.is.true;
     });
 
     it('should support nested routes (3)', async () => {
       const action1 = sinon.spy(() => undefined);
       const action2 = sinon.spy(() => null);
       const action3 = sinon.spy(() => true);
-      const resolver = new Resolver([
+      const resolver = new Resolver<boolean | null | undefined>([
         {
           action: action1,
           children: [
@@ -633,7 +595,7 @@ describe('Resolver', () => {
       expect(action2.firstCall.firstArg).to.have.nested.property('route.path', '/b');
       expect(action3.calledOnce).to.be.true;
       expect(action3.firstCall.firstArg).to.have.nested.property('route.path', '/a/b');
-      expect(context.result).to.be.true;
+      expect(context).to.have.property('result').that.is.true;
     });
 
     it('should support an empty array of children', async () => {
@@ -671,23 +633,24 @@ describe('Resolver', () => {
 
     it('should respect baseUrl', async () => {
       const action = sinon.spy(() => 17);
-      const routes = {
+      const targetRoute = { action, path: '/c' };
+      const route: Route<number> = {
         children: [
           {
-            children: [{ action, path: '/c' }],
+            children: [targetRoute],
             path: '/b',
           },
         ],
         path: '/a',
       };
-      const resolver = new Resolver(routes, { baseUrl: '/base/' });
+      const resolver = new Resolver(route, { baseUrl: '/base/' });
       const context = await resolver.resolve('/base/a/b/c');
       expect(action.calledOnce).to.be.true;
       expect(action.firstCall.firstArg).to.have.property('pathname', '/base/a/b/c');
       expect(action.firstCall.firstArg).to.have.nested.property('route.path', '/c');
-      expect(action.firstCall.firstArg).to.have.property('route', routes.children[0].children[0]);
+      expect(action.firstCall.firstArg).to.have.property('route').that.equals(targetRoute);
       expect(action.firstCall.firstArg).to.have.property('resolver', resolver);
-      expect(context.result).to.be.equal(17);
+      expect(context).to.have.property('result').that.equals(17);
 
       let err;
       try {
@@ -718,16 +681,16 @@ describe('Resolver', () => {
           path: '/child',
         },
       ]);
-      expect((await resolver.resolve('/')).result).to.be.equal('a');
-      expect((await resolver.resolve('/page/')).result).to.be.equal('b');
-      expect((await resolver.resolve('/child/')).result).to.be.equal('c');
-      expect((await resolver.resolve('/child/page/')).result).to.be.equal('d');
+      await expect(resolver.resolve('/')).to.eventually.have.property('result').that.equals('a');
+      await expect(resolver.resolve('/page/')).to.eventually.have.property('result').that.equals('b');
+      await expect(resolver.resolve('/child/')).to.eventually.have.property('result').that.equals('c');
+      await expect(resolver.resolve('/child/page/')).to.eventually.have.property('result').that.equals('d');
     });
 
     it('should skip nested routes when middleware route returns null', async () => {
       const middleware = sinon.spy(() => null);
       const action = sinon.spy(() => 'skipped');
-      const resolver = new Resolver([
+      const resolver = new Resolver<string | null | number>([
         {
           action: middleware,
           children: [{ action }],
@@ -740,7 +703,7 @@ describe('Resolver', () => {
       ]);
 
       const context = await resolver.resolve('/match');
-      expect(context.result).to.be.equal(404);
+      expect(context).to.have.property('result').that.equals(404);
       expect(action.called).to.be.false;
       expect(middleware.calledOnce).to.be.true;
     });
@@ -748,7 +711,7 @@ describe('Resolver', () => {
     it('should match nested routes when middleware route returns undefined', async () => {
       const middleware = sinon.spy(() => undefined);
       const action = sinon.spy(() => null);
-      const resolver = new Resolver([
+      const resolver = new Resolver<null | undefined | number>([
         {
           action: middleware,
           children: [{ action }],
@@ -761,7 +724,7 @@ describe('Resolver', () => {
       ]);
 
       const context = await resolver.resolve('/match');
-      expect(context.result).to.be.equal(404);
+      expect(context).to.have.property('result').that.equals(404);
       expect(action.calledOnce).to.be.true;
       expect(middleware.calledOnce).to.be.true;
     });
@@ -787,15 +750,19 @@ describe('Resolver', () => {
 
   describe('resolver.__effectiveBaseUrl getter', () => {
     it('should return empty string by default', () => {
+      // @ts-expect-error: testing protected property
       expect(new Resolver([]).__effectiveBaseUrl).to.equal('');
     });
 
     it('should return full base when baseUrl is set', () => {
+      // @ts-expect-error: testing protected property
       expect(new Resolver([], { baseUrl: '/foo/' }).__effectiveBaseUrl).to.equal(`${location.origin}/foo/`);
     });
 
     it('should ignore everything after last slash', () => {
+      // @ts-expect-error: testing protected property
       expect(new Resolver([], { baseUrl: '/foo' }).__effectiveBaseUrl).to.equal(`${location.origin}/`);
+      // @ts-expect-error: testing protected property
       expect(new Resolver([], { baseUrl: '/foo/bar' }).__effectiveBaseUrl).to.equal(`${location.origin}/foo/`);
     });
 
@@ -845,26 +812,5 @@ describe('Resolver', () => {
       expect(resolver.__normalizePathname('/bar/')).to.equal('');
       expect(stub).to.be.called;
     });
-
-    // it('should invoke Resolver.__createUrl(url, base) hook', () => {
-    //   const createUrlSpy = sinon.spy(Resolver, '__createUrl');
-    //   try {
-    //     // Absolute pathname: prepend origin
-    //     new Resolver([], { baseUrl: '/foo/bar' })
-    //       // @ts-expect-error: testing private method
-    //       .__normalizePathname('/baz/');
-    //     expect(createUrlSpy).to.be.calledWith(`${location.origin}/baz/`, `${location.origin}/foo/`);
-    //
-    //     createUrlSpy.resetHistory();
-    //
-    //     // Relative pathname: prepend dot path prefix
-    //     new Resolver([], { baseUrl: '/foo/bar' })
-    //       // @ts-expect-error: testing private method
-    //       .__normalizePathname('baz');
-    //     expect(createUrlSpy).to.be.calledWith('./baz', `${location.origin}/foo/`);
-    //   } finally {
-    //     createUrlSpy.restore();
-    //   }
-    // });
   });
 });

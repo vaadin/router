@@ -11,12 +11,10 @@ import chaiAsPromised from 'chai-as-promised';
 import chaiDom from 'chai-dom';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import type { EmptyObject } from 'type-fest';
-import type { InternalRoute } from '../../src/internal.js';
 import generateUrls, { type StringifyQueryParams } from '../../src/resolver/generateUrls.js';
 import Resolver from '../../src/resolver/resolver.js';
 import '../setup.js';
-import type { AnyObject, Route } from '../../src/types.js';
+import type { Route } from '../../src/resolver/types.js';
 
 use(chaiDom);
 use(sinonChai);
@@ -43,7 +41,7 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     const url = generateUrls(router);
     expect(() => url('hello')).to.throw(Error, /Route "hello" not found/u);
 
-    (router.root.__children as Array<InternalRoute<EmptyObject>>) = [{ action, name: 'new', path: '/b' }];
+    router.root.__children = [{ action, name: 'new', path: '/b' }];
     expect(url('new')).to.be.equal('/a/b');
   });
 
@@ -99,7 +97,6 @@ describe('generateUrls(router, options)(routeName, params)', () => {
 
   it('should generate url for nested routes', () => {
     const resolver = new Resolver({
-      // @ts-expect-error: setting the internal route
       __children: [
         {
           __children: [
@@ -126,7 +123,7 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     // let routesByName = Array.from(router.routesByName.keys());
     // expect(routesByName).to.have.all.members(['a', 'b', 'c']);
 
-    (resolver.root.__children as Array<InternalRoute<EmptyObject>>).push({ name: 'new', path: '/new', children: [] });
+    (resolver.root.__children as Array<Route<undefined>>).push({ name: 'new', path: '/new', children: [] });
     expect(url('new')).to.be.equal('/new');
     // TODO(platosha): Re-enable assergin `routesByName` when the API is exposed
     // // the .keys assertion does not work with ES6 Maps until chai 4.x
@@ -148,9 +145,8 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     const url2 = generateUrls(router2);
     expect(url2('post', { id: '12', x: 'y' })).to.be.equal('/post/12');
 
-    const router3 = new Resolver(
+    const router3 = new Resolver<undefined>(
       {
-        children: [],
         __children: [
           {
             name: 'b',
@@ -168,7 +164,7 @@ describe('generateUrls(router, options)(routeName, params)', () => {
           },
         ],
         name: 'a',
-      } as Route,
+      },
       options,
     );
     const url3 = generateUrls(router3);
@@ -177,12 +173,12 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     expect(url3('c', { x: 'x' })).to.be.equal('/c/x');
     expect(url3('d', { x: 'x', y: 'y' })).to.be.equal('/c/x/d/y');
 
-    (router3.root.__children as Array<InternalRoute<AnyObject>>).push({ name: 'new', path: '/new', children: [] });
+    (router3.root.__children as Array<Route<undefined>>).push({ name: 'new', path: '/new' });
     expect(url3('new')).to.be.equal('/new');
   });
 
   it('should generate url with trailing slash', () => {
-    const routes: ReadonlyArray<InternalRoute<EmptyObject>> = [
+    const routes: readonly Route[] = [
       { name: 'a', path: '/', children: [] },
       {
         __children: [

@@ -9,18 +9,21 @@
 import type { EmptyObject, Writable } from 'type-fest';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
-import type { ActionResult, AnyObject, Match, Route, RouteContext } from './types.js';
+import type { ActionResult, AnyObject, BasicRoutePart, Match, MaybePromise, Route, RouteContext } from './types.js';
 import {
-  ensureRoutes,
   getNotFoundError,
   getRoutePath,
   isString,
   NotFoundError,
   notFoundResult,
   toArray,
+  type NotFoundResult,
 } from './utils.js';
 
-function isDescendantRoute<T, R extends AnyObject>(route?: Route<T, R>, maybeParent?: Route<T, R>) {
+function isDescendantRoute<T, R extends AnyObject, C extends AnyObject>(
+  route?: Route<T, R, C>,
+  maybeParent?: Route<T, R, C>,
+) {
   let _route = route;
   while (_route) {
     _route = _route.parent;
@@ -31,7 +34,7 @@ function isDescendantRoute<T, R extends AnyObject>(route?: Route<T, R>, maybePar
   return false;
 }
 
-function isRouteContext<R extends AnyObject>(value: ActionResult | RouteContext<R>): value is RouteContext<R> {
+function isRouteContext<T, R extends AnyObject, C extends AnyObject>(value: unknown): value is RouteContext<T, R, C> {
   return !!value && typeof value === 'object' && 'result' in value;
 }
 
@@ -39,11 +42,11 @@ export interface ResolutionErrorOptions extends ErrorOptions {
   code?: number;
 }
 
-export class ResolutionError<T, R extends AnyObject = EmptyObject> extends Error {
+export class ResolutionError<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> extends Error {
   readonly code?: number;
-  readonly context: RouteContext<T, R>;
+  readonly context: RouteContext<T, R, C>;
 
-  constructor(context: RouteContext<T, R>, options?: ResolutionErrorOptions) {
+  constructor(context: RouteContext<T, R, C>, options?: ResolutionErrorOptions) {
     let errorMessage = `Path '${context.pathname}' is not properly resolved due to an error.`;
     const routePath = getRoutePath(context.route);
     if (routePath) {
@@ -59,7 +62,10 @@ export class ResolutionError<T, R extends AnyObject = EmptyObject> extends Error
   }
 }
 
-function updateChainForRoute<T, R extends AnyObject>(context: RouteContext<T, R>, match: Match<T, R>) {
+function updateChainForRoute<T, R extends AnyObject, C extends AnyObject>(
+  context: RouteContext<T, R, C>,
+  match: Match<T, R, C>,
+) {
   const { path, route } = match;
 
   if (route && !route.__synthetic) {
@@ -79,18 +85,20 @@ function updateChainForRoute<T, R extends AnyObject>(context: RouteContext<T, R>
 
 export type ErrorHandlerCallback<T> = (error: unknown) => T;
 
-export type ResolveContext = Readonly<{ pathname: string }>;
+export type ResolveContext<C extends AnyObject> = Readonly<{ pathname: string }> & C;
 
-export type ResolveRouteCallback<T, R extends AnyObject> = (context: RouteContext<T, R>) => ActionResult<T>;
+export type ResolveRouteCallback<T, R extends AnyObject, C extends AnyObject> = (
+  context: RouteContext<T, R, C>,
+) => MaybePromise<ActionResult<T>>;
 
-export type ResolverOptions<T, R extends AnyObject> = Readonly<{
+export type ResolverOptions<T, R extends AnyObject, C extends AnyObject> = Readonly<{
   baseUrl?: string;
-  context?: RouteContext<T, R>;
+  context?: RouteContext<T, R, C>;
   errorHandler?: ErrorHandlerCallback<T>;
-  resolveRoute?: ResolveRouteCallback<T, R>;
+  resolveRoute?: ResolveRouteCallback<T, R, C>;
 }>;
 
-export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
+export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> {
   /**
    * The base URL for all routes in the router instance. By default,
    * if the base element exists in the `<head>`, vaadin-router
@@ -98,15 +106,15 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
    * `document.URL`.
    */
   readonly baseUrl: string;
-  #context: Writable<RouteContext<T, R>>;
+  #context: Writable<RouteContext<T, R, C>>;
   readonly errorHandler?: ErrorHandlerCallback<T>;
-  readonly resolveRoute: ResolveRouteCallback<T, R>;
-  readonly #root: Writable<Route<T, R>>;
+  readonly resolveRoute: ResolveRouteCallback<T, R, C>;
+  readonly #root: BasicRoutePart<T, R, C>;
 
-  constructor(routes: ReadonlyArray<Route<T, R>> | Route<T, R>, options?: ResolverOptions<T, R>);
+  constructor(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>, options?: ResolverOptions<T, R, C>);
   constructor(
-    routes: ReadonlyArray<Route<T, R>> | Route<T, R>,
-    { baseUrl = '', context, errorHandler, resolveRoute = defaultResolveRoute }: ResolverOptions<T, R> = {},
+    routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>,
+    { baseUrl = '', context, errorHandler, resolveRoute = defaultResolveRoute }: ResolverOptions<T, R, C> = {},
   ) {
     if (Object(routes) !== routes) {
       throw new TypeError('Invalid routes');
@@ -115,14 +123,20 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
     this.baseUrl = baseUrl;
     this.errorHandler = errorHandler;
     this.resolveRoute = resolveRoute;
-    this.#root = Array.isArray(routes)
-      ? {
-          __children: routes,
-          __synthetic: true,
-          action: () => undefined,
-          path: '',
-        }
-      : { ...routes, parent: undefined };
+
+    if (Array.isArray(routes)) {
+      // @FIXME: We should have a route array instead of a single route object
+      // to avoid type clash because of a missing `R` part of a route.
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      this.#root = {
+        __children: routes,
+        __synthetic: true,
+        action: () => undefined,
+        path: '',
+      };
+    } else {
+      this.#root = { ...routes, parent: undefined };
+    }
 
     this.#context = {
       ...context!,
@@ -134,17 +148,17 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
       params: {},
       pathname: '',
       resolver: this,
-      route: this.#root,
+      route: this.#root as Route<T, R, C>,
       search: '',
       chain: [],
     };
   }
 
-  get root(): Route<T, R> {
-    return this.#root;
+  get root(): Route<T, R, C> {
+    return this.#root as Route<T, R, C>;
   }
 
-  get context(): RouteContext<T, R> {
+  get context(): RouteContext<T, R, C> {
     return this.#context;
   }
 
@@ -166,7 +180,7 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
    *
    * @public
    */
-  getRoutes(): ReadonlyArray<Route<T, R>> {
+  getRoutes(): ReadonlyArray<Route<T, R, C>> {
     return [...(this.#root.__children ?? [])];
   }
 
@@ -195,29 +209,29 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
    *    resolve or a context object with a `pathname` property and other
    *    properties to pass to the route resolver functions.
    */
-  async resolve(pathnameOrContext: ResolveContext | string): Promise<RouteContext<T, R>> {
+  async resolve(pathnameOrContext: ResolveContext<C> | string): Promise<ActionResult<RouteContext<T, R, C>>> {
     const self = this;
-    const context: Writable<RouteContext<T, R>> = {
+    const context: Writable<RouteContext<T, R, C>> = {
       ...this.#context,
       ...(isString(pathnameOrContext) ? { pathname: pathnameOrContext } : pathnameOrContext),
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       next,
     };
     const match = matchRoute(
-      this.#root,
+      this.#root as Route<T, R, C>,
       this.__normalizePathname(context.pathname) ?? context.pathname,
       !!this.baseUrl,
     );
     const resolve = this.resolveRoute;
-    let matches: IteratorResult<MatchWithRoute<T, R>, undefined> | null = null;
-    let nextMatches: IteratorResult<MatchWithRoute<T, R>, undefined> | null = null;
+    let matches: IteratorResult<MatchWithRoute<T, R, C>, undefined> | null = null;
+    let nextMatches: IteratorResult<MatchWithRoute<T, R, C>, undefined> | null = null;
     let currentContext = context;
 
     async function next(
       resume: boolean = false,
-      parent: Route<T, R> | undefined = matches?.value?.route,
-      prevResult?: T | null,
-    ): Promise<RouteContext<T, R>> {
+      parent: Route<T, R, C> | undefined = matches?.value?.route,
+      prevResult?: T | NotFoundResult | null,
+    ): Promise<ActionResult<RouteContext<T, R, C>>> {
       const routeToSkip = prevResult === null ? matches?.value?.route : undefined;
       matches = nextMatches ?? match.next(routeToSkip);
       nextMatches = null;
@@ -244,14 +258,16 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
       const resolution = await resolve(currentContext);
 
       if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
-        currentContext.result = isRouteContext(resolution) ? (resolution as RouteContext<T, R>).result : resolution;
+        currentContext.result = isRouteContext(resolution) ? (resolution as RouteContext<T, R, C>).result : resolution;
         self.#context = currentContext;
         return currentContext;
       }
       return await next(resume, parent, resolution);
     }
 
-    return await next(true, this.#root).catch((error: unknown) => {
+    try {
+      return await next(true, this.#root as Route<T, R, C>);
+    } catch (error: unknown) {
       const _error =
         error instanceof NotFoundError
           ? error
@@ -262,7 +278,7 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
         return currentContext;
       }
       throw error;
-    });
+    }
   }
 
   /**
@@ -271,8 +287,8 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
    * @param routes - a single route or an array of those
    *    (the array is shallow copied)
    */
-  setRoutes(routes: ReadonlyArray<Route<T, R>> | Route<T, R>): void {
-    ensureRoutes(routes);
+  setRoutes(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>): void {
+    // ensureRoutes(routes);
     this.#root.__children = [...toArray(routes)];
   }
 
@@ -308,8 +324,8 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject> {
    * @param routes - a single route or an array of those
    *    (the array is shallow copied)
    */
-  protected addRoutes(routes: ReadonlyArray<Route<T, R>> | Route<T, R>): ReadonlyArray<Route<T, R>> {
-    ensureRoutes(routes);
+  protected addRoutes(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>): ReadonlyArray<Route<T, R, C>> {
+    // ensureRoutes(routes);
     this.#root.__children = [...(this.#root.__children ?? []), ...toArray(routes)];
     return this.getRoutes();
   }

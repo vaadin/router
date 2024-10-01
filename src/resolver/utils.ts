@@ -1,4 +1,4 @@
-import type { AnyObject, Route, RouteContext } from './types.js';
+import type { AnyObject, ChildrenCallback, Route, RouteContext, RouteMeta } from './types.js';
 
 export function isObject(o: unknown): o is object {
   // guard against null passing the typeof check
@@ -34,50 +34,6 @@ export function logValue(value: unknown): string {
   return stringType;
 }
 
-export function ensureRoute<T, R extends AnyObject>(route?: Route<T, R>): void {
-  if (!route || !isString(route.path)) {
-    throw new Error(
-      log(`Expected route config to be an object with a "path" string property, or an array of such objects`),
-    );
-  }
-
-  const stringKeys = ['component', 'redirect'] as const;
-  if (
-    !isFunction(route.action) &&
-    !Array.isArray(route.children) &&
-    !isFunction(route.children) &&
-    !stringKeys.some((key) => isString(route[key]))
-  ) {
-    throw new Error(
-      log(
-        `Expected route config "${route.path}" to include either "${stringKeys.join('", "')}" ` +
-          `or "action" function but none found.`,
-      ),
-    );
-  }
-
-  if (route.redirect) {
-    ['component'].forEach((overriddenProp) => {
-      if (overriddenProp in route) {
-        console.warn(
-          log(
-            `Route config "${route.path as string}" has both "redirect" and "${overriddenProp}" properties, ` +
-              `and "redirect" will always override the latter. Did you mean to only use "${overriddenProp}"?`,
-          ),
-        );
-      }
-    });
-  }
-}
-
-export function ensureRoutes<T, R extends AnyObject>(routes: Route<T, R> | ReadonlyArray<Route<T, R>>): void {
-  toArray(routes).forEach((route) => ensureRoute(route));
-}
-
-export function fireRouterEvent<T>(type: string, detail: T): boolean {
-  return !window.dispatchEvent(new CustomEvent(`vaadin-router-${type}`, { cancelable: type === 'go', detail }));
-}
-
 export class NotFoundError<T, R extends AnyObject> extends Error {
   readonly code: number;
   readonly context: RouteContext<T, R>;
@@ -89,14 +45,14 @@ export class NotFoundError<T, R extends AnyObject> extends Error {
   }
 }
 
+export const notFoundResult = Symbol('NotFoundResult');
+export type NotFoundResult = typeof notFoundResult;
+
 export function getNotFoundError<T = unknown, R extends Record<string, unknown> = AnyObject>(
   context: RouteContext<T, R>,
 ): NotFoundError<T, R> {
   return new NotFoundError(context);
 }
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-export const notFoundResult = {} as NotFoundResult;
 
 export function resolvePath(path?: string | readonly string[]): string {
   return (Array.isArray(path) ? path[0] : path) ?? '';
@@ -110,4 +66,30 @@ export function unwrapChildren<T, R extends AnyObject>(
   children: ChildrenCallback<T, R> | ReadonlyArray<Route<T, R>> | undefined,
 ): ReadonlyArray<Route<T, R>> | undefined {
   return Array.isArray<ReadonlyArray<Route<T, R>>>(children) && children.length > 0 ? children : undefined;
+}
+
+export class RouteData<T, R extends AnyObject> extends Map<Route<T, R>, RouteMeta<T, R>> {
+  readonly #inverted: Map<RouteMeta<T, R>, Route<T, R>>;
+
+  constructor(entries?: ReadonlyArray<readonly [route: Route<T, R>, meta: RouteMeta<T, R>]> | null) {
+    super(entries);
+    this.#inverted = new Map(entries?.map(([route, meta]) => [meta, route]));
+  }
+
+  override set(key: Route<T, R>, value: RouteMeta<T, R>): this {
+    this.#inverted.set(value, key);
+    return super.set(key, value);
+  }
+
+  override delete(key: Route<T, R>): boolean {
+    const value = this.get(key);
+    if (value) {
+      this.#inverted.delete(value);
+    }
+    return super.delete(key);
+  }
+
+  getRoute(meta: RouteMeta<T, R>): Route<T, R> | undefined {
+    return this.#inverted.get(meta);
+  }
 }

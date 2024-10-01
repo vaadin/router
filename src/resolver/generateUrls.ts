@@ -10,16 +10,16 @@
 import { parse, type ParseOptions, type Token, tokensToFunction, type TokensToFunctionOptions } from 'path-to-regexp';
 import type { EmptyObject, Writable } from 'type-fest';
 import Resolver from './resolver.js';
-import type { AnyObject, ChildrenCallback, Route, Params } from './types.js';
+import type { AnyObject, ChildrenCallback, IndexedParams, Params, Route } from './types.js';
 import { getRoutePath, isString } from './utils.js';
 
 export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> | number | string>>;
 
-function cacheRoutes<T, R extends AnyObject = EmptyObject>(
-  routesByName: Map<string, Array<Route<T, R>>>,
-  route: Writable<Route<T, R>>,
-  routes?: ChildrenCallback<T, R> | ReadonlyArray<Route<T, R>>,
-  cacheKeyProvider?: (route: Route<T, R>) => string,
+function cacheRoutes<T, R extends AnyObject, C extends AnyObject>(
+  routesByName: Map<string, Array<Route<T, R, C>>>,
+  route: Writable<Route<T, R, C>>,
+  routes?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>,
+  cacheKeyProvider?: (route: Route<T, R, C>) => string,
 ): void {
   const name = route.name ?? cacheKeyProvider?.(route);
   if (name) {
@@ -30,7 +30,7 @@ function cacheRoutes<T, R extends AnyObject = EmptyObject>(
     }
   }
 
-  if (Array.isArray<ReadonlyArray<Writable<Route<T, R>>>>(routes)) {
+  if (Array.isArray<ReadonlyArray<Writable<Route<T, R, C>>>>(routes)) {
     for (const childRoute of routes) {
       childRoute.parent = route;
       cacheRoutes(routesByName, childRoute, childRoute.__children ?? childRoute.children, cacheKeyProvider);
@@ -38,10 +38,10 @@ function cacheRoutes<T, R extends AnyObject = EmptyObject>(
   }
 }
 
-function getRouteByName<R extends AnyObject = EmptyObject>(
-  routesByName: Map<string, Array<Route<T, R>>>,
+function getRouteByName<T, R extends AnyObject, C extends AnyObject>(
+  routesByName: Map<string, Array<Route<T, R, C>>>,
   routeName: string,
-): Route<T, R> | undefined {
+): Route<T, R, C> | undefined {
   const routes = routesByName.get(routeName);
 
   if (routes) {
@@ -57,7 +57,7 @@ function getRouteByName<R extends AnyObject = EmptyObject>(
 
 export type StringifyQueryParams = (params: UrlParams) => string;
 
-export type GenerateUrlOptions<T, R extends AnyObject> = ParseOptions &
+export type GenerateUrlOptions<T, R extends AnyObject, C extends AnyObject> = ParseOptions &
   Readonly<{
     /**
      * Add a query string to generated url based on unknown route params.
@@ -67,7 +67,7 @@ export type GenerateUrlOptions<T, R extends AnyObject> = ParseOptions &
      * Generates a unique route name based on all parent routes with the specified separator.
      */
     uniqueRouteNameSep?: string;
-    cacheKeyProvider?(route: Route<T, R>): string | undefined;
+    cacheKeyProvider?(route: Route<T, R, C>): string;
   }> &
   TokensToFunctionOptions;
 
@@ -78,24 +78,24 @@ type RouteCacheRecord = Readonly<{
 
 export type UrlGenerator = (routeName: string, params?: Params) => string;
 
-function generateUrls<T, R extends AnyObject = EmptyObject>(
-  resolver: Resolver<R>,
-  options: GenerateUrlOptions<T, R> = {},
+function generateUrls<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject>(
+  resolver: Resolver<T, R, C>,
+  options: GenerateUrlOptions<T, R, C> = {},
 ): UrlGenerator {
   if (!(resolver instanceof Resolver)) {
     throw new TypeError('An instance of Resolver is expected');
   }
 
   const cache = new Map<string, RouteCacheRecord>();
-  const routesByName = new Map<string, Array<Route<T, R>>>();
+  const routesByName = new Map<string, Array<Route<T, R, C>>>();
 
   return (routeName, params) => {
     let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache
-      cacheRoutes(
+      cacheRoutes<T, R, C>(
         routesByName,
-        resolver.root as Writable<Route<T, R>>,
+        resolver.root as Writable<Route<T, R, C>>,
         resolver.root.__children,
         options.cacheKeyProvider,
       );
@@ -133,13 +133,13 @@ function generateUrls<T, R extends AnyObject = EmptyObject>(
     let url = toPath(params) || '/';
 
     if (options.stringifyQueryParams && params) {
-      const queryParams: Record<string, string | readonly string[]> = {};
+      const queryParams: Writable<IndexedParams> = {};
       for (const [key, value] of Object.entries(params)) {
         if (!(key in cached.keys) && value) {
           queryParams[key] = value;
         }
       }
-      const query = options.stringifyQueryParams(queryParams);
+      const query = options.stringifyQueryParams(queryParams as UrlParams);
       if (query) {
         url += query.startsWith('?') ? query : `?${query}`;
       }

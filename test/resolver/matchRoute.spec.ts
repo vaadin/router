@@ -9,11 +9,9 @@
 import { expect, use } from '@esm-bundle/chai';
 import chaiDom from 'chai-dom';
 import sinonChai from 'sinon-chai';
-import type { EmptyObject } from 'type-fest';
-import type { InternalRoute } from '../../src/internal.js';
 import matchRoute from '../../src/resolver/matchRoute.js';
 import '../setup.js';
-import type {ActionResult, Commands, MaybePromise, Route, RouteContext} from '../../src/types.js';
+import type { Route } from '../../src/resolver/types.js';
 
 use(chaiDom);
 use(sinonChai);
@@ -32,7 +30,7 @@ const dummyAction = () => undefined;
 
 describe('matchRoute(route, pathname)', () => {
   it('should return a valid iterator', () => {
-    const route: InternalRoute<EmptyObject> = {
+    const route: Route = {
       path: '/a',
       action: dummyAction,
     };
@@ -49,7 +47,7 @@ describe('matchRoute(route, pathname)', () => {
   });
 
   it('should yield well-formed match objects', () => {
-    const route = {
+    const route: Route = {
       path: '/a',
       action: dummyAction,
     };
@@ -68,7 +66,7 @@ describe('matchRoute(route, pathname)', () => {
 
   describe('no matches', () => {
     it('should not match a route if it does not match the path', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         action: dummyAction,
       };
@@ -97,7 +95,7 @@ describe('matchRoute(route, pathname)', () => {
 
   describe('matches the root of the routes tree', () => {
     it('should match a route without children if it matches the path exactly', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         action: dummyAction,
       };
@@ -107,7 +105,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not match a route without children if it matches only a prefix of the path', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         action: () => {},
       };
@@ -116,7 +114,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a route with children if it matches the path exactly', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [
           { path: '/b', action: dummyAction },
@@ -130,7 +128,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a route with children if it matches only a prefix of the path', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [
           { path: '/b', action: dummyAction },
@@ -154,7 +152,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a multi-segment route without children', () => {
-      const route = {
+      const route: Route = {
         path: '/a/b',
         action: dummyAction,
       };
@@ -166,7 +164,7 @@ describe('matchRoute(route, pathname)', () => {
 
   describe('matches child routes', () => {
     it('should match both the parent and one child route (parent first) - single child', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [{ path: '/b', action: dummyAction }],
       };
@@ -177,7 +175,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match both the parent and one child route (parent first) - several children', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [
           { path: '/b', action: dummyAction },
@@ -194,7 +192,7 @@ describe('matchRoute(route, pathname)', () => {
 
   describe('matches sibling routes', () => {
     it('should match all sibling routes in their definition order', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [
           { path: '/b', action: dummyAction },
@@ -209,7 +207,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match both a multi-segment no-children route and a route with children', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [
           { path: '/b/c', action: dummyAction },
@@ -228,7 +226,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should continue matching on the parent level after siblings are checked', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [
           {
@@ -249,7 +247,7 @@ describe('matchRoute(route, pathname)', () => {
 
   describe('leading and trailing "/" in the route path', () => {
     it('should match a relative route to a relative path', () => {
-      const route = {
+      const route: Route = {
         path: 'a',
         action: dummyAction,
       };
@@ -259,7 +257,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not match an absolute route to a relative path', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         action: dummyAction,
       };
@@ -268,7 +266,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not match a relative route to an absolute path', () => {
-      const route = {
+      const route: Route = {
         path: 'a',
         action: dummyAction,
       };
@@ -277,7 +275,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a route with a trailing "/" and no children to a path with a trailing "/"', () => {
-      const route = {
+      const route: Route = {
         path: 'a/',
         action: dummyAction,
       };
@@ -287,7 +285,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a route with a trailing "/" and some children to a path with a trailing "/"', () => {
-      const route = {
+      const route: Route = {
         path: 'a/',
         children: [
           { path: '/b', action: dummyAction },
@@ -301,7 +299,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a route with a trailing "/" and some children to a path with more segments', () => {
-      const route = {
+      const route: Route = {
         path: 'a/',
         children: [
           { path: '/b', action: dummyAction },
@@ -315,7 +313,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not match a route with a trailing "/" to a path without a trailing "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a/',
         action: dummyAction,
       };
@@ -324,7 +322,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a route without a trailing "/" to a path with a trailing "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         action: dummyAction,
       };
@@ -334,7 +332,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match child routes without the leading "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [{ path: 'b', action: dummyAction }],
       };
@@ -345,7 +343,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match parent routes with a trailing "/" and child routes with a leading "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a/',
         children: [{ path: '/b', action: dummyAction }],
       };
@@ -356,7 +354,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match parent routes with a trailing "/" and child routes without a leading "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a/',
         children: [{ path: 'b', action: dummyAction }],
       };
@@ -367,7 +365,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match deep child routes without a leading "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [
           {
@@ -384,7 +382,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match child routes if the path has a trailing "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [{ path: 'b', action: dummyAction }],
       };
@@ -403,7 +401,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a "" route with children to an absolute path', () => {
-      const route = {
+      const route: Route = {
         path: '',
         children: [
           { path: '/b', action: dummyAction },
@@ -417,7 +415,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a "" route with children to an relative path', () => {
-      const route = {
+      const route: Route = {
         path: '',
         children: [
           { path: '/b', action: dummyAction },
@@ -431,7 +429,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match absolute children of a "" route to an absolute path', () => {
-      const route = {
+      const route: Route = {
         path: '',
         children: [{ path: '/a', action: dummyAction }],
       };
@@ -442,7 +440,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match relative children of a "" route to a relative path', () => {
-      const route = {
+      const route: Route = {
         path: '',
         children: [{ path: 'a', action: dummyAction }],
       };
@@ -453,7 +451,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not match absolute children of a "" route to an relative path', () => {
-      const route = {
+      const route: Route = {
         path: '',
         children: [{ path: '/a', action: dummyAction }],
       };
@@ -462,7 +460,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not match relative children of a "" route to an absolute path', () => {
-      const route = {
+      const route: Route = {
         path: '',
         children: [{ path: 'a', action: dummyAction }],
       };
@@ -471,7 +469,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a child "" route if the path does not have a trailing "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [{ path: '', action: dummyAction }],
       };
@@ -482,7 +480,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a child "" route if the path does have a trailing "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [{ path: '', action: dummyAction }],
       };
@@ -493,7 +491,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match both the parent and the child "" routes', () => {
-      const route = {
+      const route: Route = {
         path: '',
         name: 'parent',
         children: [
@@ -512,7 +510,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match several nested "" routes', () => {
-      const route = {
+      const route: Route = {
         path: '',
         name: 'level-1',
         children: [
@@ -547,7 +545,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a "/" route with children to an absolute path', () => {
-      const route = {
+      const route: Route = {
         path: '/',
         children: [
           { path: '/b', action: dummyAction },
@@ -561,7 +559,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not match a "/" route with children to a relative path', () => {
-      const route = {
+      const route: Route = {
         path: '/',
         children: [{ path: 'a', action: dummyAction }],
       };
@@ -570,7 +568,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match (absolute) children of a "/" route', () => {
-      const route = {
+      const route: Route = {
         path: '/',
         children: [{ path: '/a', action: dummyAction }],
       };
@@ -581,7 +579,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match (relative) children of a "/" route', () => {
-      const route = {
+      const route: Route = {
         path: '/',
         children: [{ path: 'a', action: dummyAction }],
       };
@@ -592,7 +590,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a child "/" route if the path does not have a trailing "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [{ path: '/', action: dummyAction }],
       };
@@ -603,7 +601,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a child "/" route if the path does have a trailing "/"', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [{ path: '/', action: dummyAction }],
       };
@@ -614,7 +612,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match both the parent and the child "/" routes', () => {
-      const route = {
+      const route: Route = {
         path: '/',
         name: 'parent',
         children: [
@@ -633,7 +631,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match several nested "/" routes', () => {
-      const route = {
+      const route: Route = {
         path: '/',
         name: 'level-1',
         children: [
@@ -662,7 +660,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not match a deep child with a leading "/" if all parents are "" and the path is relative', () => {
-      const route = {
+      const route: Route = {
         path: '',
         name: 'parent',
         children: [
@@ -680,7 +678,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should match a deep child without a leading "/" if all parents are "" and the path is relative', () => {
-      const route = {
+      const route: Route = {
         path: '',
         name: 'parent',
         children: [
@@ -701,7 +699,7 @@ describe('matchRoute(route, pathname)', () => {
 
   describe('keys and params in the match object', () => {
     it('should contain the keys and params of the matched route', () => {
-      const route = {
+      const route: Route = {
         path: '/a/:b',
         action: dummyAction,
       };
@@ -712,7 +710,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should contain the keys and params of the parent route', () => {
-      const route = {
+      const route: Route = {
         path: '/a/:b',
         children: [{ path: '/:c', action: dummyAction }],
       };
@@ -723,7 +721,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should be empty if neither the matched route nor its parents have any params', () => {
-      const route = {
+      const route: Route = {
         path: '/a',
         children: [{ path: '/b', action: dummyAction }],
       };
@@ -736,7 +734,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not contain the keys and params of the child routes', () => {
-      const route = {
+      const route: Route = {
         path: '/a/:b',
         children: [{ path: '/:c', action: dummyAction }],
       };
@@ -747,7 +745,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not contain the keys and params of the sibling routes', () => {
-      const route = {
+      const route: Route = {
         path: '/a/:b',
         children: [
           { path: '/:c', action: dummyAction },
@@ -761,7 +759,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should override a parent route param value with that of a child route if the param names collide', () => {
-      const route = {
+      const route: Route = {
         path: '/a/:b',
         children: [{ path: '/:b', action: dummyAction }],
       };
@@ -771,7 +769,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not override a parent route param value with `undefined` (for an optional child param)', () => {
-      const route = {
+      const route: Route = {
         path: '/a/:b',
         children: [{ path: '/:b?', action: dummyAction }],
       };
@@ -781,7 +779,7 @@ describe('matchRoute(route, pathname)', () => {
     });
 
     it('should not override a parent route param value in the parent match', () => {
-      const route = {
+      const route: Route = {
         path: '/a/:b',
         children: [{ path: '/:b', action: dummyAction }],
       };

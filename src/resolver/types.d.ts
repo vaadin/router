@@ -1,43 +1,58 @@
+import type { EmptyObject } from 'type-fest';
+import type Resolver from './resolver.js';
+import type { NotFoundResult } from './utils.js';
+
 /* ========================
  *  Common Types
  * ======================== */
-
-export type AnyObject = Record<never, never>;
+export type AnyObject = Readonly<Record<never, never>>;
 
 export type MaybePromise<T> = Promise<T> | T;
 
-export type ActionResult<T> = T | null | undefined | MaybePromise<T | null | undefined>;
+export type ActionResult<T> = T | NotFoundResult | null | undefined;
 
 /* ========================
  *  Resolver-Specific Types
  * ======================== */
-export type Route<T = unknown, R extends AnyObject = EmptyObject> = Readonly<{
-  __children?: ReadonlyArray<Route<T, R>>;
-  __synthetic?: true;
+export type ChildrenCallback<T, R extends AnyObject, C extends AnyObject> = (
+  context: RouteContext<T, R, C>,
+) => MaybePromise<ReadonlyArray<Route<T, R, C>>>;
+
+export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readonly<{
+  children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
   name?: string;
   path?: string | readonly string[];
+  action?(this: Route<T, R, C>, context: RouteContext<T, R, C>): MaybePromise<ActionResult<T>>;
+}> & {
+  __children?: ReadonlyArray<Route<T, R, C>>;
+  __synthetic?: true;
+  parent?: Route<T, R, C>;
   fullPath?: string;
-  parent?: Route<T, R>;
-  children?: ReadonlyArray<Route<T, R>> | ChildrenCallback<T, R>;
-  action?(this: Route<T, R>, context: RouteContext<T, R>): ActionResult<T>;
-}>;
+};
 
-export type Match<T, R extends AnyObject> = Readonly<{
+export type Route<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = BasicRoutePart<
+  T,
+  R,
+  C
+> &
+  R;
+
+export type Match<T, R extends AnyObject, C extends AnyObject> = Readonly<{
   path: string;
-  route?: Route<T, R>;
+  route?: Route<T, R, C>;
 }>;
 
-export type ChainItem<T, R extends AnyObject> = Readonly<{
+export type ChainItem<T, R extends AnyObject, C extends AnyObject> = Readonly<{
   element?: Element;
   path: string;
-  route?: Route<T, R>;
+  route?: Route<T, R, C>;
 }>;
 
 export type ResolutionOptions = Readonly<{
   pathname: string;
 }>;
 
-export type RouteContext<T, R extends AnyObject = EmptyObject> = ResolutionOptions &
+export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = ResolutionOptions &
   Readonly<{
     __divergedChainIndex?: number;
     __redirectCount?: number;
@@ -45,19 +60,18 @@ export type RouteContext<T, R extends AnyObject = EmptyObject> = ResolutionOptio
     __skipAttach?: boolean;
     hash?: string;
     search?: string;
-    chain?: Array<ChainItem<T, R>>;
+    chain?: Array<ChainItem<T, R, C>>;
     params: IndexedParams;
-    resolver?: Resolver<T, R>;
+    resolver?: Resolver<T, R, C>;
     redirectFrom?: string;
     result?: T;
-    route?: Route<T, R>;
-    search?: string;
-    next?(resume?: boolean, parent?: Route<T, R>, prevResult?: T | null): Promise<RouteContext<T>>;
+    route?: Route<T, R, C>;
+    next?(
+      resume?: boolean,
+      parent?: Route<T, R, C>,
+      prevResult?: T | null,
+    ): Promise<ActionResult<RouteContext<T, R, C>>>;
   }>;
-
-export type ChildrenCallback<T, R extends AnyObject> = (
-  context: RouteChildrenContext<T, R>,
-) => MaybePromise<ReadonlyArray<Route<T, R>>>;
 
 export type PrimitiveParamValue = string | number | null;
 
