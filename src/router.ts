@@ -1057,7 +1057,13 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
    */
   urlForName(name: string, params?: Params | null): string {
     if (!this.__urlForName) {
-      this.__urlForName = generateUrls(this);
+      this.__urlForName = generateUrls(this, {
+        cacheKeyProvider(route): string | undefined {
+          return 'component' in route && typeof route.component === 'string'
+            ? (route as Readonly<{ component: string }>).component
+            : undefined;
+        },
+      });
     }
     return getPathnameForRouter(this.__urlForName(name, params ?? undefined), this);
   }

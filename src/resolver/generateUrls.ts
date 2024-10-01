@@ -10,7 +10,7 @@
 import { parse, type ParseOptions, type Token, tokensToFunction, type TokensToFunctionOptions } from 'path-to-regexp';
 import type { EmptyObject, Writable } from 'type-fest';
 import Resolver from './resolver.js';
-import type { AnyObject, ChildrenCallback, Route } from './types.js';
+import type { AnyObject, ChildrenCallback, Route, Params } from './types.js';
 import { getRoutePath, isString } from './utils.js';
 
 export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> | number | string>>;
@@ -33,7 +33,7 @@ function cacheRoutes<T, R extends AnyObject = EmptyObject>(
   if (Array.isArray<ReadonlyArray<Writable<Route<T, R>>>>(routes)) {
     for (const childRoute of routes) {
       childRoute.parent = route;
-      cacheRoutes(routesByName, childRoute, childRoute.__children ?? childRoute.children);
+      cacheRoutes(routesByName, childRoute, childRoute.__children ?? childRoute.children, cacheKeyProvider);
     }
   }
 }
@@ -67,7 +67,7 @@ export type GenerateUrlOptions<T, R extends AnyObject> = ParseOptions &
      * Generates a unique route name based on all parent routes with the specified separator.
      */
     uniqueRouteNameSep?: string;
-    cacheKeyProvider?(route: Route<T, R>): string;
+    cacheKeyProvider?(route: Route<T, R>): string | undefined;
   }> &
   TokensToFunctionOptions;
 
@@ -80,7 +80,7 @@ export type UrlGenerator = (routeName: string, params?: Params) => string;
 
 function generateUrls<T, R extends AnyObject = EmptyObject>(
   resolver: Resolver<R>,
-  options: GenerateUrlOptions<T, R> = { encode: encodeURIComponent },
+  options: GenerateUrlOptions<T, R> = {},
 ): UrlGenerator {
   if (!(resolver instanceof Resolver)) {
     throw new TypeError('An instance of Resolver is expected');
@@ -129,7 +129,7 @@ function generateUrls<T, R extends AnyObject = EmptyObject>(
       route.fullPath = fullPath;
     }
 
-    const toPath = tokensToFunction(cached.tokens, options);
+    const toPath = tokensToFunction(cached.tokens, { encode: encodeURIComponent, ...options });
     let url = toPath(params) || '/';
 
     if (options.stringifyQueryParams && params) {

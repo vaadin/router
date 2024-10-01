@@ -59,10 +59,10 @@ export type ChildrenCallback<T, R extends AnyObject> = (
   context: RouteChildrenContext<T, R>,
 ) => MaybePromise<ReadonlyArray<Route<T, R>>>;
 
-export type ParamValue = readonly string[] | string;
+export type PrimitiveParamValue = string | number | null;
 
-export type IndexedParams = Readonly<{
-  [key in keyof any]?: ParamValue;
-}>;
+export type ParamValue = PrimitiveParamValue | readonly PrimitiveParamValue[];
+
+export type IndexedParams = Readonly<Record<string, ParamValue>>;
 
 export type Params = IndexedParams | ParamValue[];

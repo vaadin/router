@@ -1,4 +1,5 @@
 import { expect } from '@esm-bundle/chai';
+import sinon from 'sinon';
 import { Router } from '../../src/router.js';
 import '../setup.js';
 import { cleanup } from './test-utils.js';
@@ -215,6 +216,8 @@ describe('urlFor', () => {
         expect(parse).to.be.calledWithMatch(path);
         expect(result).to.equal('/app/users/42');
       } finally {
+        // @ts-ignore not exposed anymore
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         Router.pathToRegexp.parse.restore();
       }
     });
@@ -246,7 +249,7 @@ describe('urlFor', () => {
     });
 
     it('should prepend baseUrl', () => {
-      router.baseUrl = '/base/';
+      (router as { baseUrl: string }).baseUrl = '/base/';
       expect(router.urlForPath('foo')).to.equal('/base/foo');
       expect(router.urlForPath('/bar')).to.equal('/base/bar');
     });
@@ -254,11 +257,13 @@ describe('urlFor', () => {
     // cannot mock the call to `compile()` from the 'pathToRegexp' package
     xit('should use pathToRegexp', () => {
       const compiledRegExp = sinon.stub().returns('/ok/url');
+      // @ts-ignore not exposed anymore
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
       const compile = sinon.stub(Router.pathToRegexp, 'compile').returns(compiledRegExp);
 
       try {
-        const path = '/users/:userId',
-          parameters = { userId: 42, foo: 'bar' };
+        const path = '/users/:userId';
+        const parameters = { userId: 42, foo: 'bar' };
         const result = router.urlForPath(path, parameters);
 
         expect(compile).to.be.calledOnce;
@@ -268,6 +273,8 @@ describe('urlFor', () => {
         expect(compiledRegExp).to.have.returned('/ok/url');
         expect(result).to.equal('/ok/url');
       } finally {
+        // @ts-ignore not exposed anymore
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         Router.pathToRegexp.compile.restore();
       }
     });

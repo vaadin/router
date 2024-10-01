@@ -1,9 +1,9 @@
 import type { EmptyObject, RequireAtLeastOne } from 'type-fest';
 import type { ResolutionError } from './resolver/resolver.js';
-import type { ChildrenCallback } from './resolver/types.js';
+import type { ChildrenCallback, IndexedParams, Params, ParamValue, PrimitiveParamValue } from './resolver/types.js';
 import type { Router } from './router.js';
 
-export { ResolutionError };
+export type { ResolutionError, IndexedParams, Params, ParamValue, PrimitiveParamValue };
 
 export type VaadinRouterLocationChangedEvent = CustomEvent<
   Readonly<{
@@ -447,11 +447,3 @@ export type Route<R extends AnyObject = EmptyObject> = Readonly<
     path?: string | readonly string[];
   }
 >;
-
-export type PrimitiveParamValue = string | number | null;
-
-export type ParamValue = PrimitiveParamValue | readonly PrimitiveParamValue[];
-
-export type IndexedParams = Readonly<Record<string, ParamValue>>;
-
-export type Params = IndexedParams | ParamValue[];
