@@ -7,7 +7,7 @@ export {
   renderElement,
   createRedirect,
   createLocation,
-  getMatchedPath,
+  getMatchedRoutePath as getMatchedPath,
   getPathnameForRouter,
   copyContextWithoutNext,
 } from './routerUtils.js';

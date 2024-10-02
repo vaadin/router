@@ -19,7 +19,7 @@ function cacheRoutes<T, R extends AnyObject, C extends AnyObject>(
   routesByName: Map<string, Array<Route<T, R, C>>>,
   route: Writable<Route<T, R, C>>,
   routes?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>,
-  cacheKeyProvider?: (route: Route<T, R, C>) => string,
+  cacheKeyProvider?: (route: Route<T, R, C>) => string | undefined,
 ): void {
   const name = route.name ?? cacheKeyProvider?.(route);
   if (name) {
@@ -67,7 +67,7 @@ export type GenerateUrlOptions<T, R extends AnyObject, C extends AnyObject> = Pa
      * Generates a unique route name based on all parent routes with the specified separator.
      */
     uniqueRouteNameSep?: string;
-    cacheKeyProvider?(route: Route<T, R, C>): string;
+    cacheKeyProvider?(route: Route<T, R, C>): string | undefined;
   }> &
   TokensToFunctionOptions;
 
@@ -93,7 +93,7 @@ function generateUrls<T = unknown, R extends AnyObject = EmptyObject, C extends 
     let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache
-      cacheRoutes<T, R, C>(
+      cacheRoutes(
         routesByName,
         resolver.root as Writable<Route<T, R, C>>,
         resolver.root.__children,

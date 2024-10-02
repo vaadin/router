@@ -97,6 +97,49 @@ describe('Resolver', () => {
     });
   });
 
+  describe('router JS API', () => {
+    type RouteWithComponent = Readonly<{
+      component: string;
+    }>;
+
+    it('should have a getter for the routes config', () => {
+      const router = new Resolver<unknown, RouteWithComponent>([]);
+      const actual = router.getRoutes();
+      expect(actual).to.be.an('array').that.is.empty;
+    });
+
+    it('should have a setter for the routes config', () => {
+      const router = new Resolver<unknown, RouteWithComponent>([]);
+      router.setRoutes([{ component: 'x-home-view', path: '/' }]);
+      const actual = router.getRoutes();
+      expect(actual).to.be.an('array').that.has.lengthOf(1);
+      expect(actual[0]).to.have.property('path', '/');
+      expect(actual[0]).to.have.property('component', 'x-home-view');
+    });
+
+    it('should have a method for adding routes', () => {
+      const router = new Resolver<unknown, RouteWithComponent>([]);
+
+      // @ts-expect-error: testing protected method
+      const newRoutes = router.addRoutes([{ component: 'x-home-view', path: '/' }]);
+
+      const actual = router.getRoutes();
+      expect(newRoutes).to.deep.equal(actual);
+      expect(actual)
+        .to.be.an('array')
+        .that.deep.equals([{ component: 'x-home-view', path: '/' }]);
+    });
+
+    it('should have a method for removing routes', () => {
+      const router = new Resolver<unknown, RouteWithComponent>([{ component: 'x-home-view', path: '/' }]);
+      expect(router.getRoutes()).to.be.an('array').that.has.lengthOf(1);
+
+      router.removeRoutes();
+
+      expect(router.getRoutes()).to.be.an('array').that.has.lengthOf(0);
+    });
+  });
+
   describe('resolver.resolve({ pathname, ...context })', () => {
     it('should throw an error if no route found', async () => {
       const resolver = new Resolver([]);
@@ -192,7 +235,7 @@ describe('Resolver', () => {
       await resolver.resolve({ pathname: '/a' });
       expect(resolver.context.chain).to.be.an('array').lengthOf(1);
       expect(resolver.context.chain?.[0].route).to.be.an('object');
-      expect(resolver.context.chain?.[0].route?.name).to.equal('second');
+      expect(resolver.context.chain?.[0].route.name).to.equal('second');
     });
 
     it('the path to the route that produced the result, and the matched path are in the `context` (1))', async () => {
@@ -200,7 +243,7 @@ describe('Resolver', () => {
       await resolver.resolve({ pathname: '/a/b' });
       expect(resolver.context.chain).to.be.an('array').lengthOf(1);
       expect(resolver.context.chain?.[0].path).to.equal('/a/b');
-      expect(resolver.context.chain?.[0].route?.path).to.equal('/a/b');
+      expect(resolver.context.chain?.[0].route.path).to.equal('/a/b');
     });
 
     it('paths with parameters should have each route activated without parameters replaced', async () => {
@@ -212,15 +255,15 @@ describe('Resolver', () => {
 
       await resolver.resolve('/users/1');
       expect(resolver.context.chain).to.be.an('array').lengthOf(1);
-      expect(resolver.context.chain?.[0].route?.path).to.equal('/users/:user');
+      expect(resolver.context.chain?.[0].route.path).to.equal('/users/:user');
 
       await resolver.resolve('/image-15px');
       expect(resolver.context.chain).to.be.an('array').lengthOf(1);
-      expect(resolver.context.chain?.[0].route?.path).to.equal('/image-:size(\\d+)px');
+      expect(resolver.context.chain?.[0].route.path).to.equal('/image-:size(\\d+)px');
 
       await resolver.resolve('/kb/folder/nested/1');
       expect(resolver.context.chain).to.be.an('array').lengthOf(1);
-      expect(resolver.context.chain?.[0].route?.path).to.equal('/kb/:path+/:id');
+      expect(resolver.context.chain?.[0].route.path).to.equal('/kb/:path+/:id');
     });
 
     it('the path to the route that produced the result is in the `context` (2)', async () => {
@@ -237,8 +280,8 @@ describe('Resolver', () => {
       ]);
       await resolver.resolve({ pathname: '/a/b' });
       expect(resolver.context.chain).to.be.an('array').lengthOf(2);
-      expect(resolver.context.chain?.[0].route?.path).to.equal('/a');
-      expect(resolver.context.chain?.[1].route?.path).to.equal('/b');
+      expect(resolver.context.chain?.[0].route.path).to.equal('/a');
+      expect(resolver.context.chain?.[1].route.path).to.equal('/b');
     });
 
     it('the path to the route that produced the result is in the `context` (3)', async () => {
@@ -262,7 +305,7 @@ describe('Resolver', () => {
       await resolver.resolve({ pathname: '/b' });
       const { context } = resolver;
       expect(context.chain).to.be.an('array').lengthOf(1);
-      expect(context.chain?.[0].route?.path).to.equal('/b');
+      expect(context.chain?.[0].route.path).to.equal('/b');
     });
 
     it('should provide all URL parameters to each route', async () => {

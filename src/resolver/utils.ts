@@ -1,4 +1,4 @@
-import type { AnyObject, ChildrenCallback, Route, RouteContext, RouteMeta } from './types.js';
+import type { AnyObject, ChildrenCallback, Route, RouteContext } from './types.js';
 
 export function isObject(o: unknown): o is object {
   // guard against null passing the typeof check
@@ -22,11 +22,11 @@ export function log(msg: string): string {
   return `[Vaadin.Router] ${msg}`;
 }
 
-export class NotFoundError<T, R extends AnyObject> extends Error {
+export class NotFoundError<T, R extends AnyObject, C extends AnyObject> extends Error {
   readonly code: number;
-  readonly context: RouteContext<T, R>;
+  readonly context: RouteContext<T, R, C>;
 
-  constructor(context: RouteContext<T, R>) {
+  constructor(context: RouteContext<T, R, C>) {
     super(log(`Page not found (${context.pathname})`));
     this.context = context;
     this.code = 404;
@@ -36,9 +36,9 @@ export class NotFoundError<T, R extends AnyObject> extends Error {
 export const notFoundResult = Symbol('NotFoundResult');
 export type NotFoundResult = typeof notFoundResult;
 
-export function getNotFoundError<T = unknown, R extends Record<string, unknown> = AnyObject>(
-  context: RouteContext<T, R>,
-): NotFoundError<T, R> {
+export function getNotFoundError<T, R extends AnyObject, C extends AnyObject>(
+  context: RouteContext<T, R, C>,
+): NotFoundError<T, R, C> {
   return new NotFoundError(context);
 }
 
@@ -46,38 +46,12 @@ export function resolvePath(path?: string | readonly string[]): string {
   return (Array.isArray(path) ? path[0] : path) ?? '';
 }
 
-export function getRoutePath<T, R extends AnyObject>(route: Route<T, R> | undefined): string {
+export function getRoutePath<T, R extends AnyObject, C extends AnyObject>(route: Route<T, R, C> | undefined): string {
   return resolvePath(route?.path);
 }
 
-export function unwrapChildren<T, R extends AnyObject>(
-  children: ChildrenCallback<T, R> | ReadonlyArray<Route<T, R>> | undefined,
-): ReadonlyArray<Route<T, R>> | undefined {
-  return Array.isArray<ReadonlyArray<Route<T, R>>>(children) && children.length > 0 ? children : undefined;
-}
-
-export class RouteData<T, R extends AnyObject> extends Map<Route<T, R>, RouteMeta<T, R>> {
-  readonly #inverted: Map<RouteMeta<T, R>, Route<T, R>>;
-
-  constructor(entries?: ReadonlyArray<readonly [route: Route<T, R>, meta: RouteMeta<T, R>]> | null) {
-    super(entries);
-    this.#inverted = new Map(entries?.map(([route, meta]) => [meta, route]));
-  }
-
-  override set(key: Route<T, R>, value: RouteMeta<T, R>): this {
-    this.#inverted.set(value, key);
-    return super.set(key, value);
-  }
-
-  override delete(key: Route<T, R>): boolean {
-    const value = this.get(key);
-    if (value) {
-      this.#inverted.delete(value);
-    }
-    return super.delete(key);
-  }
-
-  getRoute(meta: RouteMeta<T, R>): Route<T, R> | undefined {
-    return this.#inverted.get(meta);
-  }
+export function unwrapChildren<T, R extends AnyObject, C extends AnyObject>(
+  children: ChildrenCallback<T, R, C> | ReadonlyArray<Route<T, R, C>> | undefined,
+): ReadonlyArray<Route<T, R, C>> | undefined {
+  return Array.isArray<ReadonlyArray<Route<T, R, C>>>(children) && children.length > 0 ? children : undefined;
 }

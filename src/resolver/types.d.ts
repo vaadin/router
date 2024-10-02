@@ -47,32 +47,34 @@ export type ChainItem<T, R extends AnyObject, C extends AnyObject> = {
   element?: Element;
   path: string;
   route: Route<T, R, C>;
-}>;
+};
 
-export type ResolutionOptions = Readonly<{
-  pathname: string;
-}>;
-
-export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = ResolutionOptions &
+export type ResolveContext<C extends AnyObject = EmptyObject> = C &
   Readonly<{
-    __divergedChainIndex?: number;
-    __redirectCount?: number;
-    __renderId: number;
-    __skipAttach?: boolean;
+    pathname: string;
+  }>;
+
+export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = ResolveContext<C> &
+  Readonly<{
     hash?: string;
     search?: string;
     chain?: Array<ChainItem<T, R, C>>;
     params: IndexedParams;
     resolver?: Resolver<T, R, C>;
     redirectFrom?: string;
-    result?: T;
     route?: Route<T, R, C>;
     next?(
       resume?: boolean,
       parent?: Route<T, R, C>,
-      prevResult?: T | null,
+      prevResult?: ActionResult<RouteContext<T, R, C>>,
     ): Promise<ActionResult<RouteContext<T, R, C>>>;
-  }>;
+  }> & {
+    __divergedChainIndex?: number;
+    __redirectCount?: number;
+    __renderId: number;
+    __skipAttach?: boolean;
+    result?: T | RouteContext<T, R, C>;
+  };
 
 export type PrimitiveParamValue = string | number | null;
 

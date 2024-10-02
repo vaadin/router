@@ -2,7 +2,7 @@ import type { EmptyObject, RequireAtLeastOne } from 'type-fest';
 import type { ResolutionError, ResolverOptions } from './resolver/resolver.js';
 import type {
   ActionResult as _ActionResult,
-  ChildrenCallback,
+  ChildrenCallback as _ChildrenCallback,
   ChainItem as _ChainItem,
   IndexedParams,
   MaybePromise,
@@ -13,7 +13,6 @@ import type {
   RouteContext as _RouteContext,
 } from './resolver/types.js';
 import type { Router } from './router.js';
-import type { NotFoundResult } from './resolver/utils.js';
 
 export type { ResolutionError, IndexedParams, Params, ParamValue, PrimitiveParamValue };
 
@@ -24,12 +23,12 @@ export type VaadinRouterLocationChangedEvent = CustomEvent<
   }>
 >;
 
-export type VaadinRouterErrorEvent<R extends AnyObject = EmptyObject> = CustomEvent<
+export type VaadinRouterErrorEvent<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = CustomEvent<
   Readonly<{
-    error: ResolutionError<R>;
+    error: ResolutionError<R, C>;
     router: Router;
   }> &
-    RouteContext<R>
+    RouteContext<R, C>
 >;
 
 declare global {
@@ -66,23 +65,37 @@ export interface NavigationTrigger {
 
 export type ActionValue = HTMLElement | PreventResult | RedirectResult;
 
+export type NextResult<R extends AnyObject, C extends AnyObject> = _ActionResult<RouteContext<R, C>>;
+
 export type ActionResult = _ActionResult<ActionValue>;
 
 export type ChainItem<R extends AnyObject, C extends AnyObject> = _ChainItem<
   ActionValue,
   RouteExtension<R, C>,
-  ContextExtension<C>
->;
+  ContextExtension<R, C>
+> &
+  Readonly<{
+    element?: WebComponentInterface<R, C>;
+  }>;
 
-export type ContextExtension<C extends AnyObject> = C;
+export type ContextExtension<R extends AnyObject, C extends AnyObject> = C &
+  Readonly<{
+    chain?: ReadonlyArray<ChainItem<R, C>>;
+  }>;
 // Readonly<{
 //   next(resume?: boolean): Promise<ActionResult>;
 // }>;
 
+export type ChildrenCallback<R extends AnyObject, C extends AnyObject> = _ChildrenCallback<
+  ActionValue,
+  RouteExtension<R, C>,
+  ContextExtension<R, C>
+>;
+
 export type RouteExtension<R extends AnyObject, C extends AnyObject> = R &
   Readonly<
     RequireAtLeastOne<{
-      children?: ChildrenCallback<ActionResult, RouteExtension<R, C>, ContextExtension<C>> | ReadonlyArray<Route<R, C>>;
+      children?: ChildrenCallback<R, C> | ReadonlyArray<Route<R, C>>;
       component?: string;
       redirect?: string;
       action?(
@@ -98,19 +111,19 @@ export type RouteExtension<R extends AnyObject, C extends AnyObject> = R &
 export type RouteContext<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _RouteContext<
   ActionValue,
   RouteExtension<R, C>,
-  ContextExtension<C>
+  ContextExtension<R, C>
 >;
 
 export type Route<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _Route<
   ActionValue,
   RouteExtension<R, C>,
-  ContextExtension<C>
+  ContextExtension<R, C>
 >;
 
 export type RouterOptions<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = ResolverOptions<
   ActionValue,
   RouteExtension<R, C>,
-  ContextExtension<C>
+  ContextExtension<R, C>
 >;
 
 /**
@@ -325,7 +338,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterEnter?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): void;
+  onAfterEnter?(location: RouterLocation<R, C>, commands: EmptyCommands, router: Router<R, C>): void;
 
   /**
    * Method that gets executed when user navigates away from the component that
@@ -350,7 +363,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterLeave?(location: RouterLocation<R>, commands: EmptyCommands, router: Router<R>): void;
+  onAfterLeave?(location: RouterLocation<R, C>, commands: EmptyCommands, router: Router<R, C>): void;
 
   /**
    * Method that gets executed before the outlet contents is updated with
@@ -396,9 +409,9 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
    * @param router - the `Router` instance
    */
   onBeforeEnter?(
-    location: RouterLocation<R>,
+    location: RouterLocation<R, C>,
     commands: Commands,
-    router: Router<R>,
+    router: Router<R, C>,
   ): MaybePromise<PreventResult | RedirectResult> | MaybePromise<void>;
 
   /**
@@ -438,9 +451,9 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
    * @param router - the `Router` instance
    */
   onBeforeLeave?(
-    location: RouterLocation<R>,
+    location: RouterLocation<R, C>,
     commands: Commands,
-    router: Router<R>,
+    router: Router<R, C>,
   ): MaybePromise<PreventResult> | MaybePromise<void>;
 }
 
@@ -451,10 +464,10 @@ export type ResolveContext = Readonly<{
   redirectFrom?: string;
 }>;
 
-export type RouteChildrenContext<R extends AnyObject> = ResolveContext &
+export type RouteChildrenContext<R extends AnyObject, C extends AnyObject> = ResolveContext &
   Readonly<{
     params: IndexedParams;
-    route: Route<R>;
+    route: Route<R, C>;
   }>;
 
 export interface Commands {

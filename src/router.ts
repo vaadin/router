@@ -1,22 +1,23 @@
 /* eslint-disable @typescript-eslint/consistent-return */
 import { compile } from 'path-to-regexp';
-import type { EmptyObject } from 'type-fest';
+import type { EmptyObject, Writable } from 'type-fest';
 import generateUrls from './resolver/generateUrls.js';
 import Resolver from './resolver/resolver.js';
 import './router-config.js';
-import type { MaybePromise } from './resolver/types.js';
+import { getNotFoundError, isFunction, isObject, isString, log, notFoundResult } from './resolver/utils.js';
 import {
-  ensureRoute,
+  amend,
+  createLocation,
+  createRedirect,
+  ensureRoutes,
   fireRouterEvent,
-  getNotFoundError,
-  isFunction,
-  isObject,
-  isString,
-  log,
+  getMatchedChainPath,
+  getPathnameForRouter,
   logValue,
-  notFoundResult,
-  toArray,
-} from './resolver/utils.js';
+  maybeCall,
+  processNewChildren,
+  renderElement,
+} from './routerUtils.js';
 import animate from './transitions/animate.js';
 import { DEFAULT_TRIGGERS, setNavigationTriggers } from './triggers/navigation.js';
 import type {
@@ -41,151 +42,16 @@ import type {
   WebComponentInterface,
   RouterOptions,
   ActionValue,
+  NextResult,
 } from './types.js';
 
 const MAX_REDIRECT_COUNT = 256;
-
-function getPathnameForRouter<T, R extends AnyObject, C extends AnyObject>(
-  pathname: string,
-  resolver: Resolver<T, R, C>,
-) {
-  // @FIXME: Fix later when we are ready to get rid of the universal-router
-  // @ts-expect-error: __effectiveBaseUrl is a private property
-  const base = resolver.__effectiveBaseUrl;
-  return base ? new URL(pathname.replace(/^\//u, ''), base).pathname : pathname;
-}
-
-function getMatchedPath<T extends Readonly<{ path: string }>>(pathItems: readonly T[]) {
-  return pathItems
-    .map((item) => item.path)
-    .reduce((a, b) => {
-      if (b.length) {
-        return `${a.replace(/\/$/u, '')}/${b.replace(/^\//u, '')}`;
-      }
-      return a;
-    }, '');
-}
-
-function getRoutePath<R extends AnyObject, C extends AnyObject>(chain: ReadonlyArray<ChainItem<R, C>>): string {
-  return getMatchedPath(chain.map((chainItem) => chainItem.route).filter((route) => route != null));
-}
-
-function createLocation<R extends AnyObject, C extends AnyObject>(
-  {
-    chain = [],
-    hash = '',
-    params = {},
-    pathname = '',
-    resolver,
-    search = '',
-    redirectFrom,
-  }: Partial<RouteContext<R, C>>,
-  route?: Route<R, C>,
-): RouterLocation<R, C> {
-  const routes = chain.map((item) => item.route).filter((r) => r != null);
-  return {
-    baseUrl: resolver?.baseUrl ?? '',
-    getUrl(userParams = {}) {
-      const _pathname = compile(getRoutePath(chain))({ ...params, ...userParams });
-      return resolver ? getPathnameForRouter(_pathname, resolver) : _pathname;
-    },
-    hash,
-    params,
-    pathname,
-    redirectFrom,
-    route: route ?? (routes.length ? routes[routes.length - 1] : undefined) ?? null,
-    routes,
-    search,
-    searchParams: new URLSearchParams(search),
-  };
-}
-
-function createRedirect<R extends AnyObject, C extends AnyObject>(
-  context: RouteContext<R, C>,
-  pathname: string,
-): RedirectResult {
-  const params = { ...context.params };
-  return {
-    redirect: {
-      from: context.pathname,
-      params,
-      pathname,
-    },
-  };
-}
-
-function renderElement<R extends AnyObject, C extends AnyObject>(
-  context: RouteContext<R, C>,
-  element: WebComponentInterface<R, C>,
-) {
-  element.location = createLocation(context);
-
-  if (context.chain) {
-    const index = context.chain.map((item) => item.route).indexOf(context.route);
-    context.chain[index].element = element;
-  }
-
-  return element;
-}
-
-function maybeCall<R, A extends unknown[], O extends object>(
-  callback: ((this: O, ...args: A) => R) | undefined,
-  thisArg: O | undefined,
-  ...args: A
-): R | undefined {
-  if (typeof callback === 'function' && thisArg) {
-    return callback.apply(thisArg, args);
-  }
-}
-
-function amend<
-  A extends readonly unknown[],
-  N extends keyof E,
-  E extends WebComponentInterface & { [key in N]: (this: E, ...args: A) => MaybePromise<ActionResult | undefined> },
->(
-  amendmentFunction: keyof E,
-  element: E | undefined,
-  ...args: A
-): (result: ActionResult) => MaybePromise<ActionResult | undefined> {
-  return async (amendmentResult: ActionResult) => {
-    if (
-      amendmentResult &&
-      isObject(amendmentResult) &&
-      ('cancel' in amendmentResult || 'redirect' in amendmentResult)
-    ) {
-      return amendmentResult;
-    }
-
-    if (element) {
-      return await maybeCall(element[amendmentFunction], element, ...args);
-    }
-  };
-}
-
-function processNewChildren<R extends AnyObject, C extends AnyObject>(
-  newChildren: ReadonlyArray<Route<R, C>>,
-  route: Route<R, C>,
-) {
-  if (!Array.isArray(newChildren) && !isObject(newChildren)) {
-    throw new Error(
-      log(
-        `Incorrect "children" value for the route ${String(route.path)}: expected array or object, but got ${String(
-          newChildren,
-        )}`,
-      ),
-    );
-  }
-
-  const children = toArray(newChildren);
-  children.forEach((child) => ensureRoute(child));
-  route.__children = children;
-}
 
 function prevent(): PreventResult {
   return { cancel: true };
 }
 
-const rootContext: RouteContext<AnyObject> = {
+const rootContext: RouteContext = {
   __renderId: -1,
   params: {},
   route: {
@@ -240,7 +106,7 @@ const rootContext: RouteContext<AnyObject> = {
 export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> extends Resolver<
   ActionValue,
   RouteExtension<R, C>,
-  ContextExtension<C>
+  ContextExtension<R, C>
 > {
   /**
    * Contains read-only information about the current router location:
@@ -301,8 +167,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     const { route } = context;
 
     if (isFunction(route?.children)) {
-      const a: RouteContext<R, C> = { ...context, next: undefined };
-      let children = await route.children({ ...context, next: undefined });
+      let children = await route.children(context);
 
       // The route.children() callback might have re-written the
       // route.children property instead of returning a value
@@ -325,8 +190,8 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
 
     return await Promise.resolve()
       .then(async () => {
-        if (this.__isLatestRender(context)) {
-          return await maybeCall(route?.action, route, context, commands);
+        if (this.__isLatestRender(context) && route) {
+          return await maybeCall(route.action, route, context, commands);
         }
       })
       .then((result) => {
@@ -473,12 +338,10 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     return await this.ready;
   }
 
-  override addRoutes(routes: Route<R> | ReadonlyArray<Route<R>>) {
+  protected override addRoutes(routes: Route<R, C> | ReadonlyArray<Route<R, C>>): ReadonlyArray<Route<R, C>> {
     ensureRoutes(routes);
-    super.addRoutes(routes);
+    return super.addRoutes(routes);
   }
-
-  declare ['resolve']: (context: InternalRouteContext<R>) => Promise<InternalNextResult<R>>;
 
   /**
    * Asynchronously resolves the given pathname and renders the resolved route
@@ -519,13 +382,17 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     const { __renderId } = context;
     try {
       // Find the first route that resolves to a non-empty result
-      const internalContext = await this.resolve(context);
+      const ctx = await this.resolve(context);
+
+      if (!ctx || ctx === notFoundResult) {
+        return this.location;
+      }
 
       // Process the result of this.resolve() and handle all special commands:
       // (redirect / prevent / component). If the result is a 'component',
       // then go deeper and build the entire chain of nested components matching
       // the pathname. Also call all 'on before' callbacks along the way.
-      const contextWithChain = await this.__fullyResolveChain(internalContext);
+      const contextWithChain = await this.__fullyResolveChain(ctx);
 
       if (!this.__isLatestRender(contextWithChain)) {
         return this.location;
@@ -619,23 +486,23 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       ? contextAfterRedirects
       : topOfTheChainContextBeforeRedirects;
 
-    const matchedPath = getPathnameForRouter(getMatchedPath(contextAfterRedirects.chain ?? []), this);
+    const matchedPath = getPathnameForRouter(getMatchedChainPath(contextAfterRedirects.chain ?? []), this);
     const isFound = matchedPath === contextAfterRedirects.pathname;
 
     // Recursive method to try matching more child and sibling routes
     const findNextContextIfAny = async (
       context: RouteContext<R, C>,
       parent: Route<R, C> | undefined = context.route,
-      prevResult?: ActionResult | null,
-    ): Promise<InternalNextResult<R, C>> => {
-      const nextContext = await context.next(false, parent, prevResult);
+      prevResult?: NextResult<R, C> | null,
+    ): Promise<NextResult<R, C>> => {
+      const nextContext = await context.next?.(false, parent, prevResult);
 
       if (nextContext === null || nextContext === notFoundResult) {
         // Next context is not found in children, ...
         if (isFound) {
           // ...but original context is already fully matching - use it
           return context;
-        } else if (parent.parent != null) {
+        } else if (parent?.parent != null) {
           // ...and there is no full match yet - step up to check siblings
           return await findNextContextIfAny(context, parent.parent, nextContext);
         }
@@ -651,7 +518,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       throw getNotFoundError(topOfTheChainContextAfterRedirects);
     }
 
-    return nextContext && nextContext !== notFoundResult && nextContext !== contextAfterRedirects
+    return nextContext !== contextAfterRedirects
       ? await this.__fullyResolveChain(topOfTheChainContextAfterRedirects, nextContext)
       : await this.__amendWithOnBeforeCallbacks(contextAfterRedirects);
   }
@@ -701,7 +568,10 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
         if (
           previousChain[i].route !== newChain[i].route ||
           (previousChain[i].path !== newChain[i].path && previousChain[i].element !== newChain[i].element) ||
-          !this.__isReusableElement(previousChain[i].element, newChain[i].element)
+          !this.__isReusableElement(
+            previousChain[i].element as HTMLElement | undefined,
+            newChain[i].element as HTMLElement | undefined,
+          )
         ) {
           break;
         }
@@ -745,10 +615,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       for (let i = 0; i < newChain.length; i++) {
         if (i < newContext.__divergedChainIndex) {
           if (i < previousChain.length && previousChain[i].element) {
-            (previousChain[i].element as WebComponentInterface).location = createLocation(
-              newContext,
-              previousChain[i].route,
-            );
+            previousChain[i].element!.location = createLocation(newContext, previousChain[i].route);
           }
         } else {
           callbacks = this.__runOnBeforeEnterCallbacks(
@@ -761,7 +628,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
             newChain[i],
           );
           if (newChain[i].element) {
-            (newChain[i].element as WebComponentInterface).location = createLocation(newContext, newChain[i].route);
+            newChain[i].element!.location = createLocation(newContext, newChain[i].route);
           }
         }
       }
@@ -793,10 +660,10 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     if (this.__isLatestRender(newContext)) {
       const beforeLeaveFunction = amend('onBeforeLeave', chainElement.element, location, commands, this);
 
-      result = await beforeLeaveFunction(await callbacks);
+      result = beforeLeaveFunction(await callbacks);
     }
 
-    if (result && !(isObject(result) && 'redirect' in (result as object))) {
+    if (result && !(isObject(result) && 'redirect' in result)) {
       return result as ActionResult;
     }
   }
@@ -813,11 +680,11 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     if (this.__isLatestRender(newContext)) {
       const beforeEnterFunction = amend('onBeforeEnter', chainElement.element, location, commands, this);
 
-      return beforeEnterFunction(result) as ActionResult;
+      return beforeEnterFunction(result);
     }
   }
 
-  private __isReusableElement(element?: ActionResult, otherElement?: ActionResult): boolean {
+  private __isReusableElement(element?: unknown, otherElement?: unknown): boolean {
     if (element instanceof Element && otherElement instanceof Element) {
       return this.__createdByRouter.has(element) && this.__createdByRouter.has(otherElement)
         ? element.localName === otherElement.localName

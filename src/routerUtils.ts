@@ -1,18 +1,18 @@
 import { compile } from 'path-to-regexp';
-import type { ChainItem, InternalRoute, InternalRouteContext } from './internal.js';
 import type Resolver from './resolver/resolver.js';
 import { isFunction, isObject, isString, log, toArray } from './resolver/utils.js';
 import type {
   ActionResult,
   AnyObject,
+  ChainItem,
+  RedirectResult,
   Route,
-  RouteChildrenContext,
   RouteContext,
   RouterLocation,
   WebComponentInterface,
 } from './types.js';
 
-export function ensureRoute(route?: Route): void {
+export function ensureRoute<R extends AnyObject, C extends AnyObject>(route?: Route<R, C>): void {
   if (!route || !isString(route.path)) {
     throw new Error(
       log(`Expected route config to be an object with a "path" string property, or an array of such objects`),
@@ -48,26 +48,33 @@ export function ensureRoute(route?: Route): void {
   }
 }
 
-export function ensureRoutes(routes: readonly Route[]): void {
+export function ensureRoutes<R extends AnyObject, C extends AnyObject>(
+  routes: Route<R, C> | ReadonlyArray<Route<R, C>>,
+): void {
   toArray(routes).forEach((route) => ensureRoute(route));
 }
 
-export function copyContextWithoutNext<R extends AnyObject>({
+export function copyContextWithoutNext<R extends AnyObject, C extends AnyObject>({
   next: _,
   ...context
-}: RouteContext<R>): RouteChildrenContext<R> {
+}: RouteContext<R, C>): Omit<RouteContext<R, C>, 'next'> {
   return context;
 }
 
-export function getPathnameForRouter<R extends AnyObject>(pathname: string, router: Resolver<R>): string {
+export function getPathnameForRouter<T, R extends AnyObject, C extends AnyObject>(
+  pathname: string,
+  router: Resolver<T, R, C>,
+): string {
   // @ts-expect-error: __effectiveBaseUrl is a private property
   const base = router.__effectiveBaseUrl;
   return base ? new URL(pathname.replace(/^\//u, ''), base).pathname : pathname;
 }
 
-export function getMatchedPath<R extends AnyObject>(chain: ReadonlyArray<ChainItem<R>>): string {
-  return chain
-    .map((item) => item.path)
+export function getMatchedRoutePath<R extends AnyObject, C extends AnyObject>(
+  routes: ReadonlyArray<Route<R, C>>,
+): string {
+  return routes
+    .map((route) => route.path)
     .reduce((a, b) => {
       if (b.length) {
         return `${a.replace(/\/$/u, '')}/${b.replace(/^\//u, '')}`;
@@ -76,15 +83,21 @@ export function getMatchedPath<R extends AnyObject>(chain: ReadonlyArray<ChainIt
     }, '');
 }
 
-export function createLocation<R extends AnyObject>(
-  { chain = [], hash = '', params = {}, pathname = '', redirectFrom, resolver, search = '' }: InternalRouteContext<R>,
-  route?: Route<R>,
-): RouterLocation {
+export function getMatchedChainPath<R extends AnyObject, C extends AnyObject>(
+  chain: ReadonlyArray<ChainItem<R, C>>,
+): string {
+  return getMatchedRoutePath(chain.map((chainItem) => chainItem.route));
+}
+
+export function createLocation<R extends AnyObject, C extends AnyObject>(
+  { chain = [], hash = '', params = {}, pathname = '', redirectFrom, resolver, search = '' }: RouteContext<R, C>,
+  route?: Route<R, C>,
+): RouterLocation<R, C> {
   const routes = chain.map((item) => item.route);
   return {
     baseUrl: resolver?.baseUrl ?? '',
     getUrl: (userParams = {}) =>
-      resolver ? getPathnameForRouter(compile(getMatchedPath(chain))({ ...params, ...userParams }), resolver) : '',
+      resolver ? getPathnameForRouter(compile(getMatchedChainPath(chain))({ ...params, ...userParams }), resolver) : '',
     hash,
     params,
     pathname,
@@ -96,7 +109,10 @@ export function createLocation<R extends AnyObject>(
   };
 }
 
-export function createRedirect<R extends AnyObject>(context: InternalRouteContext<R>, pathname: string): ActionResult {
+export function createRedirect<R extends AnyObject, C extends AnyObject>(
+  context: RouteContext<R, C>,
+  pathname: string,
+): RedirectResult {
   const params = { ...context.params };
   return {
     redirect: {
@@ -107,13 +123,13 @@ export function createRedirect<R extends AnyObject>(context: InternalRouteContex
   };
 }
 
-export function renderElement<T extends WebComponentInterface<R>, R extends AnyObject>(
-  context: InternalRouteContext<R>,
-  element: T,
-): T {
+export function renderElement<R extends AnyObject, C extends AnyObject, E extends WebComponentInterface<R, C>>(
+  context: RouteContext<R, C>,
+  element: E,
+): E {
   element.location = createLocation(context);
 
-  if (context.chain) {
+  if (context.chain && context.route) {
     const index = context.chain.map((item) => item.route).indexOf(context.route);
     context.chain[index].element = element;
   }
@@ -122,7 +138,7 @@ export function renderElement<T extends WebComponentInterface<R>, R extends AnyO
 }
 
 export function maybeCall<R, A extends unknown[], O extends object>(
-  callback: (this: O, ...args: A) => R,
+  callback: ((this: O, ...args: A) => R) | undefined,
   thisArg: O,
   ...args: A
 ): R | undefined {
@@ -135,25 +151,21 @@ export function maybeCall<R, A extends unknown[], O extends object>(
 
 export function amend<
   A extends readonly unknown[],
-  N extends keyof E,
-  E extends WebComponentInterface & { [key in N]: (this: E, ...args: A) => ActionResult | undefined },
->(amendmentFunction: keyof E, element: E | undefined, ...args: A): (result: ActionResult) => ActionResult | undefined {
-  return (amendmentResult: ActionResult) => {
-    if (amendmentResult && ('cancel' in amendmentResult || 'redirect' in amendmentResult)) {
-      return amendmentResult;
+  N extends keyof O,
+  O extends AnyObject & { [key in N]: (this: O, ...args: A) => ActionResult | undefined },
+>(fn: keyof O, obj: O | undefined, ...args: A): (result: ActionResult) => ActionResult | undefined {
+  return (result: ActionResult) => {
+    if (result && isObject(result) && ('cancel' in result || 'redirect' in result)) {
+      return result;
     }
 
-    if (element) {
-      return maybeCall(element[amendmentFunction], element, ...args);
-    }
-
-    return undefined;
+    return maybeCall(obj?.[fn], obj!, ...args);
   };
 }
 
-export function processNewChildren<R extends AnyObject>(
-  newChildren: ReadonlyArray<InternalRoute<R>>,
-  route: InternalRoute<R>,
+export function processNewChildren<R extends AnyObject, C extends AnyObject>(
+  newChildren: ReadonlyArray<Route<R, C>>,
+  route: Route<R, C>,
 ): void {
   if (!Array.isArray(newChildren) && !isObject(newChildren)) {
     throw new Error(

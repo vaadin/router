@@ -9,7 +9,16 @@
 import type { EmptyObject, Writable } from 'type-fest';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
-import type { ActionResult, AnyObject, BasicRoutePart, Match, MaybePromise, Route, RouteContext } from './types.js';
+import type {
+  ActionResult,
+  AnyObject,
+  BasicRoutePart,
+  Match,
+  MaybePromise,
+  ResolveContext,
+  Route,
+  RouteContext,
+} from './types.js';
 import { getNotFoundError, getRoutePath, isString, NotFoundError, notFoundResult, toArray } from './utils.js';
 
 function isDescendantRoute<T, R extends AnyObject, C extends AnyObject>(
@@ -76,8 +85,6 @@ function updateChainForRoute<T, R extends AnyObject, C extends AnyObject>(
 }
 
 export type ErrorHandlerCallback<T> = (error: unknown) => T;
-
-export type ResolveContext<C extends AnyObject> = Readonly<{ pathname: string }> & C;
 
 export type ResolveRouteCallback<T, R extends AnyObject, C extends AnyObject> = (
   context: RouteContext<T, R, C>,
@@ -201,9 +208,9 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C 
    *    resolve or a context object with a `pathname` property and other
    *    properties to pass to the route resolver functions.
    */
-  async resolve(pathnameOrContext: ResolveContext<C> | string): Promise<ActionResult<T | RouteContext<T, R, C>>> {
+  async resolve(pathnameOrContext: ResolveContext<C> | string): Promise<ActionResult<RouteContext<T, R, C>>> {
     const self = this;
-    const context: Writable<RouteContext<T, R, C>> = {
+    const context: RouteContext<T, R, C> = {
       ...this.#context,
       ...(isString(pathnameOrContext) ? { pathname: pathnameOrContext } : pathnameOrContext),
       // eslint-disable-next-line @typescript-eslint/no-use-before-define

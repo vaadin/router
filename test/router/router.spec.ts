@@ -50,46 +50,6 @@ describe('Router', () => {
     cleanup(outlet);
   });
 
-  
-  describe('router JS API', () => {
-    it('should have a getter for the routes config', () => {
-      const router = new Resolver([]);
-      const actual = router.getRoutes();
-      expect(actual).to.be.an('array').that.is.empty;
-    });
-
-    it('should have a setter for the routes config', () => {
-      const router = new Resolver([]);
-      router.setRoutes([{ component: 'x-home-view', path: '/' }]);
-      const actual = router.getRoutes();
-      expect(actual).to.be.an('array').that.has.lengthOf(1);
-      expect(actual[0]).to.have.property('path', '/');
-      expect(actual[0]).to.have.property('component', 'x-home-view');
-    });
-
-    it('should have a method for adding routes', () => {
-      const router = new Resolver([]);
-
-      // @ts-expect-error: testing protected method
-      const newRoutes = router.addRoutes([{ component: 'x-home-view', path: '/' }]);
-
-      const actual = router.getRoutes();
-      expect(newRoutes).to.deep.equal(actual);
-      expect(actual)
-        .to.be.an('array')
-        .that.deep.equals([{ component: 'x-home-view', path: '/' }]);
-    });
-
-    it('should have a method for removing routes', () => {
-      const router = new Resolver([{ component: 'x-home-view', path: '/' }]);
-      expect(router.getRoutes()).to.be.an('array').that.has.lengthOf(1);
-
-      router.removeRoutes();
-
-      expect(router.getRoutes()).to.be.an('array').that.has.lengthOf(0);
-    });
-  });
-
   describe('JS API (basic functionality)', () => {
     let router: Router;
 

@@ -37,8 +37,8 @@ export type InternalRoute<R extends AnyObject> = Route<R> & {
   parent?: InternalRoute<R>;
 };
 
-export type ChainItem<R extends AnyObject> = {
-  element?: WebComponentInterface<R>;
+export type ChainItem<R extends AnyObject, C extends AnyObject> = {
+  element?: WebComponentInterface<R, C>;
   path: string;
   route: InternalRoute<R>;
 };
