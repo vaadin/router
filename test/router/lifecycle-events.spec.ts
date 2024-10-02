@@ -2149,7 +2149,8 @@ describe('Vaadin Router lifecycle events', () => {
         true,
       );
       callbacksLog = [];
-      await router.render('/a');
+      // eslint-disable-next-line no-void
+      void router.render('/a');
       // render another path just before it runs action of `a`
       await sleep(PAUSE_TIME * 0.9);
       await router.render('/b');
@@ -2188,7 +2189,8 @@ describe('Vaadin Router lifecycle events', () => {
         true,
       );
       callbacksLog = [];
-      await router.render('/a');
+      // eslint-disable-next-line no-void
+      void router.render('/a');
       // wait until the end of parent.onBeforeEnter
       // then trigger a new render
       // so that `x-a.onBeforeEnter` won't be executed
@@ -2237,7 +2239,8 @@ describe('Vaadin Router lifecycle events', () => {
         true,
       );
       callbacksLog = [];
-      await router.render('/a/a-child');
+      // eslint-disable-next-line no-void
+      void router.render('/a/a-child');
       // give it enough time for running `parent.onBeforeEnter` and `x-a.onBeforeEnter`
       // then start a new render,
       // so `a-child.onBeforeEnter` shouldn't run at all
@@ -2285,9 +2288,11 @@ describe('Vaadin Router lifecycle events', () => {
         ],
         true,
       );
+      // eslint-disable-next-line no-void
       await router.render('/a/a-child');
       callbacksLog = [];
-      await router.render('/b');
+      // eslint-disable-next-line no-void
+      void router.render('/b');
       await sleep(PAUSE_TIME * 0.9);
       await router.render('/a/a-child');
       verifyActiveRoutes(router, ['/', 'a', 'a-child']);
@@ -2404,7 +2409,8 @@ describe('Vaadin Router lifecycle events', () => {
 
       await router.render('/a');
       callbacksLog = [];
-      await router.render('/b');
+      // eslint-disable-next-line no-void
+      void router.render('/b');
       await waitForLocationPromise;
     });
   });
