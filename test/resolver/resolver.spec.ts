@@ -26,6 +26,7 @@ describe('Resolver', () => {
     it('should throw an error in case of invalid routes', () => {
       // @ts-expect-error: error-throwing test
       expect(() => new Resolver()).to.throw(TypeError, /Invalid routes/u);
+      // @ts-expect-error: error-throwing test
       expect(() => new Resolver(12)).to.throw(TypeError, /Invalid routes/u);
       // @ts-expect-error: error-throwing test
       expect(() => new Resolver(null)).to.throw(TypeError, /Invalid routes/u);
@@ -448,6 +449,7 @@ describe('Resolver', () => {
     it('should support next(true) across multiple routes', async () => {
       const log: number[] = [];
       const resolver = new Resolver({
+        path: '',
         async action({ next }) {
           log.push(1);
           return await next?.().then((result) => {
@@ -693,7 +695,7 @@ describe('Resolver', () => {
       const resolver = new Resolver<string | null | number>([
         {
           action: middleware,
-          children: [{ action }],
+          children: [{ path: '', action }],
           path: '/match',
         },
         {
@@ -714,7 +716,7 @@ describe('Resolver', () => {
       const resolver = new Resolver<null | undefined | number>([
         {
           action: middleware,
-          children: [{ action }],
+          children: [{ path: '', action }],
           path: '/match',
         },
         {

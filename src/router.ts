@@ -1,20 +1,31 @@
 /* eslint-disable @typescript-eslint/consistent-return */
 import { compile } from 'path-to-regexp';
 import type { EmptyObject } from 'type-fest';
-import type { ChainItem, InternalNextResult, InternalRoute, InternalRouteContext, ResolveResult } from './internal.js';
 import generateUrls from './resolver/generateUrls.js';
-import Resolver, { type ResolverOptions } from './resolver/resolver.js';
+import Resolver from './resolver/resolver.js';
 import './router-config.js';
-import { getNotFoundError, isFunction, isObject, isString, log, notFoundResult, toArray } from './resolver/utils.js';
-import { ensureRoute, ensureRoutes, fireRouterEvent, logValue } from './routerUtils.js';
+import type { MaybePromise } from './resolver/types.js';
+import {
+  ensureRoute,
+  fireRouterEvent,
+  getNotFoundError,
+  isFunction,
+  isObject,
+  isString,
+  log,
+  logValue,
+  notFoundResult,
+  toArray,
+} from './resolver/utils.js';
 import animate from './transitions/animate.js';
 import { DEFAULT_TRIGGERS, setNavigationTriggers } from './triggers/navigation.js';
 import type {
   ActionResult,
   AnyObject,
   Commands,
+  ChainItem,
+  ContextExtension,
   EmptyCommands,
-  MaybePromise,
   NavigationTrigger,
   Params,
   PreventAndRedirectCommands,
@@ -24,22 +35,27 @@ import type {
   RedirectResult,
   ResolveContext,
   Route,
-  RouteChildrenContext,
   RouteContext,
+  RouteExtension,
   RouterLocation,
   WebComponentInterface,
+  RouterOptions,
+  ActionValue,
 } from './types.js';
 
 const MAX_REDIRECT_COUNT = 256;
 
-function getPathnameForRouter<R extends AnyObject>(pathname: string, resolver: Resolver<R>) {
+function getPathnameForRouter<T, R extends AnyObject, C extends AnyObject>(
+  pathname: string,
+  resolver: Resolver<T, R, C>,
+) {
   // @FIXME: Fix later when we are ready to get rid of the universal-router
   // @ts-expect-error: __effectiveBaseUrl is a private property
   const base = resolver.__effectiveBaseUrl;
   return base ? new URL(pathname.replace(/^\//u, ''), base).pathname : pathname;
 }
 
-function getMatchedPath(pathItems: ReadonlyArray<Readonly<{ path: string }>>) {
+function getMatchedPath<T extends Readonly<{ path: string }>>(pathItems: readonly T[]) {
   return pathItems
     .map((item) => item.path)
     .reduce((a, b) => {
@@ -50,11 +66,11 @@ function getMatchedPath(pathItems: ReadonlyArray<Readonly<{ path: string }>>) {
     }, '');
 }
 
-function getRoutePath<R extends AnyObject>(chain: ReadonlyArray<ChainItem<R>>): string {
-  return getMatchedPath(chain.map((chainItem) => chainItem.route));
+function getRoutePath<R extends AnyObject, C extends AnyObject>(chain: ReadonlyArray<ChainItem<R, C>>): string {
+  return getMatchedPath(chain.map((chainItem) => chainItem.route).filter((route) => route != null));
 }
 
-function createLocation<R extends AnyObject>(
+function createLocation<R extends AnyObject, C extends AnyObject>(
   {
     chain = [],
     hash = '',
@@ -63,13 +79,13 @@ function createLocation<R extends AnyObject>(
     resolver,
     search = '',
     redirectFrom,
-  }: Partial<InternalRouteContext<R>>,
-  route?: Route<R>,
-): RouterLocation<R> {
-  const routes = chain.map((item) => item.route as Route<R>);
+  }: Partial<RouteContext<R, C>>,
+  route?: Route<R, C>,
+): RouterLocation<R, C> {
+  const routes = chain.map((item) => item.route).filter((r) => r != null);
   return {
     baseUrl: resolver?.baseUrl ?? '',
-    getUrl: (userParams = {}) => {
+    getUrl(userParams = {}) {
       const _pathname = compile(getRoutePath(chain))({ ...params, ...userParams });
       return resolver ? getPathnameForRouter(_pathname, resolver) : _pathname;
     },
@@ -84,7 +100,10 @@ function createLocation<R extends AnyObject>(
   };
 }
 
-function createRedirect<R extends AnyObject>(context: RouteContext<R>, pathname: string): RedirectResult {
+function createRedirect<R extends AnyObject, C extends AnyObject>(
+  context: RouteContext<R, C>,
+  pathname: string,
+): RedirectResult {
   const params = { ...context.params };
   return {
     redirect: {
@@ -95,7 +114,10 @@ function createRedirect<R extends AnyObject>(context: RouteContext<R>, pathname:
   };
 }
 
-function renderElement<R extends AnyObject>(context: InternalRouteContext<R>, element: WebComponentInterface<R>) {
+function renderElement<R extends AnyObject, C extends AnyObject>(
+  context: RouteContext<R, C>,
+  element: WebComponentInterface<R, C>,
+) {
   element.location = createLocation(context);
 
   if (context.chain) {
@@ -140,9 +162,9 @@ function amend<
   };
 }
 
-function processNewChildren<R extends AnyObject>(
-  newChildren: ReadonlyArray<InternalRoute<R>>,
-  route: InternalRoute<R>,
+function processNewChildren<R extends AnyObject, C extends AnyObject>(
+  newChildren: ReadonlyArray<Route<R, C>>,
+  route: Route<R, C>,
 ) {
   if (!Array.isArray(newChildren) && !isObject(newChildren)) {
     throw new Error(
@@ -163,7 +185,7 @@ function prevent(): PreventResult {
   return { cancel: true };
 }
 
-const rootContext: InternalRouteContext<AnyObject> = {
+const rootContext: RouteContext<AnyObject> = {
   __renderId: -1,
   params: {},
   route: {
@@ -215,21 +237,25 @@ const rootContext: InternalRouteContext<AnyObject> = {
  *    a given path. It can re-render when triggered or automatically on
  *    'popstate' and / or 'click' events.
  */
-export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
+export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> extends Resolver<
+  ActionValue,
+  RouteExtension<R, C>,
+  ContextExtension<C>
+> {
   /**
    * Contains read-only information about the current router location:
    * pathname, active routes, parameters. See the
    * [Location type declaration](#/classes/RouterLocation)
    * for more details.
    */
-  location: RouterLocation<R> = createLocation({ resolver: this });
+  location = createLocation({ resolver: this });
 
   /**
    * A promise that is settled after the current render cycle completes. If
    * there is no render cycle in progress the promise is immediately settled
    * with the last render cycle result.
    */
-  ready: Promise<RouterLocation<R>> = Promise.resolve(this.location);
+  ready: Promise<RouterLocation<R, C>> = Promise.resolve(this.location);
 
   private readonly __addedByRouter = new WeakSet<Element>();
   private readonly __createdByRouter = new WeakSet<Element>();
@@ -237,7 +263,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
 
   private __lastStartedRenderId = 0;
   private __outlet: ParentNode | null | undefined;
-  private __previousContext?: InternalRouteContext<R>;
+  private __previousContext?: RouteContext<R, C>;
 
   private __urlForName?: ReturnType<typeof generateUrls>;
 
@@ -256,7 +282,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
    * @param outlet - a container to render the resolved route
    * @param options - an optional object with options
    */
-  constructor(outlet?: ParentNode | null, options?: ResolverOptions<R>) {
+  constructor(outlet?: ParentNode | null, options?: RouterOptions<R, C>) {
     const baseElement = document.head.querySelector('base');
     const baseHref = baseElement?.getAttribute('href');
     super([], {
@@ -271,11 +297,12 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     this.subscribe();
   }
 
-  private async __resolveRoute(context: RouteContext<R>): Promise<InternalNextResult<R>> {
+  private async __resolveRoute(context: RouteContext<R, C>): Promise<ActionResult | RouteContext<R, C>> {
     const { route } = context;
 
-    if (isFunction(route.children)) {
-      let children = await route.children({ ...context, next: undefined } as RouteChildrenContext<R>);
+    if (isFunction(route?.children)) {
+      const a: RouteContext<R, C> = { ...context, next: undefined };
+      let children = await route.children({ ...context, next: undefined });
 
       // The route.children() callback might have re-written the
       // route.children property instead of returning a value
@@ -299,7 +326,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     return await Promise.resolve()
       .then(async () => {
         if (this.__isLatestRender(context)) {
-          return await maybeCall(route.action, route, context, commands);
+          return await maybeCall(route?.action, route, context, commands);
         }
       })
       .then((result) => {
@@ -312,7 +339,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
           }
         }
 
-        if (isString(route.redirect)) {
+        if (isString(route?.redirect)) {
           return commands.redirect(route.redirect);
         }
       })
@@ -320,7 +347,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
         if (result != null) {
           return result;
         }
-        if (isString(route.component)) {
+        if (isString(route?.component)) {
           return commands.component(route.component);
         }
       });
@@ -432,7 +459,10 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
    * @param skipRender - configure the router but skip rendering the
    *     route corresponding to the current `window.location` values
    */
-  override async setRoutes(routes: Route<R> | ReadonlyArray<Route<R>>, skipRender = false): Promise<RouterLocation<R>> {
+  override async setRoutes(
+    routes: Route<R, C> | ReadonlyArray<Route<R, C>>,
+    skipRender = false,
+  ): Promise<RouterLocation<R, C>> {
     this.__previousContext = undefined;
     this.__urlForName = undefined;
     ensureRoutes(routes);
@@ -472,20 +502,20 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
   async render(
     pathnameOrContext: string | ResolveContext,
     shouldUpdateHistory: boolean = false,
-  ): Promise<RouterLocation<R>> {
+  ): Promise<RouterLocation<R, C>> {
     this.__lastStartedRenderId += 1;
     const renderId = this.__lastStartedRenderId;
     const context = {
-      ...(rootContext as InternalRouteContext<R>),
+      ...(rootContext as RouteContext<R, C>),
       ...(isString(pathnameOrContext) ? { hash: '', search: '', pathname: pathnameOrContext } : pathnameOrContext),
       __renderId: renderId,
-    } satisfies InternalRouteContext<R>;
+    } satisfies RouteContext<R, C>;
 
     this.ready = this.#doRender(context, shouldUpdateHistory);
     return await this.ready;
   }
 
-  async #doRender(context: InternalRouteContext<R>, shouldUpdateHistory: boolean) {
+  async #doRender(context: RouteContext<R, C>, shouldUpdateHistory: boolean) {
     const { __renderId } = context;
     try {
       // Find the first route that resolves to a non-empty result
@@ -579,9 +609,9 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
   // handle 'redirect' routes, call 'onBefore' callbacks and handle 'prevent'
   // and 'redirect' callback results.
   async __fullyResolveChain(
-    topOfTheChainContextBeforeRedirects: InternalRouteContext<R>,
-    contextBeforeRedirects: InternalRouteContext<R> = topOfTheChainContextBeforeRedirects,
-  ): Promise<InternalRouteContext<R>> {
+    topOfTheChainContextBeforeRedirects: RouteContext<R, C>,
+    contextBeforeRedirects: RouteContext<R, C> = topOfTheChainContextBeforeRedirects,
+  ): Promise<RouteContext<R, C>> {
     const contextAfterRedirects = await this.__findComponentContextAfterAllRedirects(contextBeforeRedirects);
 
     const redirectsHappened = contextAfterRedirects !== contextBeforeRedirects;
@@ -594,10 +624,10 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
 
     // Recursive method to try matching more child and sibling routes
     const findNextContextIfAny = async (
-      context: InternalRouteContext<R>,
-      parent: InternalRoute<R> | undefined = context.route,
+      context: RouteContext<R, C>,
+      parent: Route<R, C> | undefined = context.route,
       prevResult?: ActionResult | null,
-    ): Promise<InternalNextResult<R>> => {
+    ): Promise<InternalNextResult<R, C>> => {
       const nextContext = await context.next(false, parent, prevResult);
 
       if (nextContext === null || nextContext === notFoundResult) {
@@ -626,12 +656,10 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
       : await this.__amendWithOnBeforeCallbacks(contextAfterRedirects);
   }
 
-  private async __findComponentContextAfterAllRedirects(
-    context: InternalRouteContext<R>,
-  ): Promise<InternalRouteContext<R>> {
+  private async __findComponentContextAfterAllRedirects(context: RouteContext<R, C>): Promise<RouteContext<R, C>> {
     const { result } = context;
     if (result instanceof HTMLElement) {
-      renderElement(context, result as WebComponentInterface<R>);
+      renderElement(context, result as WebComponentInterface<R, C>);
       return context;
     } else if (result && 'redirect' in result) {
       const ctx = await this.__redirect(result.redirect, context.__redirectCount, context.__renderId);
@@ -649,9 +677,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
         );
   }
 
-  private async __amendWithOnBeforeCallbacks(
-    contextWithFullChain: InternalRouteContext<R>,
-  ): Promise<InternalRouteContext<R>> {
+  private async __amendWithOnBeforeCallbacks(contextWithFullChain: RouteContext<R, C>): Promise<RouteContext<R, C>> {
     return await this.__runOnBeforeCallbacks(contextWithFullChain).then(async (amendedContext) => {
       if (amendedContext === this.__previousContext || amendedContext === contextWithFullChain) {
         return amendedContext;
@@ -660,8 +686,8 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     });
   }
 
-  private async __runOnBeforeCallbacks(newContext: InternalRouteContext<R>): Promise<InternalRouteContext<R>> {
-    const previousContext = (this.__previousContext ?? {}) as Partial<InternalRouteContext<R>>;
+  private async __runOnBeforeCallbacks(newContext: RouteContext<R, C>): Promise<RouteContext<R, C>> {
+    const previousContext = (this.__previousContext ?? {}) as Partial<RouteContext<R, C>>;
     const previousChain = previousContext.chain ?? [];
     const newChain = newContext.chain ?? [];
 
@@ -756,18 +782,18 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
 
   private async __runOnBeforeLeaveCallbacks(
     callbacks: Promise<ActionResult>,
-    newContext: InternalRouteContext<R>,
+    newContext: RouteContext<R, C>,
     commands: PreventCommands,
-    chainElement: ChainItem<R>,
+    chainElement: ChainItem<R, C>,
   ): Promise<ActionResult> {
     const location = createLocation(newContext);
 
-    let result: ResolveResult<R> | undefined;
+    let result: ActionResult;
 
     if (this.__isLatestRender(newContext)) {
       const beforeLeaveFunction = amend('onBeforeLeave', chainElement.element, location, commands, this);
 
-      result = (await beforeLeaveFunction(await callbacks)) as ResolveResult<R> | undefined;
+      result = await beforeLeaveFunction(await callbacks);
     }
 
     if (result && !(isObject(result) && 'redirect' in (result as object))) {
@@ -777,9 +803,9 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
 
   private async __runOnBeforeEnterCallbacks(
     callbacks: Promise<ActionResult>,
-    newContext: InternalRouteContext<R>,
+    newContext: RouteContext<R, C>,
     commands: PreventAndRedirectCommands,
-    chainElement: ChainItem<R>,
+    chainElement: ChainItem<R, C>,
   ): Promise<ActionResult> {
     const location = createLocation(newContext, chainElement.route);
     const result = await callbacks;
@@ -800,7 +826,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     return false;
   }
 
-  private __isLatestRender(context: Partial<InternalRouteContext<R>>): boolean {
+  private __isLatestRender(context: Partial<RouteContext<R, C>>): boolean {
     return context.__renderId === this.__lastStartedRenderId;
   }
 
@@ -808,7 +834,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     redirectData: RedirectContextInfo,
     counter: number = 0,
     renderId: number = 0,
-  ): Promise<InternalRouteContext<R> & RedirectContextInfo> {
+  ): Promise<RouteContext<R, C> & RedirectContextInfo> {
     if (counter > MAX_REDIRECT_COUNT) {
       throw new Error(log(`Too many redirects when rendering ${redirectData.from}`));
     }
@@ -838,8 +864,8 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
   }
 
   private __copyUnchangedElements(
-    context: InternalRouteContext<R>,
-    previousContext?: InternalRouteContext<R>,
+    context: RouteContext<R, C>,
+    previousContext?: RouteContext<R, C>,
   ): ParentNode | null | undefined {
     // Find the deepest common parent between the last and the new component
     // chains. Update references for the unchanged elements in the new chain
@@ -858,7 +884,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     return deepestCommonParent;
   }
 
-  private __addAppearingContent(context: InternalRouteContext<R>, previousContext?: InternalRouteContext<R>): void {
+  private __addAppearingContent(context: RouteContext<R, C>, previousContext?: RouteContext<R, C>): void {
     this.__ensureOutlet();
 
     // If the previous 'entering' animation has not completed yet,
@@ -914,10 +940,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  private __runOnAfterLeaveCallbacks(
-    currentContext: InternalRouteContext<R>,
-    targetContext?: InternalRouteContext<R>,
-  ): void {
+  private __runOnAfterLeaveCallbacks(currentContext: RouteContext<R, C>, targetContext?: RouteContext<R, C>): void {
     if (!targetContext?.chain || currentContext.__divergedChainIndex == null) {
       return;
     }
@@ -943,7 +966,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  private __runOnAfterEnterCallbacks(currentContext: InternalRouteContext<R>): void {
+  private __runOnAfterEnterCallbacks(currentContext: RouteContext<R, C>): void {
     if (!currentContext.chain || currentContext.__divergedChainIndex == null) {
       return;
     }
@@ -962,7 +985,7 @@ export class Router<R extends AnyObject = EmptyObject> extends Resolver<R> {
     }
   }
 
-  private async __animateIfNeeded(context: InternalRouteContext<R>): Promise<InternalRouteContext<R>> {
+  private async __animateIfNeeded(context: RouteContext<R, C>): Promise<RouteContext<R, C>> {
     const from = this.__disappearingContent?.[0];
     const to = this.__appearingContent?.[0];
     const promises = [];

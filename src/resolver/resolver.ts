@@ -10,15 +10,7 @@ import type { EmptyObject, Writable } from 'type-fest';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
 import type { ActionResult, AnyObject, BasicRoutePart, Match, MaybePromise, Route, RouteContext } from './types.js';
-import {
-  getNotFoundError,
-  getRoutePath,
-  isString,
-  NotFoundError,
-  notFoundResult,
-  toArray,
-  type NotFoundResult,
-} from './utils.js';
+import { getNotFoundError, getRoutePath, isString, NotFoundError, notFoundResult, toArray } from './utils.js';
 
 function isDescendantRoute<T, R extends AnyObject, C extends AnyObject>(
   route?: Route<T, R, C>,
@@ -89,7 +81,7 @@ export type ResolveContext<C extends AnyObject> = Readonly<{ pathname: string }>
 
 export type ResolveRouteCallback<T, R extends AnyObject, C extends AnyObject> = (
   context: RouteContext<T, R, C>,
-) => MaybePromise<ActionResult<T>>;
+) => MaybePromise<ActionResult<T | RouteContext<T, R, C>>>;
 
 export type ResolverOptions<T, R extends AnyObject, C extends AnyObject> = Readonly<{
   baseUrl?: string;
@@ -209,7 +201,7 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C 
    *    resolve or a context object with a `pathname` property and other
    *    properties to pass to the route resolver functions.
    */
-  async resolve(pathnameOrContext: ResolveContext<C> | string): Promise<ActionResult<RouteContext<T, R, C>>> {
+  async resolve(pathnameOrContext: ResolveContext<C> | string): Promise<ActionResult<T | RouteContext<T, R, C>>> {
     const self = this;
     const context: Writable<RouteContext<T, R, C>> = {
       ...this.#context,
@@ -230,7 +222,7 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C 
     async function next(
       resume: boolean = false,
       parent: Route<T, R, C> | undefined = matches?.value?.route,
-      prevResult?: T | NotFoundResult | null,
+      prevResult?: ActionResult<T | RouteContext<T, R, C>>,
     ): Promise<ActionResult<RouteContext<T, R, C>>> {
       const routeToSkip = prevResult === null ? matches?.value?.route : undefined;
       matches = nextMatches ?? match.next(routeToSkip);
@@ -258,7 +250,7 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C 
       const resolution = await resolve(currentContext);
 
       if (resolution !== null && resolution !== undefined && resolution !== notFoundResult) {
-        currentContext.result = isRouteContext(resolution) ? (resolution as RouteContext<T, R, C>).result : resolution;
+        currentContext.result = isRouteContext<T, R, C>(resolution) ? resolution.result : resolution;
         self.#context = currentContext;
         return currentContext;
       }

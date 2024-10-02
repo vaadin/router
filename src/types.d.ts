@@ -1,8 +1,19 @@
 import type { EmptyObject, RequireAtLeastOne } from 'type-fest';
-import type { ResolutionError } from './resolver/resolver.js';
-import type { ChildrenCallback, IndexedParams, Params, ParamValue, PrimitiveParamValue } from './resolver/types.js';
-import type { NotFoundResult } from './resolver/utils.js';
+import type { ResolutionError, ResolverOptions } from './resolver/resolver.js';
+import type {
+  ActionResult as _ActionResult,
+  ChildrenCallback,
+  ChainItem as _ChainItem,
+  IndexedParams,
+  MaybePromise,
+  Params,
+  ParamValue,
+  PrimitiveParamValue,
+  Route as _Route,
+  RouteContext as _RouteContext,
+} from './resolver/types.js';
 import type { Router } from './router.js';
+import type { NotFoundResult } from './resolver/utils.js';
 
 export type { ResolutionError, IndexedParams, Params, ParamValue, PrimitiveParamValue };
 
@@ -34,8 +45,6 @@ declare global {
 
 export type AnyObject = Record<never, never>;
 
-export type MaybePromise<T> = Promise<T> | T;
-
 export type RedirectContextInfo = Readonly<{
   from: string;
   params: IndexedParams;
@@ -55,9 +64,54 @@ export interface NavigationTrigger {
   inactivate(): void;
 }
 
-export type ResolutionResult<T> = T | NotFoundResult | null | undefined;
+export type ActionValue = HTMLElement | PreventResult | RedirectResult;
 
-export type ActionResult = ResolutionResult<HTMLElement | PreventResult | RedirectResult> | ResolutionResult<void>;
+export type ActionResult = _ActionResult<ActionValue>;
+
+export type ChainItem<R extends AnyObject, C extends AnyObject> = _ChainItem<
+  ActionValue,
+  RouteExtension<R, C>,
+  ContextExtension<C>
+>;
+
+export type ContextExtension<C extends AnyObject> = C;
+// Readonly<{
+//   next(resume?: boolean): Promise<ActionResult>;
+// }>;
+
+export type RouteExtension<R extends AnyObject, C extends AnyObject> = R &
+  Readonly<
+    RequireAtLeastOne<{
+      children?: ChildrenCallback<ActionResult, RouteExtension<R, C>, ContextExtension<C>> | ReadonlyArray<Route<R, C>>;
+      component?: string;
+      redirect?: string;
+      action?(
+        this: Route<R, C>,
+        context: RouteContext<R, C>,
+        commands: Commands,
+      ): MaybePromise<ActionResult | RouteContext<R, C>>;
+    }>
+  > & {
+    animate?: AnimateCustomClasses | boolean;
+  };
+
+export type RouteContext<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _RouteContext<
+  ActionValue,
+  RouteExtension<R, C>,
+  ContextExtension<C>
+>;
+
+export type Route<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _Route<
+  ActionValue,
+  RouteExtension<R, C>,
+  ContextExtension<C>
+>;
+
+export type RouterOptions<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = ResolverOptions<
+  ActionValue,
+  RouteExtension<R, C>,
+  ContextExtension<C>
+>;
 
 /**
  * Describes the state of a router at a given point in time. It is available for
@@ -69,7 +123,7 @@ export type ActionResult = ResolutionResult<HTMLElement | PreventResult | Redire
  *    lifecycle callbacks,
  *  - as the `event.detail.location` of the global Vaadin Router events.
  */
-export interface RouterLocation<R extends AnyObject = EmptyObject> {
+export interface RouterLocation<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> {
   /**
    * The base URL used in the router. See [the `baseUrl` property
    * ](#/classes/Router#property-baseUrl) in the Router.
@@ -141,7 +195,7 @@ export interface RouterLocation<R extends AnyObject = EmptyObject> {
    *
    * @public
    */
-  route: Route<R> | null;
+  route: Route<R, C> | null;
 
   /**
    * A list of route objects that match the current pathname. This list has
@@ -154,7 +208,7 @@ export interface RouterLocation<R extends AnyObject = EmptyObject> {
    *
    * @public
    */
-  routes: ReadonlyArray<Route<R>>;
+  routes: ReadonlyArray<Route<R, C>>;
 
   /**
    * The query string portion of the current url.
@@ -244,8 +298,9 @@ export interface RouterLocation<R extends AnyObject = EmptyObject> {
  * Other examples can be found in the
  * [live demos](#/classes/Router/demos/demo/index.html) and tests.
  */
-export interface WebComponentInterface<R extends AnyObject = EmptyObject> extends HTMLElement {
-  location?: RouterLocation<R>;
+export interface WebComponentInterface<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject>
+  extends HTMLElement {
+  location?: RouterLocation<R, C>;
   name?: string;
 
   /**
@@ -402,11 +457,6 @@ export type RouteChildrenContext<R extends AnyObject> = ResolveContext &
     route: Route<R>;
   }>;
 
-export type RouteContext<R extends AnyObject = EmptyObject> = RouteChildrenContext<R> &
-  Readonly<{
-    next(resume?: boolean): Promise<ActionResult>;
-  }>;
-
 export interface Commands {
   component<K extends keyof HTMLElementTagNameMap>(name: K): HTMLElementTagNameMap[K];
   component(name: string): HTMLElement;
@@ -423,24 +473,7 @@ export type EmptyCommands = EmptyObject;
 export type PreventCommands = Pick<Commands, 'prevent'>;
 export type PreventAndRedirectCommands = Pick<Commands, 'prevent' | 'redirect'>;
 
-// export type ChildrenCallback<R extends AnyObject> = (
-//   context: RouteChildrenContext<R>,
-// ) => MaybePromise<ReadonlyArray<Route<R>>>;
-
 export type AnimateCustomClasses = Readonly<{
   enter?: string;
   leave?: string;
 }>;
-
-export type Route<R extends AnyObject = EmptyObject> = Readonly<
-  RequireAtLeastOne<{
-    children?: ChildrenCallback<R> | ReadonlyArray<Route<R>>;
-    component?: string;
-    redirect?: string;
-    action?(this: Route<R>, context: RouteContext<R>, commands: Commands): MaybePromise<ActionResult | RouteContext<R>>;
-  }> & {
-    animate?: AnimateCustomClasses | boolean;
-    name?: string;
-    path?: string | readonly string[];
-  }
->;

@@ -9,7 +9,8 @@ export type AnyObject = Readonly<Record<never, never>>;
 
 export type MaybePromise<T> = Promise<T> | T;
 
-export type ActionResult<T> = T | NotFoundResult | null | undefined;
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+export type ActionResult<T> = T | NotFoundResult | null | undefined | void;
 
 /* ========================
  *  Resolver-Specific Types
@@ -21,7 +22,7 @@ export type ChildrenCallback<T, R extends AnyObject, C extends AnyObject> = (
 export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readonly<{
   children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
   name?: string;
-  path?: string | readonly string[];
+  path: string;
   action?(this: Route<T, R, C>, context: RouteContext<T, R, C>): MaybePromise<ActionResult<T>>;
 }> & {
   __children?: ReadonlyArray<Route<T, R, C>>;
@@ -42,7 +43,7 @@ export type Match<T, R extends AnyObject, C extends AnyObject> = Readonly<{
   route?: Route<T, R, C>;
 }>;
 
-export type ChainItem<T, R extends AnyObject, C extends AnyObject> = Readonly<{
+export type ChainItem<T, R extends AnyObject, C extends AnyObject> = {
   element?: Element;
   path: string;
   route: Route<T, R, C>;
