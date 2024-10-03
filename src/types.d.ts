@@ -78,10 +78,11 @@ export type ChainItem<R extends AnyObject, C extends AnyObject> = _ChainItem<
     element?: WebComponentInterface<R, C>;
   }>;
 
-export type ContextExtension<R extends AnyObject, C extends AnyObject> = C &
-  Readonly<{
-    chain?: ReadonlyArray<ChainItem<R, C>>;
-  }>;
+export type ContextExtension<R extends AnyObject, C extends AnyObject> = Readonly<{
+  resolver?: Router<R, C>;
+  chain?: Array<ChainItem<R, C>>;
+}> &
+  R;
 // Readonly<{
 //   next(resume?: boolean): Promise<ActionResult>;
 // }>;
@@ -92,21 +93,20 @@ export type ChildrenCallback<R extends AnyObject, C extends AnyObject> = _Childr
   ContextExtension<R, C>
 >;
 
-export type RouteExtension<R extends AnyObject, C extends AnyObject> = R &
-  Readonly<
-    RequireAtLeastOne<{
-      children?: ChildrenCallback<R, C> | ReadonlyArray<Route<R, C>>;
-      component?: string;
-      redirect?: string;
-      action?(
-        this: Route<R, C>,
-        context: RouteContext<R, C>,
-        commands: Commands,
-      ): MaybePromise<ActionResult | RouteContext<R, C>>;
-    }>
-  > & {
-    animate?: AnimateCustomClasses | boolean;
-  };
+export type RouteExtension<R extends AnyObject, C extends AnyObject> = Readonly<
+  RequireAtLeastOne<{
+    children?: ChildrenCallback<R, C> | ReadonlyArray<Route<R, C>>;
+    component?: string;
+    redirect?: string;
+    action?(
+      this: Route<R, C>,
+      context: RouteContext<R, C>,
+      commands: Commands,
+    ): MaybePromise<ActionResult | RouteContext<R, C>>;
+  }>
+> & {
+  animate?: AnimateCustomClasses | boolean;
+} & R;
 
 export type RouteContext<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _RouteContext<
   ActionValue,

@@ -3,6 +3,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import type { Commands, RouteContext, Router, WebComponentInterface } from '../../src/index.js';
+import type { AnyObject, Route } from '../../src/resolver/types.js';
 
 export async function waitForNavigation(): Promise<void> {
   return await new Promise((resolve) => {
@@ -16,12 +17,20 @@ export function cleanup(element: Element): void {
 
 export function verifyActiveRoutes(router: Router, expectedSegments: string[]): void {
   // @ts-expect-error: __previousContext is a private property
-  expect(router.__previousContext?.chain?.map((item) => item.route?.path)).to.deep.equal(expectedSegments);
+  expect(router.__previousContext?.chain?.map((item) => item.route.path)).to.deep.equal(expectedSegments);
 }
 
 function createWebComponentAction<T extends keyof WebComponentInterface>(method: T) {
-  return (componentName: string, callback: WebComponentInterface[T], name: string = 'unknown') =>
-    (_context: RouteContext, commands: Commands): WebComponentInterface => {
+  return <R extends AnyObject, C extends AnyObject>(
+    componentName: string,
+    callback: WebComponentInterface<R, C>[T],
+    name: string = 'unknown',
+  ) =>
+    function lifecycleCallback(
+      this: Route<R, C>,
+      _context: RouteContext<R, C>,
+      commands: Commands,
+    ): WebComponentInterface<R, C> {
       const component = commands.component(componentName) as WebComponentInterface;
       component.name = name;
       component[method] = callback;

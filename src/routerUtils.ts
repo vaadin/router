@@ -1,6 +1,7 @@
 import { compile } from 'path-to-regexp';
 import type Resolver from './resolver/resolver.js';
 import { isFunction, isObject, isString, log, toArray } from './resolver/utils.js';
+import type { Router } from './router.js';
 import type {
   ActionResult,
   AnyObject,
@@ -85,6 +86,15 @@ export function getRoutePath<R extends AnyObject, C extends AnyObject>(chain: Re
   return getMatchedPath(chain.map((chainItem) => chainItem.route));
 }
 
+export type ResolverOnlyContext<R extends AnyObject, C extends AnyObject> = Readonly<{ resolver: Router<R, C> }>;
+
+export function createLocation<R extends AnyObject, C extends AnyObject>({
+  resolver,
+}: ResolverOnlyContext<R, C>): RouterLocation<R, C>;
+export function createLocation<R extends AnyObject, C extends AnyObject>(
+  context: RouteContext<R, C>,
+  route?: Route<R, C>,
+): RouterLocation<R, C>;
 export function createLocation<R extends AnyObject, C extends AnyObject>(
   { chain = [], hash = '', params = {}, pathname = '', redirectFrom, resolver, search = '' }: RouteContext<R, C>,
   route?: Route<R, C>,
@@ -125,7 +135,7 @@ export function renderElement<R extends AnyObject, C extends AnyObject, E extend
 ): E {
   element.location = createLocation(context);
 
-  if (context.chain && context.route) {
+  if (context.chain) {
     const index = context.chain.map((item) => item.route).indexOf(context.route);
     context.chain[index].element = element;
   }

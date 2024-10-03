@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-return */
 import { compile } from 'path-to-regexp';
-import type { EmptyObject, Writable } from 'type-fest';
+import type { EmptyObject } from 'type-fest';
 import generateUrls from './resolver/generateUrls.js';
 import Resolver from './resolver/resolver.js';
 import './router-config.js';
@@ -166,7 +166,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
   private async __resolveRoute(context: RouteContext<R, C>): Promise<ActionResult | RouteContext<R, C>> {
     const { route } = context;
 
-    if (isFunction(route?.children)) {
+    if (isFunction(route.children)) {
       let children = await route.children(context);
 
       // The route.children() callback might have re-written the
@@ -190,7 +190,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
 
     return await Promise.resolve()
       .then(async () => {
-        if (this.__isLatestRender(context) && route) {
+        if (this.__isLatestRender(context)) {
           return await maybeCall(route.action, route, context, commands);
         }
       })
@@ -204,7 +204,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
           }
         }
 
-        if (isString(route?.redirect)) {
+        if (isString(route.redirect)) {
           return commands.redirect(route.redirect);
         }
       })
@@ -212,7 +212,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
         if (result != null) {
           return result;
         }
-        if (isString(route?.component)) {
+        if (isString(route.component)) {
           return commands.component(route.component);
         }
       });
@@ -384,10 +384,6 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       // Find the first route that resolves to a non-empty result
       const ctx = await this.resolve(context);
 
-      if (!ctx || ctx === notFoundResult) {
-        return this.location;
-      }
-
       // Process the result of this.resolve() and handle all special commands:
       // (redirect / prevent / component). If the result is a 'component',
       // then go deeper and build the entire chain of nested components matching
@@ -502,7 +498,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
         if (isFound) {
           // ...but original context is already fully matching - use it
           return context;
-        } else if (parent?.parent != null) {
+        } else if (parent.parent != null) {
           // ...and there is no full match yet - step up to check siblings
           return await findNextContextIfAny(context, parent.parent, nextContext);
         }
@@ -515,7 +511,9 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     const nextContext = await findNextContextIfAny(contextAfterRedirects);
 
     if (nextContext == null || nextContext === notFoundResult) {
-      throw getNotFoundError(topOfTheChainContextAfterRedirects);
+      throw getNotFoundError<ActionValue, RouteExtension<R, C>, ContextExtension<R, C>>(
+        topOfTheChainContextAfterRedirects,
+      );
     }
 
     return nextContext !== contextAfterRedirects
@@ -697,6 +695,8 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     return context.__renderId === this.__lastStartedRenderId;
   }
 
+  declare ['resolve']: (context: RouteContext<R, C>) => Promise<RouteContext<R, C> & RedirectContextInfo>;
+
   private async __redirect(
     redirectData: RedirectContextInfo,
     counter: number = 0,
@@ -707,7 +707,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     }
 
     return await this.resolve({
-      ...rootContext,
+      ...(rootContext as RouteContext<R, C>),
       pathname: this.urlForPath(redirectData.pathname, redirectData.params),
       redirectFrom: redirectData.from,
       __redirectCount: counter + 1,

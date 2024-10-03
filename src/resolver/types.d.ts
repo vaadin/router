@@ -19,17 +19,16 @@ export type ChildrenCallback<T, R extends AnyObject, C extends AnyObject> = (
   context: RouteContext<T, R, C>,
 ) => MaybePromise<ReadonlyArray<Route<T, R, C>>>;
 
-export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readonly<{
-  children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
-  name?: string;
-  path: string;
-  action?(this: Route<T, R, C>, context: RouteContext<T, R, C>): MaybePromise<ActionResult<T>>;
-}> & {
+export interface BasicRoutePart<T, R extends AnyObject, C extends AnyObject> {
+  readonly children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
+  readonly name?: string;
+  readonly path: string;
   __children?: ReadonlyArray<Route<T, R, C>>;
   __synthetic?: true;
   parent?: Route<T, R, C>;
   fullPath?: string;
-};
+  action?(this: Route<T, R, C>, context: RouteContext<T, R, C>): MaybePromise<ActionResult<T>>;
+}
 
 export type Route<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = BasicRoutePart<
   T,
@@ -49,32 +48,31 @@ export type ChainItem<T, R extends AnyObject, C extends AnyObject> = {
   route: Route<T, R, C>;
 };
 
-export type ResolveContext<C extends AnyObject = EmptyObject> = C &
-  Readonly<{
-    pathname: string;
-  }>;
+export type ResolveContext<C extends AnyObject = EmptyObject> = Readonly<{
+  pathname: string;
+}> &
+  C;
 
-export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = ResolveContext<C> &
-  Readonly<{
-    hash?: string;
-    search?: string;
-    chain?: Array<ChainItem<T, R, C>>;
-    params: IndexedParams;
-    resolver?: Resolver<T, R, C>;
-    redirectFrom?: string;
-    route?: Route<T, R, C>;
-    next?(
-      resume?: boolean,
-      parent?: Route<T, R, C>,
-      prevResult?: ActionResult<RouteContext<T, R, C>>,
-    ): Promise<ActionResult<RouteContext<T, R, C>>>;
-  }> & {
-    __divergedChainIndex?: number;
-    __redirectCount?: number;
-    __renderId: number;
-    __skipAttach?: boolean;
-    result?: T | RouteContext<T, R, C>;
-  };
+export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = Readonly<{
+  hash?: string;
+  search?: string;
+  chain?: Array<ChainItem<T, R, C>>;
+  params: IndexedParams;
+  resolver?: Resolver<T, R, C>;
+  redirectFrom?: string;
+  route: Route<T, R, C>;
+  next?(
+    resume?: boolean,
+    parent?: Route<T, R, C>,
+    prevResult?: ActionResult<RouteContext<T, R, C>>,
+  ): Promise<ActionResult<RouteContext<T, R, C>>>;
+}> & {
+  __divergedChainIndex?: number;
+  __redirectCount?: number;
+  __renderId: number;
+  __skipAttach?: boolean;
+  result?: T | RouteContext<T, R, C>;
+} & ResolveContext<C>;
 
 export type PrimitiveParamValue = string | number | null;
 

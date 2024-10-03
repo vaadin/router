@@ -1,8 +1,14 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
-import type { Writable } from 'type-fest';
+import type { EmptyObject, Writable } from 'type-fest';
 import { Router } from '../../src/router.js';
-import type { Commands, Route, RouteContext, WebComponentInterface } from '../../src/types.js';
+import {
+  ChildrenCallback,
+  type Commands,
+  type Route,
+  type RouteContext,
+  type WebComponentInterface,
+} from '../../src/types.js';
 import '../setup.js';
 import { checkOutletContents, cleanup, onBeforeEnterAction } from './test-utils.js';
 
@@ -336,8 +342,10 @@ describe('Router', () => {
         const firstResult = await spy.firstCall.returnValue;
         expect(firstResult).to.have.property('result').that.deep.equals(result);
 
-        expect(spy.secondCall.args[0].redirectFrom).to.equal(from);
-        expect(spy.secondCall.args[0].pathname).to.equal(pathname);
+        const secondArg = spy.secondCall.args[0] as RouteContext;
+
+        expect(secondArg.redirectFrom).to.equal(from);
+        expect(secondArg.pathname).to.equal(pathname);
       });
 
       it('should handle multiple redirects', async () => {
@@ -771,17 +779,19 @@ describe('Router', () => {
         });
 
         it('should work in onBeforeEnter lifecycle method', async () => {
+          const callback = sinon.stub(() => {
+            expect(() => {
+              router.location.getUrl();
+            }).to.not.throw();
+          });
           await router.setRoutes([
             {
               path: '/',
-              action: onBeforeEnterAction('x-foo', () => {
-                expect(() => {
-                  router.location.getUrl();
-                }).to.not.throw();
-              }),
+              action: onBeforeEnterAction('x-foo', callback),
             },
           ]);
           await router.ready;
+          expect(callback).to.have.been.calledOnce;
         });
 
         // cannot mock the call to `compile()` from the 'pathToRegexp' package
@@ -2111,7 +2121,7 @@ describe('Router', () => {
       });
 
       it('should be able to override the route `children` property instead of returning a value', async () => {
-        const children = sinon.spy((_context: RouteContext) => {
+        const children = sinon.spy((_context: RouteContext, _commands: Commands) => {
           (_context.route as Writable<Route>).children = [{ path: '/:user', component: 'x-user-profile' }];
         });
 
