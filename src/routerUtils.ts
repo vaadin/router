@@ -70,11 +70,9 @@ export function getPathnameForRouter<T, R extends AnyObject, C extends AnyObject
   return base ? new URL(pathname.replace(/^\//u, ''), base).pathname : pathname;
 }
 
-export function getMatchedRoutePath<R extends AnyObject, C extends AnyObject>(
-  routes: ReadonlyArray<Route<R, C>>,
-): string {
-  return routes
-    .map((route) => route.path)
+export function getMatchedPath(pathItems: ReadonlyArray<Readonly<{ path: string }>>): string {
+  return pathItems
+    .map((pathItem) => pathItem.path)
     .reduce((a, b) => {
       if (b.length) {
         return `${a.replace(/\/$/u, '')}/${b.replace(/^\//u, '')}`;
@@ -83,10 +81,8 @@ export function getMatchedRoutePath<R extends AnyObject, C extends AnyObject>(
     }, '');
 }
 
-export function getMatchedChainPath<R extends AnyObject, C extends AnyObject>(
-  chain: ReadonlyArray<ChainItem<R, C>>,
-): string {
-  return getMatchedRoutePath(chain.map((chainItem) => chainItem.route));
+export function getRoutePath<R extends AnyObject, C extends AnyObject>(chain: ReadonlyArray<ChainItem<R, C>>): string {
+  return getMatchedPath(chain.map((chainItem) => chainItem.route));
 }
 
 export function createLocation<R extends AnyObject, C extends AnyObject>(
@@ -97,7 +93,7 @@ export function createLocation<R extends AnyObject, C extends AnyObject>(
   return {
     baseUrl: resolver?.baseUrl ?? '',
     getUrl: (userParams = {}) =>
-      resolver ? getPathnameForRouter(compile(getMatchedChainPath(chain))({ ...params, ...userParams }), resolver) : '',
+      resolver ? getPathnameForRouter(compile(getRoutePath(chain))({ ...params, ...userParams }), resolver) : '',
     hash,
     params,
     pathname,

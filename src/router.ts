@@ -11,7 +11,7 @@ import {
   createRedirect,
   ensureRoutes,
   fireRouterEvent,
-  getMatchedChainPath,
+  getMatchedPath,
   getPathnameForRouter,
   logValue,
   maybeCall,
@@ -486,7 +486,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       ? contextAfterRedirects
       : topOfTheChainContextBeforeRedirects;
 
-    const matchedPath = getPathnameForRouter(getMatchedChainPath(contextAfterRedirects.chain ?? []), this);
+    const matchedPath = getPathnameForRouter(getMatchedPath(contextAfterRedirects.chain ?? []), this);
     const isFound = matchedPath === contextAfterRedirects.pathname;
 
     // Recursive method to try matching more child and sibling routes
