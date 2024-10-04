@@ -59,6 +59,7 @@ describe('matchRoute(route, pathname)', () => {
   });
 
   it('should treat undefined route path as ""', () => {
+    // @ts-expect-error: Testing JS-specific behavior
     const result = toArray(matchRoute({ path: undefined, action: dummyAction }, ''));
     expect(result).to.have.lengthOf(1);
     expect(result[0]).to.have.nested.property('route.path', undefined);

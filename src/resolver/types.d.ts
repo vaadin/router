@@ -16,11 +16,10 @@ export type ActionResult<T> = T | NotFoundResult | null | undefined | void;
  *  Resolver-Specific Types
  * ======================== */
 export type ChildrenCallback<T, R extends AnyObject, C extends AnyObject> = (
-  context: RouteContext<T, R, C>,
-) => MaybePromise<ReadonlyArray<Route<T, R, C>>>;
+  context: RouteChildrenContext<T, R, C>,
+) => MaybePromise<Route<T, R, C> | ReadonlyArray<Route<T, R, C>> | void>;
 
 export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readonly<{
-  children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
   name?: string;
   path: string;
   action?(
@@ -31,13 +30,9 @@ export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readon
 }> & {
   __children?: ReadonlyArray<Route<T, R, C>>;
   __synthetic?: true;
+  children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
   parent?: Route<T, R, C>;
   fullPath?: string;
-  action?(
-    this: Route<T, R, C>,
-    context: RouteContext<T, R, C>,
-    commands: never,
-  ): MaybePromise<ActionResult<T | RouteContext<T, R, C>>>;
 };
 
 export type Route<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = BasicRoutePart<
@@ -71,7 +66,7 @@ export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObje
   resolver?: Resolver<T, R, C>;
   redirectFrom?: string;
   route: Route<T, R, C>;
-  next?(
+  next(
     resume?: boolean,
     parent?: Route<T, R, C>,
     prevResult?: ActionResult<RouteContext<T, R, C>>,
@@ -83,6 +78,11 @@ export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObje
   __skipAttach?: boolean;
   result?: T | RouteContext<T, R, C>;
 } & ResolveContext<C>;
+
+export type RouteChildrenContext<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = Omit<
+  RouteContext<T, R, C>,
+  'next'
+>;
 
 export type PrimitiveParamValue = string | number | null;
 

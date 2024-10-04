@@ -305,7 +305,7 @@ describe('Router', () => {
       await router.render('/a/b/e').catch(onError);
 
       expect(outlet.childNodes.length).to.equal(0);
-      const error: ResolutionError = onError.firstCall.firstArg;
+      const error: ResolutionError<unknown> = onError.firstCall.firstArg;
       expect(error).to.be.an('error');
       expect(error.message).to.match(/page not found/iu);
 

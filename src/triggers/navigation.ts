@@ -11,7 +11,7 @@ const DEFAULT_TRIGGERS = {
 
 export { DEFAULT_TRIGGERS };
 
-export function setNavigationTriggers(newTriggers: readonly NavigationTrigger[]): void {
+export function setNavigationTriggers(newTriggers: readonly NavigationTrigger[] = []): void {
   triggers.forEach((trigger) => trigger.inactivate());
 
   newTriggers.forEach((trigger) => trigger.activate());

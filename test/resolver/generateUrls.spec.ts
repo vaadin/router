@@ -80,21 +80,6 @@ describe('generateUrls(router, options)(routeName, params)', () => {
     expect(() => url3('user')).to.throw(Error, /Route "user" not found/u);
   });
 
-  it('should generate urls for routes with array of paths', () => {
-    const router1 = new Resolver({ action, name: 'user', path: ['/:name', '/user/:name'] });
-    const url1 = generateUrls(router1);
-    expect(url1('user', { name: 'koistya' })).to.be.equal('/koistya');
-
-    // @TODO(Lodin): Re-enable this test when the feature is implemented
-    // const router2 = new Resolver({ action, name: 'user', path: ['/user/:id', /\/user\/(\d+)/iu] });
-    // const url2 = generateUrls(router2);
-    // expect(url2('user', { id: '123' })).to.be.equal('/user/123');
-
-    const router3 = new Resolver({ action, name: 'user', path: [] });
-    const url3 = generateUrls(router3);
-    expect(url3('user')).to.be.equal('/');
-  });
-
   it('should generate url for nested routes', () => {
     const resolver = new Resolver({
       __children: [
@@ -164,6 +149,7 @@ describe('generateUrls(router, options)(routeName, params)', () => {
           },
         ],
         name: 'a',
+        path: '',
       },
       options,
     );

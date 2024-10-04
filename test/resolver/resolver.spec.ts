@@ -220,7 +220,7 @@ describe('Resolver', () => {
 
     it('URL parameters are captured and added to context.params', async () => {
       const action = sinon.spy(() => true);
-      const resolver = new Resolver([{ action, path: '/:one/:two' }]);
+      const resolver = new Resolver<boolean>([{ action, path: '/:one/:two' }]);
       const context = await resolver.resolve({ pathname: '/a/b' });
       expect(action.calledOnce).to.be.true;
       expect(action.firstCall.firstArg).to.have.property('params').that.deep.equals({ one: 'a', two: 'b' });
@@ -229,7 +229,7 @@ describe('Resolver', () => {
 
     it('context.chain contains the path to the last matched route if context.next() is called', async () => {
       const resolver = new Resolver([
-        { action: async (context) => await context.next?.(), name: 'first', path: '/a' },
+        { action: async (context) => await context.next(), name: 'first', path: '/a' },
         { action: () => true, name: 'second', path: '/a' },
       ]);
       await resolver.resolve({ pathname: '/a' });
@@ -239,7 +239,7 @@ describe('Resolver', () => {
     });
 
     it('the path to the route that produced the result, and the matched path are in the `context` (1))', async () => {
-      const resolver = new Resolver([{ action: () => true, path: '/a/b' }]);
+      const resolver = new Resolver<boolean>([{ action: () => true, path: '/a/b' }]);
       await resolver.resolve({ pathname: '/a/b' });
       expect(resolver.context.chain).to.be.an('array').lengthOf(1);
       expect(resolver.context.chain?.[0].path).to.equal('/a/b');
@@ -267,7 +267,7 @@ describe('Resolver', () => {
     });
 
     it('the path to the route that produced the result is in the `context` (2)', async () => {
-      const resolver = new Resolver([
+      const resolver = new Resolver<boolean>([
         {
           children: [
             {
@@ -407,7 +407,7 @@ describe('Resolver', () => {
         {
           async action({ next }) {
             log.push(1);
-            const result = await next?.();
+            const result = await next();
             log.push(10);
             return result;
           },
@@ -420,7 +420,7 @@ describe('Resolver', () => {
                 {
                   async action({ next }) {
                     log.push(3);
-                    return await next?.().then(() => {
+                    return await next().then(() => {
                       log.push(6);
                     });
                   },
@@ -428,7 +428,7 @@ describe('Resolver', () => {
                     {
                       async action({ next }) {
                         log.push(4);
-                        return await next?.().then(() => {
+                        return await next().then(() => {
                           log.push(5);
                         });
                       },
@@ -495,7 +495,7 @@ describe('Resolver', () => {
         path: '',
         async action({ next }) {
           log.push(1);
-          return await next?.().then((result) => {
+          return await next().then((result) => {
             log.push(9);
             return result;
           });
@@ -504,7 +504,7 @@ describe('Resolver', () => {
           {
             async action({ next }) {
               log.push(2);
-              return await next?.(true).then((result) => {
+              return await next(true).then((result) => {
                 log.push(8);
                 return result;
               });
@@ -519,7 +519,7 @@ describe('Resolver', () => {
               {
                 async action({ next }) {
                   log.push(4);
-                  return await next?.().then((result) => {
+                  return await next().then((result) => {
                     log.push(6);
                     return result;
                   });

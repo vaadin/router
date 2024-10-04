@@ -1,13 +1,11 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
-import type { EmptyObject } from 'type-fest';
 import { Router, type RouterLocation } from '../../src/index.js';
-import type { InternalRouteContext } from '../../src/internal.js';
 import Resolver from '../../src/resolver/resolver.js';
 import '../setup.js';
+import type { MaybePromise } from '../../src/resolver/types.js';
 import type {
   Commands,
-  MaybePromise,
   RouteContext,
   VaadinRouterErrorEvent,
   VaadinRouterLocationChangedEvent,
@@ -630,8 +628,8 @@ describe('Vaadin Router lifecycle events', () => {
         const onAfterLeave = sinon.stub().returns(value);
         // eslint-disable-next-line no-await-in-loop
         await router.setRoutes([
-          {path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave)},
-          {path: '/users', component: 'x-users-list'},
+          { path: '/', action: onAfterLeaveAction('x-home-view', onAfterLeave) },
+          { path: '/users', component: 'x-users-list' },
         ]);
 
         // eslint-disable-next-line no-await-in-loop
@@ -2096,9 +2094,7 @@ describe('Vaadin Router lifecycle events', () => {
       return el;
     };
     const elementWithSlowBeforeEnter = (elementName: string) => (context: RouteContext) => {
-      const el = elementWithAction(
-        `${elementName}-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`,
-      );
+      const el = elementWithAction(`${elementName}-render-${context.__renderId}`);
       el.onBeforeEnter = async () => {
         callbacksLog.push(`${el.name}.onBeforeEnter`);
         await sleep(PAUSE_TIME);
@@ -2107,9 +2103,7 @@ describe('Vaadin Router lifecycle events', () => {
       return el;
     };
     const elementWithSlowBeforeLeave = (elementName: string) => (context: RouteContext) => {
-      const el = elementWithAction(
-        `${elementName}-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`,
-      );
+      const el = elementWithAction(`${elementName}-render-${context.__renderId}`);
       el.onBeforeLeave = async () => {
         callbacksLog.push(`${el.name}.onBeforeLeave`);
         await sleep(PAUSE_TIME);
@@ -2118,7 +2112,7 @@ describe('Vaadin Router lifecycle events', () => {
     };
 
     const elementWithRenderId = (elementName: string) => (context: RouteContext) =>
-      elementWithAction(`${elementName}-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`);
+      elementWithAction(`${elementName}-render-${context.__renderId}`);
 
     it('should only run action when it is the last render', async () => {
       await router.setRoutes(
@@ -2126,22 +2120,18 @@ describe('Vaadin Router lifecycle events', () => {
           {
             path: '/',
             async action(context: RouteContext) {
-              const el = elementWithAction(
-                `x-parent-layout-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`,
-              );
+              const el = elementWithAction(`x-parent-layout-render-${context.__renderId}`);
               await sleep(PAUSE_TIME);
               return el;
             },
             children: [
               {
                 path: 'a',
-                action: (context: RouteContext) =>
-                  elementWithAction(`x-a-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`),
+                action: (context: RouteContext) => elementWithAction(`x-a-render-${context.__renderId}`),
               },
               {
                 path: 'b',
-                action: (context: RouteContext) =>
-                  elementWithAction(`x-b-render-${(context as InternalRouteContext<EmptyObject>).__renderId}`),
+                action: (context: RouteContext) => elementWithAction(`x-b-render-${context.__renderId}`),
               },
             ],
           },

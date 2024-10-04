@@ -97,11 +97,6 @@ const rootContext: RouteContext = {
  * * [setRoutes](#/classes/Router#method-setRoutes) – should be used to configure the routes.
  *
  * Only `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
- *
- * @demo demo/index.html
- * @summary JavaScript class that renders different DOM content depending on
- *    a given path. It can re-render when triggered or automatically on
- *    'popstate' and / or 'click' events.
  */
 export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> extends Resolver<
   ActionValue,
@@ -128,7 +123,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
   private readonly __navigationEventHandler = this.__onNavigationEvent.bind(this);
 
   private __lastStartedRenderId = 0;
-  private __outlet: ParentNode | null | undefined;
+  private __outlet: Element | DocumentFragment | null | undefined;
   private __previousContext?: RouteContext<R, C>;
 
   private __urlForName?: ReturnType<typeof generateUrls>;
@@ -148,7 +143,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * @param outlet - a container to render the resolved route
    * @param options - an optional object with options
    */
-  constructor(outlet?: ParentNode | null, options?: RouterOptions<R, C>) {
+  constructor(outlet?: Element | DocumentFragment | null, options?: RouterOptions<R, C>) {
     const baseElement = document.head.querySelector('base');
     const baseHref = baseElement?.getAttribute('href');
     super([], {
@@ -195,7 +190,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       .then(async () => {
         if (this.__isLatestRender(context)) {
           // eslint-disable-next-line @typescript-eslint/unbound-method
-          return maybeCall(route.action, route, context, commands);
+          return await maybeCall(route.action, route, context, commands);
         }
       })
       .then((result) => {
@@ -203,7 +198,11 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
           // Actions like `() => import('my-view.js')` are not expected to
           // end the resolution, despite the result is not empty. Checking
           // the result with a whitelist of values that end the resolution.
-          if (result instanceof HTMLElement || result === notFoundResult || 'redirect' in result) {
+          if (
+            result instanceof HTMLElement ||
+            result === notFoundResult ||
+            (isObject(result) && 'redirect' in result)
+          ) {
             return result;
           }
         }
@@ -234,7 +233,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * @param outlet - the DOM node where the content for the current route is
    * inserted.
    */
-  setOutlet(outlet?: ParentNode | null): void {
+  setOutlet(outlet?: Element | DocumentFragment | null): void {
     if (outlet) {
       this.__ensureOutlet(outlet);
     }
@@ -246,7 +245,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    *
    * @returns the current router outlet (or `undefined`)
    */
-  getOutlet(): ParentNode | null | undefined {
+  getOutlet(): Element | DocumentFragment | null | undefined {
     return this.__outlet;
   }
 
@@ -353,7 +352,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * calling this method, or at the time when the route resolution is completed,
    * a `TypeError` is thrown.
    *
-   * Returns a promise that is fulfilled with the router outlet DOM Node after
+   * Returns a promise that is fulfilled with the router outlet DOM Element | DocumentFragment after
    * the route component is created and inserted into the router outlet, or
    * rejected if no route matches the given path.
    *
@@ -495,7 +494,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       parent: Route<R, C> | undefined = context.route,
       prevResult?: NextResult<R, C> | null,
     ): Promise<NextResult<R, C>> => {
-      const nextContext = await context.next?.(false, parent, prevResult);
+      const nextContext = await context.next(false, parent, prevResult);
 
       if (nextContext === null || nextContext === notFoundResult) {
         // Next context is not found in children, ...
@@ -719,9 +718,12 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     });
   }
 
-  private __ensureOutlet(outlet: ParentNode | undefined | null = this.__outlet): void {
-    if (!(outlet instanceof Node)) {
-      throw new TypeError(log(`Expected router outlet to be a valid DOM Node (but got ${outlet})`));
+  private __ensureOutlet(outlet: Element | DocumentFragment | undefined | null = this.__outlet): void {
+    // @ts-expect-error: checking JS behavior
+    if (!((outlet instanceof Element) | DocumentFragment)) {
+      throw new TypeError(
+        log(`Expected router outlet to be a valid DOM Element | DocumentFragment (but got ${outlet})`),
+      );
     }
   }
 
@@ -737,7 +739,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
   private __copyUnchangedElements(
     context: RouteContext<R, C>,
     previousContext?: RouteContext<R, C>,
-  ): ParentNode | null | undefined {
+  ): Element | DocumentFragment | null | undefined {
     // Find the deepest common parent between the last and the new component
     // chains. Update references for the unchanged elements in the new chain
     let deepestCommonParent = this.__outlet;

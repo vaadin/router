@@ -59,6 +59,8 @@
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/chai-as-promised": "^7.1.5",
     "@types/chai-dom": "^1.11.0",
     "@types/form-data": "^2.5.0",

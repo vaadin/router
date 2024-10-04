@@ -1,13 +1,13 @@
-import { expect } from "@esm-bundle/chai";
-import sinon from "sinon";
-import { setNavigationTriggers } from "../../src/triggers/navigation.js";
+import { expect } from '@esm-bundle/chai';
+import sinon from 'sinon';
+import { setNavigationTriggers } from '../../src/triggers/navigation.js';
 import '../setup.js';
 
 describe('setNavigationTriggers', () => {
   function createTriggerMock() {
     return {
       activate: sinon.spy(),
-      inactivate: sinon.spy()
+      inactivate: sinon.spy(),
     };
   }
 
@@ -33,7 +33,7 @@ describe('setNavigationTriggers', () => {
     expect(() => setNavigationTriggers()).to.not.throw;
   });
 
-  it('should inactivate a previously given navigation trigger if it\'s not present in a repeat call', () => {
+  it("should inactivate a previously given navigation trigger if it's not present in a repeat call", () => {
     const trigger1 = createTriggerMock();
     const trigger2 = createTriggerMock();
     setNavigationTriggers([trigger1]);

@@ -4,6 +4,7 @@ import type {
   ActionResult as _ActionResult,
   ChildrenCallback as _ChildrenCallback,
   ChainItem as _ChainItem,
+  RouteChildrenContext as _RouteChildrenContext,
   IndexedParams,
   MaybePromise,
   Params,
@@ -87,24 +88,22 @@ export type ContextExtension<R extends AnyObject, C extends AnyObject> = Readonl
 //   next(resume?: boolean): Promise<ActionResult>;
 // }>;
 
-export type ChildrenCallback<R extends AnyObject, C extends AnyObject> = _ChildrenCallback<
+export type ChildrenCallback<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _ChildrenCallback<
   ActionValue,
   RouteExtension<R, C>,
   ContextExtension<R, C>
 >;
 
-export type RouteExtension<R extends AnyObject, C extends AnyObject> = Readonly<
-  RequireAtLeastOne<{
-    children?: ChildrenCallback<R, C> | ReadonlyArray<Route<R, C>>;
-    component?: string;
-    redirect?: string;
-    action?(
-      this: Route<R, C>,
-      context: RouteContext<R, C>,
-      commands: Commands,
-    ): MaybePromise<ActionResult | RouteContext<R, C>>;
-  }>
-> & {
+export type RouteExtension<R extends AnyObject, C extends AnyObject> = RequireAtLeastOne<{
+  children?: ChildrenCallback<R, C> | ReadonlyArray<Route<R, C>>;
+  component?: string;
+  redirect?: string;
+  action?(
+    this: Route<R, C>,
+    context: RouteContext<R, C>,
+    commands: Commands,
+  ): MaybePromise<ActionResult | RouteContext<R, C>>;
+}> & {
   animate?: AnimateCustomClasses | boolean;
 } & R;
 
@@ -113,6 +112,11 @@ export type RouteContext<R extends AnyObject = EmptyObject, C extends AnyObject 
   RouteExtension<R, C>,
   ContextExtension<R, C>
 >;
+
+export type RouteChildrenContext<
+  R extends AnyObject = EmptyObject,
+  C extends AnyObject = EmptyObject,
+> = _RouteChildrenContext<ActionValue, RouteExtension<R, C>, ContextExtension<R, C>>;
 
 export type Route<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _Route<
   ActionValue,
@@ -412,7 +416,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
     location: RouterLocation<R, C>,
     commands: Commands,
     router: Router<R, C>,
-  ): MaybePromise<PreventResult | RedirectResult> | MaybePromise<void>;
+  ): MaybePromise<PreventResult | RedirectResult | void>;
 
   /**
    * Method that gets executed when user navigates away from the component
@@ -454,7 +458,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
     location: RouterLocation<R, C>,
     commands: Commands,
     router: Router<R, C>,
-  ): MaybePromise<PreventResult> | MaybePromise<void>;
+  ): MaybePromise<PreventResult | void>;
 }
 
 export type ResolveContext = Readonly<{
@@ -463,12 +467,6 @@ export type ResolveContext = Readonly<{
   search?: string;
   redirectFrom?: string;
 }>;
-
-export type RouteChildrenContext<R extends AnyObject, C extends AnyObject> = ResolveContext &
-  Readonly<{
-    params: IndexedParams;
-    route: Route<R, C>;
-  }>;
 
 export interface Commands {
   component<K extends keyof HTMLElementTagNameMap>(name: K): HTMLElementTagNameMap[K];

@@ -6,6 +6,7 @@ import type {
   ActionResult,
   AnyObject,
   ChainItem,
+  IndexedParams,
   RedirectResult,
   Route,
   RouteContext,
@@ -88,6 +89,16 @@ export function getRoutePath<R extends AnyObject, C extends AnyObject>(chain: Re
 
 export type ResolverOnlyContext<R extends AnyObject, C extends AnyObject> = Readonly<{ resolver: Router<R, C> }>;
 
+type PartialRouteContext<R extends AnyObject, C extends AnyObject> = Readonly<{
+  chain?: ReadonlyArray<ChainItem<R, C>>;
+  hash?: string;
+  params?: IndexedParams;
+  pathname?: string;
+  resolver?: Router<R, C>;
+  redirectFrom?: string;
+  search?: string;
+}>;
+
 export function createLocation<R extends AnyObject, C extends AnyObject>({
   resolver,
 }: ResolverOnlyContext<R, C>): RouterLocation<R, C>;
@@ -96,7 +107,7 @@ export function createLocation<R extends AnyObject, C extends AnyObject>(
   route?: Route<R, C>,
 ): RouterLocation<R, C>;
 export function createLocation<R extends AnyObject, C extends AnyObject>(
-  { chain = [], hash = '', params = {}, pathname = '', redirectFrom, resolver, search = '' }: RouteContext<R, C>,
+  { chain = [], hash = '', params = {}, pathname = '', redirectFrom, resolver, search = '' }: PartialRouteContext<R, C>,
   route?: Route<R, C>,
 ): RouterLocation<R, C> {
   const routes = chain.map((item) => item.route);
@@ -170,7 +181,7 @@ export function amend<
 }
 
 export function processNewChildren<R extends AnyObject, C extends AnyObject>(
-  newChildren: ReadonlyArray<Route<R, C>>,
+  newChildren: Route<R, C> | ReadonlyArray<Route<R, C>> | undefined | void,
   route: Route<R, C>,
 ): void {
   if (!Array.isArray(newChildren) && !isObject(newChildren)) {

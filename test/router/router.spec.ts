@@ -1,8 +1,15 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
-import type { Writable } from 'type-fest';
+import type { EmptyObject } from 'type-fest';
 import { Router } from '../../src/router.js';
-import type { Commands, Route, RouteContext, WebComponentInterface } from '../../src/types.js';
+import type {
+  ChildrenCallback,
+  Commands,
+  Route,
+  RouteChildrenContext,
+  RouteContext,
+  WebComponentInterface,
+} from '../../src/types.js';
 import '../setup.js';
 import { checkOutletContents, cleanup, onBeforeEnterAction } from './test-utils.js';
 
@@ -1447,7 +1454,7 @@ describe('Router', () => {
               redirect: '/users',
               async action(context) {
                 actionExecuted = true;
-                return await context.next?.();
+                return await context.next();
               },
             },
             { path: '/home', component: 'x-home-view' },
@@ -1590,7 +1597,7 @@ describe('Router', () => {
               component: 'x-home-view',
               action: async (context) => {
                 actionExecuted = true;
-                return await context.next?.();
+                return await context.next();
               },
             },
             { path: '/', component: 'x-users-view' },
@@ -2117,8 +2124,8 @@ describe('Router', () => {
       });
 
       it('should be able to override the route `children` property instead of returning a value', async () => {
-        const children = sinon.spy((_context: RouteContext, _commands: Commands) => {
-          (_context.route as Writable<Route>).children = [{ path: '/:user', component: 'x-user-profile' }];
+        const children = sinon.spy((_context: RouteChildrenContext) => {
+          _context.route.children = [{ path: '/:user', component: 'x-user-profile' }];
         });
 
         await router.setRoutes([{ path: '/users', children }], true);
@@ -2146,8 +2153,9 @@ describe('Router', () => {
       });
 
       it('should throw if the return result is not an object or array', async () => {
-        const children = async () =>
+        const children: ChildrenCallback<EmptyObject, EmptyObject> = async () =>
           await new Promise((resolve) => {
+            // @ts-expect-error: Testing invalid return value
             resolve(null);
           });
 
@@ -2195,7 +2203,7 @@ describe('Router', () => {
       });
 
       it('should be called with the resolver context as the only argument', async () => {
-        const children = sinon.spy((_context: RouteContext) => ({
+        const children = sinon.spy((_context: RouteChildrenContext) => ({
           component: 'x-home-view',
           path: '1',
         }));
@@ -2210,7 +2218,7 @@ describe('Router', () => {
         const [[context]] = children.args;
         expect(context.pathname).to.equal('/users/1');
         expect(context.route.path).to.equal('/users');
-        expect(context.next).to.be.an('undefined');
+        expect(context).to.not.have.property('next');
       });
 
       it('should be called on the route object (as `this`)', async () => {
@@ -2237,23 +2245,15 @@ describe('Router', () => {
           { component: 'i-have-no-path-property' },
         ];
 
-        for (const incorrectRoute of incorrectRoutes) {
-          let exceptionThrown = false;
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            await router.setRoutes({ path: '/a', children: async () => await incorrectRoute }, true);
-
-            // eslint-disable-next-line no-await-in-loop
-            await router.render('/a');
-          } catch {
-            exceptionThrown = true;
-          }
-
-          expect(
-            exceptionThrown,
-            `No exception thrown for 'children' function incorrect return value '${String(incorrectRoute)}'`,
-          ).to.equal(true);
-        }
+        await Promise.all(
+          incorrectRoutes.map(async (incorrectRoute) => {
+            await expect(async () => {
+              // @ts-expect-error: Testing invalid return value
+              await router.setRoutes({ path: '/a', children: async () => await incorrectRoute }, true);
+              await router.render('/a');
+            }).to.eventually.throw();
+          }),
+        );
       });
 
       it('if the return value is a tree of nested routes, they should get resolved correctly', async () => {

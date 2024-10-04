@@ -1,28 +1,26 @@
-import { expect } from "@esm-bundle/chai";
-import sinon from "sinon";
-import animate from "../../src/transitions/animate.js";
+import { expect } from '@esm-bundle/chai';
+import sinon from 'sinon';
+import animate from '../../src/transitions/animate.js';
 import '../setup.js';
 
-describe('animate', function() {
-  let target;
+describe('animate', function () {
+  let target: Element;
 
-  function registerElement(element, template, props = {}) {
+  function registerElement(element: `${string}-${string}`, template: string) {
     const tpl = document.createElement('template');
     tpl.innerHTML = template;
-    window.ShadyCSS && window.ShadyCSS.prepareTemplate(tpl, element);
 
     const ElementClass = class extends HTMLElement {
       connectedCallback() {
-        window.ShadyCSS && window.ShadyCSS.styleElement(this);
-        this.attachShadow({mode: 'open'});
-        this.shadowRoot.appendChild(document.importNode(tpl.content, true));
+        const root = this.attachShadow({ mode: 'open' });
+        root.appendChild(document.importNode(tpl.content, true));
       }
     };
 
     customElements.define(element, ElementClass);
   }
 
-  function attach(element) {
+  function attach(element: string) {
     target = document.createElement(element);
     document.body.appendChild(target);
   }
@@ -31,11 +29,13 @@ describe('animate', function() {
     document.body.removeChild(target);
   });
 
-  it('should wait for animation if CSS is applied to `animating` attribute', async() => {
+  it('should wait for animation if CSS is applied to `animating` attribute', async () => {
     const element = 'x-fade-out';
     const className = 'animating';
 
-    registerElement(element, `
+    registerElement(
+      element,
+      `
           <style>
             @keyframes fadeOut {
               from {
@@ -49,7 +49,8 @@ describe('animate', function() {
               animation: 50ms fadeOut;
             }
           </style>
-        `);
+        `,
+    );
 
     attach(element);
     const spy = sinon.spy();
