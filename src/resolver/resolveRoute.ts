@@ -12,7 +12,7 @@ import { isFunction } from './utils.js';
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
 export default function resolveRoute<T, R extends AnyObject, C extends AnyObject>(
   context: RouteContext<T, R, C>,
-): MaybePromise<ActionResult<T>> {
+): MaybePromise<ActionResult<T | RouteContext<T, R, C>>> {
   if (isFunction(context.route.action)) {
     return context.route.action(context);
   }
