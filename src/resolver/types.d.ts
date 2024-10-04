@@ -36,9 +36,9 @@ export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readon
   action?(
     this: Route<T, R, C>,
     context: RouteContext<T, R, C>,
-    commands?: never,
+    commands: never,
   ): MaybePromise<ActionResult<T | RouteContext<T, R, C>>>;
-}
+};
 
 export type Route<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = BasicRoutePart<
   T,
