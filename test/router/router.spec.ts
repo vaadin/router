@@ -2,13 +2,7 @@ import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
 import type { EmptyObject, Writable } from 'type-fest';
 import { Router } from '../../src/router.js';
-import {
-  ChildrenCallback,
-  type Commands,
-  type Route,
-  type RouteContext,
-  type WebComponentInterface,
-} from '../../src/types.js';
+import type { ChildrenCallback, Commands, Route, RouteContext, WebComponentInterface } from '../../src/types.js';
 import '../setup.js';
 import { checkOutletContents, cleanup, onBeforeEnterAction } from './test-utils.js';
 
@@ -830,7 +824,7 @@ describe('Router', () => {
       });
 
       it('should preserve pathname, search and hash', async () => {
-        window.history.pushState(null, '', '/admin?a=b#hash');
+        window.history.replaceState(null, '', '/admin?a=b#hash');
         router = new Router(outlet);
         // eslint-disable-next-line no-void
         void router.setRoutes([
@@ -852,7 +846,7 @@ describe('Router', () => {
       });
 
       it('should preserve pathname and search', async () => {
-        window.history.pushState(null, '', '/admin?a=b');
+        window.history.replaceState(null, '', '/admin?a=b');
         router = new Router(outlet);
         // eslint-disable-next-line no-void
         void router.setRoutes([
@@ -867,7 +861,7 @@ describe('Router', () => {
       });
 
       it('should preserve pathname', async () => {
-        window.history.pushState(null, '', '/admin');
+        window.history.replaceState(null, '', '/admin');
         router = new Router(outlet);
         // eslint-disable-next-line no-void
         void router.setRoutes([

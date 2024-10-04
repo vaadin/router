@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-return */
 import { compile } from 'path-to-regexp';
-import type { EmptyObject } from 'type-fest';
+import type { EmptyObject, Writable } from 'type-fest';
 import generateUrls from './resolver/generateUrls.js';
 import Resolver from './resolver/resolver.js';
 import './router-config.js';
@@ -191,7 +191,8 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     return await Promise.resolve()
       .then(async () => {
         if (this.__isLatestRender(context)) {
-          return await maybeCall(route.action, route, context, commands);
+          // eslint-disable-next-line @typescript-eslint/unbound-method
+          return maybeCall(route.action, route, context, commands);
         }
       })
       .then((result) => {
@@ -741,7 +742,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       const unchangedElement = previousContext?.chain?.[i].element;
       if (unchangedElement) {
         if (unchangedElement.parentNode === deepestCommonParent) {
-          context.chain![i].element = unchangedElement;
+          (context.chain![i] as Writable<ChainItem<R, C>>).element = unchangedElement;
           deepestCommonParent = unchangedElement;
         } else {
           break;
