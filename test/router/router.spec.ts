@@ -773,7 +773,7 @@ describe('Router', () => {
         });
 
         it('should work in onBeforeEnter lifecycle method', async () => {
-          const callback = sinon.stub(() => {
+          const callback = sinon.spy(() => {
             expect(() => {
               router.location.getUrl();
             }).to.not.throw();
