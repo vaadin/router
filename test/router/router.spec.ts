@@ -1,8 +1,8 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
-import type { EmptyObject, Writable } from 'type-fest';
+import { EmptyObject, type Writable } from 'type-fest';
 import { Router } from '../../src/router.js';
-import type { ChildrenCallback, Commands, Route, RouteContext, WebComponentInterface } from '../../src/types.js';
+import type { Commands, Route, RouteContext, WebComponentInterface } from '../../src/types.js';
 import '../setup.js';
 import { checkOutletContents, cleanup, onBeforeEnterAction } from './test-utils.js';
 
@@ -1445,9 +1445,9 @@ describe('Router', () => {
             {
               path: '/home',
               redirect: '/users',
-              action: async (context) => {
+              async action(context) {
                 actionExecuted = true;
-                return await context.next();
+                return await context.next?.();
               },
             },
             { path: '/home', component: 'x-home-view' },
@@ -1468,7 +1468,9 @@ describe('Router', () => {
             {
               path: '/',
               // eslint-disable-next-line @typescript-eslint/unbound-method
-              action: (_context, { component }) => component('x-main-layout'),
+              action(_context, commands) {
+                return commands.component('x-main-layout');
+              },
               redirect: '/users',
             },
             { path: '/users', component: 'x-users-view' },
@@ -1588,7 +1590,7 @@ describe('Router', () => {
               component: 'x-home-view',
               action: async (context) => {
                 actionExecuted = true;
-                return await context.next();
+                return await context.next?.();
               },
             },
             { path: '/', component: 'x-users-view' },

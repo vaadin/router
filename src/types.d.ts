@@ -18,7 +18,7 @@ export type { ResolutionError, IndexedParams, Params, ParamValue, PrimitiveParam
 
 export type VaadinRouterLocationChangedEvent = CustomEvent<
   Readonly<{
-    location: RouterLocation<AnyObject>;
+    location: RouterLocation;
     router: Router;
   }>
 >;
@@ -26,7 +26,7 @@ export type VaadinRouterLocationChangedEvent = CustomEvent<
 export type VaadinRouterErrorEvent<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = CustomEvent<
   Readonly<{
     error: ResolutionError<R, C>;
-    router: Router;
+    router: Router<R, C>;
   }> &
     RouteContext<R, C>
 >;

@@ -5,19 +5,6 @@ import generateUrls from './resolver/generateUrls.js';
 import Resolver from './resolver/resolver.js';
 import './router-config.js';
 import { getNotFoundError, isFunction, isObject, isString, log, notFoundResult } from './resolver/utils.js';
-import {
-  amend,
-  createLocation,
-  createRedirect,
-  ensureRoutes,
-  fireRouterEvent,
-  getMatchedPath,
-  getPathnameForRouter,
-  logValue,
-  maybeCall,
-  processNewChildren,
-  renderElement,
-} from './routerUtils.js';
 import animate from './transitions/animate.js';
 import { DEFAULT_TRIGGERS, setNavigationTriggers } from './triggers/navigation.js';
 import type {
@@ -44,6 +31,19 @@ import type {
   ActionValue,
   NextResult,
 } from './types.js';
+import {
+  amend,
+  createLocation,
+  createRedirect,
+  ensureRoutes,
+  fireRouterEvent,
+  getMatchedPath,
+  getPathnameForRouter,
+  logValue,
+  maybeCall,
+  processNewChildren,
+  renderElement,
+} from './utils.js';
 
 const MAX_REDIRECT_COUNT = 256;
 

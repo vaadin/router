@@ -2,8 +2,8 @@
 /* eslint-enable chai-friendly/no-unused-expressions */
 
 import { expect } from '@esm-bundle/chai';
-import type { Commands, RouteContext, Router, WebComponentInterface } from '../../src/index.js';
-import type { AnyObject, Route } from '../../src/resolver/types.js';
+import type { Commands, RouteContext, Router, WebComponentInterface, Route } from '../../src/index.js';
+import type { AnyObject } from '../../src/resolver/types.js';
 
 export async function waitForNavigation(): Promise<void> {
   return await new Promise((resolve) => {

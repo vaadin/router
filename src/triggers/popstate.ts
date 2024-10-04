@@ -1,4 +1,4 @@
-import { fireRouterEvent } from '../routerUtils.js';
+import { fireRouterEvent } from '../utils.js';
 import type { NavigationTrigger } from '../types.js';
 
 function vaadinRouterGlobalPopstateHandler(event: PopStateEvent) {

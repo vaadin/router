@@ -19,10 +19,16 @@ export type ChildrenCallback<T, R extends AnyObject, C extends AnyObject> = (
   context: RouteContext<T, R, C>,
 ) => MaybePromise<ReadonlyArray<Route<T, R, C>>>;
 
-export interface BasicRoutePart<T, R extends AnyObject, C extends AnyObject> {
-  readonly children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
-  readonly name?: string;
-  readonly path: string;
+export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readonly<{
+  children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
+  name?: string;
+  path: string;
+  action?(
+    this: Route<T, R, C>,
+    context: RouteContext<T, R, C>,
+    commands: never,
+  ): MaybePromise<ActionResult<T | RouteContext<T, R, C>>>;
+}> & {
   __children?: ReadonlyArray<Route<T, R, C>>;
   __synthetic?: true;
   parent?: Route<T, R, C>;
