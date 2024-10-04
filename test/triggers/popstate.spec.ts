@@ -20,7 +20,7 @@ describe('NavigationTriggers.POPSTATE', () => {
     expect(POPSTATE).to.have.property('inactivate').that.is.a('function');
   });
 
-  it('should translate `popstate` events into `vaadin-router-go` when activated', async () => {
+  it('should translate `popstate` events into `vaadin-router-go` when activated', () => {
     POPSTATE.inactivate();
     const spy = sinon.spy();
     window.addEventListener('vaadin-router-go', spy);

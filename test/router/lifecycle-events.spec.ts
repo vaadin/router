@@ -6,6 +6,7 @@ import '../setup.js';
 import type { MaybePromise } from '../../src/resolver/types.js';
 import type {
   Commands,
+  Route,
   RouteContext,
   VaadinRouterErrorEvent,
   VaadinRouterLocationChangedEvent,
@@ -398,7 +399,7 @@ describe('Vaadin Router lifecycle events', () => {
       ]);
 
       await router.render('/');
-      const homeViewElement = outlet.children[0];
+      const [homeViewElement] = outlet.children;
 
       await router.render('/users');
 
@@ -598,7 +599,7 @@ describe('Vaadin Router lifecycle events', () => {
       ]);
 
       await router.render('/');
-      const homeViewElement = outlet.children[0];
+      const [homeViewElement] = outlet.children;
 
       await router.render('/users');
 
@@ -1695,7 +1696,7 @@ describe('Vaadin Router lifecycle events', () => {
         'x-spy.connectedCallback',
         'x-spy.onAfterEnter',
       ]);
-      const view = outlet.children[0];
+      const [view] = outlet.children;
 
       callbacksLog = [];
       await router.render('/a');
@@ -1724,7 +1725,7 @@ describe('Vaadin Router lifecycle events', () => {
                 },
               },
             ],
-          },
+          } satisfies Route,
         ],
         true,
       );
@@ -1802,7 +1803,7 @@ describe('Vaadin Router lifecycle events', () => {
 
       // Pathname only means empty search string
       await router.render('/a');
-      const view = outlet.children[0];
+      const [view] = outlet.children;
 
       callbacksLog = [];
 
@@ -1825,7 +1826,7 @@ describe('Vaadin Router lifecycle events', () => {
 
       // Pathname only means empty search string
       await router.render('/a');
-      const view = outlet.children[0];
+      const [view] = outlet.children;
 
       callbacksLog = [];
       await router.render({ pathname: '/a', search: '?foo=bar' });

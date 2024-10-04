@@ -1,6 +1,5 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
-import type { EmptyObject } from 'type-fest';
 import { Router } from '../../src/router.js';
 import type {
   ChildrenCallback,
@@ -2153,7 +2152,7 @@ describe('Router', () => {
       });
 
       it('should throw if the return result is not an object or array', async () => {
-        const children: ChildrenCallback<EmptyObject, EmptyObject> = async () =>
+        const children: ChildrenCallback = async () =>
           await new Promise((resolve) => {
             // @ts-expect-error: Testing invalid return value
             resolve(null);
