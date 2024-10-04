@@ -1,6 +1,6 @@
-import { expect } from "@esm-bundle/chai";
-import sinon from "sinon";
-import POPSTATE from "../../src/triggers/popstate.js";
+import { expect } from '@esm-bundle/chai';
+import sinon from 'sinon';
+import POPSTATE from '../../src/triggers/popstate.js';
 
 describe('NavigationTriggers.POPSTATE', () => {
   before(() => {
@@ -46,7 +46,7 @@ describe('NavigationTriggers.POPSTATE', () => {
     window.addEventListener('vaadin-router-go', spy);
     POPSTATE.activate();
     window.history.replaceState(null, '', '/test-url');
-    window.dispatchEvent(new PopStateEvent('popstate', {state: 'vaadin-router-ignore'}));
+    window.dispatchEvent(new PopStateEvent('popstate', { state: 'vaadin-router-ignore' }));
     window.removeEventListener('vaadin-router-go', spy);
     expect(spy).to.not.have.been.called;
   });

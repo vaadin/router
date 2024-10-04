@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import animate from '../../src/transitions/animate.js';
 import '../setup.js';
 
-describe('animate', function () {
+describe('animate', () => {
   let target: Element;
 
   function registerElement(element: `${string}-${string}`, template: string) {

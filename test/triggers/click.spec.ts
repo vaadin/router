@@ -1,10 +1,11 @@
+/* eslint-disable import/no-duplicates */
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
 import { expect } from '@esm-bundle/chai';
-import CLICK from '../../src/triggers/click.js';
-import '../setup.js';
+import userEvent from '@testing-library/user-event';
 import type Sinon from 'sinon';
 import sinon from 'sinon';
-import userEvent from '@testing-library/user-event';
+import CLICK from '../../src/triggers/click.js';
+import '../setup.js';
 
 const TEMPLATE = `<a id="home" href="">home</a>
 <a id="in-app" href="in-app/link">in-app/link</a>
@@ -34,7 +35,7 @@ const TEMPLATE = `<a id="home" href="">home</a>
 <a id="in-app-search" href="in-app/link?search">in-app/link?search</a>
 <a id="in-app-hash" href="in-app/link#hash">in-app/link#hash</a>`;
 
-describe('NavigationTriggers.CLICK', function () {
+describe('NavigationTriggers.CLICK', () => {
   // const BASE_PATH = location.origin;
   const DEFAULT_PAGE = location.href;
 
@@ -59,18 +60,23 @@ describe('NavigationTriggers.CLICK', function () {
     document.body.append(outlet);
 
     // Setup cross-origin link
-    const origin =
-      window.location.protocol + '//' + window.location.hostname + ':' + (parseInt(window.location.port) + 1);
+    const origin = `${window.location.protocol}//${window.location.hostname}:${parseInt(window.location.port, 10) + 1}`;
     document.getElementById('cross-origin')?.setAttribute('href', `${origin}/in-app`);
 
     // Setup in-page hash link
-    document.getElementById('in-page-hash-link')?.setAttribute('href', window.location.pathname + '#in-page');
+    document.getElementById('in-page-hash-link')?.setAttribute('href', `${window.location.pathname}#in-page`);
 
     // Setup shadow roots
-    const hosts = document.querySelectorAll('.shadow-host');
-    for (let i = 0; i < hosts.length; i += 1) {
-      const template = hosts[i].querySelector('template')!;
-      const root = hosts[i].attachShadow({ mode: 'open' });
+    const hosts: NodeListOf<HTMLElement> = document.querySelectorAll('.shadow-host');
+    for (const host of hosts) {
+      const template = host.querySelector('template')!;
+      const root = host.attachShadow({ mode: 'open' });
+      root.appendChild(template.content.cloneNode(true));
+    }
+
+    for (const host of hosts) {
+      const template = host.querySelector('template')!;
+      const root = host.attachShadow({ mode: 'open' });
       root.appendChild(template.content.cloneNode(true));
     }
 
