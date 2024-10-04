@@ -1,6 +1,6 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
-import { EmptyObject, type Writable } from 'type-fest';
+import type { Writable } from 'type-fest';
 import { Router } from '../../src/router.js';
 import type { Commands, Route, RouteContext, WebComponentInterface } from '../../src/types.js';
 import '../setup.js';
