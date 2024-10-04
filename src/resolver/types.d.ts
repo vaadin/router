@@ -30,7 +30,7 @@ export interface BasicRoutePart<T, R extends AnyObject, C extends AnyObject> {
   action?(
     this: Route<T, R, C>,
     context: RouteContext<T, R, C>,
-    commands: never,
+    commands?: never,
   ): MaybePromise<ActionResult<T | RouteContext<T, R, C>>>;
 }
 
