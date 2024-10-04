@@ -656,15 +656,14 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
   ): Promise<ActionResult> {
     const location = createLocation(newContext);
 
-    let result: ActionResult;
+    let result: ActionResult = await callbacks;
 
     if (this.__isLatestRender(newContext)) {
       const beforeLeaveFunction = amend('onBeforeLeave', chainElement.element, location, commands, this);
-
-      result = beforeLeaveFunction(await callbacks);
+      result = beforeLeaveFunction(result);
     }
 
-    if (result && !(isObject(result) && 'redirect' in result)) {
+    if (!(isObject(result) && result.redirect)) {
       return result as ActionResult;
     }
   }
@@ -680,7 +679,6 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
 
     if (this.__isLatestRender(newContext)) {
       const beforeEnterFunction = amend('onBeforeEnter', chainElement.element, location, commands, this);
-
       return beforeEnterFunction(result);
     }
   }
