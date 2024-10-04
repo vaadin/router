@@ -82,7 +82,7 @@ export type ContextExtension<R extends AnyObject, C extends AnyObject> = Readonl
   resolver?: Router<R, C>;
   chain?: Array<ChainItem<R, C>>;
 }> &
-  R;
+  C;
 // Readonly<{
 //   next(resume?: boolean): Promise<ActionResult>;
 // }>;

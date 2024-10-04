@@ -27,7 +27,11 @@ export interface BasicRoutePart<T, R extends AnyObject, C extends AnyObject> {
   __synthetic?: true;
   parent?: Route<T, R, C>;
   fullPath?: string;
-  action?(this: Route<T, R, C>, context: RouteContext<T, R, C>): MaybePromise<ActionResult<T>>;
+  action?(
+    this: Route<T, R, C>,
+    context: RouteContext<T, R, C>,
+    commands: never,
+  ): MaybePromise<ActionResult<T | RouteContext<T, R, C>>>;
 }
 
 export type Route<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = BasicRoutePart<
