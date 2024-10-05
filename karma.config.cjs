@@ -35,7 +35,7 @@ module.exports = (config) => {
 
     files: [
       {
-        pattern: 'test/triggers/click.spec.ts',
+        pattern: 'test/router/router.spec.ts',
         type: 'module',
         watched: false,
         served: false,

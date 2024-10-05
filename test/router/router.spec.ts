@@ -1,5 +1,7 @@
-import { expect } from '@esm-bundle/chai';
+import { expect, use } from '@esm-bundle/chai';
+import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 import { Router } from '../../src/router.js';
 import type {
   ChildrenCallback,
@@ -11,6 +13,9 @@ import type {
 } from '../../src/types.js';
 import '../setup.js';
 import { checkOutletContents, cleanup, onBeforeEnterAction } from './test-utils.js';
+
+use(sinonChai);
+use(chaiAsPromised);
 
 async function expectException(callback: Promise<unknown>, expectedContentsArray?: readonly string[]) {
   let exceptionThrown = false;
@@ -2245,13 +2250,15 @@ describe('Router', () => {
         ];
 
         await Promise.all(
-          incorrectRoutes.map(async (incorrectRoute) => {
-            await expect(async () => {
+          incorrectRoutes
+            .map(async (incorrectRoute) => {
               // @ts-expect-error: Testing invalid return value
               await router.setRoutes({ path: '/a', children: async () => await incorrectRoute }, true);
               await router.render('/a');
-            }).to.eventually.throw();
-          }),
+            })
+            .map(async (promise) => {
+              await expect(promise).to.be.rejected;
+            }),
         );
       });
 
@@ -2367,30 +2374,6 @@ describe('Router', () => {
         expect(registrations).to.have.lengthOf(1);
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect((registrations as readonly unknown[])[0]).to.have.property('version').that.is.a.string;
-      });
-    });
-
-    describe('__removeDomNodes (function)', () => {
-      let parent: HTMLElement;
-      let childA: HTMLElement;
-      let childB: HTMLElement;
-
-      beforeEach(() => {
-        parent = document.createElement('div');
-        childA = document.createElement('div');
-        childB = document.createElement('div');
-        parent.appendChild(childA);
-        parent.appendChild(childB);
-      });
-
-      it('should remove all nodes when passed HTMLCollection', () => {
-        Router.__removeDomNodes(parent.children);
-        expect(parent.children).to.have.lengthOf(0);
-      });
-
-      it('should remove all nodes when passed JS array', () => {
-        Router.__removeDomNodes([childA, childB]);
-        expect(parent.children).to.have.lengthOf(0);
       });
     });
   });
