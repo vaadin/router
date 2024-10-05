@@ -32,8 +32,11 @@ export type VaadinRouterErrorEvent<R extends AnyObject = EmptyObject, C extends 
     RouteContext<R, C>
 >;
 
+export type VaadinRouterGoEvent = CustomEvent<ResolveContext>;
+
 declare global {
   interface WindowEventMap {
+    'vaadin-router-go': VaadinRouterGoEvent;
     'vaadin-router-location-changed': VaadinRouterLocationChangedEvent;
     'vaadin-router-error': VaadinRouterErrorEvent;
   }

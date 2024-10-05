@@ -1,9 +1,7 @@
-/* eslint-disable import/no-duplicates */
+/* eslint-disable no-console */
+/* eslint-disable no-bitwise */
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
 import { expect } from '@esm-bundle/chai';
-import userEvent from '@testing-library/user-event';
-import type Sinon from 'sinon';
-import sinon from 'sinon';
 import CLICK from '../../src/triggers/click.js';
 import '../setup.js';
 
@@ -35,20 +33,79 @@ const TEMPLATE = `<a id="home" href="">home</a>
 <a id="in-app-search" href="in-app/link?search">in-app/link?search</a>
 <a id="in-app-hash" href="in-app/link#hash">in-app/link#hash</a>`;
 
+const Button = {
+  MAIN: 0, // usually left
+  AUXILLARY: 1, // usually middle
+  SECONDARY: 2, // usually right
+};
+
+const Key = {
+  ALT: 1 << 0,
+  CONTROL: 1 << 1,
+  META: 1 << 2,
+  SHIFT: 1 << 3,
+};
+
 describe('NavigationTriggers.CLICK', () => {
-  // const BASE_PATH = location.origin;
-  const DEFAULT_PAGE = location.href;
+  function emulateClick(target: Element | null | undefined, button = Button.MAIN, keys = 0) {
+    const ctrl = keys & Key.CONTROL;
+    const alt = keys & Key.ALT;
+    const shift = keys & Key.SHIFT;
+    const meta = keys & Key.META;
+
+    // TODO: replace with testing-library eventually
+    const event = new MouseEvent('click', {
+      // @ts-expect-error: old tests; not touching to avoid breaking them
+      ctrlKey: ctrl,
+      // @ts-expect-error: old tests; not touching to avoid breaking them
+      altKey: alt,
+      // @ts-expect-error: old tests; not touching to avoid breaking them
+      shiftKey: shift,
+      // @ts-expect-error: old tests; not touching to avoid breaking them
+      metaKey: meta,
+      button,
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const o = event.preventDefault;
+
+    Object.defineProperty(event, 'preventDefault', {
+      configurable: true,
+      value() {
+        console.log('PREVENTED');
+        console.trace();
+        return o.call(this);
+      },
+    });
+    target?.dispatchEvent(event);
+  }
 
   let preventNavigationDefault = true;
-  let onWindowClick: Sinon.SinonSpy<[Event], void>;
-  let onWindowNavigate: Sinon.SinonSpy<[Event], void>;
-  let user: ReturnType<typeof userEvent.setup>;
+
+  const clicks: Array<Readonly<Pick<Event, 'defaultPrevented'>>> = [];
+  function onWindowClick(event: Event) {
+    clicks.push({ defaultPrevented: event.defaultPrevented });
+    event.preventDefault();
+  }
+
+  const navigateEvents: Array<Readonly<Pick<CustomEvent, 'type' | 'cancelable' | 'detail'>>> = [];
+  function onWindowNavigate(event: CustomEvent) {
+    console.log('preventNavigationDefault', preventNavigationDefault);
+    if (preventNavigationDefault) {
+      event.preventDefault();
+    }
+
+    navigateEvents.push({
+      type: event.type,
+      cancelable: event.cancelable,
+      detail: event.detail,
+    });
+  }
 
   let outlet: HTMLElement;
-
-  afterEach(() => {
-    window.location.href = DEFAULT_PAGE;
-  });
 
   before(() => {
     const baseURLElement = document.createElement('base');
@@ -67,13 +124,7 @@ describe('NavigationTriggers.CLICK', () => {
     document.getElementById('in-page-hash-link')?.setAttribute('href', `${window.location.pathname}#in-page`);
 
     // Setup shadow roots
-    const hosts: NodeListOf<HTMLElement> = document.querySelectorAll('.shadow-host');
-    for (const host of hosts) {
-      const template = host.querySelector('template')!;
-      const root = host.attachShadow({ mode: 'open' });
-      root.appendChild(template.content.cloneNode(true));
-    }
-
+    const hosts = document.querySelectorAll('.shadow-host');
     for (const host of hosts) {
       const template = host.querySelector('template')!;
       const root = host.attachShadow({ mode: 'open' });
@@ -82,31 +133,21 @@ describe('NavigationTriggers.CLICK', () => {
 
     // Setup click events preventing
     document.getElementById('default-preventer')?.addEventListener('click', (event) => event.preventDefault());
-  });
-
-  after(() => {
-    outlet.remove();
-  });
-
-  beforeEach(() => {
-    user = userEvent.setup();
-
-    onWindowClick = sinon.spy((event: Event) => {
-      event.preventDefault();
-    });
-    onWindowNavigate = sinon.spy((event: Event) => {
-      if (preventNavigationDefault) {
-        event.preventDefault();
-      }
-    });
 
     window.addEventListener('click', onWindowClick);
     window.addEventListener('vaadin-router-go', onWindowNavigate);
   });
 
-  afterEach(() => {
+  after(() => {
+    outlet.remove();
     window.removeEventListener('vaadin-router-go', onWindowNavigate);
     window.removeEventListener('click', onWindowClick);
+  });
+
+  beforeEach(() => {
+    // clear the array
+    clicks.length = 0;
+    navigateEvents.length = 0;
   });
 
   it('should expose the NavigationTrigger API', () => {
@@ -123,114 +164,123 @@ describe('NavigationTriggers.CLICK', () => {
       CLICK.inactivate();
     });
 
-    it('should translate `click` events on <a> links into `vaadin-router-go` events on window', async () => {
-      await user.click(document.getElementById('in-app')!);
+    it('should translate `click` events on <a> links into `vaadin-router-go` events on window', () => {
+      emulateClick(document.getElementById('in-app'));
 
-      expect(onWindowNavigate).to.have.been.calledOnceWith({ type: 'vaadin-router-go' });
+      expect(navigateEvents).to.have.lengthOf(1);
+      expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
     });
 
-    it('should have cancelable `vaadin-router-go` events on window', async () => {
-      await user.click(document.getElementById('in-app')!);
+    it('should have cancelable `vaadin-router-go` events on window', () => {
+      emulateClick(document.getElementById('in-app'));
 
-      expect(onWindowNavigate).to.have.been.calledOnceWith({ cancelable: true });
+      expect(navigateEvents).to.have.lengthOf(1);
+      expect(navigateEvents[0]).to.have.property('cancelable', true);
     });
 
-    it('should prevent the `click` event default action if the `vaadin-router-go` event is prevented', async () => {
-      await user.click(document.getElementById('in-app')!);
+    it('should prevent the `click` event default action if the `vaadin-router-go` event is prevented', () => {
+      emulateClick(document.getElementById('in-app'));
 
-      expect(onWindowClick).to.have.been.calledOnceWith({ defaultPrevented: true });
+      expect(clicks).to.have.lengthOf(1);
+      expect(clicks[0]).to.have.property('defaultPrevented', true);
     });
 
     // TODO: investigate and enable test back
-    xit('should not prevent the `click` event default action if the `vaadin-router-go` event is not prevented', async () => {
-      // preventNavigationDefault = false;
-      // window.DEBUGGER = true;
-      // try {
-      //   await user.click(document.getElementById('in-app'));
-      // } finally {
-      //   expect(clicks).to.have.lengthOf(1);
-      //   expect(clicks[0]).to.have.property('defaultPrevented', false);
-      //   preventNavigationDefault = true;
-      // }
-      // window.DEBUGGER = false;
+    xit('should not prevent the `click` event default action if the `vaadin-router-go` event is not prevented', () => {
+      preventNavigationDefault = false;
+
+      // @ts-expect-error: DEBUGGER is not defined
+      window.DEBUGGER = true;
+
+      try {
+        emulateClick(document.getElementById('in-app'));
+      } finally {
+        expect(clicks).to.have.lengthOf(1);
+        expect(clicks[0]).to.have.property('defaultPrevented', false);
+
+        preventNavigationDefault = true;
+      }
+
+      // @ts-expect-error: DEBUGGER is not defined
+      window.DEBUGGER = false;
     });
 
-    it('should set the `detail.pathname` property of the `vaadin-router-go` event to the pathname of the clicked link', async () => {
-      await user.click(document.getElementById('in-app')!);
+    it('should set the `detail.pathname` property of the `vaadin-router-go` event to the pathname of the clicked link', () => {
+      emulateClick(document.getElementById('in-app'));
 
-      expect(onWindowNavigate).to.have.been.calledWithMatch({ detail: { pathname: '/in-app/link' } });
+      expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/in-app/link');
     });
 
-    it('should carry `detail.search` property on `vaadin-router-go` event', async () => {
-      await user.click(document.getElementById('in-app')!);
+    it('should carry `detail.search` property on `vaadin-router-go` event', () => {
+      emulateClick(document.getElementById('in-app'));
 
-      expect(onWindowNavigate).to.have.been.calledWithMatch({ detail: { search: '' } });
+      expect(navigateEvents[0]).to.have.nested.property('detail.search', '');
 
-      await user.click(document.getElementById('in-app-search')!);
+      emulateClick(document.getElementById('in-app-search'));
 
-      expect(onWindowNavigate).to.have.been.calledWithMatch({ detail: { search: '?search' } });
+      expect(navigateEvents[1]).to.have.nested.property('detail.search', '?search');
     });
 
-    it('should carry `detail.hash` property on `vaadin-router-go` event', async () => {
-      await user.click(document.getElementById('in-app')!);
+    it('should carry `detail.hash` property on `vaadin-router-go` event', () => {
+      emulateClick(document.getElementById('in-app'));
 
-      expect(onWindowNavigate).to.have.been.calledWithMatch({ detail: { hash: '' } });
+      expect(navigateEvents[0]).to.have.nested.property('detail.hash', '');
 
-      await user.click(document.getElementById('in-app-hash')!);
+      emulateClick(document.getElementById('in-app-hash'));
 
-      expect(onWindowNavigate).to.have.been.calledWithMatch({ detail: { hash: '#hash' } });
+      expect(navigateEvents[1]).to.have.nested.property('detail.hash', '#hash');
     });
 
-    it('should translate `click` events inside <a> links into `vaadin-router-go` events on window', async () => {
-      await user.click(document.getElementById('text-in-a-link')!);
+    it('should translate `click` events inside <a> links into `vaadin-router-go` events on window', () => {
+      emulateClick(document.getElementById('text-in-a-link'));
 
-      expect(onWindowNavigate).to.have.been.calledWithMatch({
-        type: 'vaadin-router-go',
-        detail: { pathname: '/in-app/link' },
-      });
+      expect(navigateEvents).to.have.lengthOf(1);
+      expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
+      expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/in-app/link');
 
-      expect(onWindowClick).to.have.been.calledOnceWith({ defaultPrevented: true });
+      expect(clicks).to.have.lengthOf(1);
+      expect(clicks[0]).to.have.property('defaultPrevented', true);
     });
 
-    it('should translate `click` events on <a> links inside Shadow DOM into `vaadin-router-go` events on window', async () => {
-      const shadowRoot = document.getElementById('shadow-host-with-a-link')!.shadowRoot!;
-      await user.click(shadowRoot.getElementById('in-app-in-a-shadow')!);
+    it('should translate `click` events on <a> links inside Shadow DOM into `vaadin-router-go` events on window', () => {
+      const shadowRoot = document.getElementById('shadow-host-with-a-link')?.shadowRoot;
+      emulateClick(shadowRoot?.getElementById('in-app-in-a-shadow'));
 
-      expect(onWindowNavigate).to.have.been.calledWithMatch({
-        type: 'vaadin-router-go',
-        detail: { pathname: '/in-app/link' },
-      });
+      expect(navigateEvents).to.have.lengthOf(1);
+      expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
+      expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/in-app/link');
 
-      expect(onWindowClick).to.have.been.calledOnceWith({ defaultPrevented: true });
+      expect(clicks).to.have.lengthOf(1);
+      expect(clicks[0]).to.have.property('defaultPrevented', true);
     });
 
-    it('should translate `click` events inside shadow DOM inside <a> links into `vaadin-router-go` events on window', async () => {
-      const shadowRoot = document.getElementById('shadow-host-with-a-link')!.shadowRoot!;
-      await user.click(shadowRoot.getElementById('text-in-a-shadow-in-a-link')!);
+    it('should translate `click` events inside shadow DOM inside <a> links into `vaadin-router-go` events on window', () => {
+      const shadowRoot = document.getElementById('shadow-host-in-a-link')?.shadowRoot;
+      emulateClick(shadowRoot?.getElementById('text-in-a-shadow-in-a-link'));
 
-      expect(onWindowNavigate).to.have.been.calledWithMatch({
-        type: 'vaadin-router-go',
-        detail: { pathname: '/in-app/link' },
-      });
+      expect(navigateEvents).to.have.lengthOf(1);
+      expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
+      expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/in-app/link');
 
-      expect(onWindowClick).to.have.been.calledOnceWith({ defaultPrevented: true });
+      expect(clicks).to.have.lengthOf(1);
+      expect(clicks[0]).to.have.property('defaultPrevented', true);
     });
 
-    it('should work for navigation from /deep/pages/in/app to /', async () => {
+    it('should work for navigation from /deep/pages/in/app to /', () => {
       const location = window.location.pathname;
       window.history.replaceState(null, document.title, '/deep/page/in/app');
-      await user.click(document.getElementById('home')!);
+      emulateClick(document.getElementById('home'));
       window.history.replaceState(null, document.title, location);
 
-      expect(onWindowNavigate).to.have.been.calledWithMatch({
-        type: 'vaadin-router-go',
-        detail: { pathname: '/' },
-      });
+      expect(navigateEvents).to.have.lengthOf(1);
+      expect(navigateEvents[0]).to.have.property('type', 'vaadin-router-go');
+      expect(navigateEvents[0]).to.have.nested.property('detail.pathname', '/');
 
-      expect(onWindowClick).to.have.been.calledOnceWith({ defaultPrevented: true });
+      expect(clicks).to.have.lengthOf(1);
+      expect(clicks[0]).to.have.property('defaultPrevented', true);
     });
 
-    it('should scroll to top on click event', async () => {
+    it('should scroll to top on click event', () => {
       const div = document.createElement('div');
       div.setAttribute('style', 'width:2000px; height:2000px;');
       document.body.append(div);
@@ -239,7 +289,7 @@ describe('NavigationTriggers.CLICK', () => {
       expect(window.scrollX).to.within(9, 11);
       expect(window.scrollY).to.within(9, 11);
 
-      await user.click(document.getElementById('in-app')!);
+      emulateClick(document.getElementById('in-app'));
 
       expect(window.scrollX).to.within(0, 1);
       expect(window.scrollY).to.within(0, 1);
@@ -247,7 +297,7 @@ describe('NavigationTriggers.CLICK', () => {
     });
 
     // TODO: investigate and enable test back
-    xit('should not scroll to top on unhandled click event', async () => {
+    xit('should not scroll to top on unhandled click event', () => {
       preventNavigationDefault = false;
 
       const div = document.createElement('div');
@@ -258,7 +308,7 @@ describe('NavigationTriggers.CLICK', () => {
       expect(window.scrollX).to.be.within(9, 11);
       expect(window.scrollY).to.be.within(9, 11);
 
-      await user.click(document.getElementById('in-app')!);
+      emulateClick(document.getElementById('in-app'));
 
       expect(window.scrollX).to.be.within(9, 11);
       expect(window.scrollY).to.be.within(9, 11);
@@ -269,88 +319,81 @@ describe('NavigationTriggers.CLICK', () => {
 
     describe('irrelevant `click` events', () => {
       function expectClickIgnored() {
-        expect(onWindowNavigate).to.not.have.been.called;
-        expect(onWindowClick).to.have.been.calledOnceWith({ defaultPrevented: false });
+        expect(navigateEvents).to.have.lengthOf(0);
+        expect(clicks).to.have.lengthOf(1);
+        expect(clicks[0]).to.have.property('defaultPrevented', false);
       }
 
-      it('should ignore `click` events with the secondary mouse button', async () => {
-        await user.pointer({ keys: '[MouseRight]', target: document.getElementById('in-app')! });
+      it('should ignore `click` events with the secondary mouse button', () => {
+        emulateClick(document.getElementById('in-app'), Button.SECONDARY);
         expectClickIgnored();
       });
 
-      it('should ignore `click` events with the middle mouse button', async () => {
-        await user.pointer({ keys: '[MouseMiddle]', target: document.getElementById('in-app')! });
+      it('should ignore `click` events with the middle mouse button', () => {
+        emulateClick(document.getElementById('in-app'), Button.AUXILLARY);
         expectClickIgnored();
       });
 
-      it('should ignore `click` events if the SHIFT modifier key is also pressed', async () => {
-        await user.keyboard('{Shift>}');
-        await user.click(document.getElementById('in-app')!);
-        await user.keyboard('{/Shift}');
-
+      it('should ignore `click` events if the SHIFT modifier key is also pressed', () => {
+        emulateClick(document.getElementById('in-app'), Button.MAIN, Key.SHIFT);
         expectClickIgnored();
       });
 
-      it('should ignore `click` events if the CONTROL modifier key is also pressed', async () => {
-        await user.keyboard('{Control>}');
-        await user.click(document.getElementById('in-app')!);
-        await user.keyboard('{/Control}');
+      it('should ignore `click` events if the CONTROL modifier key is also pressed', () => {
+        emulateClick(document.getElementById('in-app'), Button.MAIN, Key.CONTROL);
         expectClickIgnored();
       });
 
-      it('should ignore `click` events if the ALT modifier key is also pressed', async () => {
-        await user.keyboard('{Alt>}');
-        await user.click(document.getElementById('in-app')!);
-        await user.keyboard('{/Alt}');
+      it('should ignore `click` events if the ALT modifier key is also pressed', () => {
+        emulateClick(document.getElementById('in-app'), Button.MAIN, Key.ALT);
         expectClickIgnored();
       });
 
-      it('should ignore `click` events if the META modifier key is also pressed', async () => {
-        await user.keyboard('{Meta>}');
-        await user.click(document.getElementById('in-app')!);
-        await user.keyboard('{/Meta}');
+      it('should ignore `click` events if the META modifier key is also pressed', () => {
+        emulateClick(document.getElementById('in-app'), Button.MAIN, Key.META);
         expectClickIgnored();
       });
 
-      it('should ignore `click` events on links with a non-default target', async () => {
-        await user.click(document.getElementById('in-app-target-blank')!);
+      it('should ignore `click` events on links with a non-default target', () => {
+        emulateClick(document.getElementById('in-app-target-blank'));
         expectClickIgnored();
       });
 
-      it('should ignore `click` events on links with a `download` attribute', async () => {
-        await user.click(document.getElementById('in-app-download')!);
+      it('should ignore `click` events on links with a `download` attribute', () => {
+        emulateClick(document.getElementById('in-app-download'));
         expectClickIgnored();
       });
 
-      it('should ignore `click` events on page-local links (same pathname, different hash)', async () => {
-        await user.click(document.getElementById('in-app-hash-link')!);
+      it('should ignore `click` events on page-local links (same pathname, different hash)', () => {
+        emulateClick(document.getElementById('in-page-hash-link'));
         expectClickIgnored();
       });
 
-      it('should ignore `click` events on external links', async () => {
-        await user.click(document.getElementById('external')!);
+      it('should ignore `click` events on external links', () => {
+        emulateClick(document.getElementById('external'));
         expectClickIgnored();
       });
 
-      it('should ignore `click` events on cross-origin links', async () => {
-        await user.click(document.getElementById('cross-origin')!);
+      it('should ignore `click` events on cross-origin links', () => {
+        emulateClick(document.getElementById('cross-origin'));
         expectClickIgnored();
       });
 
-      it('should ignore `click` events on non-link elements', async () => {
-        await user.click(document.getElementById('not-a-link')!);
+      it('should ignore `click` events on non-link elements', () => {
+        emulateClick(document.getElementById('not-a-link'));
         expectClickIgnored();
       });
 
-      it('should ignore `click` events on links with a `router-ignore` attribute', async () => {
-        await user.click(document.getElementById('ignore-link')!);
+      it('should ignore `click` events on links with a `router-ignore` attribute', () => {
+        emulateClick(document.getElementById('ignore-link'));
         expectClickIgnored();
       });
 
-      it('should ignore `click` events with prevented default action', async () => {
-        await user.click(document.getElementById('in-app-prevented')!);
-        expect(onWindowNavigate).to.not.have.been.called;
-        expect(onWindowClick).to.have.been.calledOnceWith({ defaultPrevented: true });
+      it('should ignore `click` events with prevented default action', () => {
+        emulateClick(document.getElementById('in-app-prevented'));
+        expect(navigateEvents).to.have.lengthOf(0);
+        expect(clicks).to.have.lengthOf(1);
+        expect(clicks[0]).to.have.property('defaultPrevented', true);
       });
     });
   });
@@ -360,14 +403,17 @@ describe('NavigationTriggers.CLICK', () => {
       CLICK.inactivate();
     });
 
-    it('should not translate `click` events into `vaadin-router-go` when inactivated', async () => {
-      await user.click(document.getElementById('in-app')!);
-      expect(onWindowNavigate).to.not.have.been.called;
+    it('should not translate `click` events into `vaadin-router-go` when inactivated', () => {
+      emulateClick(document.getElementById('in-app'));
+
+      expect(navigateEvents).to.have.lengthOf(0);
     });
 
-    it('should not prevent the default action on the original `click` event', async () => {
-      await user.click(document.getElementById('in-app')!);
-      expect(onWindowClick).to.have.been.calledOnceWith({ defaultPrevented: false });
+    it('should not prevent the default action on the original `click` event', () => {
+      emulateClick(document.getElementById('in-app'));
+
+      expect(clicks).to.have.lengthOf(1);
+      expect(clicks[0]).to.have.property('defaultPrevented', false);
     });
   });
 });
