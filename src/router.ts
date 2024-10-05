@@ -118,18 +118,18 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    */
   ready: Promise<RouterLocation<R, C>> = Promise.resolve(this.location);
 
-  private readonly __addedByRouter = new WeakSet<Element>();
-  private readonly __createdByRouter = new WeakSet<Element>();
-  private readonly __navigationEventHandler = this.__onNavigationEvent.bind(this);
+  readonly #addedByRouter = new WeakSet<Element>();
+  readonly #createdByRouter = new WeakSet<Element>();
+  readonly #navigationEventHandler = this.#onNavigationEvent.bind(this);
 
-  private __lastStartedRenderId = 0;
-  private __outlet: Element | DocumentFragment | null | undefined;
-  private __previousContext?: RouteContext<R, C>;
+  #lastStartedRenderId = 0;
+  #outlet: Element | DocumentFragment | null | undefined;
+  __previousContext?: RouteContext<R, C>;
 
-  private __urlForName?: ReturnType<typeof generateUrls>;
+  #urlForName?: ReturnType<typeof generateUrls>;
 
-  private __appearingContent: Element[] | null = null;
-  private __disappearingContent: Element[] | null = null;
+  #appearingContent: Element[] | null = null;
+  #disappearingContent: Element[] | null = null;
 
   /**
    * Creates a new Router instance with a given outlet, and
@@ -149,7 +149,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     super([], {
       baseUrl: baseHref ? new URL(baseHref, document.URL).href.replace(/[^/]*$/u, '') : undefined,
       ...options,
-      resolveRoute: async (context) => await this.__resolveRoute(context),
+      resolveRoute: async (context) => await this.#resolveRoute(context),
     });
 
     setNavigationTriggers(Object.values(DEFAULT_TRIGGERS));
@@ -158,7 +158,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     this.subscribe();
   }
 
-  private async __resolveRoute(context: RouteContext<R, C>): Promise<ActionResult | RouteContext<R, C>> {
+  async #resolveRoute(context: RouteContext<R, C>): Promise<ActionResult | RouteContext<R, C>> {
     const { route } = context;
 
     if (isFunction(route.children)) {
@@ -179,7 +179,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     const commands: Commands = {
       component: (component: string) => {
         const element = document.createElement(component);
-        this.__createdByRouter.add(element);
+        this.#createdByRouter.add(element);
         return element;
       },
       prevent,
@@ -188,7 +188,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
 
     return await Promise.resolve()
       .then(async () => {
-        if (this.__isLatestRender(context)) {
+        if (this.#isLatestRender(context)) {
           // eslint-disable-next-line @typescript-eslint/unbound-method
           return await maybeCall(route.action, route, context, commands);
         }
@@ -235,9 +235,9 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    */
   setOutlet(outlet?: Element | DocumentFragment | null): void {
     if (outlet) {
-      this.__ensureOutlet(outlet);
+      this.#ensureOutlet(outlet);
     }
-    this.__outlet = outlet;
+    this.#outlet = outlet;
   }
 
   /**
@@ -246,7 +246,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * @returns the current router outlet (or `undefined`)
    */
   getOutlet(): Element | DocumentFragment | null | undefined {
-    return this.__outlet;
+    return this.#outlet;
   }
 
   /**
@@ -332,11 +332,11 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     skipRender = false,
   ): Promise<RouterLocation<R, C>> {
     this.__previousContext = undefined;
-    this.__urlForName = undefined;
+    this.#urlForName = undefined;
     ensureRoutes(routes);
     super.setRoutes(routes);
     if (!skipRender) {
-      this.__onNavigationEvent();
+      this.#onNavigationEvent();
     }
     return await this.ready;
   }
@@ -369,8 +369,8 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     pathnameOrContext: string | ResolveContext,
     shouldUpdateHistory: boolean = false,
   ): Promise<RouterLocation<R, C>> {
-    this.__lastStartedRenderId += 1;
-    const renderId = this.__lastStartedRenderId;
+    this.#lastStartedRenderId += 1;
+    const renderId = this.#lastStartedRenderId;
     const context = {
       ...(rootContext as RouteContext<R, C>),
       ...(isString(pathnameOrContext) ? { hash: '', search: '', pathname: pathnameOrContext } : pathnameOrContext),
@@ -382,7 +382,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
   }
 
   async #doRender(context: RouteContext<R, C>, shouldUpdateHistory: boolean) {
-    const { __renderId } = context;
+    const { __renderId: renderId } = context;
     try {
       // Find the first route that resolves to a non-empty result
       const ctx = await this.resolve(context);
@@ -391,9 +391,9 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       // (redirect / prevent / component). If the result is a 'component',
       // then go deeper and build the entire chain of nested components matching
       // the pathname. Also call all 'on before' callbacks along the way.
-      const contextWithChain = await this.__fullyResolveChain(ctx);
+      const contextWithChain = await this.#fullyResolveChain(ctx);
 
-      if (!this.__isLatestRender(contextWithChain)) {
+      if (!this.#isLatestRender(contextWithChain)) {
         return this.location;
       }
 
@@ -403,7 +403,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       if (contextWithChain === previousContext) {
         // Replace the history with the previous context
         // to make sure the URL stays the same.
-        this.__updateBrowserHistory(previousContext, true);
+        this.#updateBrowserHistory(previousContext, true);
         return this.location;
       }
 
@@ -412,7 +412,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       if (shouldUpdateHistory) {
         // Replace only if first render redirects, so that we don’t leave
         // the redirecting record in the history
-        this.__updateBrowserHistory(contextWithChain, __renderId === 1);
+        this.#updateBrowserHistory(contextWithChain, renderId === 1);
       }
 
       fireRouterEvent('location-changed', {
@@ -422,34 +422,38 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
 
       // Skip detaching/re-attaching there are no render changes
       if (contextWithChain.__skipAttach) {
-        this.__copyUnchangedElements(contextWithChain, previousContext);
+        this.#copyUnchangedElements(contextWithChain, previousContext);
         this.__previousContext = contextWithChain;
         return this.location;
       }
 
-      this.__addAppearingContent(contextWithChain, previousContext);
-      const animationDone = this.__animateIfNeeded(contextWithChain);
+      this.#addAppearingContent(contextWithChain, previousContext);
+      const animationDone = this.#animateIfNeeded(contextWithChain);
 
-      this.__runOnAfterEnterCallbacks(contextWithChain);
-      this.__runOnAfterLeaveCallbacks(contextWithChain, previousContext);
+      this.#runOnAfterEnterCallbacks(contextWithChain);
+      this.#runOnAfterLeaveCallbacks(contextWithChain, previousContext);
 
       await animationDone;
 
-      if (this.__isLatestRender(contextWithChain)) {
+      if (this.#isLatestRender(contextWithChain)) {
         // If there is another render pass started after this one,
         // the 'disappearing content' would be removed when the other
         // render pass calls `this.__addAppearingContent()`
-        this.__removeDisappearingContent();
+        this.#removeDisappearingContent();
 
         this.__previousContext = contextWithChain;
         return this.location;
       }
     } catch (error: unknown) {
-      if (__renderId === this.__lastStartedRenderId) {
+      if (renderId === this.#lastStartedRenderId) {
         if (shouldUpdateHistory) {
-          this.__updateBrowserHistory(this.context);
+          this.#updateBrowserHistory(this.context);
         }
-        Router.__removeDomNodes(this.__outlet?.children);
+
+        for (const child of this.#outlet?.children ?? []) {
+          child.remove();
+        }
+
         this.location = createLocation(Object.assign(context, { resolver: this }));
         fireRouterEvent('error', {
           router: this,
@@ -474,11 +478,11 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
   // Apart from building the chain of child components, this method would also
   // handle 'redirect' routes, call 'onBefore' callbacks and handle 'prevent'
   // and 'redirect' callback results.
-  async __fullyResolveChain(
+  async #fullyResolveChain(
     topOfTheChainContextBeforeRedirects: RouteContext<R, C>,
     contextBeforeRedirects: RouteContext<R, C> = topOfTheChainContextBeforeRedirects,
   ): Promise<RouteContext<R, C>> {
-    const contextAfterRedirects = await this.__findComponentContextAfterAllRedirects(contextBeforeRedirects);
+    const contextAfterRedirects = await this.#findComponentContextAfterAllRedirects(contextBeforeRedirects);
 
     const redirectsHappened = contextAfterRedirects !== contextBeforeRedirects;
     const topOfTheChainContextAfterRedirects = redirectsHappened
@@ -520,18 +524,18 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     }
 
     return nextContext !== contextAfterRedirects
-      ? await this.__fullyResolveChain(topOfTheChainContextAfterRedirects, nextContext)
-      : await this.__amendWithOnBeforeCallbacks(contextAfterRedirects);
+      ? await this.#fullyResolveChain(topOfTheChainContextAfterRedirects, nextContext)
+      : await this.#amendWithOnBeforeCallbacks(contextAfterRedirects);
   }
 
-  private async __findComponentContextAfterAllRedirects(context: RouteContext<R, C>): Promise<RouteContext<R, C>> {
+  async #findComponentContextAfterAllRedirects(context: RouteContext<R, C>): Promise<RouteContext<R, C>> {
     const { result } = context;
     if (result instanceof HTMLElement) {
       renderElement(context, result as WebComponentInterface<R, C>);
       return context;
     } else if (result && 'redirect' in result) {
-      const ctx = await this.__redirect(result.redirect, context.__redirectCount, context.__renderId);
-      return await this.__findComponentContextAfterAllRedirects(ctx);
+      const ctx = await this.#redirect(result.redirect, context.__redirectCount, context.__renderId);
+      return await this.#findComponentContextAfterAllRedirects(ctx);
     }
 
     throw result instanceof Error
@@ -545,16 +549,16 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
         );
   }
 
-  private async __amendWithOnBeforeCallbacks(contextWithFullChain: RouteContext<R, C>): Promise<RouteContext<R, C>> {
-    return await this.__runOnBeforeCallbacks(contextWithFullChain).then(async (amendedContext) => {
+  async #amendWithOnBeforeCallbacks(contextWithFullChain: RouteContext<R, C>): Promise<RouteContext<R, C>> {
+    return await this.#runOnBeforeCallbacks(contextWithFullChain).then(async (amendedContext) => {
       if (amendedContext === this.__previousContext || amendedContext === contextWithFullChain) {
         return amendedContext;
       }
-      return await this.__fullyResolveChain(amendedContext);
+      return await this.#fullyResolveChain(amendedContext);
     });
   }
 
-  private async __runOnBeforeCallbacks(newContext: RouteContext<R, C>): Promise<RouteContext<R, C>> {
+  async #runOnBeforeCallbacks(newContext: RouteContext<R, C>): Promise<RouteContext<R, C>> {
     const previousContext = (this.__previousContext ?? {}) as Partial<RouteContext<R, C>>;
     const previousChain = previousContext.chain ?? [];
     const newChain = newContext.chain ?? [];
@@ -569,7 +573,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
         if (
           previousChain[i].route !== newChain[i].route ||
           (previousChain[i].path !== newChain[i].path && previousChain[i].element !== newChain[i].element) ||
-          !this.__isReusableElement(
+          !this.#isReusableElement(
             previousChain[i].element as HTMLElement | undefined,
             newChain[i].element as HTMLElement | undefined,
           )
@@ -584,16 +588,16 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
         newChain.length === previousChain.length &&
         newContext.__divergedChainIndex === newChain.length &&
         // Same element
-        this.__isReusableElement(newContext.result, previousContext.result);
+        this.#isReusableElement(newContext.result, previousContext.result);
 
       if (newContext.__skipAttach) {
         // execute onBeforeLeave for changed segment element when skipping attach
         for (let i = newChain.length - 1; i >= 0; i--) {
-          callbacks = this.__runOnBeforeLeaveCallbacks(callbacks, newContext, { prevent }, previousChain[i]);
+          callbacks = this.#runOnBeforeLeaveCallbacks(callbacks, newContext, { prevent }, previousChain[i]);
         }
         // execute onBeforeEnter for changed segment element when skipping attach
         for (let i = 0; i < newChain.length; i++) {
-          callbacks = this.__runOnBeforeEnterCallbacks(
+          callbacks = this.#runOnBeforeEnterCallbacks(
             callbacks,
             newContext,
             {
@@ -607,7 +611,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       } else {
         // execute onBeforeLeave when NOT skipping attach
         for (let i = previousChain.length - 1; i >= newContext.__divergedChainIndex; i--) {
-          callbacks = this.__runOnBeforeLeaveCallbacks(callbacks, newContext, { prevent }, previousChain[i]);
+          callbacks = this.#runOnBeforeLeaveCallbacks(callbacks, newContext, { prevent }, previousChain[i]);
         }
       }
     }
@@ -619,7 +623,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
             previousChain[i].element!.location = createLocation(newContext, previousChain[i].route);
           }
         } else {
-          callbacks = this.__runOnBeforeEnterCallbacks(
+          callbacks = this.#runOnBeforeEnterCallbacks(
             callbacks,
             newContext,
             {
@@ -641,14 +645,14 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
           return this.__previousContext;
         }
         if ('redirect' in amendmentResult) {
-          return await this.__redirect(amendmentResult.redirect, newContext.__redirectCount, newContext.__renderId);
+          return await this.#redirect(amendmentResult.redirect, newContext.__redirectCount, newContext.__renderId);
         }
       }
       return newContext;
     });
   }
 
-  private async __runOnBeforeLeaveCallbacks(
+  async #runOnBeforeLeaveCallbacks(
     callbacks: Promise<ActionResult>,
     newContext: RouteContext<R, C>,
     commands: PreventCommands,
@@ -658,7 +662,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
 
     let result: ActionResult = await callbacks;
 
-    if (this.__isLatestRender(newContext)) {
+    if (this.#isLatestRender(newContext)) {
       const beforeLeaveFunction = amend('onBeforeLeave', chainElement.element, location, commands, this);
       result = beforeLeaveFunction(result);
     }
@@ -668,7 +672,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     }
   }
 
-  private async __runOnBeforeEnterCallbacks(
+  async #runOnBeforeEnterCallbacks(
     callbacks: Promise<ActionResult>,
     newContext: RouteContext<R, C>,
     commands: PreventAndRedirectCommands,
@@ -677,28 +681,28 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     const location = createLocation(newContext, chainElement.route);
     const result = await callbacks;
 
-    if (this.__isLatestRender(newContext)) {
+    if (this.#isLatestRender(newContext)) {
       const beforeEnterFunction = amend('onBeforeEnter', chainElement.element, location, commands, this);
       return beforeEnterFunction(result);
     }
   }
 
-  private __isReusableElement(element?: unknown, otherElement?: unknown): boolean {
+  #isReusableElement(element?: unknown, otherElement?: unknown): boolean {
     if (element instanceof Element && otherElement instanceof Element) {
-      return this.__createdByRouter.has(element) && this.__createdByRouter.has(otherElement)
+      return this.#createdByRouter.has(element) && this.#createdByRouter.has(otherElement)
         ? element.localName === otherElement.localName
         : element === otherElement;
     }
     return false;
   }
 
-  private __isLatestRender(context: Partial<RouteContext<R, C>>): boolean {
-    return context.__renderId === this.__lastStartedRenderId;
+  #isLatestRender(context: Partial<RouteContext<R, C>>): boolean {
+    return context.__renderId === this.#lastStartedRenderId;
   }
 
   declare ['resolve']: (context: RouteContext<R, C>) => Promise<RouteContext<R, C> & RedirectContextInfo>;
 
-  private async __redirect(
+  async #redirect(
     redirectData: RedirectContextInfo,
     counter: number = 0,
     renderId: number = 0,
@@ -716,7 +720,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     });
   }
 
-  private __ensureOutlet(outlet: Element | DocumentFragment | undefined | null = this.__outlet): void {
+  #ensureOutlet(outlet: Element | DocumentFragment | undefined | null = this.#outlet): void {
     if (!(outlet instanceof Element || outlet instanceof DocumentFragment)) {
       throw new TypeError(
         log(`Expected router outlet to be a valid DOM Element | DocumentFragment (but got ${outlet})`),
@@ -725,7 +729,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
   }
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this
-  private __updateBrowserHistory({ pathname, search = '', hash = '' }: ResolveContext, replace?: boolean): void {
+  #updateBrowserHistory({ pathname, search = '', hash = '' }: ResolveContext, replace?: boolean): void {
     if (window.location.pathname !== pathname || window.location.search !== search || window.location.hash !== hash) {
       const changeState = replace ? 'replaceState' : 'pushState';
       window.history[changeState](null, document.title, pathname + search + hash);
@@ -733,13 +737,13 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     }
   }
 
-  private __copyUnchangedElements(
+  #copyUnchangedElements(
     context: RouteContext<R, C>,
     previousContext?: RouteContext<R, C>,
   ): Element | DocumentFragment | null | undefined {
     // Find the deepest common parent between the last and the new component
     // chains. Update references for the unchanged elements in the new chain
-    let deepestCommonParent = this.__outlet;
+    let deepestCommonParent = this.#outlet;
     for (let i = 0; i < (context.__divergedChainIndex ?? 0); i++) {
       const unchangedElement = previousContext?.chain?.[i].element;
       if (unchangedElement) {
@@ -754,24 +758,24 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     return deepestCommonParent;
   }
 
-  private __addAppearingContent(context: RouteContext<R, C>, previousContext?: RouteContext<R, C>): void {
-    this.__ensureOutlet();
+  #addAppearingContent(context: RouteContext<R, C>, previousContext?: RouteContext<R, C>): void {
+    this.#ensureOutlet();
 
     // If the previous 'entering' animation has not completed yet,
     // stop it and remove that content from the DOM before adding new one.
-    this.__removeAppearingContent();
+    this.#removeAppearingContent();
 
     // Copy reusable elements from the previousContext to current
-    const deepestCommonParent = this.__copyUnchangedElements(context, previousContext);
+    const deepestCommonParent = this.#copyUnchangedElements(context, previousContext);
 
     // Keep two lists of DOM elements:
     //  - those that should be removed once the transition animation is over
     //  - and those that should remain
-    this.__appearingContent = [];
-    this.__disappearingContent = Array.from(deepestCommonParent?.children ?? []).filter(
+    this.#appearingContent = [];
+    this.#disappearingContent = Array.from(deepestCommonParent?.children ?? []).filter(
       // Only remove layout content that was added by router
       (e) =>
-        this.__addedByRouter.has(e) &&
+        this.#addedByRouter.has(e) &&
         // Do not remove the result element to avoid flickering
         e !== context.result,
     );
@@ -785,39 +789,43 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       const elementToAdd = context.chain![i].element;
       if (elementToAdd) {
         parentElement?.appendChild(elementToAdd);
-        this.__addedByRouter.add(elementToAdd);
+        this.#addedByRouter.add(elementToAdd);
         if (parentElement === deepestCommonParent) {
-          this.__appearingContent.push(elementToAdd);
+          this.#appearingContent.push(elementToAdd);
         }
         parentElement = elementToAdd;
       }
     }
   }
 
-  private __removeDisappearingContent(): void {
-    if (this.__disappearingContent) {
-      Router.__removeDomNodes(this.__disappearingContent);
+  #removeDisappearingContent(): void {
+    if (this.#disappearingContent) {
+      for (const element of this.#disappearingContent) {
+        element.remove();
+      }
     }
-    this.__disappearingContent = null;
-    this.__appearingContent = null;
+    this.#disappearingContent = null;
+    this.#appearingContent = null;
   }
 
-  private __removeAppearingContent(): void {
-    if (this.__disappearingContent && this.__appearingContent) {
-      Router.__removeDomNodes(this.__appearingContent);
-      this.__disappearingContent = null;
-      this.__appearingContent = null;
+  #removeAppearingContent(): void {
+    if (this.#disappearingContent && this.#appearingContent) {
+      for (const element of this.#appearingContent) {
+        element.remove();
+      }
+      this.#disappearingContent = null;
+      this.#appearingContent = null;
     }
   }
 
-  private __runOnAfterLeaveCallbacks(currentContext: RouteContext<R, C>, targetContext?: RouteContext<R, C>): void {
+  #runOnAfterLeaveCallbacks(currentContext: RouteContext<R, C>, targetContext?: RouteContext<R, C>): void {
     if (!targetContext?.chain || currentContext.__divergedChainIndex == null) {
       return;
     }
 
     // REVERSE iteration: from Z to A
     for (let i = targetContext.chain.length - 1; i >= currentContext.__divergedChainIndex; i--) {
-      if (!this.__isLatestRender(currentContext)) {
+      if (!this.#isLatestRender(currentContext)) {
         break;
       }
       const currentComponent = targetContext.chain[i].element;
@@ -829,21 +837,23 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
         // eslint-disable-next-line @typescript-eslint/unbound-method
         maybeCall(currentComponent.onAfterLeave, currentComponent, location, {} as EmptyCommands, this);
       } finally {
-        if ((this.__disappearingContent ?? []).includes(currentComponent)) {
-          Router.__removeDomNodes(currentComponent.children);
+        if (this.#disappearingContent?.includes(currentComponent)) {
+          for (const child of currentComponent.children) {
+            child.remove();
+          }
         }
       }
     }
   }
 
-  private __runOnAfterEnterCallbacks(currentContext: RouteContext<R, C>): void {
+  #runOnAfterEnterCallbacks(currentContext: RouteContext<R, C>): void {
     if (!currentContext.chain || currentContext.__divergedChainIndex == null) {
       return;
     }
 
     // forward iteration: from A to Z
     for (let i = currentContext.__divergedChainIndex; i < currentContext.chain.length; i++) {
-      if (!this.__isLatestRender(currentContext)) {
+      if (!this.#isLatestRender(currentContext)) {
         break;
       }
       const currentComponent = currentContext.chain[i].element;
@@ -855,9 +865,9 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     }
   }
 
-  private async __animateIfNeeded(context: RouteContext<R, C>): Promise<RouteContext<R, C>> {
-    const from = this.__disappearingContent?.[0];
-    const to = this.__appearingContent?.[0];
+  async #animateIfNeeded(context: RouteContext<R, C>): Promise<RouteContext<R, C>> {
+    const from = this.#disappearingContent?.[0];
+    const to = this.#appearingContent?.[0];
     const promises = [];
 
     const { chain = [] } = context;
@@ -888,7 +898,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * subscribed to navigation events, it won't be garbage collected.
    */
   subscribe(): void {
-    window.addEventListener('vaadin-router-go', this.__navigationEventHandler);
+    window.addEventListener('vaadin-router-go', this.#navigationEventHandler);
   }
 
   /**
@@ -896,10 +906,10 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * method.
    */
   unsubscribe(): void {
-    window.removeEventListener('vaadin-router-go', this.__navigationEventHandler);
+    window.removeEventListener('vaadin-router-go', this.#navigationEventHandler);
   }
 
-  private __onNavigationEvent(event?: Event): void {
+  #onNavigationEvent(event?: Event): void {
     const { pathname, search, hash } =
       event instanceof CustomEvent ? (event.detail as ResolveContext) : window.location;
 
@@ -949,8 +959,8 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * parameters are passed by index (`params[index] = value`).
    */
   urlForName(name: string, params?: Params | null): string {
-    if (!this.__urlForName) {
-      this.__urlForName = generateUrls(this, {
+    if (!this.#urlForName) {
+      this.#urlForName = generateUrls(this, {
         cacheKeyProvider(route): string | undefined {
           return 'component' in route && typeof route.component === 'string'
             ? (route as Readonly<{ component: string }>).component
@@ -958,7 +968,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
         },
       });
     }
-    return getPathnameForRouter(this.__urlForName(name, params ?? undefined), this);
+    return getPathnameForRouter(this.#urlForName(name, params ?? undefined), this);
   }
 
   /**
@@ -990,16 +1000,5 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       ? new URL(path, 'http://a') // some base to omit origin
       : path;
     return fireRouterEvent('go', { pathname, search, hash });
-  }
-
-  static __removeDomNodes(nodes?: readonly Element[] | HTMLCollection | null): void {
-    if (nodes?.length) {
-      const parent = nodes[0].parentNode;
-      const childrenCount = nodes.length - 1;
-
-      for (let i = childrenCount; i >= 0; i--) {
-        parent?.removeChild(nodes[i]);
-      }
-    }
   }
 }
