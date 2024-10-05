@@ -37,7 +37,7 @@ describe('Resolver', () => {
         component?: string;
       }>;
 
-      const resolveRoute = sinon.spy((context: RouteContext<string, CustomResolveOption>) => context.route?.component);
+      const resolveRoute = sinon.spy((context: RouteContext<string, CustomResolveOption>) => context.route.component);
       const action = sinon.stub();
       const resolver = new Resolver<string, CustomResolveOption>(
         {

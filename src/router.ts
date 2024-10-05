@@ -663,7 +663,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
       result = beforeLeaveFunction(result);
     }
 
-    if (!(isObject(result) && result.redirect)) {
+    if (!(isObject(result) && 'redirect' in result)) {
       return result as ActionResult;
     }
   }
@@ -717,8 +717,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
   }
 
   private __ensureOutlet(outlet: Element | DocumentFragment | undefined | null = this.__outlet): void {
-    // @ts-expect-error: checking JS behavior
-    if (!((outlet instanceof Element) | DocumentFragment)) {
+    if (!(outlet instanceof Element || outlet instanceof DocumentFragment)) {
       throw new TypeError(
         log(`Expected router outlet to be a valid DOM Element | DocumentFragment (but got ${outlet})`),
       );
