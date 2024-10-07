@@ -33,6 +33,7 @@ import type {
 } from './types.js';
 import {
   amend,
+  copyContextWithoutNext,
   createLocation,
   createRedirect,
   ensureRoutes,
@@ -162,10 +163,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     const { route } = context;
 
     if (isFunction(route.children)) {
-      let children = await route.children({
-        ...context,
-        next: undefined,
-      });
+      let children = await route.children(copyContextWithoutNext(context));
 
       // The route.children() callback might have re-written the
       // route.children property instead of returning a value
