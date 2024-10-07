@@ -26,5 +26,9 @@ jobs:
           node-version: 'lts/*'
       - name: Install dependencies and build
         run: npm ci
+      - name: Build TypeScript
+        run: npm run build
+      - name: Check TypeScript
+        run: npm run typecheck
       - name: Test
         run: npm test
