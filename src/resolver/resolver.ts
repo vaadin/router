@@ -6,7 +6,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE.txt file in the root directory of this source tree.
  */
-import type { EmptyObject, Writable } from 'type-fest';
+import type { EmptyObject } from 'type-fest';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
 import type {
@@ -105,7 +105,7 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C 
    * `document.URL`.
    */
   readonly baseUrl: string;
-  #context: Writable<RouteContext<T, R, C>>;
+  #context: RouteContext<T, R, C>;
   readonly errorHandler?: ErrorHandlerCallback<T>;
   readonly resolveRoute: ResolveRouteCallback<T, R, C>;
   readonly #root: BasicRoutePart<T, R, C>;

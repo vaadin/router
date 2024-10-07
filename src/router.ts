@@ -325,6 +325,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * @param skipRender - configure the router but skip rendering the
    *     route corresponding to the current `window.location` values
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   override async setRoutes(
     routes: Route<R, C> | ReadonlyArray<Route<R, C>>,
     skipRender = false,
@@ -980,7 +981,10 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * parameters are passed by index (`params[index] = value`).
    */
   urlForPath(path: string, params?: Params | null): string {
-    return getPathnameForRouter(compile(path)(params ?? undefined), this);
+    return getPathnameForRouter(
+      compile(path)((params as Partial<Record<string, string | string[]>> | null) ?? undefined),
+      this,
+    );
   }
 
   /**

@@ -12,6 +12,7 @@
   "plugins": ["tsdoc"],
   "rules": {
     "@typescript-eslint/no-invalid-void-type": "off",
+    "@typescript-eslint/no-useless-template-literals": "off",
     "import/no-unassigned-import": "off",
     "max-params": "off",
     "sort-keys": "off",

@@ -114,7 +114,7 @@ export function createLocation<R extends AnyObject, C extends AnyObject>(
   return {
     baseUrl: resolver?.baseUrl ?? '',
     getUrl: (userParams = {}) =>
-      resolver ? getPathnameForRouter(compile(getRoutePath(chain))({ ...params, ...userParams }), resolver) : '',
+      resolver ? getPathnameForRouter(compile(getRoutePath(chain))({ ...params, ...userParams } as Partial<Record<string, string[]>>), resolver) : '',
     hash,
     params,
     pathname,

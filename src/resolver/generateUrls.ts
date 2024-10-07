@@ -17,7 +17,7 @@ export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> |
 
 function cacheRoutes<T, R extends AnyObject, C extends AnyObject>(
   routesByName: Map<string, Array<Route<T, R, C>>>,
-  route: Writable<Route<T, R, C>>,
+  route: Route<T, R, C>,
   routes?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>,
   cacheKeyProvider?: (route: Route<T, R, C>) => string | undefined,
 ): void {
@@ -30,7 +30,7 @@ function cacheRoutes<T, R extends AnyObject, C extends AnyObject>(
     }
   }
 
-  if (Array.isArray<ReadonlyArray<Writable<Route<T, R, C>>>>(routes)) {
+  if (Array.isArray(routes)) {
     for (const childRoute of routes) {
       childRoute.parent = route;
       cacheRoutes(routesByName, childRoute, childRoute.__children ?? childRoute.children, cacheKeyProvider);
@@ -93,12 +93,7 @@ function generateUrls<T = unknown, R extends AnyObject = EmptyObject, C extends 
     let route = getRouteByName(routesByName, routeName);
     if (!route) {
       routesByName.clear(); // clear cache
-      cacheRoutes(
-        routesByName,
-        resolver.root as Writable<Route<T, R, C>>,
-        resolver.root.__children,
-        options.cacheKeyProvider,
-      );
+      cacheRoutes(routesByName, resolver.root, resolver.root.__children, options.cacheKeyProvider);
 
       route = getRouteByName(routesByName, routeName);
       if (!route) {
