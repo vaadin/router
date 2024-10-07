@@ -1,28 +1,25 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": true,
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["es2022", "dom", "DOM.Iterable"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictBindCallApply": true,
     "sourceMap": true,
     "inlineSources": true,
-    "module": "esNext",
-    "target": "es2015",
-    "moduleResolution": "node",
-    "strict": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true,
     "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "experimentalDecorators": true,
-    "outDir": "ts-dist",
-    "declaration": true,
-    "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@vaadin/router": ["dist/vaadin-router"]
-    }
+    "useDefineForClassFields": true,
+    "useUnknownInCatchVariables": true
   },
-  "include": [
-    "test/typescript/**/*.ts"
-  ],
-  "exclude": []
+  "include": ["scripts", "src/**/*", "test/**/*", "./vite.config.ts", "./*.cjs"],
+  "exclude": ["scripts/**/*.js"]
 }
