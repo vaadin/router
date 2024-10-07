@@ -9,9 +9,14 @@
 
 import { type Key, pathToRegexp } from 'path-to-regexp';
 import type { Writable } from 'type-fest';
-import type { RegExpExecOptArray } from '../internal.js';
 import type { IndexedParams } from '../types.js';
 import { resolvePath } from './utils.js';
+
+export interface RegExpExecOptArray extends ReadonlyArray<string | undefined> {
+  0: string;
+  index: number;
+  input: string;
+}
 
 type Matcher = Readonly<{
   keys: readonly Key[];
@@ -80,7 +85,7 @@ function matchPath(
         // are `/`, `#` and `?`.
         params[prop] = value ? value.split(/[/?#]/u).map(decodeParam) : [];
       } else {
-        params[prop] = value ? decodeParam(value) : value;
+        params[prop] = value ? decodeParam(value) : value!;
       }
     }
   }

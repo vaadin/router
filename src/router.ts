@@ -124,7 +124,7 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
 
   #lastStartedRenderId = 0;
   #outlet: Element | DocumentFragment | null | undefined;
-  __previousContext?: RouteContext<R, C>;
+  private __previousContext?: RouteContext<R, C>;
 
   #urlForName?: ReturnType<typeof generateUrls>;
 

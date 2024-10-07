@@ -14,6 +14,7 @@ export default function resolveRoute<T, R extends AnyObject, C extends AnyObject
   context: RouteContext<T, R, C>,
 ): MaybePromise<ActionResult<T | RouteContext<T, R, C>>> {
   if (isFunction(context.route.action)) {
+    // @ts-expect-error: ignore "never" type here
     return context.route.action(context);
   }
   return undefined;
