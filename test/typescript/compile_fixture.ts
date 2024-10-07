@@ -69,7 +69,7 @@ expectTypeOfValue<Promise<RouterLocation>>(router.ready);
 
 // Basic methods
 router.render('/');
-(): ReturnType<typeof router.render> extends Promise<Node> ? true : never => true;
+(): ReturnType<typeof router.render> extends Promise<RouterLocation> ? true : never => true;
 router.subscribe();
 router.unsubscribe();
 expectTypeOfValue<string>(router.urlForName('foo'));
