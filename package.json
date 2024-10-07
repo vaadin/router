@@ -20,7 +20,6 @@
   },
   "homepage": "https://vaadin.com",
   "files": [
-    "src",
     "dist"
   ],
   "scripts": {
