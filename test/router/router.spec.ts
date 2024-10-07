@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import { expect, use } from '@esm-bundle/chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
@@ -199,22 +200,21 @@ describe('Router', () => {
       });
 
       it('should throw if the router outlet is a not valid DOM Node (on finish)', async () => {
-        await Promise.all(
-          [undefined, null, 0, false, '', NaN].map(async (invalidOutlet) => {
-            const _router = new Router(outlet);
-            await _router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
-            const fulfilled: sinon.SinonSpy<unknown[], void> = sinon.spy();
-            const rejected: sinon.SinonSpy<unknown[], void> = sinon.spy();
-            const ready = _router.render('/').then(fulfilled).catch(rejected);
-            // @ts-expect-error: testing invalid arguments
-            _router.setOutlet(invalidOutlet);
-            await ready;
-            expect(fulfilled).to.not.have.been.called;
-            expect(rejected).to.have.been.calledOnce;
-            expect(rejected.args[0][0]).to.be.instanceof(TypeError);
-            _router.unsubscribe();
-          }),
-        );
+        const invalidOutlets = [undefined, null, 0, false, '', NaN];
+        for (const invalidOutlet of invalidOutlets) {
+          const _router = new Router(outlet);
+          await _router.setRoutes([{ path: '/', component: 'x-home-view' }], true);
+          const fulfilled: sinon.SinonSpy<unknown[], void> = sinon.spy();
+          const rejected: sinon.SinonSpy<unknown[], void> = sinon.spy();
+          const ready = _router.render('/').then(fulfilled).catch(rejected);
+          // @ts-expect-error: testing invalid arguments
+          _router.setOutlet(invalidOutlet);
+          await ready;
+          expect(fulfilled).to.not.have.been.called;
+          expect(rejected).to.have.been.calledOnce;
+          expect(rejected.args[0][0]).to.be.instanceof(TypeError);
+          _router.unsubscribe();
+        }
       });
 
       it('should return a promise that resolves to the router.location', async () => {
@@ -1532,63 +1532,59 @@ describe('Router', () => {
       });
 
       it('action with non-resolving return should not prevent route redirect', async () => {
-        await Promise.all(
-          [undefined, null, NaN, 0, false, '', 'thisIsAlsoNonResolving', {}, Object.create(null)].map(
-            async (returnValue) => {
-              const _router = new Router(outlet);
-              const erroneousPath = '/error';
-              let actionExecuted = false;
-              await _router.setRoutes(
-                [
-                  {
-                    path: erroneousPath,
-                    redirect: '/users',
-                    action: () => {
-                      actionExecuted = true;
-                      return returnValue;
-                    },
-                  },
-                  { path: '/users', component: 'x-users-view' },
-                ],
-                true,
-              );
+        const returnValues = [undefined, null, NaN, 0, false, '', 'thisIsAlsoNonResolving', {}, Object.create(null)];
 
-              await _router.render(erroneousPath);
-              expect(actionExecuted).to.equal(true);
-              checkOutlet(['x-users-view']);
-            },
-          ),
-        );
+        for (const returnValue of returnValues) {
+          const _router = new Router(outlet);
+          const erroneousPath = '/error';
+          let actionExecuted = false;
+          await _router.setRoutes(
+            [
+              {
+                path: erroneousPath,
+                redirect: '/users',
+                action: () => {
+                  actionExecuted = true;
+                  return returnValue;
+                },
+              },
+              { path: '/users', component: 'x-users-view' },
+            ],
+            true,
+          );
+
+          await _router.render(erroneousPath);
+          expect(actionExecuted).to.equal(true);
+          checkOutlet(['x-users-view']);
+        }
       });
 
       it('should redirect if action returns a Promise with non-resolving value', async () => {
-        await Promise.all(
-          [undefined, null, NaN, 0, false, '', 'thisIsAlsoNonResolving', {}, Object.create(null)].map(
-            async (returnValue) => {
-              const _router = new Router(outlet);
-              const erroneousPath = '/error';
-              let actionExecuted = false;
-              await _router.setRoutes(
-                [
-                  {
-                    path: erroneousPath,
-                    redirect: '/users',
-                    action: async () => {
-                      actionExecuted = true;
-                      return await Promise.resolve(returnValue);
-                    },
-                  },
-                  { path: '/users', component: 'x-users-view' },
-                ],
-                true,
-              );
+        const returnValues = [undefined, null, NaN, 0, false, '', 'thisIsAlsoNonResolving', {}, Object.create(null)];
 
-              await _router.render(erroneousPath);
-              expect(actionExecuted).to.equal(true);
-              checkOutlet(['x-users-view']);
-            },
-          ),
-        );
+        for (const returnValue of returnValues) {
+          const _router = new Router(outlet);
+          const erroneousPath = '/error';
+          let actionExecuted = false;
+          await _router.setRoutes(
+            [
+              {
+                path: erroneousPath,
+                redirect: '/users',
+                action: async () => {
+                  actionExecuted = true;
+                  return await Promise.resolve(returnValue);
+                },
+              },
+              { path: '/users', component: 'x-users-view' },
+            ],
+            true,
+          );
+
+          await _router.render(erroneousPath);
+          expect(actionExecuted).to.equal(true);
+          checkOutlet(['x-users-view']);
+        }
       });
 
       it('action with return should be executed before component and stop it from loading', async () => {
@@ -2249,17 +2245,26 @@ describe('Router', () => {
           { component: 'i-have-no-path-property' },
         ];
 
-        await Promise.all(
-          incorrectRoutes
-            .map(async (incorrectRoute) => {
-              // @ts-expect-error: Testing invalid return value
-              await router.setRoutes({ path: '/a', children: async () => await incorrectRoute }, true);
-              await router.render('/a');
-            })
-            .map(async (promise) => {
-              await expect(promise).to.be.rejected;
-            }),
-        );
+        for (const incorrectRoute of incorrectRoutes) {
+          let exceptionThrown = false;
+          try {
+            await router.setRoutes(
+              {
+                path: '/a',
+                // @ts-expect-error: Testing invalid return value
+                children: async () => await incorrectRoute,
+              },
+              true,
+            );
+            await router.render('/a');
+          } catch {
+            exceptionThrown = true;
+          }
+          expect(
+            exceptionThrown,
+            `No exception thrown for 'children' function incorrect return value '${String(incorrectRoute)}'`,
+          ).to.be.true;
+        }
       });
 
       it('if the return value is a tree of nested routes, they should get resolved correctly', async () => {
