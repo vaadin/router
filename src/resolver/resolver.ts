@@ -36,7 +36,14 @@ function isDescendantRoute<T, R extends AnyObject, C extends AnyObject>(
 }
 
 function isRouteContext<T, R extends AnyObject, C extends AnyObject>(value: unknown): value is RouteContext<T, R, C> {
-  return !!value && typeof value === 'object' && 'result' in value;
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    'next' in value &&
+    'params' in value &&
+    'result' in value &&
+    'route' in value
+  );
 }
 
 export interface ResolutionErrorOptions extends ErrorOptions {
