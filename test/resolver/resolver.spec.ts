@@ -773,6 +773,20 @@ describe('Resolver', () => {
       expect(action.calledOnce).to.be.true;
       expect(middleware.calledOnce).to.be.true;
     });
+
+    it('should match routes with object result', async () => {
+      const resolver = new Resolver([
+        {
+          action() {
+            return { result: 'ok' };
+          },
+          path: '/match',
+        },
+      ]);
+
+      const context = await resolver.resolve('/match');
+      expect(context).to.have.property('result').that.deep.equals({ result: 'ok' });
+    });
   });
 
   // describe('Resolver.__createUrl(path, base) hook', () => {
