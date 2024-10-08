@@ -1,6 +1,6 @@
 {
   "name": "@vaadin/router",
-  "version": "2.0.0-rc1",
+  "version": "2.0.0-rc2",
   "description": "Small and powerful client-side router for Web Components. Framework-agnostic.",
   "main": "dist/index.js",
   "module": "dist/index.js",
