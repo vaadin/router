@@ -30,6 +30,7 @@
     "lint:css": "stylelint demo/**/*.html",
     "build": "npm-run-all --parallel build:*",
     "build:esbuild": "tsx scripts/build.ts",
+    "build:copy-dts": "tsx scripts/copy-dts.ts",
     "build:tsc": "tsc --emitDeclarationOnly --isolatedModules -p tsconfig.build.json",
     "start": "vite",
     "test": "karma start karma.config.cjs",
