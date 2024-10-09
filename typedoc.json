@@ -3,11 +3,12 @@
   "entryPoints": ["src/index.ts"],
   "excludePrivate": true,
   "out": ".docs",
-  "sort": ["source-order"],
+  "sort": ["alphabetical"],
   "plugin": ["@mxssfd/typedoc-theme", "typedoc-plugin-missing-exports"],
   "theme": "my-theme",
   "tsconfig": "tsconfig.build.json",
   "useTsLinkResolution": false,
+  "excludeInternal": true,
   "validation": {
     "notExported": true,
     "invalidLink": true,
