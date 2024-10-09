@@ -50,8 +50,18 @@ export interface ResolutionErrorOptions extends ErrorOptions {
   code?: number;
 }
 
+/**
+ * An error that is thrown when a route resolution fails.
+ */
 export class ResolutionError<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> extends Error {
+  /**
+   * A HTTP status code associated with the error.
+   */
   readonly code?: number;
+
+  /**
+   * The context object associated with the route that was not found.
+   */
   readonly context: RouteContext<T, R, C>;
 
   constructor(context: RouteContext<T, R, C>, options?: ResolutionErrorOptions) {
@@ -65,6 +75,9 @@ export class ResolutionError<T, R extends AnyObject = EmptyObject, C extends Any
     this.context = context;
   }
 
+  /**
+   * Logs the error message to the console as a warning.
+   */
   warn(): void {
     console.warn(this.message);
   }
@@ -91,12 +104,24 @@ function updateChainForRoute<T, R extends AnyObject, C extends AnyObject>(
   }
 }
 
+/**
+ * A callback function that handles errors during route resolution.
+ */
 export type ErrorHandlerCallback<T> = (error: unknown) => T;
 
+/**
+ * A callback function that resolves a route. It is used as a fallback in case
+ * the route is not correctly resolved.
+ */
 export type ResolveRouteCallback<T, R extends AnyObject, C extends AnyObject> = (
   context: RouteContext<T, R, C>,
 ) => MaybePromise<ActionResult<T | RouteContext<T, R, C>>>;
 
+/**
+ * Options for the constructor of the `Resolver` class.
+ * 
+ * @interface
+ */
 export type ResolverOptions<T, R extends AnyObject, C extends AnyObject> = Readonly<{
   baseUrl?: string;
   context?: RouteContext<T, R, C>;
@@ -160,10 +185,16 @@ class Resolver<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObje
     };
   }
 
+  /**
+   * The root route.
+   */
   get root(): Route<T, R, C> {
     return this.#root as Route<T, R, C>;
   }
 
+  /**
+   * The current route context.
+   */
   get context(): RouteContext<T, R, C> {
     return this.#context;
   }

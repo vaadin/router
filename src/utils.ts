@@ -14,6 +14,7 @@ import type {
   WebComponentInterface,
 } from './types.js';
 
+/** @internal */
 export function ensureRoute<R extends AnyObject, C extends AnyObject>(route?: Route<R, C>): void {
   if (!route || !isString(route.path)) {
     throw new Error(
@@ -50,12 +51,14 @@ export function ensureRoute<R extends AnyObject, C extends AnyObject>(route?: Ro
   }
 }
 
+/** @internal */
 export function ensureRoutes<R extends AnyObject, C extends AnyObject>(
   routes: Route<R, C> | ReadonlyArray<Route<R, C>>,
 ): void {
   toArray(routes).forEach((route) => ensureRoute(route));
 }
 
+/** @internal */
 export function copyContextWithoutNext<R extends AnyObject, C extends AnyObject>({
   next: _,
   ...context
@@ -63,6 +66,7 @@ export function copyContextWithoutNext<R extends AnyObject, C extends AnyObject>
   return context;
 }
 
+/** @internal */
 export function getPathnameForRouter<T, R extends AnyObject, C extends AnyObject>(
   pathname: string,
   router: Resolver<T, R, C>,
@@ -72,6 +76,7 @@ export function getPathnameForRouter<T, R extends AnyObject, C extends AnyObject
   return base ? new URL(pathname.replace(/^\//u, ''), base).pathname : pathname;
 }
 
+/** @internal */
 export function getMatchedPath(pathItems: ReadonlyArray<Readonly<{ path: string }>>): string {
   return pathItems
     .map((pathItem) => pathItem.path)
@@ -83,12 +88,15 @@ export function getMatchedPath(pathItems: ReadonlyArray<Readonly<{ path: string 
     }, '');
 }
 
+/** @internal */
 export function getRoutePath<R extends AnyObject, C extends AnyObject>(chain: ReadonlyArray<ChainItem<R, C>>): string {
   return getMatchedPath(chain.map((chainItem) => chainItem.route));
 }
 
+/** @internal */
 export type ResolverOnlyContext<R extends AnyObject, C extends AnyObject> = Readonly<{ resolver: Router<R, C> }>;
 
+/** @internal */
 type PartialRouteContext<R extends AnyObject, C extends AnyObject> = Readonly<{
   chain?: ReadonlyArray<ChainItem<R, C>>;
   hash?: string;
@@ -99,6 +107,7 @@ type PartialRouteContext<R extends AnyObject, C extends AnyObject> = Readonly<{
   search?: string;
 }>;
 
+/** @internal */
 export function createLocation<R extends AnyObject, C extends AnyObject>({
   resolver,
 }: ResolverOnlyContext<R, C>): RouterLocation<R, C>;
@@ -114,7 +123,12 @@ export function createLocation<R extends AnyObject, C extends AnyObject>(
   return {
     baseUrl: resolver?.baseUrl ?? '',
     getUrl: (userParams = {}) =>
-      resolver ? getPathnameForRouter(compile(getRoutePath(chain))({ ...params, ...userParams } as Partial<Record<string, string[]>>), resolver) : '',
+      resolver
+        ? getPathnameForRouter(
+            compile(getRoutePath(chain))({ ...params, ...userParams } as Partial<Record<string, string[]>>),
+            resolver,
+          )
+        : '',
     hash,
     params,
     pathname,
@@ -126,6 +140,7 @@ export function createLocation<R extends AnyObject, C extends AnyObject>(
   };
 }
 
+/** @internal */
 export function createRedirect<R extends AnyObject, C extends AnyObject>(
   context: RouteContext<R, C>,
   pathname: string,
@@ -140,6 +155,7 @@ export function createRedirect<R extends AnyObject, C extends AnyObject>(
   };
 }
 
+/** @internal */
 export function renderElement<R extends AnyObject, C extends AnyObject, E extends WebComponentInterface<R, C>>(
   context: RouteContext<R, C>,
   element: E,
@@ -154,6 +170,7 @@ export function renderElement<R extends AnyObject, C extends AnyObject, E extend
   return element;
 }
 
+/** @internal */
 export function maybeCall<R, A extends unknown[], O extends object>(
   callback: ((this: O, ...args: A) => R) | undefined,
   thisArg: O,
@@ -166,6 +183,7 @@ export function maybeCall<R, A extends unknown[], O extends object>(
   return undefined;
 }
 
+/** @internal */
 export function amend<
   A extends readonly unknown[],
   N extends keyof O,
@@ -180,6 +198,7 @@ export function amend<
   };
 }
 
+/** @internal */
 export function processNewChildren<R extends AnyObject, C extends AnyObject>(
   newChildren: Route<R, C> | ReadonlyArray<Route<R, C>> | undefined | void,
   route: Route<R, C>,
@@ -199,10 +218,12 @@ export function processNewChildren<R extends AnyObject, C extends AnyObject>(
   route.__children = children;
 }
 
+/** @internal */
 export function fireRouterEvent(type: string, detail: unknown): boolean {
   return !window.dispatchEvent(new CustomEvent(`vaadin-router-${type}`, { cancelable: type === 'go', detail }));
 }
 
+/** @internal */
 export function logValue(value: unknown): string {
   if (typeof value !== 'object') {
     return String(value);

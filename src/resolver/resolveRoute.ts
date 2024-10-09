@@ -9,6 +9,7 @@
 import type { ActionResult, AnyObject, MaybePromise, RouteContext } from './types.js';
 import { isFunction } from './utils.js';
 
+/** @internal */
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
 export default function resolveRoute<T, R extends AnyObject, C extends AnyObject>(
   context: RouteContext<T, R, C>,

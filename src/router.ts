@@ -125,6 +125,8 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
 
   #lastStartedRenderId = 0;
   #outlet: Element | DocumentFragment | null | undefined;
+
+  /** @internal */
   private __previousContext?: RouteContext<R, C>;
 
   #urlForName?: ReturnType<typeof generateUrls>;
@@ -325,7 +327,6 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
    * @param skipRender - configure the router but skip rendering the
    *     route corresponding to the current `window.location` values
    */
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   override async setRoutes(
     routes: Route<R, C> | ReadonlyArray<Route<R, C>>,
     skipRender = false,
@@ -699,7 +700,9 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     return context.__renderId === this.#lastStartedRenderId;
   }
 
-  declare ['resolve']: (context: RouteContext<R, C>) => Promise<RouteContext<R, C> & RedirectContextInfo>;
+  declare ['resolve']: (
+    contextOrPathname: RouteContext<R, C> | string,
+  ) => Promise<RouteContext<R, C> & RedirectContextInfo>;
 
   async #redirect(
     redirectData: RedirectContextInfo,
