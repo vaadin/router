@@ -1,5 +1,5 @@
-import { fireRouterEvent } from '../utils.js';
 import type { NavigationTrigger } from '../types.js';
+import { fireRouterEvent } from '../utils.js';
 
 function vaadinRouterGlobalPopstateHandler(event: PopStateEvent) {
   if (event.state === 'vaadin-router-ignore') {

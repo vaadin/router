@@ -699,7 +699,9 @@ export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = Emp
     return context.__renderId === this.#lastStartedRenderId;
   }
 
-  declare ['resolve']: (context: RouteContext<R, C>) => Promise<RouteContext<R, C> & RedirectContextInfo>;
+  declare ['resolve']: (
+    contextOrPathname: RouteContext<R, C> | string,
+  ) => Promise<RouteContext<R, C> & RedirectContextInfo>;
 
   async #redirect(
     redirectData: RedirectContextInfo,
