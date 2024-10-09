@@ -28,7 +28,9 @@ export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readon
     commands: never,
   ): MaybePromise<ActionResult<T | RouteContext<T, R, C>>>;
 }> & {
+  /** @internal @hidden */
   __children?: ReadonlyArray<Route<T, R, C>>;
+  /** @internal @hidden */
   __synthetic?: true;
   children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
   parent?: Route<T, R, C>;
@@ -72,9 +74,13 @@ export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObje
     prevResult?: ActionResult<RouteContext<T, R, C>>,
   ): Promise<ActionResult<RouteContext<T, R, C>>>;
 }> & {
+  /** @internal @hidden */
   __divergedChainIndex?: number;
+  /** @internal @hidden */
   __redirectCount?: number;
+  /** @internal @hidden */
   __renderId: number;
+  /** @internal @hidden */
   __skipAttach?: boolean;
   result?: T | RouteContext<T, R, C>;
 } & ResolveContext<C>;

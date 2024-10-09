@@ -87,9 +87,6 @@ export type ContextExtension<R extends AnyObject, C extends AnyObject> = Readonl
   chain?: Array<ChainItem<R, C>>;
 }> &
   C;
-// Readonly<{
-//   next(resume?: boolean): Promise<ActionResult>;
-// }>;
 
 export type ChildrenCallback<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _ChildrenCallback<
   ActionValue,

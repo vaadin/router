@@ -104,7 +104,7 @@ export type ResolverOptions<T, R extends AnyObject, C extends AnyObject> = Reado
   resolveRoute?: ResolveRouteCallback<T, R, C>;
 }>;
 
-export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> {
+class Resolver<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> {
   /**
    * The base URL for all routes in the router instance. By default,
    * if the base element exists in the `<head>`, vaadin-router
@@ -334,3 +334,5 @@ export default class Resolver<T = unknown, R extends AnyObject = EmptyObject, C 
     return this.getRoutes();
   }
 }
+
+export default Resolver;
