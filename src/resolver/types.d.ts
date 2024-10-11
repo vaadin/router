@@ -63,8 +63,6 @@ export type ChildrenCallback<T, R extends AnyObject, C extends AnyObject> = (
  * empty object.
  * @typeParam C - The type of user-defined context-specific data. Defaults to an
  * empty object.
- *
- * @internal
  */
 export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readonly<{
   /**
@@ -86,6 +84,8 @@ export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readon
    *
    * @returns The result of the route resolution. It could be either a value
    * produced by the action or a new context to continue the resolution process.
+   *
+   * @internal
    */
   action?(
     this: Route<T, R, C>,

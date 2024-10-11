@@ -4,11 +4,11 @@
   "excludePrivate": true,
   "out": ".docs",
   "sort": ["alphabetical"],
-  "plugin": ["@mxssfd/typedoc-theme", "typedoc-plugin-missing-exports"],
-  "theme": "my-theme",
+  "plugin": ["typedoc-plugin-missing-exports"],
   "tsconfig": "tsconfig.build.json",
   "useTsLinkResolution": false,
   "excludeInternal": true,
+  "excludeExternals": true,
   "validation": {
     "notExported": true,
     "invalidLink": true,

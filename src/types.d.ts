@@ -164,6 +164,18 @@ export type RouteExtension<R extends AnyObject, C extends AnyObject> = RequireAt
   children?: ChildrenCallback<R, C> | ReadonlyArray<Route<R, C>>;
   component?: string;
   redirect?: string;
+  /**
+   * An action that is executed when the route is resolved.
+   *
+   * Actions are executed recursively from the root route to the child route and
+   * can either produce content or perform actions before or after the child's
+   * action.
+   *
+   * @param context - The context of the current route.
+   *
+   * @returns The result of the route resolution. It could be either a value
+   * produced by the action or a new context to continue the resolution process.
+   */
   action?(
     this: Route<R, C>,
     context: RouteContext<R, C>,
