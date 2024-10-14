@@ -9,7 +9,7 @@
 import type { EmptyObject } from 'type-fest';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
-import type { ActionResult, RouteBase, Match, MaybePromise, ResolveContext, Route, RouteContext } from './types.js';
+import type { ActionResult, Route, Match, MaybePromise, ResolveContext, RouteContext } from './types.js';
 import { getNotFoundError, getRoutePath, isString, NotFoundError, notFoundResult, toArray } from './utils.js';
 
 function isDescendantRoute<T, R extends object, C extends object>(
@@ -131,7 +131,7 @@ class Resolver<T = unknown, R extends object = EmptyObject, C extends object = E
   #context: RouteContext<T, R, C>;
   readonly errorHandler?: ErrorHandlerCallback<T>;
   readonly resolveRoute: ResolveRouteCallback<T, R, C>;
-  readonly #root: RouteBase<T, R, C>;
+  readonly #root: Route<T, R, C>;
 
   constructor(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>, options?: ResolverOptions<T, R, C>);
   constructor(
@@ -155,7 +155,7 @@ class Resolver<T = unknown, R extends object = EmptyObject, C extends object = E
         __synthetic: true,
         action: () => undefined,
         path: '',
-      };
+      } as Route<T, R, C>;
     } else {
       this.#root = { ...routes, parent: undefined };
     }
@@ -170,7 +170,7 @@ class Resolver<T = unknown, R extends object = EmptyObject, C extends object = E
       params: {},
       pathname: '',
       resolver: this,
-      route: this.#root as Route<T, R, C>,
+      route: this.#root,
       search: '',
       chain: [],
     };
@@ -180,7 +180,7 @@ class Resolver<T = unknown, R extends object = EmptyObject, C extends object = E
    * The root route.
    */
   get root(): Route<T, R, C> {
-    return this.#root as Route<T, R, C>;
+    return this.#root;
   }
 
   /**
@@ -246,7 +246,7 @@ class Resolver<T = unknown, R extends object = EmptyObject, C extends object = E
       next,
     };
     const match = matchRoute(
-      this.#root as Route<T, R, C>,
+      this.#root,
       this.__normalizePathname(context.pathname) ?? context.pathname,
       !!this.baseUrl,
     );
@@ -294,7 +294,7 @@ class Resolver<T = unknown, R extends object = EmptyObject, C extends object = E
     }
 
     try {
-      return await next(true, this.#root as Route<T, R, C>);
+      return await next(true, this.#root);
     } catch (error: unknown) {
       const _error =
         error instanceof NotFoundError
@@ -315,8 +315,9 @@ class Resolver<T = unknown, R extends object = EmptyObject, C extends object = E
    * @param routes - a single route or an array of those
    *    (the array is shallow copied)
    */
-  setRoutes(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>): void {
+  setRoutes(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>): object {
     this.#root.__children = [...toArray(routes)];
+    return {};
   }
 
   /**

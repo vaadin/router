@@ -56,8 +56,10 @@ export type ChildrenCallback<T, R extends object, C extends object> = (
  * empty object.
  * @typeParam C - The type of user-defined context-specific data. Defaults to an
  * empty object.
+ *
+ * @interface
  */
-export type RouteBase<T, R extends object, C extends object> = Readonly<{
+export type Route<T = unknown, R extends object = EmptyObject, C extends object = EmptyObject> = Readonly<{
   /**
    * The name of the route.
    */
@@ -93,13 +95,7 @@ export type RouteBase<T, R extends object, C extends object> = Readonly<{
   children?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>;
   parent?: Route<T, R, C>;
   fullPath?: string;
-};
-
-/**
- * {@inheritDoc BasicRoutePart}
- * @interface
- */
-export type Route<T = unknown, R extends object = EmptyObject, C extends object = EmptyObject> = RouteBase<T, R, C> & R;
+} & R;
 
 /**
  * A matched route with its associated path.
