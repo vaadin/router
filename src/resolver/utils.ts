@@ -1,4 +1,4 @@
-import type { AnyObject, ChildrenCallback, Route, RouteContext } from './types.js';
+import type { ChildrenCallback, Route, RouteContext } from './types.js';
 
 /**
  * {@inheritDoc "<internal>".NotFoundError}
@@ -14,7 +14,7 @@ export type NotFoundResult = typeof notFoundResult;
 /**
  * An error to be thrown when a route is not found.
  */
-export class NotFoundError<T, R extends AnyObject, C extends AnyObject> extends Error {
+export class NotFoundError<T, R extends object, C extends object> extends Error {
   /**
    * The HTTP status code to be used when the route is not found.
    */
@@ -60,7 +60,7 @@ export function log(msg: string): string {
 }
 
 /** @internal */
-export function getNotFoundError<T, R extends AnyObject, C extends AnyObject>(
+export function getNotFoundError<T, R extends object, C extends object>(
   context: RouteContext<T, R, C>,
 ): NotFoundError<T, R, C> {
   return new NotFoundError(context);
@@ -72,12 +72,12 @@ export function resolvePath(path?: string | readonly string[]): string {
 }
 
 /** @internal */
-export function getRoutePath<T, R extends AnyObject, C extends AnyObject>(route: Route<T, R, C> | undefined): string {
+export function getRoutePath<T, R extends object, C extends object>(route: Route<T, R, C> | undefined): string {
   return resolvePath(route?.path);
 }
 
 /** @internal */
-export function unwrapChildren<T, R extends AnyObject, C extends AnyObject>(
+export function unwrapChildren<T, R extends object, C extends object>(
   children: ChildrenCallback<T, R, C> | ReadonlyArray<Route<T, R, C>> | undefined,
 ): ReadonlyArray<Route<T, R, C>> | undefined {
   return Array.isArray<ReadonlyArray<Route<T, R, C>>>(children) && children.length > 0 ? children : undefined;

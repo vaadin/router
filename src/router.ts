@@ -9,7 +9,6 @@ import animate from './transitions/animate.js';
 import { DEFAULT_TRIGGERS, setNavigationTriggers } from './triggers/navigation.js';
 import type {
   ActionResult,
-  AnyObject,
   Commands,
   ChainItem,
   ContextExtension,
@@ -99,7 +98,7 @@ const rootContext: RouteContext = {
  *
  * Only `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
  */
-export class Router<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> extends Resolver<
+export class Router<R extends object = EmptyObject, C extends object = EmptyObject> extends Resolver<
   ActionValue,
   RouteExtension<R, C>,
   ContextExtension<R, C>

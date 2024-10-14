@@ -10,12 +10,12 @@
 import { parse, type ParseOptions, type Token, tokensToFunction, type TokensToFunctionOptions } from 'path-to-regexp';
 import type { EmptyObject, Writable } from 'type-fest';
 import Resolver from './resolver.js';
-import type { AnyObject, ChildrenCallback, IndexedParams, Params, Route } from './types.js';
+import type { ChildrenCallback, IndexedParams, Params, Route } from './types.js';
 import { getRoutePath, isString } from './utils.js';
 
 export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> | number | string>>;
 
-function cacheRoutes<T, R extends AnyObject, C extends AnyObject>(
+function cacheRoutes<T, R extends object, C extends object>(
   routesByName: Map<string, Array<Route<T, R, C>>>,
   route: Route<T, R, C>,
   routes?: ReadonlyArray<Route<T, R, C>> | ChildrenCallback<T, R, C>,
@@ -38,7 +38,7 @@ function cacheRoutes<T, R extends AnyObject, C extends AnyObject>(
   }
 }
 
-function getRouteByName<T, R extends AnyObject, C extends AnyObject>(
+function getRouteByName<T, R extends object, C extends object>(
   routesByName: Map<string, Array<Route<T, R, C>>>,
   routeName: string,
 ): Route<T, R, C> | undefined {
@@ -57,7 +57,7 @@ function getRouteByName<T, R extends AnyObject, C extends AnyObject>(
 
 export type StringifyQueryParams = (params: UrlParams) => string;
 
-export type GenerateUrlOptions<T, R extends AnyObject, C extends AnyObject> = ParseOptions &
+export type GenerateUrlOptions<T, R extends object, C extends object> = ParseOptions &
   Readonly<{
     /**
      * Add a query string to generated url based on unknown route params.
@@ -78,7 +78,7 @@ type RouteCacheRecord = Readonly<{
 
 export type UrlGenerator = (routeName: string, params?: Params) => string;
 
-function generateUrls<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject>(
+function generateUrls<T = unknown, R extends object = EmptyObject, C extends object = EmptyObject>(
   resolver: Resolver<T, R, C>,
   options: GenerateUrlOptions<T, R, C> = {},
 ): UrlGenerator {

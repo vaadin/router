@@ -6,12 +6,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE.txt file in the root directory of this source tree.
  */
-import type { ActionResult, AnyObject, MaybePromise, RouteContext } from './types.js';
+import type { ActionResult, MaybePromise, RouteContext } from './types.js';
 import { isFunction } from './utils.js';
 
 /** @internal */
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-export default function resolveRoute<T, R extends AnyObject, C extends AnyObject>(
+export default function resolveRoute<T, R extends object, C extends object>(
   context: RouteContext<T, R, C>,
 ): MaybePromise<ActionResult<T | RouteContext<T, R, C>>> {
   if (isFunction(context.route.action)) {

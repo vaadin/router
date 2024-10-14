@@ -4,7 +4,6 @@ import { isFunction, isObject, isString, log, toArray } from './resolver/utils.j
 import type { Router } from './router.js';
 import type {
   ActionResult,
-  AnyObject,
   ChainItem,
   IndexedParams,
   RedirectResult,
@@ -15,7 +14,7 @@ import type {
 } from './types.js';
 
 /** @internal */
-export function ensureRoute<R extends AnyObject, C extends AnyObject>(route?: Route<R, C>): void {
+export function ensureRoute<R extends object, C extends object>(route?: Route<R, C>): void {
   if (!route || !isString(route.path)) {
     throw new Error(
       log(`Expected route config to be an object with a "path" string property, or an array of such objects`),
@@ -52,14 +51,14 @@ export function ensureRoute<R extends AnyObject, C extends AnyObject>(route?: Ro
 }
 
 /** @internal */
-export function ensureRoutes<R extends AnyObject, C extends AnyObject>(
+export function ensureRoutes<R extends object, C extends object>(
   routes: Route<R, C> | ReadonlyArray<Route<R, C>>,
 ): void {
   toArray(routes).forEach((route) => ensureRoute(route));
 }
 
 /** @internal */
-export function copyContextWithoutNext<R extends AnyObject, C extends AnyObject>({
+export function copyContextWithoutNext<R extends object, C extends object>({
   next: _,
   ...context
 }: RouteContext<R, C>): Omit<RouteContext<R, C>, 'next'> {
@@ -67,7 +66,7 @@ export function copyContextWithoutNext<R extends AnyObject, C extends AnyObject>
 }
 
 /** @internal */
-export function getPathnameForRouter<T, R extends AnyObject, C extends AnyObject>(
+export function getPathnameForRouter<T, R extends object, C extends object>(
   pathname: string,
   router: Resolver<T, R, C>,
 ): string {
@@ -89,15 +88,15 @@ export function getMatchedPath(pathItems: ReadonlyArray<Readonly<{ path: string 
 }
 
 /** @internal */
-export function getRoutePath<R extends AnyObject, C extends AnyObject>(chain: ReadonlyArray<ChainItem<R, C>>): string {
+export function getRoutePath<R extends object, C extends object>(chain: ReadonlyArray<ChainItem<R, C>>): string {
   return getMatchedPath(chain.map((chainItem) => chainItem.route));
 }
 
 /** @internal */
-export type ResolverOnlyContext<R extends AnyObject, C extends AnyObject> = Readonly<{ resolver: Router<R, C> }>;
+export type ResolverOnlyContext<R extends object, C extends object> = Readonly<{ resolver: Router<R, C> }>;
 
 /** @internal */
-type PartialRouteContext<R extends AnyObject, C extends AnyObject> = Readonly<{
+type PartialRouteContext<R extends object, C extends object> = Readonly<{
   chain?: ReadonlyArray<ChainItem<R, C>>;
   hash?: string;
   params?: IndexedParams;
@@ -108,14 +107,14 @@ type PartialRouteContext<R extends AnyObject, C extends AnyObject> = Readonly<{
 }>;
 
 /** @internal */
-export function createLocation<R extends AnyObject, C extends AnyObject>({
+export function createLocation<R extends object, C extends object>({
   resolver,
 }: ResolverOnlyContext<R, C>): RouterLocation<R, C>;
-export function createLocation<R extends AnyObject, C extends AnyObject>(
+export function createLocation<R extends object, C extends object>(
   context: RouteContext<R, C>,
   route?: Route<R, C>,
 ): RouterLocation<R, C>;
-export function createLocation<R extends AnyObject, C extends AnyObject>(
+export function createLocation<R extends object, C extends object>(
   { chain = [], hash = '', params = {}, pathname = '', redirectFrom, resolver, search = '' }: PartialRouteContext<R, C>,
   route?: Route<R, C>,
 ): RouterLocation<R, C> {
@@ -141,7 +140,7 @@ export function createLocation<R extends AnyObject, C extends AnyObject>(
 }
 
 /** @internal */
-export function createRedirect<R extends AnyObject, C extends AnyObject>(
+export function createRedirect<R extends object, C extends object>(
   context: RouteContext<R, C>,
   pathname: string,
 ): RedirectResult {
@@ -156,7 +155,7 @@ export function createRedirect<R extends AnyObject, C extends AnyObject>(
 }
 
 /** @internal */
-export function renderElement<R extends AnyObject, C extends AnyObject, E extends WebComponentInterface<R, C>>(
+export function renderElement<R extends object, C extends object, E extends WebComponentInterface<R, C>>(
   context: RouteContext<R, C>,
   element: E,
 ): E {
@@ -187,7 +186,7 @@ export function maybeCall<R, A extends unknown[], O extends object>(
 export function amend<
   A extends readonly unknown[],
   N extends keyof O,
-  O extends AnyObject & { [key in N]: (this: O, ...args: A) => ActionResult | undefined },
+  O extends object & { [key in N]: (this: O, ...args: A) => ActionResult | undefined },
 >(fn: keyof O, obj: O | undefined, ...args: A): (result: ActionResult) => ActionResult | undefined {
   return (result: ActionResult) => {
     if (result && isObject(result) && ('cancel' in result || 'redirect' in result)) {
@@ -199,7 +198,7 @@ export function amend<
 }
 
 /** @internal */
-export function processNewChildren<R extends AnyObject, C extends AnyObject>(
+export function processNewChildren<R extends object, C extends object>(
   newChildren: Route<R, C> | ReadonlyArray<Route<R, C>> | undefined | void,
   route: Route<R, C>,
 ): void {

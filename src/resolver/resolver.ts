@@ -9,19 +9,10 @@
 import type { EmptyObject } from 'type-fest';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
-import type {
-  ActionResult,
-  AnyObject,
-  BasicRoutePart,
-  Match,
-  MaybePromise,
-  ResolveContext,
-  Route,
-  RouteContext,
-} from './types.js';
+import type { ActionResult, RouteBase, Match, MaybePromise, ResolveContext, Route, RouteContext } from './types.js';
 import { getNotFoundError, getRoutePath, isString, NotFoundError, notFoundResult, toArray } from './utils.js';
 
-function isDescendantRoute<T, R extends AnyObject, C extends AnyObject>(
+function isDescendantRoute<T, R extends object, C extends object>(
   route?: Route<T, R, C>,
   maybeParent?: Route<T, R, C>,
 ) {
@@ -35,7 +26,7 @@ function isDescendantRoute<T, R extends AnyObject, C extends AnyObject>(
   return false;
 }
 
-function isRouteContext<T, R extends AnyObject, C extends AnyObject>(value: unknown): value is RouteContext<T, R, C> {
+function isRouteContext<T, R extends object, C extends object>(value: unknown): value is RouteContext<T, R, C> {
   return (
     !!value &&
     typeof value === 'object' &&
@@ -53,7 +44,7 @@ export interface ResolutionErrorOptions extends ErrorOptions {
 /**
  * An error that is thrown when a route resolution fails.
  */
-export class ResolutionError<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> extends Error {
+export class ResolutionError<T, R extends object = EmptyObject, C extends object = EmptyObject> extends Error {
   /**
    * A HTTP status code associated with the error.
    */
@@ -83,7 +74,7 @@ export class ResolutionError<T, R extends AnyObject = EmptyObject, C extends Any
   }
 }
 
-function updateChainForRoute<T, R extends AnyObject, C extends AnyObject>(
+function updateChainForRoute<T, R extends object, C extends object>(
   context: RouteContext<T, R, C>,
   match: Match<T, R, C>,
 ) {
@@ -113,23 +104,23 @@ export type ErrorHandlerCallback<T> = (error: unknown) => T;
  * A callback function that resolves a route. It is used as a fallback in case
  * the route is not correctly resolved.
  */
-export type ResolveRouteCallback<T, R extends AnyObject, C extends AnyObject> = (
+export type ResolveRouteCallback<T, R extends object, C extends object> = (
   context: RouteContext<T, R, C>,
 ) => MaybePromise<ActionResult<T | RouteContext<T, R, C>>>;
 
 /**
  * Options for the constructor of the `Resolver` class.
- * 
+ *
  * @interface
  */
-export type ResolverOptions<T, R extends AnyObject, C extends AnyObject> = Readonly<{
+export type ResolverOptions<T, R extends object, C extends object> = Readonly<{
   baseUrl?: string;
   context?: RouteContext<T, R, C>;
   errorHandler?: ErrorHandlerCallback<T>;
   resolveRoute?: ResolveRouteCallback<T, R, C>;
 }>;
 
-class Resolver<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> {
+class Resolver<T = unknown, R extends object = EmptyObject, C extends object = EmptyObject> {
   /**
    * The base URL for all routes in the router instance. By default,
    * if the base element exists in the `<head>`, vaadin-router
@@ -140,7 +131,7 @@ class Resolver<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObje
   #context: RouteContext<T, R, C>;
   readonly errorHandler?: ErrorHandlerCallback<T>;
   readonly resolveRoute: ResolveRouteCallback<T, R, C>;
-  readonly #root: BasicRoutePart<T, R, C>;
+  readonly #root: RouteBase<T, R, C>;
 
   constructor(routes: ReadonlyArray<Route<T, R, C>> | Route<T, R, C>, options?: ResolverOptions<T, R, C>);
   constructor(

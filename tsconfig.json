@@ -9,7 +9,6 @@
     "moduleResolution": "bundler",
     "lib": ["es2022", "dom", "DOM.Iterable"],
     "allowArbitraryExtensions": true,
-    "skipLibCheck": true,
     "strict": true,
     "strictBindCallApply": true,
     "sourceMap": true,
@@ -20,6 +19,6 @@
     "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true
   },
-  "include": ["scripts/**/*", "src/**/*", "test/**/*", "./vite.config.ts", "./*.cjs"],
+  "include": ["scripts/**/*", "src/**/*", "test/**/*", "/vite.config.ts", "/*.cjs"],
   "exclude": ["node_modules", "dist/**/*", "scripts/**/*.js"]
 }

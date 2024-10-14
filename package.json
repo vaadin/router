@@ -36,7 +36,7 @@
     "test": "karma start karma.config.cjs",
     "test:watch": "npm run test -- --watch",
     "test:coverage": "npm run test -- --coverage",
-    "docs": "npm run build && echo \"not implemented\" >&2 && exit 1",
+    "docs": "typedoc",
     "browserslist": "browserslist && browserslist --coverage",
     "prepack": "npm run clean:build",
     "prepare": "npm run build",

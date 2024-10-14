@@ -1,5 +1,3 @@
-/** @module resolver */
-
 import type { EmptyObject } from 'type-fest';
 import type Resolver from './resolver.js';
 import type { NotFoundResult } from './utils.js';
@@ -7,11 +5,6 @@ import type { NotFoundResult } from './utils.js';
 /* ========================
  *  Common Types
  * ======================== */
-
-/**
- * Represents any object. This is useful as a type guard in generics.
- */
-export type AnyObject = Readonly<Record<never, never>>;
 
 /**
  * Represents either a value or a promise of a value.
@@ -47,7 +40,7 @@ export type ActionResult<T> = T | NotFoundResult | null | undefined | void;
  *
  * @interface
  */
-export type ChildrenCallback<T, R extends AnyObject, C extends AnyObject> = (
+export type ChildrenCallback<T, R extends object, C extends object> = (
   context: RouteChildrenContext<T, R, C>,
 ) => MaybePromise<Route<T, R, C> | ReadonlyArray<Route<T, R, C>> | void>;
 
@@ -64,7 +57,7 @@ export type ChildrenCallback<T, R extends AnyObject, C extends AnyObject> = (
  * @typeParam C - The type of user-defined context-specific data. Defaults to an
  * empty object.
  */
-export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readonly<{
+export type RouteBase<T, R extends object, C extends object> = Readonly<{
   /**
    * The name of the route.
    */
@@ -106,12 +99,7 @@ export type BasicRoutePart<T, R extends AnyObject, C extends AnyObject> = Readon
  * {@inheritDoc BasicRoutePart}
  * @interface
  */
-export type Route<T = unknown, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = BasicRoutePart<
-  T,
-  R,
-  C
-> &
-  R;
+export type Route<T = unknown, R extends object = EmptyObject, C extends object = EmptyObject> = RouteBase<T, R, C> & R;
 
 /**
  * A matched route with its associated path.
@@ -124,7 +112,7 @@ export type Route<T = unknown, R extends AnyObject = EmptyObject, C extends AnyO
  *
  * @internal
  */
-export type Match<T, R extends AnyObject, C extends AnyObject> = Readonly<{
+export type Match<T, R extends object, C extends object> = Readonly<{
   /** The path of the matched route. */
   path: string;
   /** The route object associated with the matched path. */
@@ -142,7 +130,7 @@ export type Match<T, R extends AnyObject, C extends AnyObject> = Readonly<{
  *
  * @interface
  */
-export type ChainItem<T, R extends AnyObject, C extends AnyObject> = {
+export type ChainItem<T, R extends object, C extends object> = {
   /** A DOM element associated with the route. */
   element?: Element;
   /** The path of the route. */
@@ -160,7 +148,7 @@ export type ChainItem<T, R extends AnyObject, C extends AnyObject> = {
  *
  * @interface
  */
-export type ResolveContext<C extends AnyObject = EmptyObject> = Readonly<{
+export type ResolveContext<C extends object = EmptyObject> = Readonly<{
   /** The current location. */
   pathname: string;
 }> &
@@ -178,7 +166,7 @@ export type ResolveContext<C extends AnyObject = EmptyObject> = Readonly<{
  *
  * @interface
  */
-export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = Readonly<{
+export type RouteContext<T, R extends object = EmptyObject, C extends object = EmptyObject> = Readonly<{
   /**
    * The {@link https://developer.mozilla.org/en-US/docs/Web/API/URL/hash | hash}
    * fragment of the URL.
@@ -248,7 +236,7 @@ export type RouteContext<T, R extends AnyObject = EmptyObject, C extends AnyObje
  *
  * @interface
  */
-export type RouteChildrenContext<T, R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = Omit<
+export type RouteChildrenContext<T, R extends object = EmptyObject, C extends object = EmptyObject> = Omit<
   RouteContext<T, R, C>,
   'next'
 >;
