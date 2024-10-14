@@ -2,7 +2,8 @@ import type { AnyObject, EmptyObject } from '@ausginer/router';
 import type { Router } from '../router.js';
 import type { Commands, EmptyCommands } from './Commands.js';
 import type { MaybePromise, PreventResult, RedirectResult } from './general.js';
-import type { RouterLocation } from './RouterLocation.js';
+import type { RouterLocation } from '../internals/location.js';
+import type { PreventCommand, RedirectCommand } from '../internals/Commands.js';
 
 /**
  * This interface describes the lifecycle callbacks supported by Vaadin Router
@@ -165,7 +166,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
     location: RouterLocation<R, C>,
     commands: Commands,
     router: Router<R, C>,
-  ): MaybePromise<PreventResult | RedirectResult | void>;
+  ): MaybePromise<PreventCommand | RedirectCommand | void>;
 
   /**
    * Method that gets executed when user navigates away from the component
@@ -207,5 +208,5 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
     location: RouterLocation<R, C>,
     commands: Commands,
     router: Router<R, C>,
-  ): MaybePromise<PreventResult | void>;
+  ): MaybePromise<PreventCommand | void>;
 }

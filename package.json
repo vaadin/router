@@ -52,11 +52,12 @@
     "last 1 ChromeAndroid major versions"
   ],
   "dependencies": {
-    "@ausginer/router": "^1.0.0-beta.3",
+    "@ausginer/router": "file:../../opensource/router/ausginer-router-1.0.0-beta.3.tgz",
     "@vaadin/vaadin-usage-statistics": "^2.1.2",
     "eslint-plugin-tsdoc": "^0.2.17",
     "path-to-regexp": "^6.2.1",
-    "type-fest": "^3.13.0"
+    "type-fest": "^3.13.0",
+    "urlpattern-polyfill": "^10.0.0"
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",

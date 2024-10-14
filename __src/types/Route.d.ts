@@ -1,7 +1,7 @@
-import type { AnyObject } from '@ausginer/router';
+import type { MaybePromise, Route as _Route } from '@ausginer/router';
 import type { EmptyObject, RequireAtLeastOne } from 'type-fest';
-import type { Commands } from './Commands.js';
-import type { ActionResult, MaybePromise } from './general.js';
+import type { Commands, PreventCommand, RedirectCommand } from '../internals/Commands.js';
+import type { ActionResult, InternalResult } from './general.js';
 import type { RouteContext } from './RouteContext.js';
 
 export type AnimateCustomClasses = Readonly<{
@@ -9,16 +9,12 @@ export type AnimateCustomClasses = Readonly<{
   leave?: string;
 }>;
 
-export type Route<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = Readonly<
+export type Route<R extends object = EmptyObject, C extends object = EmptyObject> = Readonly<
   RequireAtLeastOne<{
     children?: ReadonlyArray<Route<R, C>>;
     component?: string;
     redirect?: string;
-    action?(
-      this: Route<R, C>,
-      context: RouteContext<R, C>,
-      commands: Commands,
-    ): MaybePromise<ActionResult | RouteContext<R, C>>;
+    action?(this: Route<R, C>, context: RouteContext<R, C>, commands: Commands): MaybePromise<ActionResult>;
   }>
 > &
   Readonly<{
@@ -29,3 +25,9 @@ export type Route<R extends AnyObject = EmptyObject, C extends AnyObject = Empty
     animate?: AnimateCustomClasses | boolean;
   }> &
   R;
+
+export type InternalRoute<R extends object, C extends object> = _Route<
+  InternalResult<R, C> | RedirectCommand | PreventCommand,
+  R,
+  C
+>;

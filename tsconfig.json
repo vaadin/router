@@ -9,7 +9,6 @@
     "moduleResolution": "bundler",
     "lib": ["es2022", "dom", "DOM.Iterable"],
     "allowArbitraryExtensions": true,
-    "skipLibCheck": true,
     "strict": true,
     "strictBindCallApply": true,
     "sourceMap": true,
@@ -21,5 +20,5 @@
     "useUnknownInCatchVariables": true
   },
   "include": ["scripts", "src/**/*", "__src", "test/**/*", "./vite.config.ts", "./*.cjs"],
-  "exclude": ["scripts/**/*.js"]
+  "exclude": ["node_modules", "scripts/**/*.js"]
 }

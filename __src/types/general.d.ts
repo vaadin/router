@@ -1,10 +1,9 @@
-import type { NotFoundResult } from '../utils.js';
+import type { Command, ComponentCommand } from '../internals/Commands.js';
+import type { InternalRoute } from './Route.js';
+import type { RouteContext } from './RouteContext.js';
+import type { WebComponentInterface } from './WebComponentInterface.js';
 
-export type MaybePromise<T> = Promise<T> | T;
-
-export type Result<T> = T | NotFoundResult | null | undefined | void;
-
-export type PrimitiveParamValue = string | number | null;
+export type PrimitiveParamValue = string | number | null | undefined;
 
 export type ParamValue = PrimitiveParamValue | readonly PrimitiveParamValue[];
 
@@ -18,14 +17,11 @@ export type RedirectContextInfo = Readonly<{
   pathname: string;
 }>;
 
-export interface RedirectResult {
-  readonly redirect: RedirectContextInfo;
-}
+export type ActionResult = Command | null | undefined;
 
-export interface PreventResult {
-  readonly cancel: true;
-}
-
-export type ActionValue = HTMLElement | PreventResult | RedirectResult;
-
-export type ActionResult = Result<ActionValue>;
+export type InternalResult<R extends object, C extends object> = Array<{
+  context: RouteContext<R, C>;
+  result?: ComponentCommand;
+  route: InternalRoute<R, C>;
+  element?: WebComponentInterface<R, C>;
+}>;

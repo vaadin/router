@@ -1,8 +1,8 @@
-import type { AnyObject, EmptyObject } from '@ausginer/router';
+import type { EmptyObject } from '@ausginer/router';
 import type { ResolutionError } from '../internals/ResolutionError.js';
 import type { Router } from '../router.js';
 import type { RouteContext } from './RouteContext.js';
-import type { RouterLocation } from './RouterLocation.js';
+import type { RouterLocation } from '../internals/location.js';
 
 export type VaadinRouterLocationChangedEvent = CustomEvent<
   Readonly<{
@@ -11,7 +11,7 @@ export type VaadinRouterLocationChangedEvent = CustomEvent<
   }>
 >;
 
-export type VaadinRouterErrorEvent<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = CustomEvent<
+export type VaadinRouterErrorEvent<R extends object = EmptyObject, C extends object = EmptyObject> = CustomEvent<
   Readonly<{
     error: ResolutionError<R, C>;
     router: Router<R, C>;

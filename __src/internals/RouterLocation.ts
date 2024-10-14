@@ -1,6 +1,7 @@
-import type { AnyObject, EmptyObject } from '@ausginer/router';
-import type { IndexedParams, Params } from './general.js';
-import type { Route } from './Route.js';
+import type { EmptyObject, Router as _Router } from '@ausginer/router';
+import type { IndexedParams, Params } from '../types/general.js';
+import type { Route } from '../types/Route.js';
+import type { RouteContext } from '../types/RouteContext.js';
 
 /**
  * Describes the state of a router at a given point in time. It is available for
@@ -12,7 +13,7 @@ import type { Route } from './Route.js';
  *    lifecycle callbacks,
  *  - as the `event.detail.location` of the global Vaadin Router events.
  */
-export interface RouterLocation<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> {
+export interface RouterLocation<R extends object = EmptyObject, C extends object = EmptyObject> {
   /**
    * The base URL used in the router. See [the `baseUrl` property
    * ](#/classes/Router#property-baseUrl) in the Router.
@@ -84,7 +85,7 @@ export interface RouterLocation<R extends AnyObject = EmptyObject, C extends Any
    *
    * @public
    */
-  route: Route<R, C> | null;
+  route?: Route<R, C> | null;
 
   /**
    * A list of route objects that match the current pathname. This list has
@@ -125,4 +126,32 @@ export interface RouterLocation<R extends AnyObject = EmptyObject, C extends Any
    * @public
    */
   getUrl(params?: Params): string;
+}
+
+export function createRouterLocation<R extends object, C extends object>(
+  {
+    hash = '',
+    params,
+    search = '',
+    pathname,
+    resolver,
+    chain = [],
+    searchParams = new URLSearchParams(search),
+  }: RouteContext<R, C>,
+  getUrl: (params?: IndexedParams) => string,
+  route?: Route<R, C>,
+): RouterLocation<R, C> {
+  const routes = chain.map((item) => item.route);
+
+  return {
+    baseUrl: resolver.baseUrl,
+    getUrl,
+    hash,
+    params,
+    pathname,
+    route,
+    routes,
+    search,
+    searchParams,
+  };
 }
