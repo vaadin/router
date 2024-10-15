@@ -9,6 +9,7 @@
     "moduleResolution": "bundler",
     "lib": ["es2022", "dom", "DOM.Iterable"],
     "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
     "strict": true,
     "strictBindCallApply": true,
     "sourceMap": true,
