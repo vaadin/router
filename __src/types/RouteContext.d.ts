@@ -15,7 +15,7 @@ export type RouteContext<R extends object = EmptyObject, C extends object = Empt
     hash?: string;
     search?: string;
     searchParams?: URLSearchParams;
-    chain?: Array<ChainItem<R, C>>;
+    chain?: ReadonlyArray<Route<R, C>>;
     params: IndexedParams;
     resolver: Router<R, C>;
     redirectFrom?: string;

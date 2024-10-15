@@ -7,18 +7,20 @@ import {
   navigate,
   addNavigationListener,
 } from '@ausginer/router';
+import { izip } from 'itertools';
 import {
   createCommand,
   isComponentCommand,
   isPreventCommand,
   isRedirectCommand,
+  type Command,
   type Commands,
   type ComponentCommand,
   type PreventCommand,
   type RedirectCommand,
 } from './internals/Commands.js';
 import { createRouterLocation, type RouterLocation } from './internals/RouterLocation.js';
-import type { ActionResult, InternalResult, Params, RedirectContextInfo } from './types/general.js';
+import type { InternalResult, Params, RedirectContextInfo } from './types/general.js';
 import type { InternalRoute, Route } from './types/Route.js';
 import type { ChainItem, RouteContext } from './types/RouteContext.js';
 import type { ResolveRouteCallback, RouterOptions } from './types/RouterOptions.js';
@@ -28,7 +30,7 @@ import { ensureRoutes, log } from './utils.js';
 function convertOptions<R extends object, C extends object>({
   baseUrl,
   errorHandler,
-}: RouterOptions<R, C> = {}): _RouterOptions<InternalResult<R, C> | PreventCommand | RedirectCommand> {
+}: RouterOptions<R, C> = {}): _RouterOptions<ReadonlyArray<InternalResult<R, C>> | PreventCommand | RedirectCommand> {
   const baseHref = document.head.querySelector('base')?.getAttribute('href');
 
   return {
@@ -86,12 +88,12 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
   readonly #context?: RouteContext<R, C>;
 
   readonly #options?: RouterOptions<R, C>;
-
   readonly #location = createRouterLocation<R, C>({ resolver: this });
-
+  readonly #routes = new WeakMap<InternalRoute<R, C>, Route<R, C>>();
   #controller?: AbortController;
-  #impl: _Router<InternalResult<R, C> | PreventCommand | RedirectCommand, R, C>;
+  #impl: _Router<ReadonlyArray<InternalResult<R, C>> | PreventCommand | RedirectCommand, R, C>;
   #outlet?: Element | DocumentFragment | null;
+  #previousResolved: ReadonlyArray<InternalResult<R, C>> | null = null;
   #ready: Promise<void> = Promise.resolve(this.#location);
 
   declare ['constructor']: typeof Router;
@@ -113,7 +115,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     this.#resolveRoute = options?.resolveRoute;
     this.#options = options;
 
-    this.#impl = new _Router<InternalResult<R, C> | PreventCommand | RedirectCommand, R, C>(
+    this.#impl = new _Router<ReadonlyArray<InternalResult<R, C>> | PreventCommand | RedirectCommand, R, C>(
       [],
       convertOptions<R, C>(options),
     );
@@ -249,48 +251,76 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
       return;
     }
 
-    let currentElement = this.#outlet;
+    for await (const result of this.#processResolved(resolved)) {
+      if (isPreventCommand(result)) {
+        return;
+      }
 
-    for (const { context, result, route, element } of resolved) {
-      if (isComponentCommand(result)) {
-        if (element) {
-          const location = createRouterLocation<R, C>(
-            context,
-            (params = {}) => {
-              const _params = Object.fromEntries(
-                Object.entries(params).map(([key, value]) => [key, value ? String(value) : '']),
-              );
-              const _url = this.#impl.createURL(route, _params);
-              return _url ? `${_url.pathname}?${_url.search}${_url.hash}` : '';
-            },
-            this.#routes.get(route),
-          );
-
-          const result = await element.onBeforeEnter?.(location, commands, this);
-
-          if (result) {
-            if (isPreventCommand(resolved) || !resolved) {
-              return;
-            }
-
-            if (isRedirectCommand(resolved)) {
-              navigate(resolved.to);
-              return;
-            }
-          }
-
-          if (!element.isConnected) {
-            currentElement?.replaceChildren(element);
-          }
-
-          currentElement = element;
-        }
+      if (isRedirectCommand(result)) {
+        navigate(result.to);
+        return;
       }
     }
   }
 
-  readonly #routes = new WeakMap<InternalRoute<R, C>, Route<R, C>>();
-  readonly #elements = new WeakMap<InternalRoute<R, C>, WebComponentInterface<R, C>>();
+  #createLocation(context: RouteContext<R, C>, route: InternalRoute<R, C>): RouterLocation<R, C> {
+    return createRouterLocation<R, C>(
+      context,
+      (params = {}) => {
+        const _params = Object.fromEntries(
+          Object.entries(params).map(([key, value]) => [key, value ? String(value) : '']),
+        );
+        const _url = this.#impl.createURL(route, _params);
+        return _url ? `${_url.pathname}?${_url.search}${_url.hash}` : '';
+      },
+      this.#routes.get(route),
+    );
+  }
+
+  async *#processResolved(
+    resolved: ReadonlyArray<InternalResult<R, C>>,
+  ): AsyncGenerator<Command | undefined | void, void, void> {
+    let parent = this.#outlet;
+
+    if (!parent) {
+      return;
+    }
+
+    if (this.#previousResolved) {
+      for (const [{ element, location }, current] of izip(
+        this.#previousResolved.slice().reverse(),
+        resolved.slice().reverse(),
+      )) {
+        if (element) {
+          // ESLINT: This is an async generator, so we can await in a loop
+          // eslint-disable-next-line no-await-in-loop
+          yield await element.onBeforeLeave?.(location, commands, this);
+          if (element !== current.element) {
+            element.remove();
+          }
+          yield element.onAfterLeave?.(location, commands, this);
+        }
+      }
+    }
+
+    for (const { element } of resolved) {
+      if (element) {
+        // ESLINT: This is an async generator, so we can await in a loop
+        // eslint-disable-next-line no-await-in-loop
+        yield await element.onBeforeEnter?.(location, commands, this);
+
+        if (!element.isConnected) {
+          parent.append(element);
+        }
+
+        yield element.onAfterEnter?.(location, commands, this);
+
+        parent = element;
+      }
+    }
+
+    this.#previousResolved = resolved;
+  }
 
   #convertRoutes(routes: ReadonlyArray<Route<R, C>>): ReadonlyArray<InternalRoute<R, C>> {
     const self = this;
@@ -317,16 +347,10 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
             pathname: { groups },
           } = result;
 
-          const chain = branch.map(
-            (r) =>
-              ({
-                // element: self.#elements.get(r),
-                route: self.#routes.get(r)!,
-              }) satisfies ChainItem<R, C>,
-          );
+          const chain = branch.map((r) => self.#routes.get(r)!);
 
           let actionResult: ComponentCommand | undefined;
-          let nextResult: InternalResult<R, C> | null | undefined;
+          let nextResult: ReadonlyArray<InternalResult<R, C>> | null | undefined;
 
           const context: RouteContext<R, C> = {
             pathname,
@@ -378,20 +402,16 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
 
           return [
             {
-              context,
-              result: actionResult,
-              route: this,
               element,
-            },
+              route: this,
+              result: actionResult,
+              location: self.#createLocation(context, this),
+            } satisfies InternalResult<R, C>,
             ...(nextResult ?? []),
           ];
         },
         ...(routeRest as R),
       };
-
-      if (element) {
-        self.#elements.set(impl, element);
-      }
 
       return impl;
     });

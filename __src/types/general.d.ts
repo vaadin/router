@@ -1,4 +1,5 @@
 import type { Command, ComponentCommand } from '../internals/Commands.js';
+import type { RouterLocation } from '../internals/RouterLocation.js';
 import type { InternalRoute } from './Route.js';
 import type { RouteContext } from './RouteContext.js';
 import type { WebComponentInterface } from './WebComponentInterface.js';
@@ -19,9 +20,9 @@ export type RedirectContextInfo = Readonly<{
 
 export type ActionResult = Command | null | undefined;
 
-export type InternalResult<R extends object, C extends object> = Array<{
-  context: RouteContext<R, C>;
+export type InternalResult<R extends object, C extends object> = Readonly<{
+  element?: WebComponentInterface<R, C>;
+  location: RouterLocation<R, C>;
   result?: ComponentCommand;
   route: InternalRoute<R, C>;
-  element?: WebComponentInterface<R, C>;
 }>;

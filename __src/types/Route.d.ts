@@ -27,7 +27,7 @@ export type Route<R extends object = EmptyObject, C extends object = EmptyObject
   R;
 
 export type InternalRoute<R extends object, C extends object> = _Route<
-  InternalResult<R, C> | RedirectCommand | PreventCommand,
+  ReadonlyArray<InternalResult<R, C>> | RedirectCommand | PreventCommand,
   R,
   C
 >;
