@@ -15,7 +15,6 @@ use(chaiAsPromised);
 describe('Vaadin.Router', () => {
   let outlet: HTMLElement;
   let router: Router;
-  let history: sinon.SinonStubbedInstance<History>;
 
   before(() => {
     outlet = document.createElement('div');
@@ -27,8 +26,6 @@ describe('Vaadin.Router', () => {
   });
 
   beforeEach(() => {
-    history = sinon.createStubInstance(History);
-
     // create a new router instance
     router = new Router(outlet);
   });

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "excludePrivate": true,
+  "out": ".docs",
+  "sort": ["alphabetical"],
+  "plugin": ["typedoc-plugin-missing-exports"],
+  "tsconfig": "tsconfig.build.json",
+  "useTsLinkResolution": false,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": true
+  }
+}

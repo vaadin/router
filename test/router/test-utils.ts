@@ -3,7 +3,6 @@
 
 import { expect } from '@esm-bundle/chai';
 import type { Commands, RouteContext, Router, WebComponentInterface, Route } from '../../src/index.js';
-import type { AnyObject } from '../../src/resolver/types.js';
 
 export async function waitForNavigation(): Promise<void> {
   return await new Promise((resolve) => {
@@ -21,7 +20,7 @@ export function verifyActiveRoutes(router: Router, expectedSegments: string[]): 
 }
 
 function createWebComponentAction<T extends keyof WebComponentInterface>(method: T) {
-  return <R extends AnyObject, C extends AnyObject>(
+  return <R extends object, C extends object>(
     componentName: string,
     callback: WebComponentInterface<R, C>[T],
     name: string = 'unknown',

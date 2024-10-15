@@ -17,21 +17,39 @@ import type { Router } from './router.js';
 
 export type { ResolutionError, IndexedParams, Params, ParamValue, PrimitiveParamValue };
 
+/**
+ * A custom event that is triggered when the location changes.
+ */
 export type VaadinRouterLocationChangedEvent = CustomEvent<
   Readonly<{
+    /** The new location after the change */
     location: RouterLocation;
+    /** The router instance that triggered the event */
     router: Router;
   }>
 >;
 
-export type VaadinRouterErrorEvent<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = CustomEvent<
+/**
+ * A custom event triggered by an error occurred during route resolution.
+ *
+ * @typeParam R - The type of additional route-specific data. Defaults to an
+ * empty object.
+ * @typeParam C - The type of user-defined context-specific data. Defaults to an
+ * empty object.
+ */
+export type VaadinRouterErrorEvent<R extends object = EmptyObject, C extends object = EmptyObject> = CustomEvent<
   Readonly<{
+    /** The error object. */
     error: ResolutionError<R, C>;
+    /** The router instance that triggered the error event. */
     router: Router<R, C>;
   }> &
     RouteContext<R, C>
 >;
 
+/**
+ * A custom event triggered when the user navigates to a new location.
+ */
 export type VaadinRouterGoEvent = CustomEvent<ResolveContext>;
 
 declare global {
@@ -46,34 +64,64 @@ declare global {
   }
 }
 
-export type AnyObject = Record<never, never>;
-
+/**
+ * A context information for a redirect operation.
+ */
 export type RedirectContextInfo = Readonly<{
+  /** The original path from which the redirect is happening. */
   from: string;
+  /** An object containing URL parameters related to the redirect. */
   params: IndexedParams;
+  /** The pathname of the new URL to which the redirect is directed. */
   pathname: string;
 }>;
 
+/**
+ * A result that can be returned from a route action to request a redirect to
+ * a different location.
+ */
 export interface RedirectResult {
+  /** The path info to redirect to. */
   readonly redirect: RedirectContextInfo;
 }
 
+/**
+ * A result that can be returned from a route action to prevent the navigation.
+ */
 export interface PreventResult {
+  /** A flag indicating that the navigation should be prevented. */
   readonly cancel: true;
 }
 
+/**
+ * A controller to set up and tear down navigation event listeners.
+ */
 export interface NavigationTrigger {
+  /** Sets up navigation listeners. */
   activate(): void;
+  /** Tears down navigation listeners. */
   inactivate(): void;
 }
 
+/**
+ * A value of a result that can be returned from the router action.
+ */
 export type ActionValue = HTMLElement | PreventResult | RedirectResult;
 
-export type NextResult<R extends AnyObject, C extends AnyObject> = _ActionResult<RouteContext<R, C>>;
+/**
+ * A result of the {@link RouteContext.next} function.
+ */
+export type NextResult<R extends object, C extends object> = _ActionResult<RouteContext<R, C>>;
 
+/**
+ * A result of the {@link RouteExtension.action | Route.action}.
+ */
 export type ActionResult = _ActionResult<ActionValue>;
 
-export type ChainItem<R extends AnyObject, C extends AnyObject> = _ChainItem<
+/**
+ * {@inheritDoc "<internal>".ChainItem}
+ */
+export type ChainItem<R extends object, C extends object> = _ChainItem<
   ActionValue,
   RouteExtension<R, C>,
   ContextExtension<R, C>
@@ -82,25 +130,51 @@ export type ChainItem<R extends AnyObject, C extends AnyObject> = _ChainItem<
     element?: WebComponentInterface<R, C>;
   }>;
 
-export type ContextExtension<R extends AnyObject, C extends AnyObject> = Readonly<{
+/**
+ * A specialized extension for the internal Resolver's
+ * {@link "<internal>".Context | Context} object that redefines some types to
+ * make it compatible with the {@link Router}.
+ *
+ * @internal
+ */
+export type ContextExtension<R extends object, C extends object> = Readonly<{
   resolver?: Router<R, C>;
   chain?: Array<ChainItem<R, C>>;
 }> &
   C;
-// Readonly<{
-//   next(resume?: boolean): Promise<ActionResult>;
-// }>;
 
-export type ChildrenCallback<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _ChildrenCallback<
+/**
+ * {@inheritDoc "<internal>".ChildrenCallback}
+ */
+export type ChildrenCallback<R extends object = EmptyObject, C extends object = EmptyObject> = _ChildrenCallback<
   ActionValue,
   RouteExtension<R, C>,
   ContextExtension<R, C>
 >;
 
-export type RouteExtension<R extends AnyObject, C extends AnyObject> = RequireAtLeastOne<{
+/**
+ * An specialized extension for the internal Resolver's {@link "<internal>".Route | Route}
+ * object that redefines some types to make it compatible with the
+ * {@link Router}.
+ *
+ * @internal
+ */
+export type RouteExtension<R extends object, C extends object> = RequireAtLeastOne<{
   children?: ChildrenCallback<R, C> | ReadonlyArray<Route<R, C>>;
   component?: string;
   redirect?: string;
+  /**
+   * An action that is executed when the route is resolved.
+   *
+   * Actions are executed recursively from the root route to the child route and
+   * can either produce content or perform actions before or after the child's
+   * action.
+   *
+   * @param context - The context of the current route.
+   *
+   * @returns The result of the route resolution. It could be either a value
+   * produced by the action or a new context to continue the resolution process.
+   */
   action?(
     this: Route<R, C>,
     context: RouteContext<R, C>,
@@ -110,24 +184,40 @@ export type RouteExtension<R extends AnyObject, C extends AnyObject> = RequireAt
   animate?: AnimateCustomClasses | boolean;
 } & R;
 
-export type RouteContext<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _RouteContext<
+/**
+ * {@inheritDoc "<internal>".RouteContext}
+ * @interface
+ */
+export type RouteContext<R extends object = EmptyObject, C extends object = EmptyObject> = _RouteContext<
   ActionValue,
   RouteExtension<R, C>,
   ContextExtension<R, C>
 >;
 
+/**
+ * {@inheritDoc "<internal>".RouteChildrenContext}
+ * @interface
+ */
 export type RouteChildrenContext<
-  R extends AnyObject = EmptyObject,
-  C extends AnyObject = EmptyObject,
+  R extends object = EmptyObject,
+  C extends object = EmptyObject,
 > = _RouteChildrenContext<ActionValue, RouteExtension<R, C>, ContextExtension<R, C>>;
 
-export type Route<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = _Route<
+/**
+ * {@inheritDoc "<internal>".Route}
+ * @interface
+ */
+export type Route<R extends object = EmptyObject, C extends object = EmptyObject> = _Route<
   ActionValue,
   RouteExtension<R, C>,
   ContextExtension<R, C>
 >;
 
-export type RouterOptions<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> = ResolverOptions<
+/**
+ * {@inheritDoc "<internal>".ResolverOptions}
+ * @interface
+ */
+export type RouterOptions<R extends object = EmptyObject, C extends object = EmptyObject> = ResolverOptions<
   ActionValue,
   RouteExtension<R, C>,
   ContextExtension<R, C>
@@ -143,7 +233,7 @@ export type RouterOptions<R extends AnyObject = EmptyObject, C extends AnyObject
  *    lifecycle callbacks,
  *  - as the `event.detail.location` of the global Vaadin Router events.
  */
-export interface RouterLocation<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> {
+export interface RouterLocation<R extends object = EmptyObject, C extends object = EmptyObject> {
   /**
    * The base URL used in the router. See [the `baseUrl` property
    * ](#/classes/Router#property-baseUrl) in the Router.
@@ -318,7 +408,7 @@ export interface RouterLocation<R extends AnyObject = EmptyObject, C extends Any
  * Other examples can be found in the
  * [live demos](#/classes/Router/demos/demo/index.html) and tests.
  */
-export interface WebComponentInterface<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject>
+export interface WebComponentInterface<R extends object = EmptyObject, C extends object = EmptyObject>
   extends HTMLElement {
   location?: RouterLocation<R, C>;
   name?: string;

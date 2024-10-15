@@ -9,15 +9,15 @@
 
 import type { Key } from 'path-to-regexp';
 import matchPath, { type Match } from './matchPath.js';
-import type { AnyObject, IndexedParams, Route } from './types.js';
+import type { IndexedParams, Route } from './types.js';
 import { getRoutePath, unwrapChildren } from './utils.js';
 
-export type MatchWithRoute<T, R extends AnyObject, C extends AnyObject> = Match &
+export type MatchWithRoute<T, R extends object, C extends object> = Match &
   Readonly<{
     route: Route<T, R, C>;
   }>;
 
-type RouteMatchIterator<T, R extends AnyObject, C extends AnyObject> = Iterator<
+type RouteMatchIterator<T, R extends object, C extends object> = Iterator<
   MatchWithRoute<T, R, C>,
   undefined,
   Route<T, R, C> | undefined
@@ -69,7 +69,7 @@ type RouteMatchIterator<T, R extends AnyObject, C extends AnyObject> = Iterator<
  * Prefix matching can be enabled also by `children: true`.
  */
 // eslint-disable-next-line @typescript-eslint/max-params
-function matchRoute<T, R extends AnyObject, C extends AnyObject>(
+function matchRoute<T, R extends object, C extends object>(
   route: Route<T, R, C>,
   pathname: string,
   ignoreLeadingSlash?: boolean,
