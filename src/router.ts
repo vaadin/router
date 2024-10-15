@@ -29,7 +29,7 @@ import type {
   RouterOptions,
   ActionValue,
   NextResult,
-} from './types.js';
+} from './types.t.js';
 import {
   amend,
   copyContextWithoutNext,

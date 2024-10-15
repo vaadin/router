@@ -9,7 +9,7 @@
 
 import { type Key, pathToRegexp } from 'path-to-regexp';
 import type { Writable } from 'type-fest';
-import type { IndexedParams } from '../types.js';
+import type { IndexedParams } from '../types.t.js';
 import { resolvePath } from './utils.js';
 
 export interface RegExpExecOptArray extends ReadonlyArray<string | undefined> {
