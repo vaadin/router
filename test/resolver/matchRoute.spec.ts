@@ -11,7 +11,7 @@ import chaiDom from 'chai-dom';
 import sinonChai from 'sinon-chai';
 import matchRoute from '../../src/resolver/matchRoute.js';
 import '../setup.js';
-import type { Route } from '../../src/resolver/types.js';
+import type { Route } from '../../src/resolver/types.t.js';
 
 use(chaiDom);
 use(sinonChai);

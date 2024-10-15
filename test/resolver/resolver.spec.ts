@@ -15,7 +15,7 @@ import sinonChai from 'sinon-chai';
 import type { EmptyObject } from 'type-fest';
 import Resolver, { ResolutionError } from '../../src/resolver/resolver.js';
 import '../setup.js';
-import type { Route, RouteContext } from '../../src/resolver/types.js';
+import type { Route, RouteContext } from '../../src/resolver/types.t.js';
 
 use(chaiDom);
 use(sinonChai);

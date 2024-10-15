@@ -9,7 +9,7 @@
 
 import type { Key } from 'path-to-regexp';
 import matchPath, { type Match } from './matchPath.js';
-import type { IndexedParams, Route } from './types.js';
+import type { IndexedParams, Route } from './types.t.js';
 import { getRoutePath, unwrapChildren } from './utils.js';
 
 export type MatchWithRoute<T, R extends object, C extends object> = Match &

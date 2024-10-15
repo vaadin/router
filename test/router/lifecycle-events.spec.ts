@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import { Router, type RouterLocation } from '../../src/index.js';
 import Resolver from '../../src/resolver/resolver.js';
 import '../setup.js';
-import type { MaybePromise } from '../../src/resolver/types.js';
+import type { MaybePromise } from '../../src/resolver/types.t.js';
 import type {
   Commands,
   Route,
@@ -11,7 +11,7 @@ import type {
   VaadinRouterErrorEvent,
   VaadinRouterLocationChangedEvent,
   WebComponentInterface,
-} from '../../src/types.js';
+} from '../../src/types.t.js';
 import {
   checkOutletContents,
   cleanup,

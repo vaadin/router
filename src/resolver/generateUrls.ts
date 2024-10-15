@@ -10,7 +10,7 @@
 import { parse, type ParseOptions, type Token, tokensToFunction, type TokensToFunctionOptions } from 'path-to-regexp';
 import type { EmptyObject, Writable } from 'type-fest';
 import Resolver from './resolver.js';
-import type { ChildrenCallback, IndexedParams, Params, Route } from './types.js';
+import type { ChildrenCallback, IndexedParams, Params, Route } from './types.t.js';
 import { getRoutePath, isString } from './utils.js';
 
 export type UrlParams = Readonly<Record<string, ReadonlyArray<number | string> | number | string>>;

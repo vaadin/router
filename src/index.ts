@@ -1,5 +1,5 @@
 export * from './router.js';
-export type * from './types.js';
+export type * from './types.t.js';
 export {
   processNewChildren,
   amend,

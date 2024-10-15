@@ -9,7 +9,7 @@
 import type { EmptyObject } from 'type-fest';
 import matchRoute, { type MatchWithRoute } from './matchRoute.js';
 import defaultResolveRoute from './resolveRoute.js';
-import type { ActionResult, Route, Match, MaybePromise, ResolveContext, RouteContext } from './types.js';
+import type { ActionResult, Route, Match, MaybePromise, ResolveContext, RouteContext } from './types.t.js';
 import { getNotFoundError, getRoutePath, isString, NotFoundError, notFoundResult, toArray } from './utils.js';
 
 function isDescendantRoute<T, R extends object, C extends object>(

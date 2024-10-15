@@ -11,7 +11,7 @@ import type {
   RouteContext,
   RouterLocation,
   WebComponentInterface,
-} from './types.js';
+} from './types.t.js';
 
 /** @internal */
 export function ensureRoute<R extends object, C extends object>(route?: Route<R, C>): void {
