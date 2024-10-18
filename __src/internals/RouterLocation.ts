@@ -1,7 +1,7 @@
 import type { EmptyObject, Router as _Router } from '@ausginer/router';
 import type { IndexedParams, Params } from '../types/general.js';
 import type { Route } from '../types/Route.js';
-import type { RouteContext } from '../types/RouteContext.js';
+import type { InternalRouteContext, RouteContext } from '../types/RouteContext.js';
 
 /**
  * Describes the state of a router at a given point in time. It is available for
@@ -126,32 +126,4 @@ export interface RouterLocation<R extends object = EmptyObject, C extends object
    * @public
    */
   getUrl(params?: Params): string;
-}
-
-export function createRouterLocation<R extends object, C extends object>(
-  {
-    hash = '',
-    params,
-    search = '',
-    pathname,
-    resolver,
-    chain = [],
-    searchParams = new URLSearchParams(search),
-  }: RouteContext<R, C>,
-  getUrl: (params?: IndexedParams) => string,
-  route?: Route<R, C>,
-): RouterLocation<R, C> {
-  const routes = chain.map((item) => item.route);
-
-  return {
-    baseUrl: resolver.baseUrl,
-    getUrl,
-    hash,
-    params,
-    pathname,
-    route,
-    routes,
-    search,
-    searchParams,
-  };
 }

@@ -22,7 +22,6 @@ export type ActionResult = Command | null | undefined;
 
 export type InternalResult<R extends object, C extends object> = Readonly<{
   element?: WebComponentInterface<R, C>;
-  location: RouterLocation<R, C>;
   result?: ComponentCommand;
   route: InternalRoute<R, C>;
 }>;

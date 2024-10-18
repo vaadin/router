@@ -1,8 +1,8 @@
 import type { EmptyObject } from '@ausginer/router';
 import type { ResolutionError } from '../internals/ResolutionError.js';
+import type { RouterLocation } from '../internals/RouterLocation.js';
 import type { Router } from '../router.js';
 import type { RouteContext } from './RouteContext.js';
-import type { RouterLocation } from '../internals/location.js';
 
 export type VaadinRouterLocationChangedEvent = CustomEvent<
   Readonly<{

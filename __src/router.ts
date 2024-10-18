@@ -19,13 +19,13 @@ import {
   type PreventCommand,
   type RedirectCommand,
 } from './internals/Commands.js';
-import { createRouterLocation, type RouterLocation } from './internals/RouterLocation.js';
-import type { InternalResult, Params, RedirectContextInfo } from './types/general.js';
+import type { RouterLocation } from './internals/RouterLocation.js';
+import type { IndexedParams, InternalResult, RedirectContextInfo } from './types/general.js';
 import type { InternalRoute, Route } from './types/Route.js';
-import type { ChainItem, RouteContext } from './types/RouteContext.js';
+import type { InternalRouteContext, RouteContext } from './types/RouteContext.js';
 import type { ResolveRouteCallback, RouterOptions } from './types/RouterOptions.js';
 import type { WebComponentInterface } from './types/WebComponentInterface.js';
-import { ensureRoutes, log } from './utils.js';
+import { ensureRoutes, log, traverse } from './utils.js';
 
 function convertOptions<R extends object, C extends object>({
   baseUrl,
@@ -35,7 +35,7 @@ function convertOptions<R extends object, C extends object>({
 
   return {
     baseURL: baseUrl ?? baseHref ?? undefined,
-    errorHandler,
+    errorHandler(error) {},
   };
 }
 
@@ -52,7 +52,6 @@ const commands: Commands = {
 };
 
 export class Router<R extends object = EmptyObject, C extends object = EmptyObject> {
-  #urlForName: undefined;
   /**
    * Triggers navigation to a new path. Returns a boolean without waiting until
    * the navigation is complete. Returns `true` if at least one `Router`
@@ -84,17 +83,16 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
   static setTriggers(...triggers: readonly NavigationTrigger[]): void;
 
   readonly #resolveRoute?: ResolveRouteCallback<R, C>;
-
-  readonly #context?: RouteContext<R, C>;
-
+  readonly #contextMap = new WeakMap<InternalRouteContext<R, C>, RouteContext<R, C>>();
   readonly #options?: RouterOptions<R, C>;
-  readonly #location = createRouterLocation<R, C>({ resolver: this });
-  readonly #routes = new WeakMap<InternalRoute<R, C>, Route<R, C>>();
+  readonly #routeMap = new WeakMap<InternalRoute<R, C>, Route<R, C>>();
+  #location: RouterLocation<R, C>;
+  #routes: ReadonlyArray<Route<R, C>> = [];
   #controller?: AbortController;
   #impl: _Router<ReadonlyArray<InternalResult<R, C>> | PreventCommand | RedirectCommand, R, C>;
   #outlet?: Element | DocumentFragment | null;
   #previousResolved: ReadonlyArray<InternalResult<R, C>> | null = null;
-  #ready: Promise<void> = Promise.resolve(this.#location);
+  #ready: Promise<RouterLocation<R, C>> = Promise.resolve(this.#location);
 
   declare ['constructor']: typeof Router;
 
@@ -126,7 +124,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     this.subscribe();
   }
 
-  get ready(): Promise<void> {
+  get ready(): Promise<RouterLocation<R, C>> {
     return this.#ready;
   }
 
@@ -172,9 +170,9 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
   }
 
   async setRoutes(routes: Route<R, C> | ReadonlyArray<Route<R, C>>, skipRender = false): Promise<RouterLocation<R, C>> {
-    this.#urlForName = undefined;
-    ensureRoutes(routes);
-    this.#impl = new _Router(this.#convertRoutes(routes), this.#impl.options);
+    const _routes = ensureRoutes(routes);
+    this.#impl = new _Router(this.#convertRoutes(_routes), this.#impl.options);
+    this.#routes = _routes;
 
     if (!skipRender) {
       this.#ready = this.#onNavigation();
@@ -210,21 +208,28 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    * The route is searched in all the Router instances subscribed to
    * navigation events.
    *
-   * **Note:** For child route names, only array children are considered.
-   * It is not possible to generate URLs using a name for routes set with
-   * a children function.
-   *
    * @param name - The route name or the route’s `component` name.
    * @param params - Optional object with route path parameters.
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    */
-  urlForName(name: string, params?: Params | null): string {
-    for (const [route, _route] of this.#routes) {
-      if (route.name === name || route.component === name) {
-        return this.#impl.createURL(_route, params ?? undefined);
+  urlForName(name: string, params?: IndexedParams | null): string {
+    let [parent] = this.#routes;
+    let paths: string[] = [];
+    for (const route of traverse(this.#routes)) {
+      if (parent.children?.includes(route)) {
+        paths.push(route.path);
+        parent = route;
+      } else {
+        paths = [route.path];
+      }
+
+      if (route.name === name) {
+        return this.urlForPath(paths.filter((p) => p).join('/'), params);
       }
     }
+
+    return '';
   }
 
   /**
@@ -237,7 +242,25 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    */
-  urlForPath(path: string, params?: Params | null): string {}
+  urlForPath(path: string, params?: IndexedParams | null): string {
+    const baseUrl = this.#impl.options.baseURL?.toString();
+    const url = new URL(path, baseUrl);
+
+    if (params) {
+      const pattern = new URLPattern(path, baseUrl);
+      const result = pattern.exec(url)!;
+
+      return Object.entries(result.pathname.groups).reduce((acc, [name, part]) => {
+        if (name in params && part) {
+          return acc.replace(part, String(params[name] ?? part));
+        }
+
+        return acc;
+      }, url.toString());
+    }
+
+    return url.toString();
+  }
 
   async #onNavigation(url: URL, ctx?: C): Promise<void> {
     const resolved = await this.#impl.resolve(url, ctx as C extends EmptyObject ? never : C);
@@ -263,20 +286,6 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     }
   }
 
-  #createLocation(context: RouteContext<R, C>, route: InternalRoute<R, C>): RouterLocation<R, C> {
-    return createRouterLocation<R, C>(
-      context,
-      (params = {}) => {
-        const _params = Object.fromEntries(
-          Object.entries(params).map(([key, value]) => [key, value ? String(value) : '']),
-        );
-        const _url = this.#impl.createURL(route, _params);
-        return _url ? `${_url.pathname}?${_url.search}${_url.hash}` : '';
-      },
-      this.#routes.get(route),
-    );
-  }
-
   async *#processResolved(
     resolved: ReadonlyArray<InternalResult<R, C>>,
   ): AsyncGenerator<Command | undefined | void, void, void> {
@@ -287,10 +296,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     }
 
     if (this.#previousResolved) {
-      for (const [{ element, location }, current] of izip(
-        this.#previousResolved.slice().reverse(),
-        resolved.slice().reverse(),
-      )) {
+      for (const [{ element }, current] of izip(this.#previousResolved.slice().reverse(), resolved.slice().reverse())) {
         if (element) {
           // ESLINT: This is an async generator, so we can await in a loop
           // eslint-disable-next-line no-await-in-loop
@@ -347,7 +353,19 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
             pathname: { groups },
           } = result;
 
-          const chain = branch.map((r) => self.#routes.get(r)!);
+          const chain = branch.map((r) => self.#routeMap.get(r)!);
+
+          if (self.#location.pathname !== pathname) {
+            self.#location = {
+              hash,
+              params: groups,
+              search,
+              pathname,
+              resolver: self,
+              chain,
+              searchParams,
+            };
+          }
 
           let actionResult: ComponentCommand | undefined;
           let nextResult: ReadonlyArray<InternalResult<R, C>> | null | undefined;
@@ -405,7 +423,6 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
               element,
               route: this,
               result: actionResult,
-              location: self.#createLocation(context, this),
             } satisfies InternalResult<R, C>,
             ...(nextResult ?? []),
           ];
@@ -415,5 +432,39 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
 
       return impl;
     });
+  }
+
+  #createRouterLocation(
+    {
+      branch,
+      result: {
+        pathname: { groups },
+      },
+      url: { pathname, hash, search, searchParams },
+      router,
+    }: InternalRouteContext<R, C>,
+    getUrl: (params?: IndexedParams) => string,
+    route?: Route<R, C>,
+  ): RouterLocation<R, C> {
+    const routes = branch.map((r) => {
+      const ro = this.#routeMap.get(r);
+      return this.#routeMap.get(r)!;
+    });
+
+    return {
+      baseUrl: router.options.baseURL?.toString() ?? '',
+      getUrl,
+      hash,
+      params: groups,
+      pathname,
+      route,
+      routes,
+      search,
+      searchParams,
+    };
+  }
+
+  #cleanupPath(path: string): string {
+    return path.replace(/^\/*(.*?)\/*$/u, '$1');
   }
 }
