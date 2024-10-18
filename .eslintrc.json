@@ -4,12 +4,15 @@
     "vaadin/imports-typescript",
     "vaadin/prettier",
     "vaadin/testing",
-    "plugin:oxlint/recommended"
+    "plugin:oxlint/recommended",
+    "plugin:storybook/recommended"
   ],
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "plugins": ["tsdoc"],
+  "plugins": [
+    "tsdoc"
+  ],
   "rules": {
     "@typescript-eslint/no-restricted-types": "off",
     "@typescript-eslint/no-invalid-void-type": "off",
@@ -20,5 +23,7 @@
     "tsdoc/syntax": "error",
     "import/prefer-default-export": "off"
   },
-  "ignorePatterns": ["*.cjs"]
+  "ignorePatterns": [
+    "*.cjs"
+  ]
 }

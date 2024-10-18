@@ -20,6 +20,6 @@
     "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true
   },
-  "include": ["scripts/**/*", "src/**/*", "test/**/*", "/vite.config.ts", "/*.cjs"],
+  "include": ["scripts/**/*", "src/**/*", "test/**/*", "/vite.config.ts", "/*.cjs", "__demo"],
   "exclude": ["node_modules", "dist/**/*", "scripts/**/*.js"]
 }

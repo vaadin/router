@@ -7,3 +7,5 @@ coverage
 .idea
 .vscode
 .docs
+
+*storybook.log
