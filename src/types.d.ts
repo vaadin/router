@@ -34,17 +34,17 @@ export type VaadinRouterErrorEvent<R extends AnyObject = EmptyObject, C extends 
 
 export type VaadinRouterGoEvent = CustomEvent<ResolveContext>;
 
-declare global {
-  interface WindowEventMap {
-    'vaadin-router-go': VaadinRouterGoEvent;
-    'vaadin-router-location-changed': VaadinRouterLocationChangedEvent;
-    'vaadin-router-error': VaadinRouterErrorEvent;
-  }
+// declare global {
+//   interface WindowEventMap {
+//     'vaadin-router-go': VaadinRouterGoEvent;
+//     'vaadin-router-location-changed': VaadinRouterLocationChangedEvent;
+//     'vaadin-router-error': VaadinRouterErrorEvent;
+//   }
 
-  interface ArrayConstructor {
-    isArray<T extends readonly unknown[]>(arg: unknown): arg is T;
-  }
-}
+//   interface ArrayConstructor {
+//     isArray<T extends readonly unknown[]>(arg: unknown): arg is T;
+//   }
+// }
 
 export type AnyObject = Record<never, never>;
 

@@ -2,7 +2,7 @@ import { expect, use } from '@esm-bundle/chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import { Router } from '../../src/router.js';
+import { Router } from '../../__src/router.js';
 import type {
   ChildrenCallback,
   Commands,
@@ -420,7 +420,7 @@ describe('Router', () => {
         replaceSpy.restore();
       });
 
-      it('should use `window.pushState()` when redirecting on next renders', async () => {
+      it('should use `history.pushState()` when redirecting on next renders', async () => {
         await router.setRoutes(
           [
             { path: '/', component: 'x-home-view' },
@@ -1081,21 +1081,21 @@ describe('Router', () => {
           const spy = sinon.stub();
           window.addEventListener('vaadin-router-go', spy);
 
-          Router.go({ pathname: '/admin' });
+          Router.go(new URL('/admin', location.origin));
 
           expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
           expect(spy.args[0][0]).to.have.nested.property('detail.search', undefined);
           expect(spy.args[0][0]).to.have.nested.property('detail.hash', undefined);
 
           spy.resetHistory();
-          Router.go({ pathname: '/admin', search: '?foo=bar' });
+          Router.go(new URL('/admin?foo=bar', location.origin));
 
           expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
           expect(spy.args[0][0]).to.have.nested.property('detail.search', '?foo=bar');
           expect(spy.args[0][0]).to.have.nested.property('detail.hash', undefined);
 
           spy.resetHistory();
-          Router.go({ pathname: '/admin', hash: '#baz' });
+          Router.go(new URL('/admin?#baz', location.origin));
 
           expect(spy.args[0][0]).to.have.nested.property('detail.pathname', '/admin');
           expect(spy.args[0][0]).to.have.nested.property('detail.search', undefined);

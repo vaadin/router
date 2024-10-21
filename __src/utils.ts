@@ -1,4 +1,11 @@
 import type { Route as _Route } from '@ausginer/router';
+import type {
+  EventDetails,
+  VaadinRouterErrorEvent,
+  VaadinRouterGoEvent,
+  VaadinRouterIgnoreEvent,
+  VaadinRouterLocationChangedEvent,
+} from './types/events.js';
 import type { Route } from './types/Route.js';
 
 export const $command = Symbol('command');
@@ -17,6 +24,17 @@ export function isFunction(f: unknown): f is (...args: readonly unknown[]) => un
 
 export function isString(s: unknown): s is string {
   return typeof s === 'string';
+}
+
+export function fireRouterEvent<C extends object>(type: 'go', detail: EventDetails<VaadinRouterGoEvent<C>>): boolean;
+export function fireRouterEvent<R extends object, C extends object>(
+  type: 'location-changed',
+  detail: EventDetails<VaadinRouterLocationChangedEvent<R, C>>,
+): boolean;
+export function fireRouterEvent(type: 'error', detail: EventDetails<VaadinRouterErrorEvent>): boolean;
+export function fireRouterEvent(type: 'ignore', detail: EventDetails<VaadinRouterIgnoreEvent>): boolean;
+export function fireRouterEvent(type: string, detail: unknown): boolean {
+  return !window.dispatchEvent(new CustomEvent(`vaadin-router-${type}`, { cancelable: type === 'go', detail }));
 }
 
 export function log(msg: string): string {

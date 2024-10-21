@@ -1,6 +1,6 @@
-import type { NavigationTrigger } from '../types.js';
 import CLICK from './click.js';
 import POPSTATE from './popstate.js';
+import type { NavigationTrigger } from './types.js';
 
 let triggers: readonly NavigationTrigger[] = [];
 

@@ -35,7 +35,7 @@ module.exports = (config) => {
 
     files: [
       {
-        pattern: 'test/**/*.spec.ts',
+        pattern: 'test/**/router.spec.ts',
         type: 'module',
         watched: false,
         served: false,

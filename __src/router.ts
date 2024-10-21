@@ -4,8 +4,6 @@ import {
   Router as _Router,
   type Route as _Route,
   type RouterOptions as _RouterOptions,
-  navigate,
-  addNavigationListener,
 } from '@ausginer/router';
 import { izip } from 'itertools';
 import {
@@ -20,12 +18,15 @@ import {
   type RedirectCommand,
 } from './internals/Commands.js';
 import type { RouterLocation } from './internals/RouterLocation.js';
-import type { IndexedParams, InternalResult, RedirectContextInfo } from './types/general.js';
+import { DEFAULT_TRIGGERS, setNavigationTriggers } from './triggers/navigation.js';
+import type { NavigationTrigger } from './triggers/types.js';
+import type { EventDetails, VaadinRouterGoEvent } from './types/events.js';
+import type { IndexedParams, InternalResult } from './types/general.js';
 import type { InternalRoute, Route } from './types/Route.js';
-import type { InternalRouteContext, RouteContext } from './types/RouteContext.js';
-import type { ResolveRouteCallback, RouterOptions } from './types/RouterOptions.js';
+import type { InternalRouteContext, RenderContext, RouteContext } from './types/RouteContext.js';
+import type { RouterOptions } from './types/RouterOptions.js';
 import type { WebComponentInterface } from './types/WebComponentInterface.js';
-import { ensureRoutes, log, traverse } from './utils.js';
+import { ensureRoutes, fireRouterEvent, isString, log, traverse } from './utils.js';
 
 function convertOptions<R extends object, C extends object>({
   baseUrl,
@@ -34,14 +35,29 @@ function convertOptions<R extends object, C extends object>({
   const baseHref = document.head.querySelector('base')?.getAttribute('href');
 
   return {
-    baseURL: baseUrl ?? baseHref ?? undefined,
-    errorHandler(error) {},
+    baseURL: baseUrl ?? new URL(baseHref ?? '', location.origin),
+    errorHandler(error) {
+      const result = errorHandler?.(error);
+
+      if (isPreventCommand(result) || isRedirectCommand(result)) {
+        return result;
+      }
+
+      return [{ result: result as ComponentCommand | undefined }];
+    },
   };
 }
 
 function ensureOutlet(outlet?: Element | DocumentFragment | null): void {
   if (!(outlet instanceof Element || outlet instanceof DocumentFragment)) {
     throw new TypeError(log(`Expected router outlet to be a valid DOM Element | DocumentFragment (but got ${outlet})`));
+  }
+}
+
+function updateBrowserHistory(url: URL, replace?: boolean): void {
+  if (window.location.href !== url.href) {
+    window.history[replace ? 'replaceState' : 'pushState'](null, document.title, url.toString());
+    window.dispatchEvent(new PopStateEvent('popstate', { state: 'vaadin-router-ignore' }));
   }
 }
 
@@ -62,7 +78,11 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    * `pathname` string property, and optional `search` and `hash` string
    * properties.
    */
-  static go(path: string | ResolveContext): boolean;
+  static go<C extends object = EmptyObject>(path: string | URL, context?: C): boolean {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const state = { context, path: path.toString() } as EventDetails<VaadinRouterGoEvent<C>>;
+    return fireRouterEvent('go', state);
+  }
 
   /**
    * Configures what triggers Router navigation events:
@@ -80,19 +100,19 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    *
    * @param triggers - navigation triggers
    */
-  static setTriggers(...triggers: readonly NavigationTrigger[]): void;
+  static setTriggers(...triggers: readonly NavigationTrigger[]): void {
+    setNavigationTriggers(triggers);
+  }
 
-  readonly #resolveRoute?: ResolveRouteCallback<R, C>;
-  readonly #contextMap = new WeakMap<InternalRouteContext<R, C>, RouteContext<R, C>>();
-  readonly #options?: RouterOptions<R, C>;
+  readonly options?: RouterOptions<R, C>;
   readonly #routeMap = new WeakMap<InternalRoute<R, C>, Route<R, C>>();
   #location: RouterLocation<R, C>;
-  #routes: ReadonlyArray<Route<R, C>> = [];
   #controller?: AbortController;
   #impl: _Router<ReadonlyArray<InternalResult<R, C>> | PreventCommand | RedirectCommand, R, C>;
   #outlet?: Element | DocumentFragment | null;
   #previousResolved: ReadonlyArray<InternalResult<R, C>> | null = null;
-  #ready: Promise<RouterLocation<R, C>> = Promise.resolve(this.#location);
+  #ready: Promise<RouterLocation<R, C>>;
+  #routes: ReadonlyArray<Route<R, C>> = [];
 
   declare ['constructor']: typeof Router;
 
@@ -109,16 +129,27 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    * @param options - an optional object with options
    */
   constructor(outlet?: Element | DocumentFragment | null, options?: RouterOptions<R, C>) {
-    this.#context = options?.context;
-    this.#resolveRoute = options?.resolveRoute;
-    this.#options = options;
+    this.options = options;
 
     this.#impl = new _Router<ReadonlyArray<InternalResult<R, C>> | PreventCommand | RedirectCommand, R, C>(
       [],
-      convertOptions<R, C>(options),
+      convertOptions(options),
     );
 
-    // setNavigationTriggers(Object.values(DEFAULT_TRIGGERS));
+    this.#location = {
+      baseUrl: this.#impl.options.baseURL?.toString() ?? '',
+      getUrl: () => '',
+      hash: '',
+      params: {},
+      pathname: '',
+      routes: [],
+      search: '',
+      searchParams: new URLSearchParams(),
+    };
+
+    this.#ready = Promise.resolve(this.#location);
+
+    setNavigationTriggers(Object.values(DEFAULT_TRIGGERS));
 
     this.outlet = outlet;
     this.subscribe();
@@ -129,7 +160,15 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
   }
 
   get baseUrl(): string {
-    return this.#impl.options.baseURL?.toString() ?? '';
+    return this.#impl.options.baseURL?.toString()!;
+  }
+
+  get routes(): ReadonlyArray<Route<R, C>> {
+    return this.#routes;
+  }
+
+  get location(): RouterLocation<R, C> {
+    return this.#location;
   }
 
   get outlet(): Element | DocumentFragment | null | undefined {
@@ -149,10 +188,12 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    * inserted.
    */
   set outlet(outlet: Element | DocumentFragment | null | undefined) {
-    ensureOutlet(outlet);
+    if (outlet) {
+      ensureOutlet(outlet);
+    }
+
     this.#outlet = outlet;
   }
-  async resolve(context: RouteContext<R, C>): Promise<RouteContext<R, C> & RedirectContextInfo> {}
 
   /**
    * @see {@link Router.outlet}
@@ -175,7 +216,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     this.#routes = _routes;
 
     if (!skipRender) {
-      this.#ready = this.#onNavigation();
+      this.#ready = this.render(new URL(location.href));
     }
 
     return await this.#ready;
@@ -190,7 +231,20 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    */
   subscribe(): void {
     this.#controller = new AbortController();
-    addNavigationListener(this.#onNavigation.bind(this), { signal: this.#controller.signal });
+    addEventListener(
+      'vaadin-router-go',
+      (e: VaadinRouterGoEvent) => {
+        e.preventDefault();
+
+        this.render({
+          pathname: new URL(e.detail.path, this.#impl.options.baseURL),
+          ...e.detail.context,
+        } as RenderContext<C>).catch((error: unknown) => {
+          throw error;
+        });
+      },
+      { signal: this.#controller.signal },
+    );
   }
 
   /**
@@ -199,6 +253,50 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    */
   unsubscribe(): void {
     this.#controller?.abort();
+  }
+
+  async render(
+    pathnameOrContext: string | URL | RenderContext<C>,
+    shouldUpdateHistory = false,
+  ): Promise<RouterLocation<R, C>> {
+    let pathname: string | URL;
+    let context: object | undefined;
+
+    if (pathnameOrContext instanceof URL || isString(pathnameOrContext)) {
+      pathname = pathnameOrContext;
+    } else {
+      ({ pathname, ...context } = pathnameOrContext);
+    }
+
+    const url = new URL(pathname, this.baseUrl);
+    const resolved = await this.#impl.resolve(url, context as C extends EmptyObject ? never : C);
+
+    if (isPreventCommand(resolved) || !resolved) {
+      return this.#location;
+    }
+
+    if (isRedirectCommand(resolved)) {
+      return await this.render({ pathname: resolved.to, ...context } as RenderContext<C>, shouldUpdateHistory);
+    }
+
+    for await (const result of this.#processResolved(resolved)) {
+      if (isPreventCommand(result)) {
+        break;
+      }
+
+      if (isRedirectCommand(result)) {
+        return await this.render({ pathname: result.to, ...context } as RenderContext<C>, shouldUpdateHistory);
+      }
+    }
+
+    updateBrowserHistory(url, shouldUpdateHistory);
+
+    fireRouterEvent('location-changed', {
+      router: this,
+      location: this.location,
+    });
+
+    return this.#location;
   }
 
   /**
@@ -214,9 +312,10 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    * parameters are passed by index (`params[index] = value`).
    */
   urlForName(name: string, params?: IndexedParams | null): string {
-    let [parent] = this.#routes;
+    const { routes } = this.#impl;
+    let [parent] = routes;
     let paths: string[] = [];
-    for (const route of traverse(this.#routes)) {
+    for (const route of traverse(routes)) {
       if (parent.children?.includes(route)) {
         paths.push(route.path);
         parent = route;
@@ -224,8 +323,14 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
         paths = [route.path];
       }
 
-      if (route.name === name) {
-        return this.urlForPath(paths.filter((p) => p).join('/'), params);
+      if (this.#routeMap.get(route)!.name === name) {
+        return this.urlForPath(
+          paths
+            .map((p) => p.replace(/^\/*(.*?)\/*$/u, '$1'))
+            .filter((p) => p)
+            .join('/'),
+          params,
+        );
       }
     }
 
@@ -260,30 +365,6 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     }
 
     return url.toString();
-  }
-
-  async #onNavigation(url: URL, ctx?: C): Promise<void> {
-    const resolved = await this.#impl.resolve(url, ctx as C extends EmptyObject ? never : C);
-
-    if (isPreventCommand(resolved) || !resolved) {
-      return;
-    }
-
-    if (isRedirectCommand(resolved)) {
-      navigate(resolved.to);
-      return;
-    }
-
-    for await (const result of this.#processResolved(resolved)) {
-      if (isPreventCommand(result)) {
-        return;
-      }
-
-      if (isRedirectCommand(result)) {
-        navigate(result.to);
-        return;
-      }
-    }
   }
 
   async *#processResolved(
@@ -343,7 +424,8 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
       const impl: InternalRoute<R, C> = {
         children: children ? this.#convertRoutes(children) : undefined,
         path,
-        async action({ branch, next, result, url, router: _, ...contextRest }) {
+        async action(ctx) {
+          const { branch, next, result, url, router: _, ...contextRest } = ctx;
           if (redirect) {
             return createCommand({ to: redirect });
           }
@@ -356,15 +438,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
           const chain = branch.map((r) => self.#routeMap.get(r)!);
 
           if (self.#location.pathname !== pathname) {
-            self.#location = {
-              hash,
-              params: groups,
-              search,
-              pathname,
-              resolver: self,
-              chain,
-              searchParams,
-            };
+            self.#location = self.#createLocation(ctx);
           }
 
           let actionResult: ComponentCommand | undefined;
@@ -434,7 +508,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     });
   }
 
-  #createRouterLocation(
+  #createLocation(
     {
       branch,
       result: {
@@ -443,17 +517,13 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
       url: { pathname, hash, search, searchParams },
       router,
     }: InternalRouteContext<R, C>,
-    getUrl: (params?: IndexedParams) => string,
     route?: Route<R, C>,
   ): RouterLocation<R, C> {
-    const routes = branch.map((r) => {
-      const ro = this.#routeMap.get(r);
-      return this.#routeMap.get(r)!;
-    });
+    const routes = branch.map((r) => this.#routeMap.get(r)!);
 
     return {
       baseUrl: router.options.baseURL?.toString() ?? '',
-      getUrl,
+      getUrl: (params) => this.urlForPath(pathname, params),
       hash,
       params: groups,
       pathname,
@@ -462,9 +532,5 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
       search,
       searchParams,
     };
-  }
-
-  #cleanupPath(path: string): string {
-    return path.replace(/^\/*(.*?)\/*$/u, '$1');
   }
 }

@@ -4,10 +4,15 @@ import type { RouterLocation } from '../internals/RouterLocation.js';
 import type { Router } from '../router.js';
 import type { RouteContext } from './RouteContext.js';
 
-export type VaadinRouterLocationChangedEvent = CustomEvent<
+export type EventDetails<T extends CustomEvent> = T['detail'];
+
+export type VaadinRouterLocationChangedEvent<
+  R extends object = EmptyObject,
+  C extends object = EmptyObject,
+> = CustomEvent<
   Readonly<{
-    location: RouterLocation;
-    router: Router;
+    location: RouterLocation<R, C>;
+    router: Router<R, C>;
   }>
 >;
 
@@ -19,12 +24,19 @@ export type VaadinRouterErrorEvent<R extends object = EmptyObject, C extends obj
     RouteContext<R, C>
 >;
 
-export type VaadinRouterGoEvent = CustomEvent<Pick<RouteContext, 'pathname'>>;
+export type VaadinRouterGoEvent<C extends object = EmptyObject> = CustomEvent<
+  Readonly<{
+    context?: Partial<C>;
+    path: URL | string;
+  }>
+>;
+export type VaadinRouterIgnoreEvent = CustomEvent<undefined>;
 
 declare global {
   interface WindowEventMap {
     'vaadin-router-go': VaadinRouterGoEvent;
     'vaadin-router-location-changed': VaadinRouterLocationChangedEvent;
+    'vaadin-router-ignore': VaadinRouterIgnoreEvent;
     'vaadin-router-error': VaadinRouterErrorEvent;
   }
 

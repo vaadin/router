@@ -1,7 +1,6 @@
 import type { EmptyObject, Router as _Router } from '@ausginer/router';
-import type { IndexedParams, Params } from '../types/general.js';
+import type { IndexedParams } from '../types/general.js';
 import type { Route } from '../types/Route.js';
-import type { InternalRouteContext, RouteContext } from '../types/RouteContext.js';
 
 /**
  * Describes the state of a router at a given point in time. It is available for
@@ -125,5 +124,5 @@ export interface RouterLocation<R extends object = EmptyObject, C extends object
    * @returns generated URL
    * @public
    */
-  getUrl(params?: Params): string;
+  getUrl(params?: IndexedParams): string;
 }

@@ -1,7 +1,5 @@
 import type { Command, ComponentCommand } from '../internals/Commands.js';
-import type { RouterLocation } from '../internals/RouterLocation.js';
 import type { InternalRoute } from './Route.js';
-import type { RouteContext } from './RouteContext.js';
 import type { WebComponentInterface } from './WebComponentInterface.js';
 
 export type PrimitiveParamValue = string | number | null | undefined;
@@ -18,10 +16,10 @@ export type RedirectContextInfo = Readonly<{
   pathname: string;
 }>;
 
-export type ActionResult = Command | null | undefined;
+export type ActionResult = Command | null | undefined | void;
 
 export type InternalResult<R extends object, C extends object> = Readonly<{
   element?: WebComponentInterface<R, C>;
   result?: ComponentCommand;
-  route: InternalRoute<R, C>;
+  route?: InternalRoute<R, C>;
 }>;

@@ -46,6 +46,19 @@ export default defineConfig({
       __NAME__: `'${packageJson.name ?? '@hilla/unknown'}'`,
       __VERSION__: `'${packageJson.version ?? '0.0.0'}'`,
     },
+    supported: {
+      decorators: false,
+      'top-level-await': true,
+    },
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      supported: {
+        decorators: false,
+        'top-level-await': true,
+      },
+      target: 'esnext',
+    },
   },
   plugins: [loadRegisterJs()],
   root: process.cwd(),
