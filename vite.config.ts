@@ -48,5 +48,5 @@ export default defineConfig({
     },
   },
   plugins: [loadRegisterJs()],
-  root: import.meta.url,
+  root: process.cwd(),
 });
