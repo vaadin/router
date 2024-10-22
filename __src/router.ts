@@ -29,13 +29,11 @@ import type { WebComponentInterface } from './types/WebComponentInterface.js';
 import { ensureRoutes, fireRouterEvent, isString, log, traverse } from './utils.js';
 
 function convertOptions<R extends object, C extends object>({
-  baseUrl,
+  baseUrl = '',
   errorHandler,
 }: RouterOptions<R, C> = {}): _RouterOptions<ReadonlyArray<InternalResult<R, C>> | PreventCommand | RedirectCommand> {
-  const baseHref = document.head.querySelector('base')?.getAttribute('href');
-
   return {
-    baseURL: baseUrl ?? new URL(baseHref ?? '', location.origin),
+    baseURL: new URL('./', new URL(baseUrl, document.baseURI || document.URL)),
     errorHandler(error) {
       const result = errorHandler?.(error);
 
@@ -137,7 +135,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     );
 
     this.#location = {
-      baseUrl: this.#impl.options.baseURL?.toString() ?? '',
+      baseUrl: this.#impl.baseURL,
       getUrl: () => '',
       hash: '',
       params: {},
@@ -159,8 +157,8 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     return this.#ready;
   }
 
-  get baseUrl(): string {
-    return this.#impl.options.baseURL?.toString()!;
+  get baseUrl(): URL {
+    return this.#impl.baseURL;
   }
 
   get routes(): ReadonlyArray<Route<R, C>> {
@@ -212,7 +210,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
 
   async setRoutes(routes: Route<R, C> | ReadonlyArray<Route<R, C>>, skipRender = false): Promise<RouterLocation<R, C>> {
     const _routes = ensureRoutes(routes);
-    this.#impl = new _Router(this.#convertRoutes(_routes), this.#impl.options);
+    this.#impl = new _Router(this.#convertRoutes(_routes), this.#impl);
     this.#routes = _routes;
 
     if (!skipRender) {
@@ -236,12 +234,11 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
       (e: VaadinRouterGoEvent) => {
         e.preventDefault();
 
-        this.render({
-          pathname: new URL(e.detail.path, this.#impl.options.baseURL),
+        // eslint-disable-next-line no-void
+        void this.render({
+          pathname: new URL(e.detail.path, this.#impl.baseURL),
           ...e.detail.context,
-        } as RenderContext<C>).catch((error: unknown) => {
-          throw error;
-        });
+        } as RenderContext<C>);
       },
       { signal: this.#controller.signal },
     );
@@ -259,13 +256,25 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     pathnameOrContext: string | URL | RenderContext<C>,
     shouldUpdateHistory = false,
   ): Promise<RouterLocation<R, C>> {
-    let pathname: string | URL;
+    this.#ready = this.#render(pathnameOrContext, shouldUpdateHistory);
+    return await this.#ready;
+  }
+
+  async #render(
+    pathnameOrContext: string | URL | RenderContext<C>,
+    shouldUpdateHistory = false,
+  ): Promise<RouterLocation<R, C>> {
+    let pathname: string;
     let context: object | undefined;
 
-    if (pathnameOrContext instanceof URL || isString(pathnameOrContext)) {
+    if (pathnameOrContext instanceof URL) {
+      ({ pathname } = pathnameOrContext);
+    } else if (isString(pathnameOrContext)) {
       pathname = pathnameOrContext;
     } else {
-      ({ pathname, ...context } = pathnameOrContext);
+      const { pathname: _pathname, ...rest } = pathnameOrContext;
+      pathname = _pathname instanceof URL ? _pathname.pathname : _pathname;
+      context = rest;
     }
 
     const url = new URL(pathname, this.baseUrl);
@@ -311,7 +320,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    */
-  urlForName(name: string, params?: IndexedParams | null): string {
+  urlForName(name: string, params?: IndexedParams | null): URL | undefined {
     const { routes } = this.#impl;
     let [parent] = routes;
     let paths: string[] = [];
@@ -334,7 +343,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
       }
     }
 
-    return '';
+    return undefined;
   }
 
   /**
@@ -347,24 +356,26 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
    * Named parameters are passed by name (`params[name] = value`), unnamed
    * parameters are passed by index (`params[index] = value`).
    */
-  urlForPath(path: string, params?: IndexedParams | null): string {
-    const baseUrl = this.#impl.options.baseURL?.toString();
+  urlForPath(path: string, params?: IndexedParams | null): URL {
+    const baseUrl = String(this.#impl.baseURL);
     const url = new URL(path, baseUrl);
 
     if (params) {
       const pattern = new URLPattern(path, baseUrl);
       const result = pattern.exec(url)!;
 
-      return Object.entries(result.pathname.groups).reduce((acc, [name, part]) => {
-        if (name in params && part) {
-          return acc.replace(part, String(params[name] ?? part));
-        }
+      return new URL(
+        Object.entries(result.pathname.groups).reduce((acc, [name, part]) => {
+          if (name in params && part) {
+            return acc.replace(part, String(params[name] ?? part));
+          }
 
-        return acc;
-      }, url.toString());
+          return acc;
+        }, url.toString()),
+      );
     }
 
-    return url.toString();
+    return url;
   }
 
   async *#processResolved(

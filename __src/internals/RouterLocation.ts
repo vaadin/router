@@ -19,7 +19,7 @@ export interface RouterLocation<R extends object = EmptyObject, C extends object
    *
    * @public
    */
-  baseUrl: string;
+  baseUrl: URL;
 
   /**
    * The fragment identifier (including hash character) for the current page.
