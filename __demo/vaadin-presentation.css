@@ -1,0 +1,12 @@
+:host {
+  width: 40rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+vaadin-presentation-addressbar,
+iframe {
+  width: 100%;
+  height: 15rem;
+}
