@@ -1,6 +1,6 @@
+import '@helpers/x-user-list.js';
+import '@helpers/x-user-profile.js';
 import { Router } from '../../../../src/index.js';
-import '../../../display-components/x-user-list.js';
-import '../../../display-components/x-user-profile.js';
 import './x-wrapper.js';
 
 // tag::snippet[]
@@ -8,6 +8,7 @@ const router = new Router(document.getElementById('outlet'));
 await router.setRoutes([
   {
     path: '/',
+    component: 'x-wrapper',
     children: [
       {
         path: '/users',
@@ -15,7 +16,6 @@ await router.setRoutes([
           enter: 'users-entering',
           leave: 'users-leaving',
         },
-        component: 'x-wrapper',
         children: [
           { path: '', component: 'x-user-list' },
           {

@@ -1,0 +1,15 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  background: #ddd;
+  padding: 5px;
+  min-height: 100vh;
+}
+
+main {
+  margin-top: 10px;
+  padding: 5px;
+  background: #fff;
+  flex: 1 0 auto;
+  min-height: 80px;
+}

@@ -1,6 +1,6 @@
+import sharedCss from '@helpers/shared-styles.css?ctr';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import css from './x-wrapper.css?ctr';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -10,7 +10,7 @@ declare global {
 
 @customElement('x-wrapper')
 export default class Wrapper extends LitElement {
-  static override styles = css;
+  static override styles = sharedCss;
 
   override render(): TemplateResult {
     return html`<nav>

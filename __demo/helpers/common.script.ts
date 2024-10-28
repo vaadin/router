@@ -1,4 +1,4 @@
-import { Router } from '../src/index.js';
+import { Router } from '../../src/index.js';
 
 type MessageData = Readonly<{ url: string }>;
 
@@ -11,17 +11,13 @@ let parentData: ParentData | undefined;
 
 function updateParentUrl() {
   if (parentData?.source) {
-    parentData.source.postMessage({ url: location.href }, { targetOrigin: parentData.origin });
+    parentData.source.postMessage({ url: location.href }, { targetOrigin: location.origin });
   }
 }
 
-addEventListener('message', ({ data, source, origin }: MessageEvent<MessageData | null>) => {
-  if (!parentData) {
-    parentData = { source, origin };
-  }
-
+addEventListener('message', ({ data }: MessageEvent<MessageData | null>) => {
   if (data != null) {
-    window.location.href = new URL(data.url, location.origin).href;
+    Router.go(new URL(data.url, location.origin).href);
   } else {
     Router.go('/');
   }

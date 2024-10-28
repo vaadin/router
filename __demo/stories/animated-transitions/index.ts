@@ -3,19 +3,57 @@ import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import '../../vaadin-presentation.js';
 import '../../vaadin-demo-code-snippet.js';
-import htmlCode1 from './d1/iframe.html?raw';
+import type { CodeSnippet } from '../../vaadin-demo-code-snippet.js';
+import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
-import tsCode1 from './d1/script.js?raw';
-import cssCode1 from './d1/styles.css?raw';
-import htmlCode2 from './d2/iframe.html?raw';
+import tsCode1 from './d1/script.js?snippet';
+import cssCode1 from './d1/styles.css?snippet';
+import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
-import tsCode2 from './d2/script.js?raw';
+import tsCode2 from './d2/script.js?snippet';
+import cssCode2 from './d2/styles.css?snippet';
 
 declare global {
   interface HTMLElementTagNameMap {
     'vaadin-demo-animated-transitions': DemoAnimatedTransitions;
   }
 }
+
+const files1: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode1,
+    title: 'HTML',
+  },
+  {
+    id: 'ts',
+    code: tsCode1,
+    title: 'TS',
+  },
+  {
+    id: 'css',
+    code: cssCode1,
+    title: 'CSS',
+  },
+];
+
+const files2: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode2,
+    title: 'html',
+  },
+  {
+    id: 'ts',
+    code: tsCode2,
+    title: 'TS',
+  },
+  {
+    id: 'css',
+    code: cssCode2,
+    title: 'CSS',
+  },
+];
 
 @customElement('vaadin-demo-animated-transitions')
 export default class DemoAnimatedTransitions extends LitElement {
@@ -34,7 +72,7 @@ export default class DemoAnimatedTransitions extends LitElement {
         property on the corresponding route config objects.
       </p>
       <vaadin-presentation src=${url1}>
-        <vaadin-demo-code-snippet .html=${htmlCode1} .ts=${tsCode1} .css=${cssCode1}></vaadin-demo-code-snippet>
+        <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
       </vaadin-presentation>
       <p>To run the animated transition, Vaadin Router performs the actions in the following order:</p>
       <ol>
@@ -57,7 +95,7 @@ export default class DemoAnimatedTransitions extends LitElement {
         single route. In particular, you can switch back to using default CSS classes, as shown in the demo below.
       </p>
       <vaadin-presentation src=${url2}>
-        <vaadin-demo-code-snippet .html=${htmlCode2} .ts=${tsCode2}></vaadin-demo-code-snippet>
+        <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
       </vaadin-presentation>`;
   }
 }
