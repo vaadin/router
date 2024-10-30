@@ -1,5 +1,6 @@
-import '@vaadin/vaadin-lumo-styles/all-imports.js';
-import '@helpers/vaadin-demo-layout.js';
+import { applyTheme } from './theme';
+
+applyTheme(document);
 
 if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
   document.documentElement.setAttribute('theme', 'dark');

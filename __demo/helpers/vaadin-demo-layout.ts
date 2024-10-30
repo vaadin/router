@@ -9,6 +9,7 @@ import { SignalWatcher } from '@lit-labs/preact-signals';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import './vaadin-presentation.js';
+import theme from './theme.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -17,6 +18,7 @@ declare global {
 }
 
 @customElement('vaadin-demo-layout')
+@theme
 export default class DemoLayout extends SignalWatcher(LitElement) {
   @property({ attribute: 'app-title', type: String }) accessor appTitle = '';
 
@@ -29,8 +31,8 @@ export default class DemoLayout extends SignalWatcher(LitElement) {
       </main>
       <vaadin-scroller slot="drawer" class="p-s">
         <vaadin-side-nav>
-          <vaadin-side-nav-item path="/animated-transitions">Animated Transitions</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/code-splitting">Code Splitting</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/animated-transitions/">Animated Transitions</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/code-splitting/">Code Splitting</vaadin-side-nav-item>
         </vaadin-side-nav>
       </vaadin-scroller>
     </vaadin-app-layout>`;

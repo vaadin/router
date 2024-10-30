@@ -1,25 +1,23 @@
-/* eslint-disable import/no-duplicates */
+/* eslint-disable import/no-duplicates, import/default */
+import '@helpers/vaadin-demo-code-snippet.js';
+import '@helpers/vaadin-demo-layout.js';
+import '@helpers/vaadin-presentation.js';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import '../../vaadin-presentation.js';
-import '../../vaadin-demo-code-snippet.js';
-import type { CodeSnippet } from '../../vaadin-demo-code-snippet.js';
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
-import cssCode1 from './d1/styles.css?snippet';
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
-import cssCode2 from './d2/styles.css?snippet';
-import htmlCode1 from './d3/iframe.html?snippet';
-import url3 from './d3/iframe.html?url';
-import tsCode1 from './d3/script.js?snippet';
-import cssCode1 from './d3/styles.css?snippet';
+import theme from '@helpers/theme.js';
+import userRoutesCode from '@helpers/user-routes.js?snippet';
+import bundleCode from '@helpers/user.bundle.js?snippet';
+import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'vaadin-code-splitting': CodeSplitting;
+    'vaadin-demo-code-splitting': DemoCodeSplitting;
   }
 }
 
@@ -35,14 +33,33 @@ const files1: readonly CodeSnippet[] = [
     title: 'TS',
   },
   {
-    id: 'css',
-    code: cssCode1,
-    title: 'CSS',
+    id: 'bundle',
+    code: bundleCode,
+    title: 'User Bundle',
   },
 ];
 
-@customElement('vaadin-code-splitting')
-export default class CodeSplitting extends LitElement {
+const files2: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode2,
+    title: 'HTML',
+  },
+  {
+    id: 'ts',
+    code: tsCode2,
+    title: 'TS',
+  },
+  {
+    id: 'routes',
+    code: userRoutesCode,
+    title: 'User Routes',
+  },
+];
+
+@customElement('vaadin-demo-code-splitting')
+@theme
+export default class DemoCodeSplitting extends LitElement {
   override render(): TemplateResult {
     return html`<h3>Using Dynamic Imports</h3>
       <p>
@@ -81,18 +98,8 @@ export default class CodeSplitting extends LitElement {
         See the <a href="../#/classes/Router#method-setRoutes" target="_parent">API documentation</a> for detailed
         description of the <code>children</code> callback function.
       </p>
-      <vaadin-presentation src=${url2} .code=${code2}></vaadin-presentation>
-      <h3>Lazy Loading non-JS Bundles, e.g. HTML Imports</h3>
-      <p>
-        In cases when loading <code>.js</code> and <code>.mjs</code> is not enough&mdash;most notably, when using HTML
-        imports in Polymer-based apps&mdash;the lazy loading feature can be implemented with a custom route action (for
-        more details see <a href="#vaadin-router-route-actions-demos"> Route Actions</a>).
-      </p>
-      <p>
-        This demo shows a way to lazily add an HTML import. The <code>user.bundle.html</code>
-        file contains entire Polymer 2 component definition including a template, a class, and a script that defines a
-        custom element.
-      </p>
-      <vaadin-presentation src=${url3} .code=${code3}></vaadin-presentation>`;
+      <vaadin-presentation src=${url2}>
+        <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
+      </vaadin-presentation>`;
   }
 }

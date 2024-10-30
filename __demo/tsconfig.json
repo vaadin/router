@@ -1,10 +1,9 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": ["../tsconfig.json"],
   "compilerOptions": {
     "paths": {
       "@helpers/*": ["./helpers/*"]
     }
   },
-  "include": ["**/*", "*"],
-  "exclude": []
+  "include": ["./**/*", "./*"]
 }

@@ -80,7 +80,7 @@ export function codeSnippetPlugin(): Plugin {
             });
             snippet = transformCode(snippet, lang);
             return {
-              code: `import { html } from 'lit'; export default html\`${snippet}\``,
+              code: `import { html } from 'lit'; export default html\`${snippet.replaceAll(/(`|\$|\{\})/gu, '\\$1')}\``,
               map: null,
             };
           }

@@ -7,6 +7,7 @@ import '@vaadin/tooltip';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import theme from './theme.js';
 import css from './vaadin-presentation-addressbar.css?ctr';
 
 declare global {
@@ -16,6 +17,7 @@ declare global {
 }
 
 @customElement('vaadin-presentation-addressbar')
+@theme
 export class VaadinPresentationAddressbar extends LitElement {
   static override styles = css;
 

@@ -1,10 +1,11 @@
 import '@vaadin/tabs';
 import '@vaadin/tabsheet';
+import '@vaadin/tabs/src/vaadin-tab';
 import css from 'highlight.js/styles/atom-one-dark.css?ctr';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import '@vaadin/tabs/src/vaadin-tab';
+import theme from './theme.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -19,6 +20,7 @@ export type CodeSnippet = Readonly<{
 }>;
 
 @customElement('vaadin-demo-code-snippet')
+@theme
 export default class DemoCodeSnippet extends LitElement {
   static override styles = css;
 

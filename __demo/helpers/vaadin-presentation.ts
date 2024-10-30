@@ -2,6 +2,7 @@
 import { html, LitElement, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import theme from './theme.js';
 import css from './vaadin-presentation.css?ctr';
 import './vaadin-presentation-addressbar.js';
 import './vaadin-demo-code-snippet.js';
@@ -17,6 +18,7 @@ type MessageData = Readonly<{
 }>;
 
 @customElement('vaadin-presentation')
+@theme
 export default class VaadinPresentation extends LitElement {
   static override styles = css;
 

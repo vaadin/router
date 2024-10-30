@@ -1,9 +1,9 @@
 /* eslint-disable import/no-duplicates, import/default */
+import '@helpers/vaadin-demo-layout.js';
+import '@helpers/vaadin-demo-code-snippet.js';
+import '@helpers/vaadin-presentation.js';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import '../../vaadin-presentation.js';
-import '../../vaadin-demo-code-snippet.js';
-import type { CodeSnippet } from '../../vaadin-demo-code-snippet.js';
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
@@ -12,10 +12,12 @@ import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 import cssCode2 from './d2/styles.css?snippet';
+import theme from '@helpers/theme.js';
+import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'vaadin-demo-animated-transitions': DemoAnimatedTransitions;
+    'vaadin-demo-code-splitting': DemoCodeSplitting;
   }
 }
 
@@ -55,8 +57,9 @@ const files2: readonly CodeSnippet[] = [
   },
 ];
 
-@customElement('vaadin-demo-animated-transitions')
-export default class DemoAnimatedTransitions extends LitElement {
+@customElement('vaadin-demo-code-splitting')
+@theme
+export default class DemoCodeSplitting extends LitElement {
   override render(): TemplateResult {
     return html`<p>
         Vaadin Router allows you to animate transitions between routes. In order to add an animation, do the next steps:
