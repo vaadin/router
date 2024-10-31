@@ -10,6 +10,6 @@ declare module '*.css?ctr' {
 declare module '*?snippet' {
   import type { TemplateResult } from 'lit';
 
-  const code: TemplateResult;
-  export default code;
+  const snippets: readonly TemplateResult[];
+  export default snippets;
 }

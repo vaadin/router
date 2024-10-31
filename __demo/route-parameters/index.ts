@@ -24,36 +24,36 @@ declare global {
 const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode1[0],
-    title: 'index.html',
+    code: htmlCode1,
+    title: 'HTML',
   },
   {
     id: 'ts',
-    code: tsCode1[0],
-    title: 'script.ts',
+    code: tsCode1,
+    title: 'TS',
   },
   {
     id: 'css',
-    code: cssCode1[0],
-    title: 'styles.css',
+    code: cssCode1,
+    title: 'CSS',
   },
 ];
 
 const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode2[0],
-    title: 'index.html',
+    code: htmlCode2,
+    title: 'html',
   },
   {
     id: 'ts',
-    code: tsCode2[0],
-    title: 'script.ts',
+    code: tsCode2,
+    title: 'TS',
   },
   {
     id: 'css',
-    code: cssCode2[0],
-    title: 'styles.css',
+    code: cssCode2,
+    title: 'CSS',
   },
 ];
 

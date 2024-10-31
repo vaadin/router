@@ -31,8 +31,9 @@ export default class DemoLayout extends SignalWatcher(LitElement) {
       </main>
       <vaadin-scroller slot="drawer" class="p-s">
         <vaadin-side-nav>
-          <vaadin-side-nav-item path="/animated-transitions/">Animated Transitions</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/getting-started/">Getting Started</vaadin-side-nav-item>
           <vaadin-side-nav-item path="/code-splitting/">Code Splitting</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/animated-transitions/">Animated Transitions</vaadin-side-nav-item>
         </vaadin-side-nav>
       </vaadin-scroller>
     </vaadin-app-layout>`;

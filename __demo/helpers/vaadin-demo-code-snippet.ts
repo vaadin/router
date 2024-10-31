@@ -1,8 +1,8 @@
 import '@vaadin/tabs';
 import '@vaadin/tabsheet';
 import '@vaadin/tabs/src/vaadin-tab';
-import css from 'highlight.js/styles/atom-one-dark.css?ctr';
-import { html, LitElement, type TemplateResult } from 'lit';
+import css from 'highlight.js/styles/kimbie-light.css?ctr';
+import { html, LitElement, nothing, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import theme from './theme.js';
@@ -14,9 +14,9 @@ declare global {
 }
 
 export type CodeSnippet = Readonly<{
-  id: string;
+  id?: string;
   code: TemplateResult;
-  title: string;
+  title?: string;
 }>;
 
 @customElement('vaadin-demo-code-snippet')
@@ -27,23 +27,32 @@ export default class DemoCodeSnippet extends LitElement {
   @property({ attribute: false }) accessor files: readonly CodeSnippet[] = [];
 
   override render(): TemplateResult {
-    return html`<vaadin-tabsheet>
-      <vaadin-tabs slot="tabs">
-        ${repeat(
-          this.files,
-          ({ id }) => id,
-          ({ id, title }) => html`<vaadin-tab id=${id}>${title}</vaadin-tab>`,
-        )}
-      </vaadin-tabs>
+    switch (this.files.length) {
+      case 0:
+        return html``;
+      case 1:
+        return html`<pre><code>${this.files[0].code}</code></pre>`;
+      default:
+        return html`<vaadin-tabsheet>
+          <vaadin-tabs slot="tabs">
+            ${repeat(
+              this.files,
+              ({ id }) => id,
+              ({ id, title }) => (id ? html`<vaadin-tab id=${id}>${title}</vaadin-tab>` : nothing),
+            )}
+          </vaadin-tabs>
 
-      ${repeat(
-        this.files,
-        ({ id }) => id,
-        ({ id, code }) =>
-          html`<div tab=${id}>
-            <pre><code>${code}</code></pre>
-          </div>`,
-      )}
-    </vaadin-tabsheet>`;
+          ${repeat(
+            this.files,
+            ({ id }) => id,
+            ({ id, code }) =>
+              id
+                ? html`<div tab=${id}>
+                    <pre><code>${code}</code></pre>
+                  </div>`
+                : nothing,
+          )}
+        </vaadin-tabsheet>`;
+    }
   }
 }
