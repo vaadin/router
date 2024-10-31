@@ -1,17 +1,7 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
-import { Router, type RouterLocation } from '../../src/index.js';
-import Resolver from '../../src/resolver/resolver.js';
+import { Router, type Commands, type MaybePromise, type RouteContext, type RouterLocation, type WebComponentInterface } from '../../__src/index.js';
 import '../setup.js';
-import type { MaybePromise } from '../../src/resolver/types.js';
-import type {
-  Commands,
-  Route,
-  RouteContext,
-  VaadinRouterErrorEvent,
-  VaadinRouterLocationChangedEvent,
-  WebComponentInterface,
-} from '../../src/types.js';
 import {
   checkOutletContents,
   cleanup,
@@ -66,7 +56,7 @@ function extractLifeCycleCallbackCallArgs(
 
 const elementWithAllLifecycleCallbacks = (elementName: string) => (_context: RouteContext, commands: Commands) => {
   callbacksLog.push(`${elementName}.action`);
-  const component = commands.component('x-spy') as WebComponentInterface;
+  const component = commands.component('x-spy');
   component.name = elementName;
   return component;
 };

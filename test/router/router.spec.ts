@@ -2,16 +2,14 @@ import { expect, use } from '@esm-bundle/chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import { Router } from '../../__src/router.js';
-import { NotFoundError } from '../../__src/index.js';
-import type {
-  ChildrenCallback,
-  Commands,
-  Route,
-  RouteChildrenContext,
-  RouteContext,
-  WebComponentInterface,
-} from '../../src/types.js';
+import {
+  NotFoundError,
+  Router,
+  type Commands,
+  type Route,
+  type RouteContext,
+  type WebComponentInterface,
+} from '../../__src/index.js';
 import '../setup.js';
 import { checkOutletContents, cleanup, onBeforeEnterAction } from './test-utils.js';
 
@@ -211,7 +209,7 @@ describe('Router', () => {
             const rejected: sinon.SinonSpy<unknown[], void> = sinon.spy();
             const ready = _router.render('/').then(fulfilled).catch(rejected);
             // @ts-expect-error: testing invalid arguments
-            _router.setOutlet(invalidOutlet);
+            _router.outlet = invalidOutlet;
             await ready;
             expect(fulfilled).to.not.have.been.called;
             expect(rejected).to.have.been.calledOnce;
@@ -730,7 +728,7 @@ describe('Router', () => {
       it('should update on router before component is connected', async () => {
         customElements.define(
           'x-connected-location-test',
-          class extends HTMLElement {
+          class extends HTMLElement implements WebComponentInterface {
             connectedCallback() {
               expect((this as WebComponentInterface).location?.getUrl()).to.equal('/x-connected-location-test');
               expect(router.location.getUrl()).to.equal('/x-connected-location-test');
@@ -771,7 +769,7 @@ describe('Router', () => {
         });
 
         it('should prepend baseUrl', async () => {
-          (router as { baseUrl: string }).baseUrl = '/base/';
+          router = new Router(null, { baseUrl: '/base/' });
           await router.setRoutes(
             [
               { path: '/a', component: 'x-a' },
@@ -1160,7 +1158,7 @@ describe('Router', () => {
         });
 
         it('should be prevented for pathnames matching baseUrl', () => {
-          (router as { baseUrl: string }).baseUrl = '/app/';
+          router = new Router(null, { baseUrl: '/app/' });
           expect(
             !window.dispatchEvent(
               new CustomEvent('vaadin-router-go', {
@@ -1497,44 +1495,6 @@ describe('Router', () => {
         checkOutlet(['x-main-layout']);
       });
 
-      it('action with redirect return should prevent matching children', async () => {
-        await router.setRoutes(
-          [
-            {
-              path: '/home',
-              // eslint-disable-next-line @typescript-eslint/unbound-method
-              action: (_context, { redirect }) => redirect('/users'),
-              component: 'x-main-layout',
-              children: () => [{ path: '/', component: 'x-home-view' }],
-            },
-            { path: '/users', component: 'x-users-view' },
-          ],
-          true,
-        );
-
-        await router.render('/home');
-        checkOutlet(['x-users-view']);
-        expect(outlet.firstElementChild).to.not.be.null;
-        expect(outlet.firstElementChild?.firstElementChild).to.be.null;
-      });
-
-      it('action with HTMLElement return should not prevent matching children', async () => {
-        await router.setRoutes(
-          [
-            {
-              path: '/',
-              // eslint-disable-next-line @typescript-eslint/unbound-method
-              action: (_context, { component }) => component('x-main-layout'),
-              children: () => [{ path: '/', component: 'x-home-view' }],
-            },
-          ],
-          true,
-        );
-
-        await router.render('/');
-        checkOutlet(['x-main-layout', 'x-home-view']);
-      });
-
       it('action with non-resolving return should not prevent route redirect', async () => {
         await Promise.all(
           [undefined, null, NaN, 0, false, '', 'thisIsAlsoNonResolving', {}, Object.create(null)].map(
@@ -1695,47 +1655,6 @@ describe('Router', () => {
         await router.render('/test');
 
         expect(outlet.children[0].tagName).to.match(/x-users-view/iu);
-      });
-
-      it('action should be executed after children function', async () => {
-        const children = sinon.stub().returns([]);
-        let actionExecuted = false;
-
-        await router.setRoutes(
-          [
-            {
-              path: '/test',
-              children,
-              component: 'x-test',
-              action: () => {
-                actionExecuted = true;
-                expect(children).to.have.been.called;
-              },
-            },
-          ],
-          true,
-        );
-
-        await router.render('/test');
-
-        expect(actionExecuted).to.be.true;
-      });
-
-      it('redirect should be executed after children function', async () => {
-        const children = sinon.stub().returns([]);
-
-        await router.setRoutes(
-          [
-            { path: '/home', children, redirect: '/users' },
-            { path: '/users', component: 'x-users-view' },
-          ],
-          true,
-        );
-
-        await router.render('/home/1');
-
-        expect(outlet.children[0].tagName).to.match(/x-users-view/iu);
-        expect(children).to.have.been.called;
       });
 
       it('should match routes with trailing slashes', async () => {

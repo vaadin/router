@@ -1,9 +1,7 @@
-import type { AnyObject, EmptyObject } from '@ausginer/router';
+import type { EmptyObject, MaybePromise } from '@ausginer/router';
+import type { Commands, PreventCommand, RedirectCommand } from '../internals/Commands.js';
+import type { RouterLocation } from '../internals/RouterLocation.js';
 import type { Router } from '../router.js';
-import type { Commands, EmptyCommands } from './Commands.js';
-import type { MaybePromise, PreventResult, RedirectResult } from './general.js';
-import type { RouterLocation } from '../internals/location.js';
-import type { PreventCommand, RedirectCommand } from '../internals/Commands.js';
 
 /**
  * This interface describes the lifecycle callbacks supported by Vaadin Router
@@ -65,7 +63,7 @@ import type { PreventCommand, RedirectCommand } from '../internals/Commands.js';
  * Other examples can be found in the
  * [live demos](#/classes/Router/demos/demo/index.html) and tests.
  */
-export interface WebComponentInterface<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject>
+export interface WebComponentInterface<R extends object = EmptyObject, C extends object = EmptyObject>
   extends HTMLElement {
   location?: RouterLocation<R, C>;
   name?: string;
@@ -92,7 +90,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterEnter?(location: RouterLocation<R, C>, commands: EmptyCommands, router: Router<R, C>): void;
+  onAfterEnter?(location: RouterLocation<R, C>, commands: null, router: Router<R, C>): void;
 
   /**
    * Method that gets executed when user navigates away from the component that
@@ -117,7 +115,7 @@ export interface WebComponentInterface<R extends AnyObject = EmptyObject, C exte
    * @param commands - empty object
    * @param router - the `Router` instance
    */
-  onAfterLeave?(location: RouterLocation<R, C>, commands: EmptyCommands, router: Router<R, C>): void;
+  onAfterLeave?(location: RouterLocation<R, C>, commands: null, router: Router<R, C>): void;
 
   /**
    * Method that gets executed before the outlet contents is updated with

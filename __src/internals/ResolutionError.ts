@@ -1,13 +1,28 @@
-import type { AnyObject, EmptyObject } from '@ausginer/router';
+import type { EmptyObject } from '@ausginer/router';
 import type { RouteContext } from '../types/RouteContext.js';
 
-export class ResolutionError<R extends AnyObject = EmptyObject, C extends AnyObject = EmptyObject> extends Error {
+export interface ResolutionErrorOptions extends ErrorOptions {
+  code?: number;
+}
+
+function* iterateChainUntilRoute<R extends object = EmptyObject, C extends object = EmptyObject>(
+  context: RouteContext<R, C>,
+) {
+  for (const route of context.chain ?? []) {
+    yield route.path;
+    if (route === context.route) {
+      break;
+    }
+  }
+}
+
+export class ResolutionError<R extends object = EmptyObject, C extends object = EmptyObject> extends Error {
   readonly code?: number;
   readonly context: RouteContext<R, C>;
 
   constructor(context: RouteContext<R, C>, options?: ResolutionErrorOptions) {
     let errorMessage = `Path '${context.pathname}' is not properly resolved due to an error.`;
-    const routePath = getRoutePath(context.route);
+    const routePath = [...iterateChainUntilRoute(context)].join('/');
     if (routePath) {
       errorMessage += ` Resolution had failed on route: '${routePath}'`;
     }

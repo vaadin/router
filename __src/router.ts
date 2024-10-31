@@ -6,6 +6,7 @@ import {
   type RouterOptions as _RouterOptions,
 } from '@ausginer/router';
 import { izip } from 'itertools';
+import animate from './internals/animate.js';
 import {
   createCommand,
   isComponentCommand,
@@ -23,10 +24,10 @@ import type { NavigationTrigger } from './triggers/types.js';
 import type { EventDetails, VaadinRouterGoEvent } from './types/events.js';
 import type { IndexedParams, InternalResult } from './types/general.js';
 import type { InternalRoute, Route } from './types/Route.js';
-import type { InternalRouteContext, RenderContext, RouteContext } from './types/RouteContext.js';
+import type { RenderContext, RouteContext } from './types/RouteContext.js';
 import type { RouterOptions } from './types/RouterOptions.js';
 import type { WebComponentInterface } from './types/WebComponentInterface.js';
-import { ensureRoutes, fireRouterEvent, isString, log, traverse } from './utils.js';
+import { ensureRoutes, fireRouterEvent, isObject, isString, log, traverse } from './utils.js';
 
 function convertOptions<R extends object, C extends object>({
   baseUrl = '',
@@ -103,7 +104,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
   }
 
   readonly options?: RouterOptions<R, C>;
-  readonly #routeMap = new WeakMap<InternalRoute<R, C>, Route<R, C>>();
+  #routeMap?: WeakMap<InternalRoute<R, C>, Route<R, C>>;
   #location: RouterLocation<R, C>;
   #controller?: AbortController;
   #impl: _Router<ReadonlyArray<InternalResult<R, C>> | PreventCommand | RedirectCommand, R, C>;
@@ -332,7 +333,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
         paths = [route.path];
       }
 
-      if (this.#routeMap.get(route)!.name === name) {
+      if (this.#routeMap?.get(route)!.name === name) {
         return this.urlForPath(
           paths
             .map((p) => p.replace(/^\/*(.*?)\/*$/u, '$1'))
@@ -381,6 +382,8 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
   async *#processResolved(
     resolved: ReadonlyArray<InternalResult<R, C>>,
   ): AsyncGenerator<Command | undefined | void, void, void> {
+    // ESLINT: This is an async generator, so we can await in a loop
+    /* eslint-disable no-await-in-loop */
     let parent = this.#outlet;
 
     if (!parent) {
@@ -388,39 +391,56 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
     }
 
     if (this.#previousResolved) {
-      for (const [{ element }, current] of izip(this.#previousResolved.slice().reverse(), resolved.slice().reverse())) {
-        if (element) {
-          // ESLINT: This is an async generator, so we can await in a loop
-          // eslint-disable-next-line no-await-in-loop
-          yield await element.onBeforeLeave?.(location, commands, this);
-          if (element !== current.element) {
-            element.remove();
-          }
-          yield element.onAfterLeave?.(location, commands, this);
+      for (const [{ element, route: _route }, current] of izip(
+        this.#previousResolved.slice().reverse(),
+        resolved.slice().reverse(),
+      )) {
+        if (!element) {
+          continue;
         }
+
+        const route = _route ? this.#routeMap?.get(_route) : undefined;
+        const location = { ...this.#location, route };
+
+        yield await element.onBeforeLeave?.(location, commands, this);
+        if (element !== current.element) {
+          if (route && route.animate) {
+            await animate(element, isObject(route.animate) && route.animate.leave ? route.animate.leave : 'leaving');
+          }
+
+          element.remove();
+        }
+        yield element.onAfterLeave?.(location, null, this);
       }
     }
 
-    for (const { element } of resolved) {
+    for (const { element, route: _route } of resolved) {
       if (element) {
-        // ESLINT: This is an async generator, so we can await in a loop
-        // eslint-disable-next-line no-await-in-loop
+        const route = _route && this.#routeMap?.get(_route);
+        const location = { ...this.#location, route };
+
         yield await element.onBeforeEnter?.(location, commands, this);
 
         if (!element.isConnected) {
           parent.append(element);
+
+          if (route && route.animate) {
+            await animate(element, isObject(route.animate) && route.animate.enter ? route.animate.enter : 'entering');
+          }
         }
 
-        yield element.onAfterEnter?.(location, commands, this);
+        yield element.onAfterEnter?.(location, null, this);
 
         parent = element;
       }
     }
 
     this.#previousResolved = resolved;
+    /* eslint-enable no-await-in-loop */
   }
 
   #convertRoutes(routes: ReadonlyArray<Route<R, C>>): ReadonlyArray<InternalRoute<R, C>> {
+    this.#routeMap = new WeakMap<InternalRoute<R, C>, Route<R, C>>();
     const self = this;
 
     return routes.map((route) => {
@@ -436,7 +456,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
         children: children ? this.#convertRoutes(children) : undefined,
         path,
         async action(ctx) {
-          const { branch, next, result, url, router: _, ...contextRest } = ctx;
+          const { branch, next, result, url, router, ...contextRest } = ctx;
           if (redirect) {
             return createCommand({ to: redirect });
           }
@@ -446,10 +466,19 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
             pathname: { groups },
           } = result;
 
-          const chain = branch.map((r) => self.#routeMap.get(r)!);
+          const chain = branch.map((r) => self.#routeMap!.get(r)!);
 
           if (self.#location.pathname !== pathname) {
-            self.#location = self.#createLocation(ctx);
+            self.#location = {
+              baseUrl: router.baseURL,
+              getUrl: (params) => self.urlForPath(pathname, params).toString(),
+              hash,
+              params: groups,
+              pathname,
+              routes,
+              search,
+              searchParams,
+            };
           }
 
           let actionResult: ComponentCommand | undefined;
@@ -515,33 +544,9 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
         ...(routeRest as R),
       };
 
+      this.#routeMap!.set(impl, route);
+
       return impl;
     });
-  }
-
-  #createLocation(
-    {
-      branch,
-      result: {
-        pathname: { groups },
-      },
-      url: { pathname, hash, search, searchParams },
-      router,
-    }: InternalRouteContext<R, C>,
-    route?: Route<R, C>,
-  ): RouterLocation<R, C> {
-    const routes = branch.map((r) => this.#routeMap.get(r)!);
-
-    return {
-      baseUrl: router.options.baseURL?.toString() ?? '',
-      getUrl: (params) => this.urlForPath(pathname, params),
-      hash,
-      params: groups,
-      pathname,
-      route,
-      routes,
-      search,
-      searchParams,
-    };
   }
 }
