@@ -27,14 +27,14 @@ import type { InternalRoute, Route } from './types/Route.js';
 import type { RenderContext, RouteContext } from './types/RouteContext.js';
 import type { RouterOptions } from './types/RouterOptions.js';
 import type { WebComponentInterface } from './types/WebComponentInterface.js';
-import { ensureRoutes, fireRouterEvent, isObject, isString, log, traverse } from './utils.js';
+import { ensureRoutes, fireRouterEvent, isObject, isString, log, sanitizePath, traverse } from './utils.js';
 
 function convertOptions<R extends object, C extends object>({
   baseUrl = '',
   errorHandler,
 }: RouterOptions<R, C> = {}): _RouterOptions<ReadonlyArray<InternalResult<R, C>> | PreventCommand | RedirectCommand> {
   return {
-    baseURL: new URL('./', new URL(baseUrl, document.baseURI || document.URL)),
+    baseURL: new URL(sanitizePath(baseUrl), sanitizePath(document.baseURI || document.URL)),
     errorHandler(error) {
       const result = errorHandler?.(error);
 
@@ -278,7 +278,9 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
       context = rest;
     }
 
-    const url = new URL(pathname, this.baseUrl);
+    // All URLs should be relative to the base URL even though they are declared
+    // as `/`.
+    const url = new URL(sanitizePath(`./${pathname}`), this.baseUrl);
     const resolved = await this.#impl.resolve(url, context as C extends EmptyObject ? never : C);
 
     if (isPreventCommand(resolved) || !resolved) {
@@ -481,7 +483,7 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
             };
           }
 
-          let actionResult: ComponentCommand | undefined;
+          let actionResult: ComponentCommand | HTMLElement | undefined;
           let nextResult: ReadonlyArray<InternalResult<R, C>> | null | undefined;
 
           const context: RouteContext<R, C> = {
@@ -519,6 +521,11 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
                 element = document.createElement(res.name);
               }
 
+              actionResult = res;
+            }
+
+            if (res instanceof HTMLElement) {
+              element = res;
               actionResult = res;
             }
           } else {

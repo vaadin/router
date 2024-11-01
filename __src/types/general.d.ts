@@ -16,10 +16,10 @@ export type RedirectContextInfo = Readonly<{
   pathname: string;
 }>;
 
-export type ActionResult = Command | null | undefined | void;
+export type ActionResult = HTMLElement | Command | null | undefined | void;
 
 export type InternalResult<R extends object, C extends object> = Readonly<{
   element?: WebComponentInterface<R, C>;
-  result?: ComponentCommand;
+  result?: ComponentCommand | HTMLElement;
   route?: InternalRoute<R, C>;
 }>;

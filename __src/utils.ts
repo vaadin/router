@@ -92,3 +92,7 @@ export function ensureRoutes<R extends object, C extends object>(
 
   return _routes;
 }
+
+export function sanitizePath(path: string): string {
+  return path.replace(/\/+$/gu, '/');
+}
