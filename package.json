@@ -117,7 +117,7 @@
     "regexp.escape": "^2.0.1",
     "sinon": "^19.0.2",
     "sinon-chai": "^4.0.0",
-    "stylelint": "^16.9.0",
+    "stylelint": "^16.10.0",
     "tsx": "^4.19.1",
     "typedoc": "^0.26.8",
     "typedoc-plugin-missing-exports": "^3.0.0",
