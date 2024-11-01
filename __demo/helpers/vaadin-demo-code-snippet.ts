@@ -1,11 +1,12 @@
-import '@vaadin/tabs';
-import '@vaadin/tabsheet';
-import '@vaadin/tabs/src/vaadin-tab';
-import css from 'highlight.js/styles/kimbie-light.css?ctr';
+import '@vaadin/accordion';
+import highlightCss from 'highlight.js/styles/kimbie-light.css?ctr';
 import { html, LitElement, nothing, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
 import theme from './theme.js';
+import '@vaadin/accordion/src/vaadin-accordion-panel';
+import css from './vaadin-demo-code-snippet.css?ctr';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -22,7 +23,7 @@ export type CodeSnippet = Readonly<{
 @customElement('vaadin-demo-code-snippet')
 @theme
 export default class DemoCodeSnippet extends LitElement {
-  static override styles = css;
+  static override styles = [highlightCss, css];
 
   @property({ attribute: false }) accessor files: readonly CodeSnippet[] = [];
 
@@ -33,26 +34,20 @@ export default class DemoCodeSnippet extends LitElement {
       case 1:
         return html`<pre><code>${this.files[0].code}</code></pre>`;
       default:
-        return html`<vaadin-tabsheet>
-          <vaadin-tabs slot="tabs">
-            ${repeat(
-              this.files,
-              ({ id }) => id,
-              ({ id, title }) => (id ? html`<vaadin-tab id=${id}>${title}</vaadin-tab>` : nothing),
-            )}
-          </vaadin-tabs>
-
+        return html`
           ${repeat(
             this.files,
             ({ id }) => id,
-            ({ id, code }) =>
+            ({ id, code, title }) =>
               id
-                ? html`<div tab=${id}>
-                    <pre><code>${code}</code></pre>
-                  </div>`
+                ? html`<vaadin-accordion>
+                    <vaadin-accordion-panel summary=${ifDefined(title)}>
+                      <pre><code>${code}</code></pre>
+                    </vaadin-accordion-panel>
+                  </vaadin-accordion>`
                 : nothing,
           )}
-        </vaadin-tabsheet>`;
+        `;
     }
   }
 }

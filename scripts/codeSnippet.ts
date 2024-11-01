@@ -13,24 +13,31 @@ hljs.registerLanguage('js', javascriptLang);
 hljs.registerLanguage('html', xmlLang);
 hljs.registerLanguage('css', cssLang);
 
-const snippetStart = {
-  html: '<!-- tag::snippet[] -->',
-  ts: '// tag::snippet[]',
-  css: '/* tag::snippet[] */',
+type SnippetPatternKey = keyof typeof snippetPattern;
+const snippetPattern = {
+  html: /<!-- tag::snippet\[\] -->([\s\S]*?)<!-- end::snippet\[\] -->/gmu,
+  ts: /\/\/ tag::snippet\[\]([\s\S]*?)\/\/ end::snippet\[\]/gmu,
+  css: /\/\* tag::snippet\[\] \*\/([\s\S]*?)\/\* end::snippet\[\] \*\//gmu,
 } as const;
 
-const snippetEnd = {
-  html: '<!-- end::snippet[] -->',
-  ts: '// end::snippet[]',
-  css: '/* end::snippet[] */',
+type HtmlLangMixinsKey = keyof typeof htmlLangMixins;
+const htmlLangMixins = {
+  js: /<script(.*?)>([\s\S]*?)<\/script>/gmu,
+  css: /<style(.*?)>([\s\S]*?)<\/style>/gmu,
 } as const;
 
-function extractSnippets(code: string, language: keyof typeof snippetStart) {
+const htmlLangMixinCommenter = {
+  js(code: string) {
+    return `// ${code}`;
+  },
+  css(code: string) {
+    return `/* ${code} */`;
+  },
+};
+
+function extractSnippets(code: string, language: SnippetPatternKey) {
   const result: string[] = [];
-  const pattern = new RegExp(
-    `${RegExp.escape(snippetStart[language])}([\\s\\S]*?)${RegExp.escape(snippetEnd[language])}`,
-    'gmu',
-  );
+  const pattern = snippetPattern[language];
 
   let match;
   while ((match = pattern.exec(code)) != null) {
@@ -42,6 +49,36 @@ function extractSnippets(code: string, language: keyof typeof snippetStart) {
   }
 
   return result;
+}
+
+class SubSnippetReplacer {
+  readonly #lang: HtmlLangMixinsKey;
+  readonly #map = new Map<string, string>();
+
+  constructor(lang: HtmlLangMixinsKey) {
+    this.#lang = lang;
+  }
+
+  replace(code: string) {
+    const pattern = htmlLangMixins[this.#lang];
+
+    return code.replace(pattern, (_, attrs, script) => {
+      const id = crypto.randomUUID();
+
+      this.#map.set(id, hljs.highlight(script, { language: this.#lang }).value);
+      return `<script${attrs}>${htmlLangMixinCommenter[this.#lang](id)}</script>`;
+    });
+  }
+
+  restoreAll(code: string) {
+    let result = code;
+
+    for (const [id, snippet] of this.#map) {
+      result = result.replaceAll(htmlLangMixinCommenter[this.#lang](id), snippet);
+    }
+
+    return result;
+  }
 }
 
 export function codeSnippetPlugin(): Plugin {
@@ -92,7 +129,28 @@ export function codeSnippetPlugin(): Plugin {
                   }),
               ),
             );
-            snippets = snippets.map((snippet) => hljs.highlight(snippet, { language: lang }).value);
+            const jsReplacer = new SubSnippetReplacer('js');
+            const cssReplacer = new SubSnippetReplacer('css');
+
+            snippets = snippets.map((snippet) => {
+              let result = snippet;
+
+              if (lang === 'html') {
+                for (const mixinLang of Object.keys(htmlLangMixins) as readonly HtmlLangMixinsKey[]) {
+                  if (mixinLang === 'js') {
+                    result = jsReplacer.replace(result);
+                  }
+
+                  result = cssReplacer.replace(result);
+                }
+              }
+
+              result = hljs.highlight(result, { language: lang }).value;
+              result = jsReplacer.restoreAll(result);
+              result = cssReplacer.restoreAll(result);
+
+              return result;
+            });
             return {
               code: `import { html } from 'lit'; export default [${snippets
                 .map((snippet) => `html\`${snippet.replaceAll(/(`|\$|\{\})/gu, '\\$1')}\``)

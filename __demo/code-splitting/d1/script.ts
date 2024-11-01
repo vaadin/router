@@ -1,8 +1,5 @@
 import '@helpers/iframe.script.js';
 import '@helpers/x-home-view.js';
-import '@helpers/x-image-view.js';
-import '@helpers/x-user-list.js';
-import '@helpers/x-user-profile.js';
 import { Router } from '../../../src/index.js';
 
 // tag::snippet[]
