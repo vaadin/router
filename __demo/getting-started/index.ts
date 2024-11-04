@@ -23,12 +23,12 @@ const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode1[0],
-    title: 'HTML',
+    title: 'iframe.html',
   },
   {
     id: 'ts',
     code: tsCode1[0],
-    title: 'TS',
+    title: 'script.ts',
   },
 ];
 

@@ -25,17 +25,17 @@ const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode1[0],
-    title: 'HTML',
+    title: 'iframe1.html',
   },
   {
     id: 'ts',
     code: tsCode1[0],
-    title: 'TS',
+    title: 'script1.ts',
   },
   {
     id: 'bundle',
     code: bundleCode[0],
-    title: 'User Bundle',
+    title: 'user-bundle.ts',
   },
 ];
 
@@ -43,17 +43,17 @@ const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode2[0],
-    title: 'HTML',
+    title: 'iframe2.html',
   },
   {
     id: 'ts',
     code: tsCode2[0],
-    title: 'TS',
+    title: 'script2.ts',
   },
   {
     id: 'routes',
     code: userRoutesCode[0],
-    title: 'User Routes',
+    title: 'user-routes.ts',
   },
 ];
 

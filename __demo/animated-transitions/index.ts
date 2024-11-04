@@ -25,7 +25,7 @@ const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode1[0],
-    title: 'index.html',
+    title: 'iframe.html',
   },
   {
     id: 'ts',
@@ -43,7 +43,7 @@ const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode2[0],
-    title: 'index.html',
+    title: 'iframe.html',
   },
   {
     id: 'ts',

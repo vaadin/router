@@ -72,8 +72,8 @@
       API documentation</a> for more details.
     </p>
     <p>
-      <strong>Note: </strong>Navigating to the same route also triggers this callback, 
-      e.g., click on the same link multiple times will trigger the <code>onBeforeEnter</code> 
+      <strong>Note: </strong>Navigating to the same route also triggers this callback,
+      e.g., click on the same link multiple times will trigger the <code>onBeforeEnter</code>
       callback on each click.
     </p>
     <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-1" iframe-src="iframe.html">
@@ -163,6 +163,15 @@
         <a href="/friend">Meet a friend</a>
         <div id="outlet"></div>
         <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/friend', component: 'x-friend'}
+          ]);
+
           Polymer({
             is: 'x-friend',
 
@@ -176,15 +185,6 @@
               this.appendChild(h2);
             }
           });
-
-          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // const Router = Vaadin.Router; // for vaadin-router.umd.js
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/friend', component: 'x-friend'}
-          ]);
         </script>
         <dom-module id="x-friend">
           <template>
@@ -220,8 +220,8 @@
       API documentation</a> for more details.
     </p>
     <p>
-      <strong>Note: </strong>Navigating to the same route also triggers this callback, 
-      e.g., click on the same link multiple times will trigger the <code>onBeforeLeave</code> 
+      <strong>Note: </strong>Navigating to the same route also triggers this callback,
+      e.g., click on the same link multiple times will trigger the <code>onBeforeLeave</code>
       callback on each click.
     </p>
     <vaadin-demo-snippet id="vaadin-router-lifecycle-events-demos-3" iframe-src="iframe.html">

@@ -20,12 +20,15 @@ export type { ResolutionError, IndexedParams, Params, ParamValue, PrimitiveParam
 /**
  * A custom event that is triggered when the location changes.
  */
-export type VaadinRouterLocationChangedEvent = CustomEvent<
+export type VaadinRouterLocationChangedEvent<
+  R extends object = EmptyObject,
+  C extends object = EmptyObject,
+> = CustomEvent<
   Readonly<{
     /** The new location after the change */
-    location: RouterLocation;
+    location: RouterLocation<R, C>;
     /** The router instance that triggered the event */
-    router: Router;
+    router: Router<R, C>;
   }>
 >;
 
