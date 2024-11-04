@@ -1,5 +1,6 @@
 export * from './router.js';
 export type * from './types.js';
+export type * from './v1-compat.js';
 export {
   processNewChildren,
   amend,
