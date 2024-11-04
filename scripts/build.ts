@@ -9,7 +9,7 @@ const root = new URL('../', import.meta.url);
 
 const [packageJson, entryPoints] = await Promise.all([
   readFile(new URL('package.json', root), 'utf8').then(JSON.parse) as Promise<PackageJson>,
-  glob('src/**/*.{ts,tsx}', { ignore: ['**/*.d.ts'] }),
+  glob('src/**/*.{ts,tsx}', { ignore: ['**/*.t.ts'] }),
 ]);
 
 await build({

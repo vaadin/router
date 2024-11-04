@@ -14,7 +14,7 @@ import sinonChai from 'sinon-chai';
 import generateUrls, { type StringifyQueryParams } from '../../src/resolver/generateUrls.js';
 import Resolver from '../../src/resolver/resolver.js';
 import '../setup.js';
-import type { Route } from '../../src/resolver/types.js';
+import type { Route } from '../../src/resolver/types.t.js';
 
 use(chaiDom);
 use(sinonChai);

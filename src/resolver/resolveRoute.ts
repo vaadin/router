@@ -6,7 +6,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE.txt file in the root directory of this source tree.
  */
-import type { ActionResult, MaybePromise, RouteContext } from './types.js';
+import type { ActionResult, MaybePromise, RouteContext } from './types.t.js';
 import { isFunction } from './utils.js';
 
 /** @internal */

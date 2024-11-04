@@ -1,4 +1,4 @@
-import type { ChildrenCallback, Route, RouteContext } from './types.js';
+import type { ChildrenCallback, Route, RouteContext } from './types.t.js';
 
 /**
  * {@inheritDoc "<internal>".NotFoundError}

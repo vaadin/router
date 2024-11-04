@@ -11,7 +11,7 @@ import type {
   RouteChildrenContext,
   RouteContext,
   WebComponentInterface,
-} from '../../src/types.js';
+} from '../../src/types.t.js';
 import '../setup.js';
 import { checkOutletContents, cleanup, onBeforeEnterAction } from './test-utils.js';
 

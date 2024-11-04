@@ -1,7 +1,7 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
 import { Router } from '../../src/router.js';
-import type { ResolutionError, RouterLocation, WebComponentInterface } from '../../src/types.js';
+import type { ResolutionError, RouterLocation, WebComponentInterface } from '../../src/types.t.js';
 import '../setup.js';
 import {
   checkOutletContents,
