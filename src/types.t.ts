@@ -12,7 +12,7 @@ import type {
   PrimitiveParamValue,
   Route as _Route,
   RouteContext as _RouteContext,
-} from './resolver/types.js';
+} from './resolver/types.t.js';
 import type { Router } from './router.js';
 
 export type { ResolutionError, IndexedParams, Params, ParamValue, PrimitiveParamValue };

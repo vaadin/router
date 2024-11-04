@@ -1,4 +1,4 @@
-import type { NavigationTrigger } from '../types.js';
+import type { NavigationTrigger } from '../types.t.js';
 import CLICK from './click.js';
 import POPSTATE from './popstate.js';
 

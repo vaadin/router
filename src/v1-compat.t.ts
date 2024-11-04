@@ -1,7 +1,14 @@
 /* eslint-disable max-classes-per-file */
 
-import type { MaybePromise } from './resolver/types';
-import type { RouteContext, Route, ActionResult, ChildrenCallback, WebComponentInterface } from './types';
+import type { MaybePromise } from './resolver/types.t.js';
+import type {
+  Commands,
+  RouteContext,
+  Route,
+  ActionResult,
+  ChildrenCallback,
+  WebComponentInterface,
+} from './types.t.js';
 
 /**
  * Action result describing an HTML element to render.
