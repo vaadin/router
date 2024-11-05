@@ -1,16 +1,14 @@
 import '@helpers/iframe.script.js';
 import '@helpers/x-home-view.js';
-import { NavigationTriggers, Router } from '../../../src/index.js';
-import './x-countdown.js';
+import { DEFAULT_TRIGGERS, Router } from '../../../src/index.js';
 
 // tag::snippet[]
 const { POPSTATE } = DEFAULT_TRIGGERS;
 Router.setTriggers(POPSTATE);
 
 document.querySelector('ul')?.addEventListener('click', (event) => {
-  const target = event.target;
-  if (target.localName === 'li' && target.dataset.href) {
-    window.history.pushState({}, null, target.dataset.href);
+  if (event.target instanceof HTMLLIElement && event.target.dataset.href) {
+    window.history.pushState({}, '', event.target.dataset.href);
     window.dispatchEvent(new PopStateEvent('popstate'));
   }
 });

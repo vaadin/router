@@ -1,5 +1,4 @@
 import '@vaadin/accordion';
-import highlightCss from 'highlight.js/styles/kimbie-light.css?ctr';
 import { html, LitElement, nothing, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
@@ -11,6 +10,10 @@ declare global {
   interface HTMLElementTagNameMap {
     'vaadin-demo-code-snippet': DemoCodeSnippet;
   }
+
+  interface WindowEventMap {
+    'theme-changed': CustomEvent<string>;
+  }
 }
 
 export type CodeSnippet = Readonly<{
@@ -21,9 +24,17 @@ export type CodeSnippet = Readonly<{
 
 @customElement('vaadin-demo-code-snippet')
 export default class DemoCodeSnippet extends LitElement {
-  static override styles = [highlightCss, css];
+  static override styles = [css];
 
   @property({ attribute: false }) accessor files: readonly CodeSnippet[] = [];
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('theme', document.documentElement.getAttribute('theme') ?? 'light');
+    addEventListener('theme-changed', ({ detail: theme }: CustomEvent<string>) => {
+      this.setAttribute('theme', theme);
+    });
+  }
 
   override render(): TemplateResult {
     switch (this.files.length) {

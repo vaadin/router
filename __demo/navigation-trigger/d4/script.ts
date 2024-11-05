@@ -6,6 +6,16 @@ import { Router } from '../../../src/index.js';
 const router = new Router(document.getElementById('outlet'));
 await router.setRoutes([
   { path: '/', component: 'x-home-view' },
-  { path: '/go', component: 'x-countdown' },
+  {
+    path: '/users',
+    children: [
+      { path: '/', component: 'x-user-list' },
+      { path: '/:user', component: 'x-user-profile' },
+    ],
+  },
 ]);
+router.unsubscribe();
+
+// router will re-render only when the `render()` method is called explicitly:
+await router.render('/users');
 // end::snippet[]

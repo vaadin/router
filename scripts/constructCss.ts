@@ -1,9 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import cssnanoPlugin from 'cssnano';
 import postcss from 'postcss';
+import nestedImport from 'postcss-nested-import';
 import type { Plugin } from 'vite';
 
 const cssTransformer = postcss([
+  nestedImport(),
   cssnanoPlugin({
     preset: 'default',
   }),
