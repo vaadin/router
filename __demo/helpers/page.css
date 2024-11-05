@@ -1,0 +1,17 @@
+:host {
+  --code-background-light: #fbebd4;
+  --code-background-dark: #2b2b2b;
+}
+
+:host([theme~='dark']) {
+  --code-background: var(--code-background-dark);
+}
+
+:host([theme~='light']) {
+  --code-background: var(--code-background-light);
+}
+
+code {
+  background: var(--code-background);
+  padding: 0.2em 0.4em;
+}

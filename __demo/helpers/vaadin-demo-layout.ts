@@ -57,6 +57,6 @@ export default class DemoLayout extends SignalWatcher(LitElement) {
     this.#mode = this.#mode === 'dark' ? 'light' : 'dark';
     window.localStorage.setItem('color-scheme', this.#mode);
     document.documentElement.setAttribute('theme', this.#mode);
-    dispatchEvent(new CustomEvent('theme-changed', { detail: this.#mode }));
+    dispatchEvent(new Event('theme-changed'));
   }
 }
