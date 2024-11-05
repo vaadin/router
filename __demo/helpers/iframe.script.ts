@@ -1,3 +1,6 @@
+import './common.css';
+import './common.js';
+
 import { Router } from '../../src/index.js';
 
 type MessageData = Readonly<{ url: string }>;
