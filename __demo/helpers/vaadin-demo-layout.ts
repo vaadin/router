@@ -9,7 +9,6 @@ import { SignalWatcher } from '@lit-labs/preact-signals';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import './vaadin-presentation.js';
-import theme from './theme.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -18,7 +17,6 @@ declare global {
 }
 
 @customElement('vaadin-demo-layout')
-@theme
 export default class DemoLayout extends SignalWatcher(LitElement) {
   @property({ attribute: 'app-title', type: String }) accessor appTitle = '';
 

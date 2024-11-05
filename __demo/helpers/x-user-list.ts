@@ -1,7 +1,6 @@
 import { LitElement, html, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import css from './common.css?ctr';
-import theme from './theme.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -10,7 +9,6 @@ declare global {
 }
 
 @customElement('x-user-list')
-@theme
 export default class UserList extends LitElement {
   static override styles = css;
   override render(): TemplateResult {

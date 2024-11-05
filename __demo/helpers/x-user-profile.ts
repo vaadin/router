@@ -2,7 +2,6 @@ import { LitElement, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { RouterLocation } from '../../src/index.js';
 import css from './common.css?ctr';
-import theme from './theme.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -11,7 +10,6 @@ declare global {
 }
 
 @customElement('x-user-profile')
-@theme
 export default class UserProfile extends LitElement {
   static override styles = css;
 

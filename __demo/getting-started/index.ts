@@ -10,7 +10,6 @@ import tsCode1 from './d1/script.js?snippet';
 import tsSnippets2 from './routes.js?snippet';
 import htmlSnippets from './snippets.html?snippet';
 import tsSnippets from './snippets.js?snippet';
-import theme from '@helpers/theme.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -33,7 +32,6 @@ const files1: readonly CodeSnippet[] = [
 ];
 
 @customElement('vaadin-demo-getting-started')
-@theme
 export default class DemoGettingStarted extends LitElement {
   override render(): TemplateResult {
     return html`<h3>The <code>Router</code> class</h3>

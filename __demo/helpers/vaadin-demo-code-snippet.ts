@@ -4,7 +4,6 @@ import { html, LitElement, nothing, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
-import theme from './theme.js';
 import '@vaadin/accordion/src/vaadin-accordion-panel';
 import css from './vaadin-demo-code-snippet.css?ctr';
 
@@ -21,7 +20,6 @@ export type CodeSnippet = Readonly<{
 }>;
 
 @customElement('vaadin-demo-code-snippet')
-@theme
 export default class DemoCodeSnippet extends LitElement {
   static override styles = [highlightCss, css];
 

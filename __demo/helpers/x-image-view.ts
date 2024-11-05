@@ -3,7 +3,6 @@ import { customElement, property } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import type { RouterLocation } from '../../src/index.js';
 import commonCss from './common.css?ctr';
-import theme from './theme.js';
 import css from './x-image-view.css?ctr';
 
 declare global {
@@ -13,7 +12,6 @@ declare global {
 }
 
 @customElement('x-image-view')
-@theme
 export default class ImageView extends LitElement {
   static override styles = [commonCss, css];
 

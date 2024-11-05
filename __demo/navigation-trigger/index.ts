@@ -16,7 +16,6 @@ import tsCode3 from './d3/script.js?snippet';
 import htmlCode4 from './d4/iframe.html?snippet';
 import url4 from './d4/iframe.html?url';
 import tsCode4 from './d4/script.js?snippet';
-import theme from '@helpers/theme.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -78,7 +77,6 @@ const files4: readonly CodeSnippet[] = [
 ];
 
 @customElement('vaadin-demo-animated-transitions')
-@theme
 export default class DemoAnimatedTransitions extends LitElement {
   override render(): TemplateResult {
     return html`<h3>Navigation Triggers</h3>

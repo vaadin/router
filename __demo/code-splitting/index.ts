@@ -10,7 +10,6 @@ import tsCode1 from './d1/script.js?snippet';
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
-import theme from '@helpers/theme.js';
 import userRoutesCode from '@helpers/user-routes.js?snippet';
 import bundleCode from '@helpers/user.bundle.js?snippet';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
@@ -58,7 +57,6 @@ const files2: readonly CodeSnippet[] = [
 ];
 
 @customElement('vaadin-demo-code-splitting')
-@theme
 export default class DemoCodeSplitting extends LitElement {
   override render(): TemplateResult {
     return html`<h3>Using Dynamic Imports</h3>
