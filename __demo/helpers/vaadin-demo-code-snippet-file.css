@@ -1,0 +1,28 @@
+header {
+  padding: 0.3rem 0.3rem;
+  font-size: 0.8rem;
+  
+}
+
+pre {
+  margin: 0;
+  padding: 0.5rem 1rem;
+}
+
+/* ======= Highlight.js styles ======= */
+
+:host([theme~='dark']) {
+  @nested-import 'highlight.js/styles/atom-one-dark.css';
+
+  pre {
+    background: #2b2b2b;
+  }
+}
+
+:host([theme~='light']) {
+  @nested-import 'highlight.js/styles/vs.css';
+
+  pre {
+    background: #fbebd4;
+  }
+}

@@ -20,7 +20,7 @@ import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'vaadin-demo-animated-transitions': DemoAnimatedTransitions;
+    'vaadin-demo-navigation-trigger': DemoNavigationTrigger;
   }
 }
 
@@ -76,8 +76,8 @@ const files4: readonly CodeSnippet[] = [
   },
 ];
 
-@customElement('vaadin-demo-animated-transitions')
-export default class DemoAnimatedTransitions extends LitElement {
+@customElement('vaadin-demo-navigation-trigger')
+export default class DemoNavigationTrigger extends LitElement {
   override render(): TemplateResult {
     return html`<h3>Navigation Triggers</h3>
       <p class="note">This feature is for advanced use cases. Please make sure to read the documentation carefully.</p>

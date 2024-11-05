@@ -1,10 +1,8 @@
-import '@vaadin/accordion';
-import { html, LitElement, nothing, type TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
+import { html, LitElement, type TemplateResult } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import '@vaadin/accordion/src/vaadin-accordion-panel';
 import css from './vaadin-demo-code-snippet.css?ctr';
+import './vaadin-demo-code-snippet-file.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -22,18 +20,34 @@ export type CodeSnippet = Readonly<{
   title?: string;
 }>;
 
+function renderFile(file: CodeSnippet, theme: string): TemplateResult {
+  return html`<vaadin-demo-code-snippet-file theme=${theme} .file=${file}></vaadin-demo-code-snippet-file>`;
+}
+
 @customElement('vaadin-demo-code-snippet')
 export default class DemoCodeSnippet extends LitElement {
   static override styles = [css];
 
   @property({ attribute: false }) accessor files: readonly CodeSnippet[] = [];
 
+  @state() accessor #theme = document.documentElement.getAttribute('theme') ?? 'light';
+
+  readonly #controller = new AbortController();
+
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('theme', document.documentElement.getAttribute('theme') ?? 'light');
-    addEventListener('theme-changed', ({ detail: theme }: CustomEvent<string>) => {
-      this.setAttribute('theme', theme);
-    });
+    addEventListener(
+      'theme-changed',
+      ({ detail: theme }: CustomEvent<string>) => {
+        this.#theme = theme;
+      },
+      { signal: this.#controller.signal },
+    );
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#controller.abort();
   }
 
   override render(): TemplateResult {
@@ -41,20 +55,13 @@ export default class DemoCodeSnippet extends LitElement {
       case 0:
         return html``;
       case 1:
-        return html`<pre><code>${this.files[0].code}</code></pre>`;
+        return renderFile(this.files[0], this.#theme);
       default:
         return html`
           ${repeat(
             this.files,
             ({ id }) => id,
-            ({ id, code, title }) =>
-              id
-                ? html`<vaadin-accordion>
-                    <vaadin-accordion-panel summary=${ifDefined(title)}>
-                      <pre><code>${code}</code></pre>
-                    </vaadin-accordion-panel>
-                  </vaadin-accordion>`
-                : nothing,
+            (file) => renderFile(file, this.#theme),
           )}
         `;
     }
