@@ -30,6 +30,10 @@ import htmlCode5 from './d5/iframe.html?snippet';
 import url5 from './d5/iframe.html?url';
 import tsCode5 from './d5/script.js?snippet';
 
+import htmlCode6 from './d6/iframe.html?snippet';
+import url6 from './d6/iframe.html?url';
+import tsCode6 from './d6/script.js?snippet';
+
 import onAfterEnterCode from './my-view-with-after-enter.ts?snippet';
 import onAfterLeaveCode from './my-view-with-after-leave.ts?snippet';
 import onBeforeEnterCode from './my-view-with-before-enter.ts?snippet';
@@ -136,6 +140,19 @@ const files5: readonly CodeSnippet[] = [
     id: 'ts',
     code: tsCode5[0],
     title: 'script5.ts',
+  },
+];
+
+const files6: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode6[0],
+    title: 'iframe6.html',
+  },
+  {
+    id: 'ts',
+    code: tsCode6[0],
+    title: 'script6.ts',
   },
 ];
 
@@ -331,7 +348,9 @@ export default class DemoLifecycleCallback extends LitElement {
         <code>location.routes</code> is a read-only list of routes that correspond to the last completed navigation,
         which may be useful for example when creating a breadcrumbs component to visualize the current in-app location.
       </p>
-
+      <vaadin-presentation src=${url6}>
+        <vaadin-demo-code-snippet .files=${files6}></vaadin-demo-code-snippet>
+      </vaadin-presentation>
       <p>
         The router configuration allows you to add any custom properties to route objects. The example above uses that
         to set a custom <code>xBreadcrumb</code> property on the routes that we want to show up in breadcrumbs. That
