@@ -1,8 +1,10 @@
+/* eslint-disable import/no-duplicates */
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import css from './vaadin-demo-code-snippet.css?ctr';
+import type { CodeSnippet } from './vaadin-demo-code-snippet-file.js';
 import './vaadin-demo-code-snippet-file.js';
+import css from './vaadin-demo-code-snippet.css?ctr';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -14,11 +16,7 @@ declare global {
   }
 }
 
-export type CodeSnippet = Readonly<{
-  id?: string;
-  code: TemplateResult;
-  title?: string;
-}>;
+export type { CodeSnippet };
 
 function renderFile(file: CodeSnippet): TemplateResult {
   return html`<vaadin-demo-code-snippet-file .file=${file}></vaadin-demo-code-snippet-file>`;

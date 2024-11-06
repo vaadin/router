@@ -23,17 +23,17 @@ declare global {
 const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode1[0],
+    code: htmlCode1,
     title: 'iframe1.html',
   },
   {
     id: 'ts',
-    code: tsCode1[0],
+    code: tsCode1,
     title: 'script1.ts',
   },
   {
     id: 'bundle',
-    code: bundleCode[0],
+    code: bundleCode,
     title: 'user-bundle.ts',
   },
 ];
@@ -41,17 +41,17 @@ const files1: readonly CodeSnippet[] = [
 const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode2[0],
+    code: htmlCode2,
     title: 'iframe2.html',
   },
   {
     id: 'ts',
-    code: tsCode2[0],
+    code: tsCode2,
     title: 'script2.ts',
   },
   {
     id: 'routes',
-    code: userRoutesCode[0],
+    code: userRoutesCode,
     title: 'user-routes.ts',
   },
 ];

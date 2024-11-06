@@ -1,5 +1,5 @@
 import '@helpers/iframe.script.js';
-import { Router } from '../../../src/index.js';
+import { Router } from '@vaadin/router';
 import './x-user-deleted.js';
 import './x-user-manage.js';
 

@@ -38,6 +38,10 @@ function extractSnippets(code: string, language: SnippetPatternKey) {
   return result;
 }
 
+function escapeString(str: string) {
+  return str.replaceAll(/(`|\$|\{\})/gu, '\\$1');
+}
+
 export function codeSnippetPlugin(): Plugin {
   return {
     name: 'code-snippet',
@@ -76,6 +80,8 @@ export function codeSnippetPlugin(): Plugin {
           if (lang === 'ts' || lang === 'html' || lang === 'css') {
             let snippets = extractSnippets(code, lang);
 
+            snippets = [code, ...snippets];
+
             snippets = await Promise.all(
               snippets.map(
                 async (snippet) =>
@@ -88,9 +94,10 @@ export function codeSnippetPlugin(): Plugin {
             );
 
             snippets = snippets.map((snippet) => hljs.highlightAuto(snippet, languages).value);
+
             return {
-              code: `import { html } from 'lit'; export default [${snippets
-                .map((snippet) => `html\`${snippet.replaceAll(/(`|\$|\{\})/gu, '\\$1')}\``)
+              code: `import { html } from 'lit'; export default [\`${escapeString(code)}\`,${snippets
+                .map((snippet) => `html\`${escapeString(snippet)}\``)
                 .join(',')}];`,
               map: null,
             };

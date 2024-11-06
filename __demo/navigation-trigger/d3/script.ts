@@ -1,6 +1,7 @@
 import '@helpers/iframe.script.js';
 import '@helpers/x-home-view.js';
-import { DEFAULT_TRIGGERS, Router } from '../../../src/index.js';
+import '@helpers/x-user-list.js';
+import { DEFAULT_TRIGGERS, Router } from '@vaadin/router';
 
 // tag::snippet[]
 const { POPSTATE } = DEFAULT_TRIGGERS;

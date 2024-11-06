@@ -50,17 +50,17 @@ declare global {
 const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode1[0],
+    code: htmlCode1,
     title: 'iframe1.html',
   },
   {
     id: 'ts',
-    code: tsCode1[0],
+    code: tsCode1,
     title: 'script1.ts',
   },
   {
     id: 'x-countdown',
-    code: xCountdownCode[0],
+    code: xCountdownCode,
     title: 'x-countdown.ts',
   },
 ];
@@ -68,17 +68,17 @@ const files1: readonly CodeSnippet[] = [
 const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode2[0],
+    code: htmlCode2,
     title: 'iframe2.html',
   },
   {
     id: 'ts',
-    code: tsCode2[0],
+    code: tsCode2,
     title: 'script2.ts',
   },
   {
     id: 'x-friend',
-    code: xFriend[0],
+    code: xFriend,
     title: 'x-friend.ts',
   },
 ];
@@ -86,22 +86,22 @@ const files2: readonly CodeSnippet[] = [
 const files3: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode3[0],
+    code: htmlCode3,
     title: 'iframe3.html',
   },
   {
     id: 'ts',
-    code: tsCode3[0],
+    code: tsCode3,
     title: 'script3.ts',
   },
   {
     id: 'x-user-deleted',
-    code: xUserDeleted[0],
+    code: xUserDeleted,
     title: 'x-user-deleted.ts',
   },
   {
     id: 'x-user-manage',
-    code: xUserManage[0],
+    code: xUserManage,
     title: 'x-user-manage.ts',
   },
 ];
@@ -109,22 +109,22 @@ const files3: readonly CodeSnippet[] = [
 const files4: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode4[0],
+    code: htmlCode4,
     title: 'iframe4.html',
   },
   {
     id: 'ts',
-    code: tsCode4[0],
+    code: tsCode4,
     title: 'script4.ts',
   },
   {
     id: 'x-autosave-view',
-    code: xAutosaveView[0],
+    code: xAutosaveView,
     title: 'x-autosave-view.ts',
   },
   {
     id: 'x-main-page',
-    code: xMainPage[0],
+    code: xMainPage,
     title: 'x-main-page.ts',
   },
 ];
@@ -132,12 +132,12 @@ const files4: readonly CodeSnippet[] = [
 const files5: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode5[0],
+    code: htmlCode5,
     title: 'iframe5.html',
   },
   {
     id: 'ts',
-    code: tsCode5[0],
+    code: tsCode5,
     title: 'script5.ts',
   },
 ];
@@ -145,12 +145,12 @@ const files5: readonly CodeSnippet[] = [
 const files6: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode6[0],
+    code: htmlCode6,
     title: 'iframe6.html',
   },
   {
     id: 'ts',
-    code: tsCode6[0],
+    code: tsCode6,
     title: 'script6.ts',
   },
 ];
@@ -365,25 +365,25 @@ export default class DemoLifecycleCallback extends LitElement {
           <p>
             <b><code>BeforeEnterObserver</code></b>
           </p>
-          <vaadin-demo-code-snippet .files=${[{ code: onBeforeEnterCode[0] }]}></vaadin-demo-code-snippet>
+          <vaadin-demo-code-snippet .files=${[{ code: onBeforeEnterCode }]}></vaadin-demo-code-snippet>
         </li>
         <li>
           <p>
             <b><code>AfterEnterObserver</code></b>
           </p>
-          <vaadin-demo-code-snippet .files=${[{ code: onAfterEnterCode[0] }]}></vaadin-demo-code-snippet>
+          <vaadin-demo-code-snippet .files=${[{ code: onAfterEnterCode }]}></vaadin-demo-code-snippet>
         </li>
         <li>
           <p>
             <b><code>BeforeLeaveObserver</code></b>
           </p>
-          <vaadin-demo-code-snippet .files=${[{ code: onBeforeLeaveCode[0] }]}></vaadin-demo-code-snippet>
+          <vaadin-demo-code-snippet .files=${[{ code: onBeforeLeaveCode }]}></vaadin-demo-code-snippet>
         </li>
         <li>
           <p>
             <b><code>AfterLeaveObserver</code></b>
           </p>
-          <vaadin-demo-code-snippet .files=${[{ code: onAfterLeaveCode[0] }]}></vaadin-demo-code-snippet>
+          <vaadin-demo-code-snippet .files=${[{ code: onAfterLeaveCode }]}></vaadin-demo-code-snippet>
         </li>
       </ul>`;
   }

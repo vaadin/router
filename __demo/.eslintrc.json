@@ -3,5 +3,8 @@
   "root": true,
   "parserOptions": {
     "project": "./tsconfig.json"
+  },
+  "rules": {
+    "no-unbound-method": "off"
   }
 }

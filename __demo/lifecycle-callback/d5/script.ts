@@ -3,7 +3,7 @@ import '@helpers/x-home-view.js';
 import '@helpers/x-user-list.js';
 import '@helpers/x-user-profile.js';
 import '@helpers/x-not-found-view.js';
-import { Router } from '../../../src/index.js';
+import { Router } from '@vaadin/router';
 
 // tag::snippet[]
 window.addEventListener('vaadin-router-location-changed', (event) => {

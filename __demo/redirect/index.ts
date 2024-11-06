@@ -7,7 +7,6 @@ import { customElement } from 'lit/decorators.js';
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
-import cssCode1 from './d1/styles.css?snippet';
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
@@ -16,7 +15,7 @@ import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'vaadin-demo-animated-transitions': DemoAnimatedTransitions;
+    'vaadin-demo-redirect': DemoRedirect;
   }
 }
 
@@ -31,11 +30,6 @@ const files1: readonly CodeSnippet[] = [
     code: tsCode1,
     title: 'TS',
   },
-  {
-    id: 'css',
-    code: cssCode1,
-    title: 'CSS',
-  },
 ];
 
 const files2: readonly CodeSnippet[] = [
@@ -49,54 +43,127 @@ const files2: readonly CodeSnippet[] = [
     code: tsCode2,
     title: 'TS',
   },
-  {
-    id: 'css',
-    code: cssCode2,
-    title: 'CSS',
-  },
 ];
 
-@customElement('vaadin-demo-animated-transitions')
-export default class DemoAnimatedTransitions extends LitElement {
+@customElement('vaadin-demo-redirect')
+export default class DemoRedirect extends LitElement {
   override render(): TemplateResult {
-    return html`<p>
-        Vaadin Router allows you to animate transitions between routes. In order to add an animation, do the next steps:
-      </p>
-      <ol>
-        <li>update the router config: add the <code>animate</code> property set to <code>true</code></li>
-        <li>add <code>@keyframes</code> animations, either in the view Web Component styles or in outside CSS</li>
-        <li>apply CSS for <code>.leaving</code> and <code>.entering</code> classes to use the animations</li>
-      </ol>
-      <p>
-        The demo below illustrates how to add the transition between all the routes in the same group. You might also
-        add the transition for the specific routes only, by setting the <code>animate</code>
-        property on the corresponding route config objects.
-      </p>
-      <vaadin-presentation src=${url1}>
-        <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
-      </vaadin-presentation>
-      <p>To run the animated transition, Vaadin Router performs the actions in the following order:</p>
-      <ol>
-        <li>render the new view component to the outlet content</li>
-        <li>set the <code>entering</code> CSS class on the new view component</li>
-        <li>set the <code>leaving</code> CSS class on the old view component, if any</li>
-        <li>check if some <code>@keyframes</code> animation applies, and wait for it to complete</li>
-        <li>remove the old view component from the outlet content</li>
-        <li>continue the remaining navigation steps as usual</li>
-      </ol>
-      <h3>Customize CSS Classes</h3>
-      <p>
-        In the basic use case, using single type of the animated transition could be enough to make the web app looking
-        great, but often we need to configure it depending on the route. Vaadin Router supports this feature by setting
-        object value to <code>animate</code> property, with the <code>enter</code> and <code>leave</code> string keys.
-        Their values are used for setting CSS classes to be set on the views.
-      </p>
-      <p>
-        Note that you can first configure animated transition for the group of routes, and then override it for the
-        single route. In particular, you can switch back to using default CSS classes, as shown in the demo below.
-      </p>
-      <vaadin-presentation src=${url2}>
-        <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
-      </vaadin-presentation>`;
+    return html`<h3>Unconditional Redirects</h3>
+    <p>
+      Vaadin Router supports the <code>redirect</code> property on the route
+      objects, allowing to unconditionally redirect users from one path to
+      another. The valid values are a path string or a pattern in the same
+      format as used for the <code>path</code> property.
+    </p>
+    <p>
+      The original path is not stored as the <code>window.history</code> entry
+      and cannot be reached by pressing the "Back" browser button. Unconditional
+      redirects work for routes both with and without parameters.
+    <p>
+      The original path is available to route Web Components as the
+      <a target="_parent" href="..#/classes/Router.Location#property-redirectFrom">
+      <code>location.redirectFrom</code></a> string property, and to custom
+      <a href="#vaadin-router-route-actions-demos">route actions</a> &ndash;
+      as <code>context.redirectFrom</code>.
+    </p>
+    <p>
+      Note: If a route has both the <code>redirect</code> and <code>action</code>
+      properties, <code>action</code> is executed first and if it does not
+      return a result Vaadin Router proceeds to check the <code>redirect</code>
+      property. Other route properties (if any) would be ignored. In that case
+      Vaadin Router would also log a warning to the browser console.
+    </p>
+    <vaadin-presentation src=${url1}>
+      <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
+    </vaadin-presentation>
+
+    <h3>Dynamic Redirects</h3>
+    <p>
+      Vaadin Router allows redirecting to another path dynamically based on
+      a condition evaluated at the run time. In order to do that, <code>
+      return commands.redirect('/new/path')</code> from the
+      <a href="#vaadin-router-lifecycle-callbacks-demos"><code>onBeforeEnter()
+      </code></a> lifecycle callback of the route Web Component.
+    </p>
+    <p>
+      It is also possible to redirect from a custom route action. The demo below
+      has an example of that in the <code>/logout</code> route action. See the
+      <a href="#vaadin-router-route-actions-demos">Route Actions</a> section for
+      more details.
+    </p>
+    <vaadin-presentation src=${url2}>
+      <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
+    </vaadin-presentation>
+
+    <h3>Navigation from JavaScript</h3>
+    <p>
+      If you want to send users to another path in response to a user
+      action (outside of a lifecycle callback), you can do that by using the
+      static <a target="_parent" href="..#/classes/Router#staticmethod-go"><code>
+      Router.go('/to/path')</code></a> method on the Vaadin.Router class.
+    </p>
+    <p>
+      You can optionally pass search query string and hash to the method, either
+      as in-app URL string:
+    </p>
+    <marked-element>
+      <script type="text/markdown">
+        Router.go('/to/path?paramName=value#sectionName');
+      </script>
+    </marked-element>
+      ... or using an object with named parameters:
+    </p>
+    <marked-element>
+      <script type="text/markdown">
+        Router.go({
+          pathname: '/to/path',
+          // optional
+          search: '?paramName=value',
+          // optional
+          hash: '#sectionName'
+        });
+      </script>
+    </marked-element>
+    <vaadin-demo-snippet id="vaadin-router-redirect-demos-3" iframe-src="iframe.html">
+      <template preserve-content>
+        <button id="trigger">Open <code>/user/you-know-who</code></button>
+        <div id="outlet"></div>
+
+        <script>
+          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
+          // const Router = Vaadin.Router; // for vaadin-router.umd.js
+
+          document.querySelector('#trigger').addEventListener('click', () => {
+            Router.go('/user/you-know-who');
+          });
+
+          const router = new Router(document.getElementById('outlet'));
+          router.setRoutes([
+            {path: '/', component: 'x-home-view'},
+            {path: '/user/:user', component: 'x-user-profile'},
+          ]);
+        </script>
+      </template>
+    </vaadin-demo-snippet>
+    <p>
+      NOTE: the same effect can be achieved by dispatching a <code>
+      vaadin-router-go</code> custom event on the <code>window</code>. The
+      target path should be provided as <code>event.detail.pathname</code>,
+      the search and hash strings can be optionally provided
+      with <code>event.detail.search</code> and <code>event.detail.hash</code>
+      properties respectively.
+    </p>
+    <marked-element>
+      <script type="text/markdown">
+        window.dispatchEvent(
+          new CustomEvent('vaadin-router-go', {detail: {
+            pathname: '/to/path',
+            // optional search query string
+            search: '?paramName=value',
+            // optional hash string
+            hash: '#sectionName'
+          }}));
+      </script>
+    </marked-element>`;
   }
 }

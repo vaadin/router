@@ -27,12 +27,12 @@ declare global {
 const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode1[0],
+    code: htmlCode1,
     title: 'iframe.html',
   },
   {
     id: 'ts',
-    code: tsCode1[0],
+    code: tsCode1,
     title: 'script.js',
   },
 ];
@@ -40,12 +40,12 @@ const files1: readonly CodeSnippet[] = [
 const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode2[0],
+    code: htmlCode2,
     title: 'iframe.html',
   },
   {
     id: 'ts',
-    code: tsCode2[0],
+    code: tsCode2,
     title: 'script.js',
   },
 ];
@@ -53,12 +53,12 @@ const files2: readonly CodeSnippet[] = [
 const files3: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode3[0],
+    code: htmlCode3,
     title: 'iframe.html',
   },
   {
     id: 'ts',
-    code: tsCode3[0],
+    code: tsCode3,
     title: 'script.js',
   },
 ];
@@ -66,12 +66,12 @@ const files3: readonly CodeSnippet[] = [
 const files4: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode4[0],
+    code: htmlCode4,
     title: 'iframe.html',
   },
   {
     id: 'ts',
-    code: tsCode4[0],
+    code: tsCode4,
     title: 'script.js',
   },
 ];

@@ -1,5 +1,7 @@
 import '@helpers/iframe.script.js';
-import { Router } from '../../../src/index.js';
+import { Router } from '@vaadin/router';
+import './x-main-page.js';
+import './x-autosave-view.js';
 
 // tag::snippet[]
 const router = new Router(document.getElementById('outlet'));

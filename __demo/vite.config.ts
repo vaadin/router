@@ -17,6 +17,7 @@ export default mergeConfig(viteConfig, {
   resolve: {
     alias: {
       '@helpers/': fileURLToPath(new URL('./helpers/', root)),
+      '@vaadin/router': fileURLToPath(new URL('../src/index.js', root)),
     },
   },
   plugins: [codeSnippetPlugin()],

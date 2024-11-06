@@ -1,11 +1,26 @@
 header {
   padding: 0.3rem 0.3rem;
   font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-pre {
-  margin: 0;
-  padding: 0.5rem 1rem;
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.title {
+  font-family: monospace;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
 }
 
 /* ======= Highlight.js styles ======= */
@@ -19,5 +34,7 @@ pre {
 }
 
 pre {
+  margin: 0;
+  padding: 0.5rem 1rem;
   background: var(--code-background);
 }

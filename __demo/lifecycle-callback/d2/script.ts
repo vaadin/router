@@ -1,6 +1,6 @@
 import '@helpers/iframe.script.js';
 import '@helpers/x-home-view.js';
-import { Router } from '../../../src/index.js';
+import { Router } from '@vaadin/router';
 import './x-friend.js';
 
 // tag::snippet[]

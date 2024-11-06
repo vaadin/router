@@ -7,9 +7,10 @@ import { customElement } from 'lit/decorators.js';
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
-import tsSnippets2 from './routes.js?snippet';
-import htmlSnippets from './snippets.html?snippet';
-import tsSnippets from './snippets.js?snippet';
+import htmlSnippet1 from './snippets/s1.html?snippet';
+import tsSnippet1 from './snippets/s2.ts?snippet';
+import htmlSnippet2 from './snippets/s3.html?snippet';
+import tsSnippet2 from './snippets/s4.ts?snippet';
 import css from '@helpers/page.css?ctr';
 import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
@@ -23,12 +24,12 @@ declare global {
 const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
-    code: htmlCode1[0],
+    code: htmlCode1,
     title: 'iframe.html',
   },
   {
     id: 'ts',
-    code: tsCode1[0],
+    code: tsCode1,
     title: 'script.ts',
   },
 ];
@@ -53,18 +54,18 @@ export default class DemoGettingStarted extends LitElement {
         <strong>In modern browsers that support ES modules</strong> the <code> Router</code> class can be imported
         directly into a script tag on a page:
       </p>
-      <vaadin-demo-code-snippet .files=${[{ code: htmlSnippets[0] }]}></vaadin-demo-code-snippet>
+      <vaadin-demo-code-snippet .files=${[{ code: htmlSnippet1 }]}></vaadin-demo-code-snippet>
       <p>
         <strong>In Webpack / Rollup / Polymer CLI projects</strong> the <code>Router</code> class can be imported from
         the <code>@vaadin/router</code> npm package:
       </p>
-      <vaadin-demo-code-snippet .files=${[{ code: tsSnippets2[0] }]}></vaadin-demo-code-snippet>
+      <vaadin-demo-code-snippet .files=${[{ code: tsSnippet1 }]}></vaadin-demo-code-snippet>
       <p>
         <strong>In older browsers without the ES modules support</strong> the <code>Router</code> class is exposed as a
         member of the <code>Vaadin</code>
         namespace after the vaadin-router UMD bundle is loaded:
       </p>
-      <vaadin-demo-code-snippet .files=${[{ code: htmlSnippets[1] }]}></vaadin-demo-code-snippet>
+      <vaadin-demo-code-snippet .files=${[{ code: htmlSnippet2 }]}></vaadin-demo-code-snippet>
 
       <h3>Getting Started</h3>
       <p>
@@ -106,7 +107,7 @@ export default class DemoGettingStarted extends LitElement {
         <code>location</code> property in the class and initialize it from the <code>router</code> Vaadin Router
         instance:
       </p>
-      <vaadin-demo-code-snippet .files=${[{ code: tsSnippets[0] }]}></vaadin-demo-code-snippet>
+      <vaadin-demo-code-snippet .files=${[{ code: tsSnippet2 }]}></vaadin-demo-code-snippet>
       <p>This property is automatically updated on navigation.</p>
 
       <h3>Fallback Routes (404)</h3>

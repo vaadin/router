@@ -3,7 +3,7 @@
 import type { RouterLocation } from '@vaadin/router';
 import { html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { router } from './routes.js';
+import { router } from './s2.js';
 
 @customElement('my-view')
 class MyViewElement extends LitElement {

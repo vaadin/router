@@ -1,13 +1,12 @@
 /* eslint-disable import/no-duplicates */
 import '@helpers/iframe.script.js';
 import '@helpers/x-home-view.js';
-import '@helpers/x-image-view.js';
 import '@helpers/x-user-list.js';
 import '@helpers/x-user-profile.js';
-import { Router, type VaadinRouterLocationChangedEvent } from '../../../src/index.js';
 import '@helpers/x-breadcrumbs.js';
 import '@helpers/x-not-found-view.js';
 import type { Breadcrumb } from '@helpers/x-breadcrumbs.js';
+import { Router, type VaadinRouterLocationChangedEvent } from '@vaadin/router';
 
 // tag::snippet[]
 type RouteExtension = Readonly<{

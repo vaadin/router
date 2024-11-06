@@ -16,7 +16,7 @@ import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'vaadin-demo-animated-transitions': DemoAnimatedTransitions;
+    'vaadin-demo-redirect': DemoAnimatedTransitions;
   }
 }
 

@@ -1,7 +1,7 @@
 import '@helpers/iframe.script.js';
 import '@helpers/x-user-list.js';
 import '@helpers/x-user-profile.js';
-import { Router } from '../../../src/index.js';
+import { Router } from '@vaadin/router';
 import './x-wrapper.js';
 
 // tag::snippet[]

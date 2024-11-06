@@ -1,6 +1,6 @@
 import '@helpers/iframe.script.js';
 import '@helpers/x-home-view.js';
-import { Router } from '../../../src/index.js';
+import { Router } from '@vaadin/router';
 
 // tag::snippet[]
 const router = new Router(document.getElementById('outlet'));
@@ -8,7 +8,7 @@ await router.setRoutes([
   { path: '/', component: 'x-home-view' },
   {
     path: '/user/:id',
-    action: async () => {
+    async action() {
       await import(`@helpers/user.bundle.js`);
     },
     component: 'x-user-js-bundle-view', // <-- defined in the bundle
