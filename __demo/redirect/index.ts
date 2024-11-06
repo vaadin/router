@@ -4,13 +4,23 @@ import '@helpers/vaadin-demo-code-snippet.js';
 import '@helpers/vaadin-presentation.js';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
+
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
+
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
-import cssCode2 from './d2/styles.css?snippet';
+
+import htmlCode3 from './d3/iframe.html?snippet';
+import url3 from './d3/iframe.html?url';
+import tsCode3 from './d3/script.js?snippet';
+
+import tsSnippet1 from './snippets/s1.ts?snippet';
+import tsSnippet2 from './snippets/s2.ts?snippet';
+import tsSnippet3 from './snippets/s3.ts?snippet';
+
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -41,6 +51,19 @@ const files2: readonly CodeSnippet[] = [
   {
     id: 'ts',
     code: tsCode2,
+    title: 'TS',
+  },
+];
+
+const files3: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode3,
+    title: 'html',
+  },
+  {
+    id: 'ts',
+    code: tsCode3,
     title: 'TS',
   },
 ];
@@ -106,45 +129,13 @@ export default class DemoRedirect extends LitElement {
       You can optionally pass search query string and hash to the method, either
       as in-app URL string:
     </p>
-    <marked-element>
-      <script type="text/markdown">
-        Router.go('/to/path?paramName=value#sectionName');
-      </script>
-    </marked-element>
+    <vaadin-demo-code-snippet .files=${[{ code: tsSnippet1 }]}></vaadin-demo-code-snippet>
       ... or using an object with named parameters:
     </p>
-    <marked-element>
-      <script type="text/markdown">
-        Router.go({
-          pathname: '/to/path',
-          // optional
-          search: '?paramName=value',
-          // optional
-          hash: '#sectionName'
-        });
-      </script>
-    </marked-element>
-    <vaadin-demo-snippet id="vaadin-router-redirect-demos-3" iframe-src="iframe.html">
-      <template preserve-content>
-        <button id="trigger">Open <code>/user/you-know-who</code></button>
-        <div id="outlet"></div>
-
-        <script>
-          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // const Router = Vaadin.Router; // for vaadin-router.umd.js
-
-          document.querySelector('#trigger').addEventListener('click', () => {
-            Router.go('/user/you-know-who');
-          });
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/user/:user', component: 'x-user-profile'},
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>
+    <vaadin-demo-code-snippet .files=${[{ code: tsSnippet2 }]}></vaadin-demo-code-snippet>
+    <vaadin-presentation src=${url3}>
+      <vaadin-demo-code-snippet .files=${files3}></vaadin-demo-code-snippet>
+    </vaadin-presentation>
     <p>
       NOTE: the same effect can be achieved by dispatching a <code>
       vaadin-router-go</code> custom event on the <code>window</code>. The
@@ -153,17 +144,6 @@ export default class DemoRedirect extends LitElement {
       with <code>event.detail.search</code> and <code>event.detail.hash</code>
       properties respectively.
     </p>
-    <marked-element>
-      <script type="text/markdown">
-        window.dispatchEvent(
-          new CustomEvent('vaadin-router-go', {detail: {
-            pathname: '/to/path',
-            // optional search query string
-            search: '?paramName=value',
-            // optional hash string
-            hash: '#sectionName'
-          }}));
-      </script>
-    </marked-element>`;
+    <vaadin-demo-code-snippet .files=${[{ code: tsSnippet3 }]}></vaadin-demo-code-snippet>`;
   }
 }
