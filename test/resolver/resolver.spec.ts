@@ -89,8 +89,6 @@ describe('Resolver', () => {
 
       const error: ResolutionError<Error> = errorHandler.firstCall.firstArg;
       expect(error).to.be.instanceof(ResolutionError);
-      expect(error.cause).to.be.an('error');
-      expect(error.cause).to.have.property('message').that.equals('custom');
       expect(error).to.have.property('code', 500);
       expect(error).to.have.property('context').that.includes({ pathname: '/', resolver });
       expect(error).to.have.nested.property('context.route').that.includes(route);

@@ -89,9 +89,3 @@ export interface AfterLeaveObserver {
    */
   onAfterLeave: NonNullable<WebComponentInterface['onAfterLeave']>;
 }
-
-declare global {
-  interface ErrorOptions {
-    cause?: unknown;
-  }
-}

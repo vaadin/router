@@ -37,7 +37,7 @@ function isRouteContext<T, R extends object, C extends object>(value: unknown): 
   );
 }
 
-export interface ResolutionErrorOptions extends ErrorOptions {
+export interface ResolutionErrorOptions {
   code?: number;
 }
 
@@ -61,7 +61,7 @@ export class ResolutionError<T, R extends object = EmptyObject, C extends object
     if (routePath) {
       errorMessage += ` Resolution had failed on route: '${routePath}'`;
     }
-    super(errorMessage, options);
+    super(errorMessage);
     this.code = options?.code;
     this.context = context;
   }
@@ -299,7 +299,7 @@ class Resolver<T = unknown, R extends object = EmptyObject, C extends object = E
       const _error =
         error instanceof NotFoundError
           ? error
-          : new ResolutionError(currentContext as RouteContext<R>, { code: 500, cause: error });
+          : new ResolutionError(currentContext as RouteContext<R>, { code: 500 });
 
       if (this.errorHandler) {
         currentContext.result = this.errorHandler(_error);
