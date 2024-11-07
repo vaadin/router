@@ -2390,7 +2390,7 @@ describe('Vaadin Router lifecycle events', () => {
                   resolve();
                 })
                 .catch((e: unknown) => {
-                  reject(new Error('Error happened', { cause: e }));
+                  reject(e);
                 });
             }
           },

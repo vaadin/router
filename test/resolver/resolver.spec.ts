@@ -87,7 +87,7 @@ describe('Resolver', () => {
       expect(context).to.have.property('result').that.equals(errorResult);
       expect(errorHandler).to.be.calledOnce;
 
-      const error: ResolutionError<Error> = errorHandler.firstCall.firstArg;
+      const error: ResolutionError<HTMLElement> = errorHandler.firstCall.firstArg;
       expect(error).to.be.instanceof(ResolutionError);
       expect(error.cause).to.be.an('error');
       expect(error.cause).to.have.property('message').that.equals('custom');

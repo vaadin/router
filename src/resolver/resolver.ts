@@ -37,14 +37,20 @@ function isRouteContext<T, R extends object, C extends object>(value: unknown): 
   );
 }
 
-export interface ResolutionErrorOptions extends ErrorOptions {
+export interface ResolutionErrorOptions {
   code?: number;
+  cause?: unknown;
 }
 
 /**
  * An error that is thrown when a route resolution fails.
  */
 export class ResolutionError<T, R extends object = EmptyObject, C extends object = EmptyObject> extends Error {
+  /**
+   * The resolution error cause, possibly an error thrown from the action callback.
+   */
+  readonly cause?: unknown;
+
   /**
    * A HTTP status code associated with the error.
    */
@@ -61,7 +67,8 @@ export class ResolutionError<T, R extends object = EmptyObject, C extends object
     if (routePath) {
       errorMessage += ` Resolution had failed on route: '${routePath}'`;
     }
-    super(errorMessage, options);
+    super(errorMessage);
+    this.cause = options?.cause;
     this.code = options?.code;
     this.context = context;
   }

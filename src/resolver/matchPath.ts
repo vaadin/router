@@ -79,7 +79,7 @@ function matchPath(
     const key = regexp.keys[i - 1];
     const prop = key.name;
     const value = m[i];
-    if (value !== undefined || !Object.hasOwn(params, prop)) {
+    if (value !== undefined || !Object.prototype.hasOwnProperty.call(params, prop)) {
       if (key.modifier === '+' || key.modifier === '*') {
         // by default, as of path-to-regexp 6.0.0, the default delimiters
         // are `/`, `#` and `?`.
