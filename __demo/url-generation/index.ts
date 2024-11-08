@@ -4,19 +4,34 @@ import '@helpers/vaadin-demo-code-snippet.js';
 import '@helpers/vaadin-presentation.js';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
+
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
-import cssCode1 from './d1/styles.css?snippet';
+
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
-import cssCode2 from './d2/styles.css?snippet';
+
+import htmlCode3 from './d3/iframe.html?snippet';
+import url3 from './d3/iframe.html?url';
+import tsCode3 from './d3/script.js?snippet';
+
+import htmlCode4 from './d4/iframe.html?snippet';
+import url4 from './d4/iframe.html?url';
+import tsCode4 from './d4/script.js?snippet';
+
+import htmlCode5 from './d5/iframe.html?snippet';
+import url5 from './d5/iframe.html?url';
+import tsCode5 from './d5/script.js?snippet';
+
+import css from '@helpers/page.css?ctr';
+import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'vaadin-demo-redirect': DemoAnimatedTransitions;
+    'vaadin-demo-url-generation': DemoUrlGeneration;
   }
 }
 
@@ -24,17 +39,12 @@ const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode1,
-    title: 'HTML',
+    title: 'iframe.html',
   },
   {
     id: 'ts',
     code: tsCode1,
-    title: 'TS',
-  },
-  {
-    id: 'css',
-    code: cssCode1,
-    title: 'CSS',
+    title: 'script.ts',
   },
 ];
 
@@ -42,61 +52,143 @@ const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode2,
-    title: 'html',
+    title: 'iframe.html',
   },
   {
     id: 'ts',
     code: tsCode2,
-    title: 'TS',
-  },
-  {
-    id: 'css',
-    code: cssCode2,
-    title: 'CSS',
+    title: 'script.ts',
   },
 ];
 
-@customElement('vaadin-demo-animated-transitions')
-export default class DemoAnimatedTransitions extends LitElement {
+const files3: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode3,
+    title: 'iframe.html',
+  },
+  {
+    id: 'ts',
+    code: tsCode3,
+    title: 'script.ts',
+  },
+];
+
+const files4: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode4,
+    title: 'iframe.html',
+  },
+  {
+    id: 'ts',
+    code: tsCode4,
+    title: 'script.ts',
+  },
+];
+
+const files5: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode5,
+    title: 'iframe.html',
+  },
+  {
+    id: 'ts',
+    code: tsCode5,
+    title: 'script.ts',
+  },
+];
+
+@customElement('vaadin-demo-url-generation')
+export default class DemoUrlGeneration extends LitElement {
+  static override styles = [css];
+
+  readonly #theme = new ThemeController(this);
+
+  override updated(): void {
+    this.setAttribute('theme', this.#theme.value);
+  }
+
   override render(): TemplateResult {
-    return html`<p>
-        Vaadin Router allows you to animate transitions between routes. In order to add an animation, do the next steps:
-      </p>
-      <ol>
-        <li>update the router config: add the <code>animate</code> property set to <code>true</code></li>
-        <li>add <code>@keyframes</code> animations, either in the view Web Component styles or in outside CSS</li>
-        <li>apply CSS for <code>.leaving</code> and <code>.entering</code> classes to use the animations</li>
-      </ol>
+    return html`<h3>Named routes and the <code>router.urlForName</code> method</h3>
       <p>
-        The demo below illustrates how to add the transition between all the routes in the same group. You might also
-        add the transition for the specific routes only, by setting the <code>animate</code>
-        property on the corresponding route config objects.
+        Vaadin Router supports referring to routes using string names. You can assign a name to a route using the
+        <code>name</code> property of a route object, then generate URLs for that route using the
+        <b
+          ><code>
+            <a target="_parent" href="..#/classes/Router#method-urlForName"> router.urlForName(name, parameters)</a>
+          </code></b
+        >
+        helper instance method.
+      </p>
+      <p>Arguments:</p>
+      <ul>
+        <li><code>name</code> — the route name</li>
+        <li><code>parameters</code> — optional object with parameters for substitution in the route path</li>
+      </ul>
+      <p>
+        If the <code>component</code> property is specified on the route object, the <code>name</code> property could be
+        omitted. In that case, the component name could be used in the <code>router.urlForName()</code>.
       </p>
       <vaadin-presentation src=${url1}>
         <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
       </vaadin-presentation>
-      <p>To run the animated transition, Vaadin Router performs the actions in the following order:</p>
-      <ol>
-        <li>render the new view component to the outlet content</li>
-        <li>set the <code>entering</code> CSS class on the new view component</li>
-        <li>set the <code>leaving</code> CSS class on the old view component, if any</li>
-        <li>check if some <code>@keyframes</code> animation applies, and wait for it to complete</li>
-        <li>remove the old view component from the outlet content</li>
-        <li>continue the remaining navigation steps as usual</li>
-      </ol>
-      <h3>Customize CSS Classes</h3>
+
+      <h3>The <code>router.urlForPath</code> method</h3>
       <p>
-        In the basic use case, using single type of the animated transition could be enough to make the web app looking
-        great, but often we need to configure it depending on the route. Vaadin Router supports this feature by setting
-        object value to <code>animate</code> property, with the <code>enter</code> and <code>leave</code> string keys.
-        Their values are used for setting CSS classes to be set on the views.
+        <b
+          ><code>
+            <a target="_parent" href="..#/classes/Router#method-urlForPath"> router.urlForPath(path, parameters)</a>
+          </code></b
+        >
+        is a helper method that generates a URL for the given route path, optionally performing substitution of
+        parameters.
       </p>
-      <p>
-        Note that you can first configure animated transition for the group of routes, and then override it for the
-        single route. In particular, you can switch back to using default CSS classes, as shown in the demo below.
-      </p>
+      <p>Arguments:</p>
+      <ul>
+        <li><code>path</code> — a string route path defined in express.js syntax</li>
+        <li><code>parameters</code> — optional object with parameters for path substitution</li>
+      </ul>
       <vaadin-presentation src=${url2}>
         <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
+      </vaadin-presentation>
+
+      <h3>The <code>location.getUrl</code> method</h3>
+      <p>
+        <b
+          ><code>
+            <a target="_parent" href="..#/classes/Router.Location#method-getUrl"> location.getUrl(params)</a>
+          </code></b
+        >
+        is a method that returns a URL corresponding to the location. When given the params argument, it does parameter
+        substitution in the location’s chain of routes.
+      </p>
+      <p>Arguments:</p>
+      <ul>
+        <li><code>params</code> — optional object with parameters to override the location parameters</li>
+      </ul>
+      <vaadin-presentation src=${url3}>
+        <vaadin-demo-code-snippet .files=${files3}></vaadin-demo-code-snippet>
+      </vaadin-presentation>
+
+      <h3>Base URL in URL generation</h3>
+      <p>When base URL is set, the URL generation helpers return absolute pathnames, including the base.</p>
+      <vaadin-presentation src=${url4}>
+        <vaadin-demo-code-snippet .files=${files4}></vaadin-demo-code-snippet>
+      </vaadin-presentation>
+
+      <h3>Generating URLs with search query parameters and hash string</h3>
+      <p>
+        At the moment, Vaadin Router does not provide URL generation APIs for appending search query parameters or hash
+        strings to the generated URLs. However, you could append those with string concatenation.
+      </p>
+      <p>
+        For serialising parameters into a query string, use the native
+        <code>URLSearchParams</code> API.
+      </p>
+      <vaadin-presentation src=${url5}>
+        <vaadin-demo-code-snippet .files=${files5}></vaadin-demo-code-snippet>
       </vaadin-presentation>`;
   }
 }

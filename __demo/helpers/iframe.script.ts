@@ -3,6 +3,8 @@ import './common.js';
 
 import { Router } from '../../src/index.js';
 
+history.replaceState(null, '', '/');
+
 type MessageData = Readonly<{ url: string }>;
 
 type ParentData = {

@@ -51,6 +51,8 @@ export default class DemoLayout extends SignalWatcher(LitElement) {
           <vaadin-side-nav-item path="/navigation-trigger/">Navigation Trigger</vaadin-side-nav-item>
           <vaadin-side-nav-item path="/redirect/">Redirect</vaadin-side-nav-item>
           <vaadin-side-nav-item path="/route-actions/">Route Actions</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/route-parameters/">Route Parameters</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/url-generation/">URL Generations</vaadin-side-nav-item>
         </vaadin-side-nav>
       </vaadin-scroller>
     </vaadin-app-layout>`;

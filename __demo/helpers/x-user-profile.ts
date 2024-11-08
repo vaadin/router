@@ -1,7 +1,7 @@
 import { LitElement, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import type { RouterLocation } from '../../src/index.js';
 import css from './common.css?ctr';
+import type { RouterLocation } from '@vaadin/router';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -17,6 +17,6 @@ export default class UserProfile extends LitElement {
 
   override render(): TemplateResult {
     return html`<h1>User Profile</h1>
-      <p>Name: ${this.location?.params.user}</p>`;
+      <p>Name: ${this.location?.params.user ?? 'unknown'}</p>`;
   }
 }
