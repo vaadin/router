@@ -48,6 +48,9 @@ export default class DemoLayout extends SignalWatcher(LitElement) {
           <vaadin-side-nav-item path="/code-splitting/">Code Splitting</vaadin-side-nav-item>
           <vaadin-side-nav-item path="/animated-transitions/">Animated Transitions</vaadin-side-nav-item>
           <vaadin-side-nav-item path="/lifecycle-callback/">Lifecycle Callback</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/navigation-trigger/">Navigation Trigger</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/redirect/">Redirect</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/route-actions/">Route Actions</vaadin-side-nav-item>
         </vaadin-side-nav>
       </vaadin-scroller>
     </vaadin-app-layout>`;

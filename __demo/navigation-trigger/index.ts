@@ -4,18 +4,24 @@ import '@helpers/vaadin-demo-code-snippet.js';
 import '@helpers/vaadin-presentation.js';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
+
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
+
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
+
 import htmlCode3 from './d3/iframe.html?snippet';
 import url3 from './d3/iframe.html?url';
 import tsCode3 from './d3/script.js?snippet';
+
 import htmlCode4 from './d4/iframe.html?snippet';
 import url4 from './d4/iframe.html?url';
 import tsCode4 from './d4/script.js?snippet';
+
+import css from '@helpers/page.css?ctr';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -78,6 +84,8 @@ const files4: readonly CodeSnippet[] = [
 
 @customElement('vaadin-demo-navigation-trigger')
 export default class DemoNavigationTrigger extends LitElement {
+  static override styles = [css];
+
   override render(): TemplateResult {
     return html`<h3>Navigation Triggers</h3>
       <p class="note">This feature is for advanced use cases. Please make sure to read the documentation carefully.</p>

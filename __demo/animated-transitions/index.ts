@@ -4,14 +4,19 @@ import '@helpers/vaadin-demo-code-snippet.js';
 import '@helpers/vaadin-presentation.js';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
+
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
 import cssCode1 from './d1/styles.css?snippet';
+
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 import cssCode2 from './d2/styles.css?snippet';
+
+import css from '@helpers/page.css?ctr';
+import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -58,6 +63,14 @@ const files2: readonly CodeSnippet[] = [
 
 @customElement('vaadin-demo-animated-transitions')
 export default class DemoAnimatedTransitions extends LitElement {
+  static override styles = [css];
+
+  readonly #theme = new ThemeController(this);
+
+  override updated(): void {
+    this.setAttribute('theme', this.#theme.value);
+  }
+
   override render(): TemplateResult {
     return html`<p>
         Vaadin Router allows you to animate transitions between routes. In order to add an animation, do the next steps:

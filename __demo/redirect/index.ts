@@ -21,6 +21,8 @@ import tsSnippet1 from './snippets/s1.ts?snippet';
 import tsSnippet2 from './snippets/s2.ts?snippet';
 import tsSnippet3 from './snippets/s3.ts?snippet';
 
+import css from '@helpers/page.css?ctr';
+import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -33,12 +35,12 @@ const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode1,
-    title: 'HTML',
+    title: 'iframe.html',
   },
   {
     id: 'ts',
     code: tsCode1,
-    title: 'TS',
+    title: 'script.js',
   },
 ];
 
@@ -46,12 +48,12 @@ const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode2,
-    title: 'html',
+    title: 'iframe.html',
   },
   {
     id: 'ts',
     code: tsCode2,
-    title: 'TS',
+    title: 'script.js',
   },
 ];
 
@@ -59,17 +61,25 @@ const files3: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode3,
-    title: 'html',
+    title: 'iframe.html',
   },
   {
     id: 'ts',
     code: tsCode3,
-    title: 'TS',
+    title: 'script.js',
   },
 ];
 
 @customElement('vaadin-demo-redirect')
 export default class DemoRedirect extends LitElement {
+  static override styles = [css];
+
+  readonly #theme = new ThemeController(this);
+
+  override updated(): void {
+    this.setAttribute('theme', this.#theme.value);
+  }
+
   override render(): TemplateResult {
     return html`<h3>Unconditional Redirects</h3>
     <p>
@@ -82,6 +92,7 @@ export default class DemoRedirect extends LitElement {
       The original path is not stored as the <code>window.history</code> entry
       and cannot be reached by pressing the "Back" browser button. Unconditional
       redirects work for routes both with and without parameters.
+    </p>
     <p>
       The original path is available to route Web Components as the
       <a target="_parent" href="..#/classes/Router.Location#property-redirectFrom">
