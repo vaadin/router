@@ -13,6 +13,7 @@ export default class HomeView extends LitElement {
   static override styles = css;
 
   override render(): TemplateResult {
-    return html`<h1>Home</h1>`;
+    return html`<h1>Home</h1>
+      <slot></slot>`;
   }
 }

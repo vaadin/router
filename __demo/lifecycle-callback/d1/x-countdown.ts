@@ -1,48 +1,45 @@
-import { html, LitElement, type TemplateResult } from 'lit';
+import { html, LitElement, render, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import type { RouterLocation, WebComponentInterface } from '../../../src/types.t.js';
 
 @customElement('x-countdown')
 export default class Countdown extends LitElement implements WebComponentInterface {
-  count = 0;
-  timer?: ReturnType<typeof setInterval>;
+  readonly #home = document.body.querySelector('x-home-view');
+  #count = 0;
+  #timer?: ReturnType<typeof setInterval>;
 
   override render(): TemplateResult {
     return html`<h1>Go-go-go!</h1>`;
   }
 
   async onBeforeEnter(_: RouterLocation): Promise<void> {
-    this.count = 3;
-    this.tick();
+    this.#count = 3;
+    this.#tick();
     return await new Promise<void>((resolve) => {
-      this.timer = setInterval(() => {
-        if (this.count < 0) {
-          this.clear();
+      this.#timer = setInterval(() => {
+        if (this.#count < 0) {
+          this.#clear();
           resolve();
         } else {
-          this.tick();
+          this.#tick();
         }
       }, 500);
     });
   }
 
-  tick(): void {
-    let h2 = document.body.querySelector('h2');
-    if (!h2) {
-      h2 = document.createElement('h2');
-      h2.setAttribute('style', 'position: absolute; top: 80px');
-      document.body.appendChild(h2);
+  #tick(): void {
+    if (this.#home) {
+      render(html`<h2>${this.#count}</h2>`, this.#home);
     }
-    h2.textContent = String(this.count);
-    this.count -= 1;
+
+    this.#count -= 1;
   }
 
-  clear(): void {
-    const h2 = document.body.querySelector('h2');
-    if (h2) {
-      document.body.removeChild(h2);
+  #clear(): void {
+    if (this.#home) {
+      render(html``, this.#home);
     }
-    clearInterval(this.timer);
+    clearInterval(this.#timer);
   }
 }
 
