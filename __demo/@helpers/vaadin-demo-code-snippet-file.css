@@ -10,8 +10,6 @@ section {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-height: 20rem;
-  overflow-y: auto;
 }
 
 .title {

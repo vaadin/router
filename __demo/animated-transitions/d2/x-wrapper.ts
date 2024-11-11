@@ -17,6 +17,7 @@ export default class Wrapper extends LitElement {
         <a href="/users">Users</a>
         <a href="/users/kim">Kim</a>
         <a href="/users/jane">Jane</a>
+        <a href="/users/sam">Sam</a>
       </nav>
       <main>
         <slot></slot>

@@ -13,7 +13,16 @@ hljs.registerLanguage('css', cssLang);
 hljs.registerLanguage('typescript', typescriptLang);
 hljs.registerLanguage('xml', xmlLang);
 
-const languages = ['typescript', 'html', 'css', 'javascript'];
+function langFromExt(ext: string) {
+  switch (ext) {
+    case 'ts':
+      return 'typescript';
+    case 'html':
+      return 'xml';
+    default:
+      return ext;
+  }
+}
 
 type SnippetPatternKey = keyof typeof snippetPattern;
 const snippetPattern = {
@@ -76,9 +85,9 @@ export function codeSnippetPlugin(): Plugin {
 
         if (params.has('snippet')) {
           const purePath = id.substring(0, id.length - search.length);
-          const lang = extname(purePath).substring(1);
-          if (lang === 'ts' || lang === 'html' || lang === 'css') {
-            let snippets = extractSnippets(code, lang);
+          const ext = extname(purePath).substring(1);
+          if (ext === 'ts' || ext === 'html' || ext === 'css') {
+            let snippets = extractSnippets(code, ext);
 
             snippets = [code, ...snippets];
 
@@ -86,14 +95,14 @@ export function codeSnippetPlugin(): Plugin {
               snippets.map(
                 async (snippet) =>
                   await prettier.format(snippet, {
-                    parser: lang === 'ts' ? 'typescript' : lang,
+                    parser: ext === 'ts' ? 'typescript' : ext,
                     singleQuote: true,
                     trailingComma: 'all',
                   }),
               ),
             );
 
-            snippets = snippets.map((snippet) => hljs.highlightAuto(snippet, languages).value);
+            snippets = snippets.map((snippet) => hljs.highlight(snippet, { language: langFromExt(ext) }).value);
 
             return {
               code: `import { html } from 'lit'; export default [\`${escapeString(code)}\`,${snippets
