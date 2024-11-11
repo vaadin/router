@@ -1,7 +1,7 @@
 import './common.css';
 import './common.js';
 
-import { Router } from '../../src/index.js';
+import { Router } from '@vaadin/router';
 
 history.replaceState(null, '', '/');
 

@@ -2,7 +2,7 @@
   "extends": ["../tsconfig.json"],
   "compilerOptions": {
     "paths": {
-      "@helpers/*": ["./helpers/*"],
+      "@helpers/*": ["./@helpers/*"],
       "@vaadin/router": ["../src/index.ts"]
     }
   },

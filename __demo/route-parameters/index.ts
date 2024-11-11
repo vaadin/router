@@ -1,17 +1,38 @@
 /* eslint-disable import/no-duplicates, import/default */
+import '@helpers/common.js';
 import '@helpers/vaadin-demo-layout.js';
 import '@helpers/vaadin-demo-code-snippet.js';
 import '@helpers/vaadin-presentation.js';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
+
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
-import cssCode1 from './d1/styles.css?snippet';
+
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
-import cssCode2 from './d2/styles.css?snippet';
+import projectViewCode from './d2/x-project-view.ts?snippet';
+
+import htmlCode3 from './d3/iframe.html?snippet';
+import url3 from './d3/iframe.html?url';
+import tsCode3 from './d3/script.js?snippet';
+
+import htmlCode4 from './d4/iframe.html?snippet';
+import url4 from './d4/iframe.html?url';
+import tsCode4 from './d4/script.js?snippet';
+
+import htmlCode5 from './d5/iframe.html?snippet';
+import url5 from './d5/iframe.html?url';
+import tsCode5 from './d5/script.js?snippet';
+import pageNumberViewCode from './d5/x-page-number-view.ts?snippet';
+
+import htmlCode6 from './d6/iframe.html?snippet';
+import url6 from './d6/iframe.html?url';
+import tsCode6 from './d6/script.js?snippet';
+import hashViewCode from './d6/x-hash-view.ts?snippet';
+
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -24,17 +45,12 @@ const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode1,
-    title: 'HTML',
+    title: 'iframe.html',
   },
   {
     id: 'ts',
     code: tsCode1,
-    title: 'TS',
-  },
-  {
-    id: 'css',
-    code: cssCode1,
-    title: 'CSS',
+    title: 'script.ts',
   },
 ];
 
@@ -42,17 +58,79 @@ const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode2,
-    title: 'html',
+    title: 'iframe.html',
   },
   {
     id: 'ts',
     code: tsCode2,
-    title: 'TS',
+    title: 'script.ts',
   },
   {
-    id: 'css',
-    code: cssCode2,
-    title: 'CSS',
+    id: 'project-view',
+    code: projectViewCode,
+    title: 'x-project-view.ts',
+  },
+];
+
+const files3: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode3,
+    title: 'iframe.html',
+  },
+  {
+    id: 'ts',
+    code: tsCode3,
+    title: 'script.ts',
+  },
+];
+
+const files4: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode4,
+    title: 'iframe.html',
+  },
+  {
+    id: 'ts',
+    code: tsCode4,
+    title: 'script.ts',
+  },
+];
+
+const files5: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode5,
+    title: 'iframe.html',
+  },
+  {
+    id: 'ts',
+    code: tsCode5,
+    title: 'script.ts',
+  },
+  {
+    id: 'page-number-view',
+    code: pageNumberViewCode,
+    title: 'x-page-number-view.ts',
+  },
+];
+
+const files6: readonly CodeSnippet[] = [
+  {
+    id: 'html',
+    code: htmlCode6,
+    title: 'iframe.html',
+  },
+  {
+    id: 'ts',
+    code: tsCode6,
+    title: 'script.ts',
+  },
+  {
+    id: 'hash-view',
+    code: hashViewCode,
+    title: 'x-hash-view.ts',
   },
 ];
 
@@ -100,34 +178,9 @@ export default class DemoRouteParameters extends LitElement {
     </ul>
     <p>The example below shows how to access route parameters in a Polymer 2
       based Web Component:</p>
-    <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-2" iframe-src="iframe.html">
-      <template preserve-content>
-        <dom-module id="x-project-view">
-          <template>
-            <h1>Project</h1>
-            <p>ID: [[location.params.id]]</p>
-            <code>/project</code> or <code>/projects</code>: [[location.params.0]]
-          </template>
-        </dom-module>
-
-        <a href="/">Home</a>
-        <a href="/projects/1">Project 1</a>
-        <a href="/project/2">Project 2</a>
-        <div id="outlet"></div>
-        <script>
-          Polymer({is: 'x-project-view'});
-
-          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // const Router = Vaadin.Router; // for vaadin-router.umd.js
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/(project[s]?)/:id', component: 'x-project-view'},
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>
+    <vaadin-presentation src=${url2}>
+      <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
+    </vaadin-presentation>
 
     <h3>Ambiguous Matches</h3>
     <p>
@@ -161,25 +214,9 @@ export default class DemoRouteParameters extends LitElement {
           with <code>'/user/'</code></li>
       </ul>
     </p>
-    <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-3" iframe-src="iframe.html">
-      <template preserve-content>
-        <a href="/">Home</a>
-        <a href="/users">All Users</a>
-        <a href="/kim">Kim</a>
-        <div id="outlet"></div>
-        <script>
-          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // const Router = Vaadin.Router; // for vaadin-router.umd.js
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/users', component: 'x-user-list'},
-            {path: '/:user', component: 'x-user-profile'},
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>
+    <vaadin-presentation src=${url3}>
+      <vaadin-demo-code-snippet .files=${files3}></vaadin-demo-code-snippet>
+    </vaadin-presentation>
 
     <h3>Typed Route Parameters</h3>
     <p>
@@ -188,27 +225,9 @@ export default class DemoRouteParameters extends LitElement {
       You only can use unnamed parameters in this case, as it can only be achieved using the custom RegExp.
       One possible alternative is to use <a href="#vaadin-router-route-actions-demos">Route Actions</a>
       and check the <code>context.params</code>.</p>
-    <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-4" iframe-src="iframe.html">
-      <template preserve-content>
-        <a href="/">Home</a>
-        <a href="/users/list">All Users</a>
-        <a href="/users/42">User 42</a>
-        <a href="/users/guest">Guest</a>
-        <div id="outlet"></div>
-        <script>
-          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // const Router = Vaadin.Router; // for vaadin-router.umd.js
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/users/list', component: 'x-user-list'},
-            {path: '/users/([0-9]+)', component: 'x-user-numeric-view'},
-            {path: '/users/(.*)', component: 'x-user-not-found-view'},
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>
+    <vaadin-presentation src=${url4}>
+      <vaadin-demo-code-snippet .files=${files4}></vaadin-demo-code-snippet>
+    </vaadin-presentation>
 
     <h3>Search Query Parameters</h3>
     <p>
@@ -221,42 +240,9 @@ export default class DemoRouteParameters extends LitElement {
       Use <code>location.search</code> to access the raw search query string.
       Use <code>location.searchParams</code> to get the <code>URLSearchParams</code> wrapper of the search query string.
     </p>
-    <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-5" iframe-src="iframe.html">
-      <template preserve-content>
-        <nav>
-          <a href="/">Start page</a>
-          <a href="/?page=1">Page 1</a>
-          <a href="/?page=2">Page 2</a>
-        </nav>
-        <div id="outlet"></div>
-
-        <dom-module id="page-number-view">
-          <template>
-            Page number: [[getPageNumber(location)]]
-          </template>
-        </dom-module>
-        <script>
-          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // const Router = Vaadin.Router; // for vaadin-router.umd.js
-
-          class PageNumberViewElement extends Polymer.Element {
-            static get is() {
-              return 'page-number-view';
-            }
-
-            getPageNumber(location) {
-              return location.searchParams.get('page') || 'none';
-            }
-          }
-          customElements.define(PageNumberViewElement.is, PageNumberViewElement);
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'page-number-view'},
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>
+    <vaadin-presentation src=${url5}>
+      <vaadin-demo-code-snippet .files=${files5}></vaadin-demo-code-snippet>
+    </vaadin-presentation>
 
     <h3>Hash String</h3>
     <p>
@@ -264,37 +250,8 @@ export default class DemoRouteParameters extends LitElement {
       is separate from the pathname as well. Use <code>location.hash</code>
       to access the hash string in the view component.
     </p>
-    <vaadin-demo-snippet id="vaadin-router-route-parameters-demo-6" iframe-src="iframe.html">
-      <template preserve-content>
-        <nav>
-          <a href="/#preface">Preface</a>
-          <a href="/#chapter_one">Chapter one</a>
-          <a href="/#chapter_two">Chapter two</a>
-        </nav>
-        <div id="outlet"></div>
-
-        <dom-module id="hash-view">
-          <template>
-            Current hash: [[location.hash]]
-          </template>
-        </dom-module>
-        <script>
-          // import {Router} from '@vaadin/router'; // for Webpack / Polymer CLI
-          // const Router = Vaadin.Router; // for vaadin-router.umd.js
-
-          class HashViewElement extends Polymer.Element {
-            static get is() {
-              return 'hash-view';
-            }
-          }
-          customElements.define(HashViewElement.is, HashViewElement);
-
-          const router = new Router(document.getElementById('outlet'));
-          router.setRoutes([
-            {path: '/', component: 'hash-view'},
-          ]);
-        </script>
-      </template>
-    </vaadin-demo-snippet>`;
+    <vaadin-presentation src=${url6}>
+      <vaadin-demo-code-snippet .files=${files6}></vaadin-demo-code-snippet>
+    </vaadin-presentation>`;
   }
 }

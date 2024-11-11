@@ -1,4 +1,5 @@
 /* eslint-disable import/no-duplicates, import/default */
+import '@helpers/common.js';
 import '@helpers/vaadin-demo-code-snippet.js';
 import '@helpers/vaadin-demo-layout.js';
 import '@helpers/vaadin-presentation.js';
