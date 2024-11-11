@@ -9,15 +9,16 @@ import { customElement } from 'lit/decorators.js';
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
+import bundleCode from './d1/user.bundle.js?snippet';
 
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
+import userRoutesCode from './d2/user-routes.js?snippet';
 
 import css from '@helpers/page.css?ctr';
 import ThemeController from '@helpers/theme-controller.js';
-import userRoutesCode from '@helpers/user-routes.js?snippet';
-import bundleCode from '@helpers/user.bundle.js?snippet';
+
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {

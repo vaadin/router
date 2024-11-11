@@ -25,7 +25,6 @@ addEventListener('message', ({ data, origin, source }: MessageEvent<MessageData 
     Router.go(new URL(data.url, location.origin).href);
   } else {
     parentData = { source, origin };
-    Router.go('/');
   }
 
   updateParentUrl();

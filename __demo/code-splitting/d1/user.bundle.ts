@@ -1,7 +1,7 @@
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import type { RouterLocation } from '../../src/index.js';
-import css from './user.bundle.css?ctr';
+import type { RouterLocation } from '../../../src/index.js';
+import css from '@helpers/common.css?ctr';
 
 declare global {
   interface HTMLElementTagNameMap {

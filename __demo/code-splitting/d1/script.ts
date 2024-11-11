@@ -9,7 +9,7 @@ await router.setRoutes([
   {
     path: '/user/:id',
     async action() {
-      await import(`@helpers/user.bundle.js`);
+      await import(`./user.bundle.js`);
     },
     component: 'x-user-js-bundle-view', // <-- defined in the bundle
   },

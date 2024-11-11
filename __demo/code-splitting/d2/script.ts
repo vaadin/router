@@ -12,7 +12,7 @@ await router.setRoutes([
   {
     path: '/users',
     async children() {
-      return await import('@helpers/user-routes.js').then((mod) => mod.default);
+      return await import('./user-routes.js').then((mod) => mod.default);
     },
   },
 ]);

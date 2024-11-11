@@ -6,15 +6,20 @@ import { Router } from '@vaadin/router';
 import './x-main-layout.js';
 
 // tag::snippet[]
-export const router = new Router(document.getElementById('outlet'));
+export type RouteExtension = Readonly<{
+  router: Router<RouteExtension>;
+}>;
+
+export const router = new Router<RouteExtension>(document.getElementById('outlet'));
 await router.setRoutes([
   {
     path: '/',
     component: 'x-main-layout',
+    router,
     children: [
-      { name: 'home', path: '/', component: 'x-home-view' },
-      { path: '/users', component: 'x-user-list' },
-      { path: '/users/:user', component: 'x-user-profile' },
+      { name: 'home', path: '/', component: 'x-home-view', router },
+      { path: '/users', component: 'x-user-list', router },
+      { path: '/users/:user', component: 'x-user-profile', router },
     ],
   },
 ]);

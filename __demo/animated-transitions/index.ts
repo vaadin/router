@@ -15,6 +15,7 @@ import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 import cssCode2 from './d2/styles.css?snippet';
+import wrapperCode from './d2/wrapper.ts?snippet';
 
 import css from '@helpers/page.css?ctr';
 import ThemeController from '@helpers/theme-controller.js';
@@ -59,6 +60,11 @@ const files2: readonly CodeSnippet[] = [
     id: 'css',
     code: cssCode2,
     title: 'styles.css',
+  },
+  {
+    id: 'wrapper',
+    code: wrapperCode,
+    title: 'wrapper.ts',
   },
 ];
 

@@ -9,22 +9,27 @@ import { customElement } from 'lit/decorators.js';
 import htmlCode1 from './d1/iframe.html?snippet';
 import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
+import mainLayoutCode1 from './d1/x-main-layout.ts?snippet';
 
 import htmlCode2 from './d2/iframe.html?snippet';
 import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
+import mainLayoutCode2 from './d2/x-main-layout.ts?snippet';
 
 import htmlCode3 from './d3/iframe.html?snippet';
 import url3 from './d3/iframe.html?url';
 import tsCode3 from './d3/script.js?snippet';
+import userLayoutCode1 from './d3/x-user-layout.ts?snippet';
 
 import htmlCode4 from './d4/iframe.html?snippet';
 import url4 from './d4/iframe.html?url';
 import tsCode4 from './d4/script.js?snippet';
+import userLayoutCode2 from './d4/x-user-layout.ts?snippet';
 
 import htmlCode5 from './d5/iframe.html?snippet';
 import url5 from './d5/iframe.html?url';
 import tsCode5 from './d5/script.js?snippet';
+import pagesMenuCode from './d5/x-pages-menu.ts?snippet';
 
 import css from '@helpers/page.css?ctr';
 import ThemeController from '@helpers/theme-controller.js';
@@ -47,6 +52,11 @@ const files1: readonly CodeSnippet[] = [
     code: tsCode1,
     title: 'script.ts',
   },
+  {
+    id: 'main-layout',
+    code: mainLayoutCode1,
+    title: 'x-main-layout.ts',
+  },
 ];
 
 const files2: readonly CodeSnippet[] = [
@@ -59,6 +69,11 @@ const files2: readonly CodeSnippet[] = [
     id: 'ts',
     code: tsCode2,
     title: 'script.ts',
+  },
+  {
+    id: 'main-layout',
+    code: mainLayoutCode2,
+    title: 'x-main-layout.ts',
   },
 ];
 
@@ -73,6 +88,11 @@ const files3: readonly CodeSnippet[] = [
     code: tsCode3,
     title: 'script.ts',
   },
+  {
+    id: 'user-layout',
+    code: userLayoutCode1,
+    title: 'x-user-layout.ts',
+  },
 ];
 
 const files4: readonly CodeSnippet[] = [
@@ -86,6 +106,11 @@ const files4: readonly CodeSnippet[] = [
     code: tsCode4,
     title: 'script.ts',
   },
+  {
+    id: 'user-layout',
+    code: userLayoutCode2,
+    title: 'x-user-layout.ts',
+  },
 ];
 
 const files5: readonly CodeSnippet[] = [
@@ -98,6 +123,11 @@ const files5: readonly CodeSnippet[] = [
     id: 'ts',
     code: tsCode5,
     title: 'script.ts',
+  },
+  {
+    id: 'pages-menu',
+    code: pagesMenuCode,
+    title: 'x-pages-menu.ts',
   },
 ];
 
