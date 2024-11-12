@@ -148,7 +148,7 @@ export default class DemoUrlGeneration extends LitElement {
         <code>name</code> property of a route object, then generate URLs for that route using the
         <b
           ><code>
-            <a target="_parent" href="..#/classes/Router#method-urlForName"> router.urlForName(name, parameters)</a>
+            <a target="_parent" href="..#/classes/Router#method-urlForName">router.urlForName(name, parameters)</a>
           </code></b
         >
         helper instance method.

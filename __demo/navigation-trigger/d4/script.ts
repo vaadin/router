@@ -1,5 +1,6 @@
 import '@helpers/iframe.script.js';
 import '@helpers/x-home-view.js';
+import '@helpers/x-user-list.js';
 import '@helpers/x-user-profile.js';
 import { Router } from '@vaadin/router';
 
@@ -10,7 +11,7 @@ await router.setRoutes([
   {
     path: '/users',
     children: [
-      { path: '/', component: 'x-user-list' },
+      { path: '', component: 'x-user-list' },
       { path: '/:user', component: 'x-user-profile' },
     ],
   },

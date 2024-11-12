@@ -31,6 +31,12 @@ const snippetPattern = {
   css: /\/\* tag::snippet\[\] \*\/([\s\S]*?)\/\* end::snippet\[\] \*\//gmu,
 } as const;
 
+const patternsToRemove = [/^\s*(?:\/\/|\/\*) eslint-disable.*$/gimu];
+
+function removePatterns(code: string) {
+  return patternsToRemove.reduce((acc, pattern) => acc.replace(pattern, ''), code);
+}
+
 function extractSnippets(code: string, language: SnippetPatternKey) {
   const result: string[] = [];
   const pattern = snippetPattern[language];
@@ -87,7 +93,7 @@ export function codeSnippetPlugin(): Plugin {
           const purePath = id.substring(0, id.length - search.length);
           const ext = extname(purePath).substring(1);
           if (ext === 'ts' || ext === 'html' || ext === 'css') {
-            let snippets = extractSnippets(code, ext);
+            let snippets = extractSnippets(removePatterns(code), ext);
 
             snippets = [code, ...snippets];
 
@@ -96,6 +102,7 @@ export function codeSnippetPlugin(): Plugin {
                 async (snippet) =>
                   await prettier.format(snippet, {
                     parser: ext === 'ts' ? 'typescript' : ext,
+                    linewidth: 80,
                     singleQuote: true,
                     trailingComma: 'all',
                   }),

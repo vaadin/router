@@ -5,8 +5,8 @@ import { Router, type Commands, type RouteContext } from '@vaadin/router';
 
 // tag::snippet[]
 function redirect(context: RouteContext, commands: Commands) {
-  const user = Array.isArray(context.params.user) ? context.params.user[0] : context.params.user;
-  return commands.redirect(`/users/${encodeURIComponent(`${user} (redirected)`)}`);
+  (context.params.user as string) += ' (redirected)';
+  return commands.redirect(`/users/:user`);
 }
 
 const router = new Router(document.getElementById('outlet'));

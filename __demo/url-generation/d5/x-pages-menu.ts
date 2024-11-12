@@ -1,4 +1,4 @@
-import { html, LitElement, nothing, type TemplateResult } from 'lit';
+import { css, html, LitElement, nothing, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { map } from 'lit/directives/map.js';
 import type { RouterLocation } from '@vaadin/router';
@@ -16,12 +16,23 @@ function urlForSection(location: RouterLocation, section: string) {
 
 @customElement('x-pages-menu')
 export class PagesMenu extends LitElement {
+  static override styles = css`
+    nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+  `;
+
   @property({ attribute: false }) accessor location: RouterLocation | undefined;
 
   override render(): TemplateResult | typeof nothing {
     return this.location
       ? html`<nav>
-            Pages: ${map(pages, (pageNumber) => html`<a href=${urlForPageNumber(this.location!, pageNumber)}></a>`)}
+            Pages:
+            ${map(
+              pages,
+              (pageNumber) => html`<a href=${urlForPageNumber(this.location!, pageNumber)}>${pageNumber}</a>`,
+            )}
           </nav>
           <nav>
             Sections:

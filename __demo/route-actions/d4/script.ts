@@ -1,5 +1,6 @@
 import '@helpers/iframe.script.js';
 import '@helpers/x-home-view.js';
+import '@helpers/x-user-profile.js';
 import { Router, type Commands, type RouteContext } from '@vaadin/router';
 
 // tag::snippet[]

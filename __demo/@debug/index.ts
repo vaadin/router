@@ -8,7 +8,7 @@ import ThemeController from '@helpers/theme-controller.js';
 
 // An URL of the iframe to debug
 // eslint-disable-next-line import/order
-import url1 from '../code-splitting/d2/iframe.html?url';
+import url1 from '../lifecycle-callback/d2/iframe.html?url';
 
 declare global {
   interface HTMLElementTagNameMap {

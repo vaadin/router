@@ -11,7 +11,7 @@ await router.setRoutes([
 ]);
 
 setInterval(() => {
-  window.history.pushState(null, document.title, window.location.pathname !== '/' ? '/' : '/users');
+  window.history.pushState(null, document.title, window.location.pathname === '/' ? '/users' : '/');
   window.dispatchEvent(new PopStateEvent('popstate'));
 }, 3000);
 // end::snippet[]

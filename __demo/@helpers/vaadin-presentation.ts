@@ -63,7 +63,7 @@ export default class VaadinPresentation extends LitElement {
       <iframe
         id="browser"
         src=${ifDefined(this.src)}
-        sandbox="allow-scripts"
+        sandbox="allow-scripts allow-modals"
         @load=${(event: Event) => {
           this.#window = (event.target as HTMLIFrameElement).contentWindow!;
           this.#window.postMessage(null, '*');

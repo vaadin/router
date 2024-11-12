@@ -8,7 +8,7 @@ import { Router } from '@vaadin/router';
 // tag::snippet[]
 window.addEventListener('vaadin-router-location-changed', (event) => {
   const breadcrumbs = document.querySelector('#breadcrumbs')!;
-  breadcrumbs.innerHTML = `You are at '${event.detail.location.pathname}'`;
+  breadcrumbs.textContent = `You are at '${event.detail.location.pathname}'`;
 });
 
 const router = new Router(document.getElementById('outlet'));
