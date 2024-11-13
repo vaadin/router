@@ -18,7 +18,6 @@ import cssCode2 from './d2/styles.css?snippet';
 import wrapperCode from './d2/x-wrapper.ts?snippet';
 
 import css from '@helpers/page.css?ctr';
-import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -71,12 +70,6 @@ const files2: readonly CodeSnippet[] = [
 @customElement('vaadin-demo-animated-transitions')
 export default class DemoAnimatedTransitions extends LitElement {
   static override styles = [css];
-
-  readonly #theme = new ThemeController(this);
-
-  override updated(): void {
-    this.setAttribute('theme', this.#theme.value);
-  }
 
   override render(): TemplateResult {
     return html`<p>

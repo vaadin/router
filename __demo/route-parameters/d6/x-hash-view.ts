@@ -1,10 +1,10 @@
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import type { RouterLocation } from '@vaadin/router';
+import type { RouterLocation, WebComponentInterface } from '@vaadin/router';
 
 // tag::snippet[]
 @customElement('x-hash-view')
-export class HashView extends LitElement {
+export class HashView extends LitElement implements WebComponentInterface {
   @property({ type: Object }) accessor location: RouterLocation | undefined;
 
   override render(): TemplateResult {

@@ -32,7 +32,6 @@ import tsCode5 from './d5/script.js?snippet';
 import pagesMenuCode from './d5/x-pages-menu.ts?snippet';
 
 import css from '@helpers/page.css?ctr';
-import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -134,12 +133,6 @@ const files5: readonly CodeSnippet[] = [
 @customElement('vaadin-demo-url-generation')
 export default class DemoUrlGeneration extends LitElement {
   static override styles = [css];
-
-  readonly #theme = new ThemeController(this);
-
-  override updated(): void {
-    this.setAttribute('theme', this.#theme.value);
-  }
 
   override render(): TemplateResult {
     return html`<h3>Named routes and the <code>router.urlForName</code> method</h3>

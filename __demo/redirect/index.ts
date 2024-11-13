@@ -23,7 +23,6 @@ import tsSnippet2 from './snippets/s2.ts?snippet';
 import tsSnippet3 from './snippets/s3.ts?snippet';
 
 import css from '@helpers/page.css?ctr';
-import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -74,12 +73,6 @@ const files3: readonly CodeSnippet[] = [
 @customElement('vaadin-demo-redirect')
 export default class DemoRedirect extends LitElement {
   static override styles = [css];
-
-  readonly #theme = new ThemeController(this);
-
-  override updated(): void {
-    this.setAttribute('theme', this.#theme.value);
-  }
 
   override render(): TemplateResult {
     return html`<h3>Unconditional Redirects</h3>

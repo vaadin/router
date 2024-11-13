@@ -11,12 +11,12 @@ import css from './vaadin-presentation-addressbar.css?ctr';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'vaadin-presentation-addressbar': VaadinPresentationAddressbar;
+    'vaadin-presentation-addressbar': PresentationAddressbar;
   }
 }
 
 @customElement('vaadin-presentation-addressbar')
-export class VaadinPresentationAddressbar extends LitElement {
+export class PresentationAddressbar extends LitElement {
   static override styles = css;
 
   @property({ attribute: true, type: String }) accessor url: string | undefined;

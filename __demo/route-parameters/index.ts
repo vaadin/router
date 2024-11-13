@@ -33,6 +33,7 @@ import url6 from './d6/iframe.html?url';
 import tsCode6 from './d6/script.js?snippet';
 import hashViewCode from './d6/x-hash-view.ts?snippet';
 
+import css from '@helpers/page.css?ctr';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -136,6 +137,8 @@ const files6: readonly CodeSnippet[] = [
 
 @customElement('vaadin-demo-route-parameters')
 export default class DemoRouteParameters extends LitElement {
+  static override styles = [css];
+
   override render(): TemplateResult {
     return html`<h3>Route Parameters</h3>
     <p>Route parameters are useful when the same Web Component should be
@@ -176,8 +179,7 @@ export default class DemoRouteParameters extends LitElement {
       <li>Unnamed parameters are accessible by a numeric index, e.g.
         <code>location.params[0]</code></li>
     </ul>
-    <p>The example below shows how to access route parameters in a Polymer 2
-      based Web Component:</p>
+    <p>The example below shows how to access route parameters:</p>
     <vaadin-presentation src=${url2}>
       <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
     </vaadin-presentation>

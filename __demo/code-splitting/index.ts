@@ -17,8 +17,6 @@ import tsCode2 from './d2/script.js?snippet';
 import userRoutesCode from './d2/user-routes.js?snippet';
 
 import css from '@helpers/page.css?ctr';
-import ThemeController from '@helpers/theme-controller.js';
-
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -67,20 +65,17 @@ const files2: readonly CodeSnippet[] = [
 export default class DemoCodeSplitting extends LitElement {
   static override styles = [css];
 
-  readonly #theme = new ThemeController(this);
-
-  override updated(): void {
-    this.setAttribute('theme', this.#theme.value);
-  }
-
   override render(): TemplateResult {
     return html`<h3>Using Dynamic Imports</h3>
       <p>
         Vaadin Router allows you to implement your own loading mechanism for bundles using custom
         <a href="#vaadin-router-route-actions-demos">Route Actions</a>. In that case, you can use
-        <a href="https://github.com/tc39/proposal-dynamic-import" target="_blank" rel="noopener">dynamic imports</a> and
-        a module bundler to make the code work in browsers not supporting them natively. Both Webpack and Polymer CLI
-        support dynamic imports for lazy loading ES modules, and transform them for the older browsers.
+        <a
+          href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import"
+          target="_blank"
+          rel="noopener"
+          >dynamic imports</a
+        >.
       </p>
       <p>
         Note: If the dynamically loaded route has lifecycle callbacks, the action should return a promise that resolves

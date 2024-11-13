@@ -1,10 +1,10 @@
 import { LitElement, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import type { RouterLocation } from '@vaadin/router';
+import type { RouterLocation, WebComponentInterface } from '@vaadin/router';
 
 // tag::snippet[]
 @customElement('x-project-view')
-export default class ProjectView extends LitElement {
+export default class ProjectView extends LitElement implements WebComponentInterface {
   @property({ type: Object }) accessor location: RouterLocation | undefined;
 
   override render(): TemplateResult {

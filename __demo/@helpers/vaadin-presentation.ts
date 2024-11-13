@@ -8,7 +8,7 @@ import './vaadin-demo-code-snippet.js';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'vaadin-presentation': VaadinPresentation;
+    'vaadin-presentation': Presentation;
   }
 }
 
@@ -17,7 +17,7 @@ type MessageData = Readonly<{
 }>;
 
 @customElement('vaadin-presentation')
-export default class VaadinPresentation extends LitElement {
+export default class Presentation extends LitElement {
   static override styles = css;
 
   @property() accessor src: string | undefined;

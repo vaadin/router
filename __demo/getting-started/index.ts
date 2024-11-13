@@ -12,8 +12,8 @@ import htmlSnippet1 from './snippets/s1.html?snippet';
 import tsSnippet1 from './snippets/s2.ts?snippet';
 import htmlSnippet2 from './snippets/s3.html?snippet';
 import tsSnippet2 from './snippets/s4.ts?snippet';
+
 import css from '@helpers/page.css?ctr';
-import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -39,12 +39,6 @@ const files1: readonly CodeSnippet[] = [
 export default class DemoGettingStarted extends LitElement {
   static override styles = [css];
 
-  readonly #theme = new ThemeController(this);
-
-  override updated(): void {
-    this.setAttribute('theme', this.#theme.value);
-  }
-
   override render(): TemplateResult {
     return html`<h3>The <code>Router</code> class</h3>
       <p>
@@ -57,7 +51,7 @@ export default class DemoGettingStarted extends LitElement {
       </p>
       <vaadin-demo-code-snippet .files=${[{ code: htmlSnippet1 }]}></vaadin-demo-code-snippet>
       <p>
-        <strong>In Vite / Webpack / Rollup CLI projects</strong> the <code>Router</code> class can be imported from the
+        <strong>In Vite / Webpack / Rollup projects</strong> the <code>Router</code> class can be imported from the
         <code>@vaadin/router</code> npm package:
       </p>
       <vaadin-demo-code-snippet .files=${[{ code: tsSnippet1 }]}></vaadin-demo-code-snippet>

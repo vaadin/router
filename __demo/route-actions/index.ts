@@ -27,7 +27,6 @@ import url5 from './d5/iframe.html?url';
 import tsCode5 from './d5/script.js?snippet';
 
 import css from '@helpers/page.css?ctr';
-import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -104,12 +103,6 @@ const files5: readonly CodeSnippet[] = [
 @customElement('vaadin-demo-route-actions')
 export default class DemoRouteActions extends LitElement {
   static override styles = [css];
-
-  readonly #theme = new ThemeController(this);
-
-  override updated(): void {
-    this.setAttribute('theme', this.#theme.value);
-  }
 
   override render(): TemplateResult {
     return html`<h3>Custom Route Actions</h3>

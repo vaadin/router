@@ -35,13 +35,12 @@ import htmlCode6 from './d6/iframe.html?snippet';
 import url6 from './d6/iframe.html?url';
 import tsCode6 from './d6/script.js?snippet';
 
-import onAfterEnterCode from './my-view-with-after-enter.ts?snippet';
-import onAfterLeaveCode from './my-view-with-after-leave.ts?snippet';
-import onBeforeEnterCode from './my-view-with-before-enter.ts?snippet';
-import onBeforeLeaveCode from './my-view-with-before-leave.ts?snippet';
+import onAfterEnterCode from './snippets/my-view-with-after-enter.ts?snippet';
+import onAfterLeaveCode from './snippets/my-view-with-after-leave.ts?snippet';
+import onBeforeEnterCode from './snippets/my-view-with-before-enter.ts?snippet';
+import onBeforeLeaveCode from './snippets/my-view-with-before-leave.ts?snippet';
 
 import css from '@helpers/page.css?ctr';
-import ThemeController from '@helpers/theme-controller.js';
 import type { CodeSnippet } from '@helpers/vaadin-demo-code-snippet.js';
 
 declare global {
@@ -161,12 +160,6 @@ const files6: readonly CodeSnippet[] = [
 @customElement('vaadin-demo-lifecycle-callback')
 export default class DemoLifecycleCallback extends LitElement {
   static override styles = [css];
-
-  readonly #theme = new ThemeController(this);
-
-  override updated(): void {
-    this.setAttribute('theme', this.#theme.value);
-  }
 
   override render(): TemplateResult {
     return html`<h3>Lifecycle Callbacks</h3>
