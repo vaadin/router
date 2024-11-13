@@ -6,33 +6,27 @@ import '@helpers/vaadin-presentation.js';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import htmlCode1 from './d1/iframe.html?snippet';
-import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
 import xCountdownCode from './d1/x-countdown.js?snippet';
 
 import htmlCode2 from './d2/iframe.html?snippet';
-import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 import xFriend from './d2/x-friend.js?snippet';
 
 import htmlCode3 from './d3/iframe.html?snippet';
-import url3 from './d3/iframe.html?url';
 import tsCode3 from './d3/script.js?snippet';
 import xUserDeleted from './d3/x-user-deleted.js?snippet';
 import xUserManage from './d3/x-user-manage.js?snippet';
 
 import htmlCode4 from './d4/iframe.html?snippet';
-import url4 from './d4/iframe.html?url';
 import tsCode4 from './d4/script.js?snippet';
 import xAutosaveView from './d4/x-autosave-view.js?snippet';
 import xMainPage from './d4/x-main-page.js?snippet';
 
 import htmlCode5 from './d5/iframe.html?snippet';
-import url5 from './d5/iframe.html?url';
 import tsCode5 from './d5/script.js?snippet';
 
 import htmlCode6 from './d6/iframe.html?snippet';
-import url6 from './d6/iframe.html?url';
 import tsCode6 from './d6/script.js?snippet';
 
 import onAfterEnterCode from './snippets/my-view-with-after-enter.ts?snippet';
@@ -247,7 +241,7 @@ export default class DemoLifecycleCallback extends LitElement {
         multiple times will trigger the <code>onBeforeEnter</code>
         callback on each click.
       </p>
-      <vaadin-presentation src=${url1}>
+      <vaadin-presentation src="./d1/iframe.html">
         <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -269,7 +263,7 @@ export default class DemoLifecycleCallback extends LitElement {
         <a target="_parent" href="../#/classes/WebComponentInterface#method-onAfterEnter"> API documentation</a> for
         more details.
       </p>
-      <vaadin-presentation src=${url2}>
+      <vaadin-presentation src="./d2/iframe.html">
         <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -298,7 +292,7 @@ export default class DemoLifecycleCallback extends LitElement {
         multiple times will trigger the <code>onBeforeLeave</code>
         callback on each click.
       </p>
-      <vaadin-presentation src=${url3}>
+      <vaadin-presentation src="./d3/iframe.html">
         <vaadin-demo-code-snippet .files=${files3}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -321,7 +315,7 @@ export default class DemoLifecycleCallback extends LitElement {
         <a target="_parent" href="../#/classes/WebComponentInterface#method-onAfterLeave"> API documentation</a> for
         more details.
       </p>
-      <vaadin-presentation src=${url4}>
+      <vaadin-presentation src="./d4/iframe.html">
         <vaadin-demo-code-snippet .files=${files4}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -331,7 +325,7 @@ export default class DemoLifecycleCallback extends LitElement {
         listener for the <code> vaadin-router-location-changed</code> events on the <code>window</code>. Vaadin Router
         dispatches such events every time after navigating to a new path.
       </p>
-      <vaadin-presentation src=${url5}>
+      <vaadin-presentation src="./d5/iframe.html">
         <vaadin-demo-code-snippet .files=${files5}></vaadin-demo-code-snippet>
       </vaadin-presentation>
       <p>
@@ -350,7 +344,7 @@ export default class DemoLifecycleCallback extends LitElement {
         <code>location.routes</code> is a read-only list of routes that correspond to the last completed navigation,
         which may be useful for example when creating a breadcrumbs component to visualize the current in-app location.
       </p>
-      <vaadin-presentation src=${url6}>
+      <vaadin-presentation src="./d6/iframe.html">
         <vaadin-demo-code-snippet .files=${files6}></vaadin-demo-code-snippet>
       </vaadin-presentation>
       <p>

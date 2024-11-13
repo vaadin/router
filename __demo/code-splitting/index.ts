@@ -7,12 +7,10 @@ import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import htmlCode1 from './d1/iframe.html?snippet';
-import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
 import bundleCode from './d1/user.bundle.js?snippet';
 
 import htmlCode2 from './d2/iframe.html?snippet';
-import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 import userRoutesCode from './d2/user-routes.js?snippet';
 
@@ -82,7 +80,7 @@ export default class DemoCodeSplitting extends LitElement {
         only when the route component is loaded (like in the example below). Otherwise the lifecycle callbacks on the
         dynamically loaded route's web component are not called.
       </p>
-      <vaadin-presentation src=${url1}>
+      <vaadin-presentation src="./d1/iframe.html">
         <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
       </vaadin-presentation>
       <p>
@@ -106,7 +104,7 @@ export default class DemoCodeSplitting extends LitElement {
         See the <a href="../#/classes/Router#method-setRoutes" target="_parent">API documentation</a> for detailed
         description of the <code>children</code> callback function.
       </p>
-      <vaadin-presentation src=${url2}>
+      <vaadin-presentation src="./d2/iframe.html">
         <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
       </vaadin-presentation>`;
   }

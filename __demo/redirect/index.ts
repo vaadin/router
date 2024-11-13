@@ -7,15 +7,12 @@ import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import htmlCode1 from './d1/iframe.html?snippet';
-import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
 
 import htmlCode2 from './d2/iframe.html?snippet';
-import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 
 import htmlCode3 from './d3/iframe.html?snippet';
-import url3 from './d3/iframe.html?url';
 import tsCode3 from './d3/script.js?snippet';
 
 import tsSnippet1 from './snippets/s1.ts?snippet';
@@ -101,7 +98,7 @@ export default class DemoRedirect extends LitElement {
       property. Other route properties (if any) would be ignored. In that case
       Vaadin Router would also log a warning to the browser console.
     </p>
-    <vaadin-presentation src=${url1}>
+    <vaadin-presentation src="./d1/iframe.html">
       <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
     </vaadin-presentation>
 
@@ -119,7 +116,7 @@ export default class DemoRedirect extends LitElement {
       <a href="#vaadin-router-route-actions-demos">Route Actions</a> section for
       more details.
     </p>
-    <vaadin-presentation src=${url2}>
+    <vaadin-presentation src="./d2/iframe.html">
       <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
     </vaadin-presentation>
 
@@ -138,7 +135,7 @@ export default class DemoRedirect extends LitElement {
       ... or using an object with named parameters:
     </p>
     <vaadin-demo-code-snippet .files=${[{ code: tsSnippet2 }]}></vaadin-demo-code-snippet>
-    <vaadin-presentation src=${url3}>
+    <vaadin-presentation src="./d3/iframe.html">
       <vaadin-demo-code-snippet .files=${files3}></vaadin-demo-code-snippet>
     </vaadin-presentation>
     <p>

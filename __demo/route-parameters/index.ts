@@ -7,29 +7,23 @@ import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import htmlCode1 from './d1/iframe.html?snippet';
-import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
 
 import htmlCode2 from './d2/iframe.html?snippet';
-import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 import projectViewCode from './d2/x-project-view.ts?snippet';
 
 import htmlCode3 from './d3/iframe.html?snippet';
-import url3 from './d3/iframe.html?url';
 import tsCode3 from './d3/script.js?snippet';
 
 import htmlCode4 from './d4/iframe.html?snippet';
-import url4 from './d4/iframe.html?url';
 import tsCode4 from './d4/script.js?snippet';
 
 import htmlCode5 from './d5/iframe.html?snippet';
-import url5 from './d5/iframe.html?url';
 import tsCode5 from './d5/script.js?snippet';
 import pageNumberViewCode from './d5/x-page-number-view.ts?snippet';
 
 import htmlCode6 from './d6/iframe.html?snippet';
-import url6 from './d6/iframe.html?url';
 import tsCode6 from './d6/script.js?snippet';
 import hashViewCode from './d6/x-hash-view.ts?snippet';
 
@@ -162,7 +156,7 @@ export default class DemoRouteParameters extends LitElement {
         <li>unnamed parameters: <code>/(user[s]?)/:id</code></li>
       </ul>
     </p>
-    <vaadin-presentation src=${url1}>
+    <vaadin-presentation src="./d1/iframe.html">
       <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
     </vaadin-presentation>
 
@@ -180,7 +174,7 @@ export default class DemoRouteParameters extends LitElement {
         <code>location.params[0]</code></li>
     </ul>
     <p>The example below shows how to access route parameters:</p>
-    <vaadin-presentation src=${url2}>
+    <vaadin-presentation src="./d2/iframe.html">
       <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
     </vaadin-presentation>
 
@@ -216,7 +210,7 @@ export default class DemoRouteParameters extends LitElement {
           with <code>'/user/'</code></li>
       </ul>
     </p>
-    <vaadin-presentation src=${url3}>
+    <vaadin-presentation src="./d3/iframe.html">
       <vaadin-demo-code-snippet .files=${files3}></vaadin-demo-code-snippet>
     </vaadin-presentation>
 
@@ -227,7 +221,7 @@ export default class DemoRouteParameters extends LitElement {
       You only can use unnamed parameters in this case, as it can only be achieved using the custom RegExp.
       One possible alternative is to use <a href="#vaadin-router-route-actions-demos">Route Actions</a>
       and check the <code>context.params</code>.</p>
-    <vaadin-presentation src=${url4}>
+    <vaadin-presentation src="./d4/iframe.html">
       <vaadin-demo-code-snippet .files=${files4}></vaadin-demo-code-snippet>
     </vaadin-presentation>
 
@@ -242,7 +236,7 @@ export default class DemoRouteParameters extends LitElement {
       Use <code>location.search</code> to access the raw search query string.
       Use <code>location.searchParams</code> to get the <code>URLSearchParams</code> wrapper of the search query string.
     </p>
-    <vaadin-presentation src=${url5}>
+    <vaadin-presentation src="./d5/iframe.html">
       <vaadin-demo-code-snippet .files=${files5}></vaadin-demo-code-snippet>
     </vaadin-presentation>
 
@@ -252,7 +246,7 @@ export default class DemoRouteParameters extends LitElement {
       is separate from the pathname as well. Use <code>location.hash</code>
       to access the hash string in the view component.
     </p>
-    <vaadin-presentation src=${url6}>
+    <vaadin-presentation src="./d6/iframe.html">
       <vaadin-demo-code-snippet .files=${files6}></vaadin-demo-code-snippet>
     </vaadin-presentation>`;
   }

@@ -6,7 +6,6 @@ import '@helpers/vaadin-presentation.js';
 import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import htmlCode1 from './d1/iframe.html?snippet';
-import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
 import htmlSnippet1 from './snippets/s1.html?snippet';
 import tsSnippet1 from './snippets/s2.ts?snippet';
@@ -75,7 +74,7 @@ export default class DemoGettingStarted extends LitElement {
         pre-existing outlet content). For details on the route path syntax see the
         <a href="#vaadin-router-route-parameters-demos">Route Parameters </a> demos.
       </p>
-      <vaadin-presentation src=${url1}>
+      <vaadin-presentation src="./d1/iframe.html">
         <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
       </vaadin-presentation>
       <p>

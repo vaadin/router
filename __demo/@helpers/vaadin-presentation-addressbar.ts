@@ -15,6 +15,14 @@ declare global {
   }
 }
 
+function onBack() {
+  history.back();
+}
+
+function onForward() {
+  history.forward();
+}
+
 @customElement('vaadin-presentation-addressbar')
 export class PresentationAddressbar extends LitElement {
   static override styles = css;
@@ -22,11 +30,11 @@ export class PresentationAddressbar extends LitElement {
   @property({ attribute: true, type: String }) accessor url: string | undefined;
 
   override render(): TemplateResult {
-    return html`<vaadin-button theme="icon" aria-label="Back">
+    return html`<vaadin-button theme="icon" aria-label="Back" @click=${onBack}>
         <vaadin-icon icon="vaadin:arrow-left"></vaadin-icon>
         <vaadin-tooltip slot="tooltip" text="Back"></vaadin-tooltip>
       </vaadin-button>
-      <vaadin-button theme="icon" aria-label="Forward">
+      <vaadin-button theme="icon" aria-label="Forward" @click=${onForward}>
         <vaadin-icon icon="vaadin:arrow-right" aria-label="Forward"></vaadin-icon>
         <vaadin-tooltip slot="tooltip" text="Forward"></vaadin-tooltip>
       </vaadin-button>

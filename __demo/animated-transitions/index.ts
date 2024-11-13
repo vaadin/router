@@ -7,12 +7,10 @@ import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import htmlCode1 from './d1/iframe.html?snippet';
-import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
 import cssCode1 from './d1/styles.css?snippet';
 
 import htmlCode2 from './d2/iframe.html?snippet';
-import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 import cssCode2 from './d2/styles.css?snippet';
 import wrapperCode from './d2/x-wrapper.ts?snippet';
@@ -85,7 +83,7 @@ export default class DemoAnimatedTransitions extends LitElement {
         add the transition for the specific routes only, by setting the <code>animate</code>
         property on the corresponding route config objects.
       </p>
-      <vaadin-presentation src=${url1}>
+      <vaadin-presentation src="./d1/iframe.html">
         <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
       </vaadin-presentation>
       <p>To run the animated transition, Vaadin Router performs the actions in the following order:</p>
@@ -108,7 +106,7 @@ export default class DemoAnimatedTransitions extends LitElement {
         Note that you can first configure animated transition for the group of routes, and then override it for the
         single route. In particular, you can switch back to using default CSS classes, as shown in the demo below.
       </p>
-      <vaadin-presentation src=${url2}>
+      <vaadin-presentation src="./d2/iframe.html">
         <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
       </vaadin-presentation>`;
   }

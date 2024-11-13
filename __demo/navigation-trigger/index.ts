@@ -7,19 +7,15 @@ import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import htmlCode1 from './d1/iframe.html?snippet';
-import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
 
 import htmlCode2 from './d2/iframe.html?snippet';
-import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 
 import htmlCode3 from './d3/iframe.html?snippet';
-import url3 from './d3/iframe.html?url';
 import tsCode3 from './d3/script.js?snippet';
 
 import htmlCode4 from './d4/iframe.html?snippet';
-import url4 from './d4/iframe.html?url';
 import tsCode4 from './d4/script.js?snippet';
 
 import css from '@helpers/page.css?ctr';
@@ -125,7 +121,7 @@ export default class DemoNavigationTrigger extends LitElement {
         <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API" target="_blank" rel="noopener">MDN</a>
         for details).
       </p>
-      <vaadin-presentation src=${url1}>
+      <vaadin-presentation src="./d1/iframe.html">
         <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -137,7 +133,7 @@ export default class DemoNavigationTrigger extends LitElement {
         <code>router-ignore</code>
         attribute to have the router ignore the link.
       </p>
-      <vaadin-presentation src=${url2}>
+      <vaadin-presentation src="./d2/iframe.html">
         <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -156,7 +152,7 @@ export default class DemoNavigationTrigger extends LitElement {
         Note: if the default Navigation Triggers are not used by the app, they can be excluded from the app bundle to
         avoid sending unnecessary code to the users. See <code>src/router-config.js</code> for details.
       </p>
-      <vaadin-presentation src=${url3}>
+      <vaadin-presentation src="./d3/iframe.html">
         <vaadin-demo-code-snippet .files=${files3}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -167,7 +163,7 @@ export default class DemoNavigationTrigger extends LitElement {
         <code>render()</code> method calls. Use the <code>unsubscribe() </code> method to cancel this automatic
         subscription and the <code> subscribe()</code> method to re-subscribe.
       </p>
-      <vaadin-presentation src=${url4}>
+      <vaadin-presentation src="./d4/iframe.html">
         <vaadin-demo-code-snippet .files=${files4}></vaadin-demo-code-snippet>
       </vaadin-presentation>`;
   }

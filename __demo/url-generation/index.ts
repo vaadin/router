@@ -7,27 +7,22 @@ import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import htmlCode1 from './d1/iframe.html?snippet';
-import url1 from './d1/iframe.html?url';
 import tsCode1 from './d1/script.js?snippet';
 import mainLayoutCode1 from './d1/x-main-layout.ts?snippet';
 
 import htmlCode2 from './d2/iframe.html?snippet';
-import url2 from './d2/iframe.html?url';
 import tsCode2 from './d2/script.js?snippet';
 import mainLayoutCode2 from './d2/x-main-layout.ts?snippet';
 
 import htmlCode3 from './d3/iframe.html?snippet';
-import url3 from './d3/iframe.html?url';
 import tsCode3 from './d3/script.js?snippet';
 import userLayoutD3Code from './d3/x-user-layout-d3.ts?snippet';
 
 import htmlCode4 from './d4/iframe.html?snippet';
-import url4 from './d4/iframe.html?url';
 import tsCode4 from './d4/script.js?snippet';
 import userLayoutD4Code from './d4/x-user-layout-d4.ts?snippet';
 
 import htmlCode5 from './d5/iframe.html?snippet';
-import url5 from './d5/iframe.html?url';
 import tsCode5 from './d5/script.js?snippet';
 import pagesMenuCode from './d5/x-pages-menu.ts?snippet';
 
@@ -155,7 +150,7 @@ export default class DemoUrlGeneration extends LitElement {
         If the <code>component</code> property is specified on the route object, the <code>name</code> property could be
         omitted. In that case, the component name could be used in the <code>router.urlForName()</code>.
       </p>
-      <vaadin-presentation src=${url1}>
+      <vaadin-presentation src="./d1/iframe.html">
         <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -174,7 +169,7 @@ export default class DemoUrlGeneration extends LitElement {
         <li><code>path</code> — a string route path defined in express.js syntax</li>
         <li><code>parameters</code> — optional object with parameters for path substitution</li>
       </ul>
-      <vaadin-presentation src=${url2}>
+      <vaadin-presentation src="./d2/iframe.html">
         <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -192,13 +187,13 @@ export default class DemoUrlGeneration extends LitElement {
       <ul>
         <li><code>params</code> — optional object with parameters to override the location parameters</li>
       </ul>
-      <vaadin-presentation src=${url3}>
+      <vaadin-presentation src="./d3/iframe.html">
         <vaadin-demo-code-snippet .files=${files3}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
       <h3>Base URL in URL generation</h3>
       <p>When base URL is set, the URL generation helpers return absolute pathnames, including the base.</p>
-      <vaadin-presentation src=${url4}>
+      <vaadin-presentation src="./d4/iframe.html">
         <vaadin-demo-code-snippet .files=${files4}></vaadin-demo-code-snippet>
       </vaadin-presentation>
 
@@ -211,7 +206,7 @@ export default class DemoUrlGeneration extends LitElement {
         For serialising parameters into a query string, use the native
         <code>URLSearchParams</code> API.
       </p>
-      <vaadin-presentation src=${url5}>
+      <vaadin-presentation src="./d5/iframe.html">
         <vaadin-demo-code-snippet .files=${files5}></vaadin-demo-code-snippet>
       </vaadin-presentation>`;
   }

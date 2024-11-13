@@ -1,19 +1,22 @@
-import { readdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { glob } from 'glob';
 import { mergeConfig } from 'vite';
 import { codeSnippetPlugin } from '../scripts/codeSnippet.js';
 import viteConfig from '../vite.config.js';
 
 const root = new URL('./', import.meta.url);
 
-function camelize(str: string) {
-  return str.replace(/-./gu, (x) => x[1].toUpperCase());
+function convertToId(str: string) {
+  return str.replace(/[-/]./gu, (x) => x[1].toUpperCase());
 }
 
 const dirs = Object.fromEntries(
-  (await readdir(root, { withFileTypes: true }))
-    .filter((dirent) => dirent.isDirectory() && !dirent.name.startsWith('@'))
-    .map((dirent) => [camelize(dirent.name), fileURLToPath(new URL(`./${dirent.name}/index.html`, root))]),
+  await glob('./**/{index,iframe}.html', { cwd: root }).then((files) =>
+    files
+      .filter((file) => !file.startsWith('@') && file !== 'index.html')
+      .map((name) => [convertToId(dirname(name)), fileURLToPath(new URL(name, root))]),
+  ),
 );
 
 export default mergeConfig(viteConfig, {
