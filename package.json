@@ -36,12 +36,15 @@
     "test": "karma start karma.config.cjs",
     "test:watch": "npm run test -- --watch",
     "test:coverage": "npm run test -- --coverage",
-    "docs": "typedoc",
+    "docs": "npm run docs:demo && npm run docs:typedoc",
+    "docs:typedoc": "typedoc",
+    "docs:demo": "cd demo && vite build --emptyOutDir",
+    "demo:dev": "cd demo && vite dev",
+    "demo:preview": "npm run docs && cd demo && vite preview",
     "browserslist": "browserslist && browserslist --coverage",
     "prepack": "npm run clean:build",
     "prepare": "npm run build",
-    "typecheck": "tsc --noEmit",
-    "demo:dev": "cd __demo && vite dev"
+    "typecheck": "tsc --noEmit"
   },
   "browserslist": [
     "last 1 Chrome major versions",

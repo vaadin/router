@@ -72,7 +72,7 @@ export default class DemoGettingStarted extends LitElement {
         The routes config maps URL paths to Web Components. Vaadin Router goes through the routes until it finds the
         first match, creates an instance of the route component, and inserts it into the router outlet (replacing any
         pre-existing outlet content). For details on the route path syntax see the
-        <a href="#vaadin-router-route-parameters-demos">Route Parameters </a> demos.
+        <a href="/route-parameters/">Route Parameters </a> demos.
       </p>
       <vaadin-presentation src="./d1/iframe.html">
         <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
@@ -83,15 +83,14 @@ export default class DemoGettingStarted extends LitElement {
       </p>
       <p>
         Vaadin Router follows the lifecycle callbacks convention described in
-        <a target="_parent" href="..#/classes/WebComponentInterface">WebComponentInterface</a>: if a route component
-        defines any of these callback methods, Vaadin Router will call them at the appropriate points in the navigation
-        lifecycle. See the <a href="#vaadin-router-lifecycle-callbacks-demos">Lifecycle Callbacks</a> section for more
-        details.
+        <a href="/API/interfaces/WebComponentInterface.html">WebComponentInterface</a>: if a route component defines any
+        of these callback methods, Vaadin Router will call them at the appropriate points in the navigation lifecycle.
+        See the <a href="/lifecycle-callback/">Lifecycle Callbacks</a> section for more details.
       </p>
       <p>
         In addition to that Vaadin Router also sets a
-        <a target="_parent" href="..#/classes/Router.Location"><code>location</code> property</a> on every route Web
-        Component so that you could access the current location details via an instance property (e.g.
+        <a href="/API/interfaces/RouterLocation.html"><code>location</code> property</a> on every route Web Component so
+        that you could access the current location details via an instance property (e.g.
         <code>this.location.pathname</code>).
       </p>
 

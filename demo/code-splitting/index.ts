@@ -67,7 +67,7 @@ export default class DemoCodeSplitting extends LitElement {
     return html`<h3>Using Dynamic Imports</h3>
       <p>
         Vaadin Router allows you to implement your own loading mechanism for bundles using custom
-        <a href="#vaadin-router-route-actions-demos">Route Actions</a>. In that case, you can use
+        <a href="/route-actions/">Route Actions</a>. In that case, you can use
         <a
           href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import"
           target="_blank"
@@ -101,8 +101,8 @@ export default class DemoCodeSplitting extends LitElement {
         >, which allows to dynamically import the configuration file, and return the children array exported from it.
       </p>
       <p>
-        See the <a href="../#/classes/Router#method-setRoutes" target="_parent">API documentation</a> for detailed
-        description of the <code>children</code> callback function.
+        See the <a href="/API/classes/Router.html#setRoutes">API documentation</a> for detailed description of the
+        <code>children</code> callback function.
       </p>
       <vaadin-presentation src="./d2/iframe.html">
         <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>

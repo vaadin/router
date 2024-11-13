@@ -164,7 +164,7 @@ export default class DemoRouteParameters extends LitElement {
     <p>
       Route parameters are bound to the <code>location.params</code> property of
       the route Web Component
-      (<a target="_parent" href="..#/classes/Router.Location"><code>location</code></a>
+      (<a href="/API/interfaces/RouterLocation.html"><code>location</code></a>
       is set on the route components by Vaadin Router).
     </p>
     <ul>
@@ -219,7 +219,7 @@ export default class DemoRouteParameters extends LitElement {
       The route can be configured so that only specific characters are accepted for a parameter value.
       Other characters would not meet the check and the route resolution would continue to other routes.
       You only can use unnamed parameters in this case, as it can only be achieved using the custom RegExp.
-      One possible alternative is to use <a href="#vaadin-router-route-actions-demos">Route Actions</a>
+      One possible alternative is to use <a href="/route-actions/">Route Actions</a>
       and check the <code>context.params</code>.</p>
     <vaadin-presentation src="./d4/iframe.html">
       <vaadin-demo-code-snippet .files=${files4}></vaadin-demo-code-snippet>

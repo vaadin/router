@@ -7,79 +7,65 @@
     </style>
 
     <h3>Custom Route Actions</h3>
-    <p class="note">
-      This feature is for advanced use cases. Please make sure to read the
-      documentation carefully.
+    <p class="note">This feature is for advanced use cases. Please make sure to read the documentation carefully.</p>
+    <p>
+      Route resolution is an async operation started by a navigation event, or by an explicit
+      <code>render()</code> method call. In that process Vaadin Router goes through the routes config and tries to
+      <em>resolve</em> each matching route from the root onwards. The default route resolution rule is to create and
+      return an instance of the route's <code>component </code> (see the API docs for the
+      <code>setRoutes()</code> method for details on other route properties and how they affect the route resolution).
     </p>
     <p>
-      Route resolution is an async operation started by a navigation event, or
-      by an explicit <code>render()</code> method call. In that process
-      Vaadin Router goes through the routes config and tries to <em>resolve</em>
-      each matching route from the root onwards. The default route resolution
-      rule is to create and return an instance of the route's <code>component
-      </code> (see the API docs for the <code>setRoutes()</code> method for
-      details on other route properties and how they affect the route resolution).
-    </p>
-    <p>
-      Vaadin Router provides a flexible API to customize the default route
-      resolution rule. Each route may have an <code>action</code> functional
-      property that defines how exactly that route is resolved. An <code>action
-      </code> function can return a result either directly, or within
-      a <code>Promise</code> resolving to the result. If the action result
-      is an <code>HTMLElement</code> instance,
-      a <code>commands.component(name)</code> result,
-      a <code>commands.redirect(path)</code> result,
-      or a <code>context.next()</code> result, the resolution pass, and
-      the returned value is what gets rendered. Otherwise, the resolution
-      process continues to check the other properties of the route and apply
-      the default resolution rules, and then further to check other
-      matching routes.
+      Vaadin Router provides a flexible API to customize the default route resolution rule. Each route may have an
+      <code>action</code> functional property that defines how exactly that route is resolved. An
+      <code>action </code> function can return a result either directly, or within a <code>Promise</code> resolving to
+      the result. If the action result is an <code>HTMLElement</code> instance, a
+      <code>commands.component(name)</code> result, a <code>commands.redirect(path)</code> result, or a
+      <code>context.next()</code> result, the resolution pass, and the returned value is what gets rendered. Otherwise,
+      the resolution process continues to check the other properties of the route and apply the default resolution
+      rules, and then further to check other matching routes.
     </p>
     <p>
       The <code>action(context, commands)</code> function receives a <code>context</code>
       parameter with the following properties:
-      </p><ul>
-        <li><code>context.pathname</code> [string] the pathname being resolved
-          </li>
-        <li><code>context.search</code> [string] the search query string</li>
-        <li><code>context.hash</code> [string] the hash string</li>
-        <li><code>context.params</code> [object] the route parameters</li>
-        <li><code>context.route</code> [object] the route that is currently being rendered</li>
-        <li><code>context.next()</code> [function] function for asynchronously getting the next route contents from the resolution chain (if any)</li>
-      </ul>
+    </p>
+    <ul>
+      <li><code>context.pathname</code> [string] the pathname being resolved</li>
+      <li><code>context.search</code> [string] the search query string</li>
+      <li><code>context.hash</code> [string] the hash string</li>
+      <li><code>context.params</code> [object] the route parameters</li>
+      <li><code>context.route</code> [object] the route that is currently being rendered</li>
+      <li>
+        <code>context.next()</code> [function] function for asynchronously getting the next route contents from the
+        resolution chain (if any)
+      </li>
+    </ul>
 
-      The <code>commands</code> is a helper object with methods to create return
-      values for the action:
-      <ul>
-        <li>
-          <code>return commands.redirect('/new/path')</code> create and return a
-          redirect command for the specified path. This command should be
-          returned from the <code>action</code> to perform an actual redirect.
-        </li>
-        <li>
-          <code>return commands.prevent()</code> create and return a prevent
-          command. This command should be returned from the <code>action</code>
-          to instruct router to stop the current navigation and remain at the
-          previous location.
-        </li>
-        <li>
-          <code>return commands.component('tag-name')</code> create and return a
-          new <code>HTMLElement</code> that will be rendered into the router
-          outlet. Using the <code>component</code> command ensures that the
-          created component is initialized as a Vaadin Router view (i.e. the
-          <code>location</code> property is set according to the current router
-          context.
-          <br>
-          If an action returns this element, the behavior is the same as for
-          <code>component</code> route property: the action result will be
-          rendered, if the action is in a child route, the result will be
-          rendered as light dom child of the component from a parent route.
-        </li>
-      </ul>
+    The <code>commands</code> is a helper object with methods to create return values for the action:
+    <ul>
+      <li>
+        <code>return commands.redirect('/new/path')</code> create and return a redirect command for the specified path.
+        This command should be returned from the <code>action</code> to perform an actual redirect.
+      </li>
+      <li>
+        <code>return commands.prevent()</code> create and return a prevent command. This command should be returned from
+        the <code>action</code>
+        to instruct router to stop the current navigation and remain at the previous location.
+      </li>
+      <li>
+        <code>return commands.component('tag-name')</code> create and return a new <code>HTMLElement</code> that will be
+        rendered into the router outlet. Using the <code>component</code> command ensures that the created component is
+        initialized as a Vaadin Router view (i.e. the <code>location</code> property is set according to the current
+        router context.
+        <br />
+        If an action returns this element, the behavior is the same as for
+        <code>component</code> route property: the action result will be rendered, if the action is in a child route,
+        the result will be rendered as light dom child of the component from a parent route.
+      </li>
+    </ul>
     <p></p>
     <p>
-      This demo shows how to use the custom <code>action</code> property to
-      collect visit statistics for each route.
+      This demo shows how to use the custom <code>action</code> property to collect visit statistics for each route.
     </p>
     <vaadin-demo-snippet id="vaadin-router-route-actions-demo-1" iframe-src="iframe.html">
       <template preserve-content="">
@@ -96,7 +82,7 @@
 
           const urlToNumberOfVisits = {};
 
-          const recordUrlVisit = context => {
+          const recordUrlVisit = (context) => {
             const visitedPath = context.pathname; // get current path
             urlToNumberOfVisits[visitedPath] = (urlToNumberOfVisits[visitedPath] || 0) + 1;
             document.getElementById('stats').innerHTML =
@@ -106,14 +92,14 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', component: 'x-home-view'},
+            { path: '/', component: 'x-home-view' },
             {
               path: '/users',
               action: recordUrlVisit, // will be triggered for all children
               children: [
-                {path: '/', component: 'x-user-list'},
-                {path: '/:user', component: 'x-user-profile'}
-              ]
+                { path: '/', component: 'x-user-list' },
+                { path: '/:user', component: 'x-user-profile' },
+              ],
             },
           ]);
         </script>
@@ -122,21 +108,16 @@
 
     <h3>Async Route Resolution</h3>
     <p>
-      Since route resolution is async, the <code>action()</code> callback may be
-      async as well and return a promise. One use case for that is to create
-      a custom route action that makes a remote API call to fetch the data
-      necessary to render the route component, before navigating to a route.
+      Since route resolution is async, the <code>action()</code> callback may be async as well and return a promise. One
+      use case for that is to create a custom route action that makes a remote API call to fetch the data necessary to
+      render the route component, before navigating to a route.
     </p>
     <p>
-      Note: If a route has both the <code>component</code> and <code>action
-      </code> properties, <code>action</code> is executed first and if it does
-      not return a result Vaadin.Router proceeds to check the <code>component
-      </code> property.
+      Note: If a route has both the <code>component</code> and <code>action </code> properties, <code>action</code> is
+      executed first and if it does not return a result Vaadin.Router proceeds to check the
+      <code>component </code> property.
     </p>
-    <p>
-      This demo shows a way to perform async tasks before navigating to any
-      route under <code>/users</code>.
-    </p>
+    <p>This demo shows a way to perform async tasks before navigating to any route under <code>/users</code>.</p>
     <vaadin-demo-snippet id="vaadin-router-route-actions-demo-2" iframe-src="iframe.html">
       <template preserve-content="">
         <nav>
@@ -158,14 +139,14 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', component: 'x-home-view'},
+            { path: '/', component: 'x-home-view' },
             {
               path: '/users',
               action: pollBackendForChanges, // will be triggered for all children
               children: [
-                {path: '/', component: 'x-user-list'},
-                {path: '/:user', component: 'x-user-profile'}
-              ]
+                { path: '/', component: 'x-user-list' },
+                { path: '/:user', component: 'x-user-profile' },
+              ],
             },
           ]);
         </script>
@@ -174,17 +155,14 @@
 
     <h3>Redirecting from an Action</h3>
     <p>
-      <code>action()</code> can return a command created using the
-      <code>commands</code> parameter methods to affect the route resolution
-      result.
-      The first demo had demonstrated the <code>context.next()</code> usage,
-      this demo demonstrates using <code>commands.redirect(path)</code> to
-      redirect to any other defined route by using its path.
+      <code>action()</code> can return a command created using the <code>commands</code> parameter methods to affect the
+      route resolution result. The first demo had demonstrated the <code>context.next()</code> usage, this demo
+      demonstrates using <code>commands.redirect(path)</code> to redirect to any other defined route by using its path.
       All the parameters in current context will be passed to the redirect target.
     </p>
     <p>
-      Note: If you need only to redirect to another route, defining an action might be an overkill.
-      More convenient way is described in <a href="#vaadin-router-redirect-demos">Redirects</a> section.
+      Note: If you need only to redirect to another route, defining an action might be an overkill. More convenient way
+      is described in <a href="/redirect/">Redirects</a> section.
     </p>
     <vaadin-demo-snippet id="vaadin-router-route-actions-demo-3" iframe-src="iframe.html">
       <template preserve-content="">
@@ -205,10 +183,10 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', component: 'x-home-view'},
+            { path: '/', component: 'x-home-view' },
             // current route parameters are automatically transferred to redirect target
-            {path: '/employees/:user', action: redirect},
-            {path: '/users/:user', component: 'x-user-profile'},
+            { path: '/employees/:user', action: redirect },
+            { path: '/users/:user', component: 'x-user-profile' },
           ]);
         </script>
       </template>
@@ -216,15 +194,13 @@
 
     <h3>Returning Custom Element as an Action Result</h3>
     <p>
-      Another command available to a custom <code>action()</code> is
-      <code>commands.component('tag-name')</code>. It is useful to create a
-      custom element with current context. All the parameters in current context
-      will be passed to the rendered element.
+      Another command available to a custom <code>action()</code> is <code>commands.component('tag-name')</code>. It is
+      useful to create a custom element with current context. All the parameters in current context will be passed to
+      the rendered element.
     </p>
     <p>
-      Note: If the only thing your action does is custom element creation, it
-      can be replaced with <code>component</code> property of the route.
-      See <a href="#vaadin-router-getting-started-demos">Getting Started</a>
+      Note: If the only thing your action does is custom element creation, it can be replaced with
+      <code>component</code> property of the route. See <a href="/getting-started/">Getting Started</a>
       section for examples.
     </p>
     <vaadin-demo-snippet id="vaadin-router-route-actions-demo-4" iframe-src="iframe.html">
@@ -250,9 +226,9 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', component: 'x-home-view'},
+            { path: '/', component: 'x-home-view' },
             // current route parameters are automatically transferred to rendered element
-            {path: '/users/:user', action: render},
+            { path: '/users/:user', action: render },
           ]);
         </script>
       </template>
@@ -260,13 +236,12 @@
 
     <h3>Routing With Search Query and Hash</h3>
     <p>
-      Route action function can access <code>context.search</code> and
-      <code>context.hash</code> URL parts, even though they are not involved
-      in matching route paths.
+      Route action function can access <code>context.search</code> and <code>context.hash</code> URL parts, even though
+      they are not involved in matching route paths.
     </p>
     <p>
-      For example, an action can change the route behavior depending on
-      a search parameter, and optionally render, skip to next route or redirect.
+      For example, an action can change the route behavior depending on a search parameter, and optionally render, skip
+      to next route or redirect.
     </p>
     <vaadin-demo-snippet id="vaadin-router-route-actions-demo-5" iframe-src="iframe.html">
       <template preserve-content="">
@@ -295,14 +270,58 @@
                   // Skip to next route if parameter is absent
                   return context.next();
                 }
-              }
+              },
             },
             // Same path, only matches if the action above skips
-            {path: '/', component: 'x-home-view'}
+            { path: '/', component: 'x-home-view' },
           ]);
         </script>
       </template>
     </vaadin-demo-snippet>
   </template>
-  <script>function _createSuper(Derived){var hasNativeReflectConstruct=_isNativeReflectConstruct();return function _createSuperInternal(){var Super=babelHelpers.getPrototypeOf(Derived),result;if(hasNativeReflectConstruct){var NewTarget=babelHelpers.getPrototypeOf(this).constructor;result=Reflect.construct(Super,arguments,NewTarget)}else{result=Super.apply(this,arguments)}return babelHelpers.possibleConstructorReturn(this,result)}}function _isNativeReflectConstruct(){if("undefined"===typeof Reflect||!Reflect.construct)return!1;if(Reflect.construct.sham)return!1;if("function"===typeof Proxy)return!0;try{Boolean.prototype.valueOf.call(Reflect.construct(Boolean,[],function(){}));return!0}catch(e){return!1}}var VaadinRouterRouteActionsDemos=/*#__PURE__*/function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterRouteActionsDemos,_DemoReadyEventEmitte);var _super=_createSuper(VaadinRouterRouteActionsDemos);function VaadinRouterRouteActionsDemos(){babelHelpers.classCallCheck(this,VaadinRouterRouteActionsDemos);return _super.apply(this,arguments)}babelHelpers.createClass(VaadinRouterRouteActionsDemos,null,[{key:"is",get:function get(){return"vaadin-router-route-actions-demos"}}]);return VaadinRouterRouteActionsDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterRouteActionsDemos.is,VaadinRouterRouteActionsDemos);</script>
+  <script>
+    function _createSuper(Derived) {
+      var hasNativeReflectConstruct = _isNativeReflectConstruct();
+      return function _createSuperInternal() {
+        var Super = babelHelpers.getPrototypeOf(Derived),
+          result;
+        if (hasNativeReflectConstruct) {
+          var NewTarget = babelHelpers.getPrototypeOf(this).constructor;
+          result = Reflect.construct(Super, arguments, NewTarget);
+        } else {
+          result = Super.apply(this, arguments);
+        }
+        return babelHelpers.possibleConstructorReturn(this, result);
+      };
+    }
+    function _isNativeReflectConstruct() {
+      if ('undefined' === typeof Reflect || !Reflect.construct) return !1;
+      if (Reflect.construct.sham) return !1;
+      if ('function' === typeof Proxy) return !0;
+      try {
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+        return !0;
+      } catch (e) {
+        return !1;
+      }
+    }
+    var VaadinRouterRouteActionsDemos = /*#__PURE__*/ (function (_DemoReadyEventEmitte) {
+      babelHelpers.inherits(VaadinRouterRouteActionsDemos, _DemoReadyEventEmitte);
+      var _super = _createSuper(VaadinRouterRouteActionsDemos);
+      function VaadinRouterRouteActionsDemos() {
+        babelHelpers.classCallCheck(this, VaadinRouterRouteActionsDemos);
+        return _super.apply(this, arguments);
+      }
+      babelHelpers.createClass(VaadinRouterRouteActionsDemos, null, [
+        {
+          key: 'is',
+          get: function get() {
+            return 'vaadin-router-route-actions-demos';
+          },
+        },
+      ]);
+      return VaadinRouterRouteActionsDemos;
+    })(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));
+    customElements.define(VaadinRouterRouteActionsDemos.is, VaadinRouterRouteActionsDemos);
+  </script>
 </dom-module>

@@ -165,7 +165,7 @@ export default class DemoLifecycleCallback extends LitElement {
         <li>
           <b
             ><code>
-              <a target="_parent" href="..#/classes/WebComponentInterface#method-onBeforeEnter">
+              <a href="/API/interfaces/WebComponentInterface.html#onBeforeEnter">
                 onBeforeEnter(location, commands, router)</a
               >: Promise | Prevent | Redirect | void</code
             ></b
@@ -174,7 +174,7 @@ export default class DemoLifecycleCallback extends LitElement {
         <li>
           <b
             ><code>
-              <a target="_parent" href="..#/classes/WebComponentInterface#method-onAfterEnter">
+              <a href="/API/interfaces/WebComponentInterface.html#onAfterEnter">
                 onAfterEnter(location, commands, router)</a
               >: void</code
             ></b
@@ -183,7 +183,7 @@ export default class DemoLifecycleCallback extends LitElement {
         <li>
           <b
             ><code>
-              <a target="_parent" href="..#/classes/WebComponentInterface#method-onBeforeLeave">
+              <a href="/API/interfaces/WebComponentInterface.html#onBeforeLeave">
                 onBeforeLeave(location, commands, router)</a
               >: Promise | Prevent | void
             </code></b
@@ -192,7 +192,7 @@ export default class DemoLifecycleCallback extends LitElement {
         <li>
           <b
             ><code>
-              <a target="_parent" href="..#/classes/WebComponentInterface#method-onAfterLeave">
+              <a href="/API/interfaces/WebComponentInterface.html#onAfterLeave">
                 onAfterLeave(location, commands, router)</a
               >: void</code
             ></b
@@ -233,8 +233,7 @@ export default class DemoLifecycleCallback extends LitElement {
       </p>
       <p>
         See the
-        <a target="_parent" href="../#/classes/WebComponentInterface#method-onBeforeEnter"> API documentation</a> for
-        more details.
+        <a href="/API/interfaces/WebComponentInterface.html#onBeforeEnter">API documentation</a> for more details.
       </p>
       <p>
         <strong>Note: </strong>Navigating to the same route also triggers this callback, e.g., click on the same link
@@ -255,13 +254,12 @@ export default class DemoLifecycleCallback extends LitElement {
         NOTE: When navigating between views the <code>onAfterEnter</code> callback on the new view's component is called
         <em>before</em> the <code>onAfterLeave</code> callback on the previous view's component (which is being
         removed). At some point both the new and the old view components are present in the DOM to allow
-        <a href="#vaadin-router-animated-transitions-demos">animating</a> the transition (you can listen to the
+        <a href="/animated-transitions/">animating</a> the transition (you can listen to the
         <code>animationend</code> event to detect when it is over).
       </p>
       <p>
         Any value returned from this callback is ignored. See the
-        <a target="_parent" href="../#/classes/WebComponentInterface#method-onAfterEnter"> API documentation</a> for
-        more details.
+        <a href="/API/interfaces/WebComponentInterface.html#onAfterEnter">API documentation</a> for more details.
       </p>
       <vaadin-presentation src="./d2/iframe.html">
         <vaadin-demo-code-snippet .files=${files2}></vaadin-demo-code-snippet>
@@ -284,8 +282,7 @@ export default class DemoLifecycleCallback extends LitElement {
       </p>
       <p>
         See the
-        <a target="_parent" href="../#/classes/WebComponentInterface#method-onBeforeLeave"> API documentation</a> for
-        more details.
+        <a href="/API/interfaces/WebComponentInterface.html#onBeforeLeave">API documentation</a> for more details.
       </p>
       <p>
         <strong>Note: </strong>Navigating to the same route also triggers this callback, e.g., click on the same link
@@ -307,13 +304,12 @@ export default class DemoLifecycleCallback extends LitElement {
         NOTE: When navigating between views the <code>onAfterEnter</code> callback on the new view's component is called
         <em>before</em> the <code>onAfterLeave</code> callback on the previous view's component (which is being
         removed). At some point both the new and the old view components are present in the DOM to allow
-        <a href="#vaadin-router-animated-transitions-demos">animating</a> the transition (you can listen to the
+        <a href="/animated-transitions/">animating</a> the transition (you can listen to the
         <code>animationend</code> event to detect when it is over).
       </p>
       <p>
         Any value returned from this callback is ignored. See the
-        <a target="_parent" href="../#/classes/WebComponentInterface#method-onAfterLeave"> API documentation</a> for
-        more details.
+        <a href="/API/interfaces/WebComponentInterface.html#onAfterLeave">API documentation</a> for more details.
       </p>
       <vaadin-presentation src="./d4/iframe.html">
         <vaadin-demo-code-snippet .files=${files4}></vaadin-demo-code-snippet>
@@ -339,7 +335,7 @@ export default class DemoLifecycleCallback extends LitElement {
         When handling Vaadin Router events, you can access the router instance via
         <code>event.detail.router</code>, and the current location via <code> event.detail.location</code> (which is a
         shorthand for <code>event.detail.router.location</code>). The
-        <a target="_parent" href="..#/classes/Router.Location"><code>location</code></a>
+        <a href="/API/interfaces/RouterLocation.html"><code>location</code></a>
         object has all details about the current router state. For example,
         <code>location.routes</code> is a read-only list of routes that correspond to the last completed navigation,
         which may be useful for example when creating a breadcrumbs component to visualize the current in-app location.

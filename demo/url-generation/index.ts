@@ -136,7 +136,7 @@ export default class DemoUrlGeneration extends LitElement {
         <code>name</code> property of a route object, then generate URLs for that route using the
         <b
           ><code>
-            <a target="_parent" href="..#/classes/Router#method-urlForName">router.urlForName(name, parameters)</a>
+            <a href="/API/classes/Router.html#urlForName">router.urlForName(name, parameters)</a>
           </code></b
         >
         helper instance method.
@@ -158,7 +158,7 @@ export default class DemoUrlGeneration extends LitElement {
       <p>
         <b
           ><code>
-            <a target="_parent" href="..#/classes/Router#method-urlForPath"> router.urlForPath(path, parameters)</a>
+            <a href="/API/classes/Router.html#urlForPath">router.urlForPath(path, parameters)</a>
           </code></b
         >
         is a helper method that generates a URL for the given route path, optionally performing substitution of
@@ -177,7 +177,7 @@ export default class DemoUrlGeneration extends LitElement {
       <p>
         <b
           ><code>
-            <a target="_parent" href="..#/classes/Router.Location#method-getUrl"> location.getUrl(params)</a>
+            <a href="/API/interfaces/RouterLocation.html#getUrl">location.getUrl(params)</a>
           </code></b
         >
         is a method that returns a URL corresponding to the location. When given the params argument, it does parameter

@@ -8,17 +8,16 @@
 
     <h3>Using Dynamic Imports</h3>
     <p>
-      Vaadin Router allows you to implement your own loading mechanism for bundles using
-      custom <a href="#vaadin-router-route-actions-demos">Route Actions</a>. In that case,
-      you can use <a href="https://github.com/tc39/proposal-dynamic-import" target="_blank" rel="noopener">dynamic imports</a> and a module bundler to make the code work in browsers
-      not supporting them natively. Both Webpack and Polymer CLI support dynamic imports for lazy
-      loading ES modules, and transform them for the older browsers.
+      Vaadin Router allows you to implement your own loading mechanism for bundles using custom
+      <a href="/route-actions/">Route Actions</a>. In that case, you can use
+      <a href="https://github.com/tc39/proposal-dynamic-import" target="_blank" rel="noopener">dynamic imports</a> and a
+      module bundler to make the code work in browsers not supporting them natively. Both Webpack and Polymer CLI
+      support dynamic imports for lazy loading ES modules, and transform them for the older browsers.
     </p>
     <p>
-      Note: If the dynamically loaded route has lifecycle callbacks, the action
-      should return a promise that resolves only when the route component is
-      loaded (like in the example below). Otherwise the lifecycle callbacks on
-      the dynamically loaded route's web component are not called.
+      Note: If the dynamically loaded route has lifecycle callbacks, the action should return a promise that resolves
+      only when the route component is loaded (like in the example below). Otherwise the lifecycle callbacks on the
+      dynamically loaded route's web component are not called.
     </p>
     <vaadin-demo-snippet id="vaadin-router-code-splitting-3" iframe-src="iframe.html">
       <template preserve-content="">
@@ -31,39 +30,38 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', component: 'x-home-view'},
+            { path: '/', component: 'x-home-view' },
             {
               path: '/user/:id',
-              action: async() => {
+              action: async () => {
                 await Vaadin.Demo.import(`${Vaadin.Demo.componentsRoot}/user.bundle.js`);
               },
-              component: 'x-user-js-bundle-view' // <-- defined in the bundle
+              component: 'x-user-js-bundle-view', // <-- defined in the bundle
             },
           ]);
         </script>
       </template>
     </vaadin-demo-snippet>
     <p>
-      If dynamic imports are used both for parent and child routes, then the
-      example above may possibly slow down rendering because router would not
-      start importing a child component until its parent is imported.
+      If dynamic imports are used both for parent and child routes, then the example above may possibly slow down
+      rendering because router would not start importing a child component until its parent is imported.
     </p>
 
     <h3>Splitting and Lazy-Loading the Routes Configuration</h3>
     <p>
       Vaadin Router supports splitting the routes configuration object into parts and lazily loading them on-demand,
       enabling developers to create non-monolithic app structures. This might be useful for implementing a distributed
-      sub routes configuration within a big project, so that multiple teams working on different parts of the app
-      no longer have to merge their changes into the same file.
+      sub routes configuration within a big project, so that multiple teams working on different parts of the app no
+      longer have to merge their changes into the same file.
     </p>
     <p>
-      The <code>children</code> property on the route config object can be set to a function, which returns an
-      array of the route objects. It may return a <code><b>Promise</b></code>, which allows to dynamically import
-      the configuration file, and return the children array exported from it.
+      The <code>children</code> property on the route config object can be set to a function, which returns an array of
+      the route objects. It may return a <code><b>Promise</b></code
+      >, which allows to dynamically import the configuration file, and return the children array exported from it.
     </p>
     <p>
-      See the <a href="../#/classes/Router#method-setRoutes" target="_parent">API documentation</a>
-      for detailed description of the <code>children</code> callback function.
+      See the <a href="/API/classes/Router.html#setRoutes">API documentation</a> for detailed description of the
+      <code>children</code> callback function.
     </p>
     <vaadin-demo-snippet id="vaadin-router-code-splitting-4" iframe-src="iframe.html">
       <template preserve-content="">
@@ -76,11 +74,12 @@
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', component: 'x-home-view'},
+            { path: '/', component: 'x-home-view' },
             {
               path: '/users',
-              children: () => Vaadin.Demo.import(`${Vaadin.Demo.componentsRoot}/users-routes.js`).then(module => module.default)
-            }
+              children: () =>
+                Vaadin.Demo.import(`${Vaadin.Demo.componentsRoot}/users-routes.js`).then((module) => module.default),
+            },
           ]);
 
           /*
@@ -96,20 +95,18 @@
 
     <h3>Lazy Loading non-JS Bundles, e.g. HTML Imports</h3>
     <p>
-      In cases when loading <code>.js</code> and <code>.mjs</code> is not
-      enough—most notably, when using HTML imports in Polymer-based
-      apps—the lazy loading feature can be implemented with a custom route
-      action (for more details see <a href="#vaadin-router-route-actions-demos">
-      Route Actions</a>).
+      In cases when loading <code>.js</code> and <code>.mjs</code> is not enough—most notably, when using HTML imports
+      in Polymer-based apps—the lazy loading feature can be implemented with a custom route action (for more details see
+      <a href="/route-actions/">Route Actions</a>).
     </p>
     <p>
       This demo shows a way to lazily add an HTML import. The <code>user.bundle.html</code>
-      file contains entire Polymer 2 component definition including a template, a class,
-      and a script that defines a custom element.
+      file contains entire Polymer 2 component definition including a template, a class, and a script that defines a
+      custom element.
     </p>
     <vaadin-demo-snippet id="vaadin-router-code-splitting-2" iframe-src="iframe.html">
       <template preserve-content="">
-        <link rel="import" href="../../polymer/lib/utils/import-href.html">
+        <link rel="import" href="../../polymer/lib/utils/import-href.html" />
         <a href="/">Home</a>
         <a href="/user/admin">User Profile</a>
         <div id="outlet"></div>
@@ -123,22 +120,65 @@
             Polymer.importHref(
               `${Vaadin.Demo.componentsRoot}/user.bundle.html`,
               null,
-              function(err) {
+              function (err) {
                 throw new Error('bundle not found');
               },
-              true
+              true,
             );
           };
 
           const router = new Router(document.getElementById('outlet'));
           router.setRoutes([
-            {path: '/', component: 'x-home-view'},
-            {path: '/user/:id', action: loadCustomBundle, component: 'x-user-html-bundle-view'}
+            { path: '/', component: 'x-home-view' },
+            { path: '/user/:id', action: loadCustomBundle, component: 'x-user-html-bundle-view' },
           ]);
         </script>
       </template>
     </vaadin-demo-snippet>
-
   </template>
-  <script>function _createSuper(Derived){var hasNativeReflectConstruct=_isNativeReflectConstruct();return function _createSuperInternal(){var Super=babelHelpers.getPrototypeOf(Derived),result;if(hasNativeReflectConstruct){var NewTarget=babelHelpers.getPrototypeOf(this).constructor;result=Reflect.construct(Super,arguments,NewTarget)}else{result=Super.apply(this,arguments)}return babelHelpers.possibleConstructorReturn(this,result)}}function _isNativeReflectConstruct(){if("undefined"===typeof Reflect||!Reflect.construct)return!1;if(Reflect.construct.sham)return!1;if("function"===typeof Proxy)return!0;try{Boolean.prototype.valueOf.call(Reflect.construct(Boolean,[],function(){}));return!0}catch(e){return!1}}var VaadinRouterCodeSplittingDemos=/*#__PURE__*/function(_DemoReadyEventEmitte){babelHelpers.inherits(VaadinRouterCodeSplittingDemos,_DemoReadyEventEmitte);var _super=_createSuper(VaadinRouterCodeSplittingDemos);function VaadinRouterCodeSplittingDemos(){babelHelpers.classCallCheck(this,VaadinRouterCodeSplittingDemos);return _super.apply(this,arguments)}babelHelpers.createClass(VaadinRouterCodeSplittingDemos,null,[{key:"is",get:function get(){return"vaadin-router-code-splitting-demos"}}]);return VaadinRouterCodeSplittingDemos}(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));customElements.define(VaadinRouterCodeSplittingDemos.is,VaadinRouterCodeSplittingDemos);</script>
+  <script>
+    function _createSuper(Derived) {
+      var hasNativeReflectConstruct = _isNativeReflectConstruct();
+      return function _createSuperInternal() {
+        var Super = babelHelpers.getPrototypeOf(Derived),
+          result;
+        if (hasNativeReflectConstruct) {
+          var NewTarget = babelHelpers.getPrototypeOf(this).constructor;
+          result = Reflect.construct(Super, arguments, NewTarget);
+        } else {
+          result = Super.apply(this, arguments);
+        }
+        return babelHelpers.possibleConstructorReturn(this, result);
+      };
+    }
+    function _isNativeReflectConstruct() {
+      if ('undefined' === typeof Reflect || !Reflect.construct) return !1;
+      if (Reflect.construct.sham) return !1;
+      if ('function' === typeof Proxy) return !0;
+      try {
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+        return !0;
+      } catch (e) {
+        return !1;
+      }
+    }
+    var VaadinRouterCodeSplittingDemos = /*#__PURE__*/ (function (_DemoReadyEventEmitte) {
+      babelHelpers.inherits(VaadinRouterCodeSplittingDemos, _DemoReadyEventEmitte);
+      var _super = _createSuper(VaadinRouterCodeSplittingDemos);
+      function VaadinRouterCodeSplittingDemos() {
+        babelHelpers.classCallCheck(this, VaadinRouterCodeSplittingDemos);
+        return _super.apply(this, arguments);
+      }
+      babelHelpers.createClass(VaadinRouterCodeSplittingDemos, null, [
+        {
+          key: 'is',
+          get: function get() {
+            return 'vaadin-router-code-splitting-demos';
+          },
+        },
+      ]);
+      return VaadinRouterCodeSplittingDemos;
+    })(DemoReadyEventEmitter(ElementDemo(Polymer.Element)));
+    customElements.define(VaadinRouterCodeSplittingDemos.is, VaadinRouterCodeSplittingDemos);
+  </script>
 </dom-module>

@@ -86,9 +86,9 @@ export default class DemoRedirect extends LitElement {
     </p>
     <p>
       The original path is available to route Web Components as the
-      <a target="_parent" href="..#/classes/Router.Location#property-redirectFrom">
+      <a href="/API/interfaces/RouterLocation.html#redirectFrom">
       <code>location.redirectFrom</code></a> string property, and to custom
-      <a href="#vaadin-router-route-actions-demos">route actions</a> &ndash;
+      <a href="/route-actions/">route actions</a> &ndash;
       as <code>context.redirectFrom</code>.
     </p>
     <p>
@@ -107,13 +107,13 @@ export default class DemoRedirect extends LitElement {
       Vaadin Router allows redirecting to another path dynamically based on
       a condition evaluated at the run time. In order to do that, <code>
       return commands.redirect('/new/path')</code> from the
-      <a href="#vaadin-router-lifecycle-callbacks-demos"><code>onBeforeEnter()
-      </code></a> lifecycle callback of the route Web Component.
+      <a href="/lifecycle-callback/"><code>onBeforeEnter()</code></a> lifecycle
+      callback of the route Web Component.
     </p>
     <p>
       It is also possible to redirect from a custom route action. The demo below
       has an example of that in the <code>/logout</code> route action. See the
-      <a href="#vaadin-router-route-actions-demos">Route Actions</a> section for
+      <a href="/route-actions/">Route Actions</a> section for
       more details.
     </p>
     <vaadin-presentation src="./d2/iframe.html">
@@ -124,7 +124,7 @@ export default class DemoRedirect extends LitElement {
     <p>
       If you want to send users to another path in response to a user
       action (outside of a lifecycle callback), you can do that by using the
-      static <a target="_parent" href="..#/classes/Router#staticmethod-go"><code>
+      static <a href="/API/classes/Router.html#go"><code>
       Router.go('/to/path')</code></a> method on the Vaadin.Router class.
     </p>
     <p>

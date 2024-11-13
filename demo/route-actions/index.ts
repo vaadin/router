@@ -188,7 +188,7 @@ export default class DemoRouteActions extends LitElement {
       </p>
       <p>
         Note: If you need only to redirect to another route, defining an action might be an overkill. More convenient
-        way is described in <a href="#vaadin-router-redirect-demos">Redirects</a> section.
+        way is described in <a href="/redirect/">Redirects</a> section.
       </p>
       <vaadin-presentation src="./d3/iframe.html">
         <vaadin-demo-code-snippet .files=${files3}></vaadin-demo-code-snippet>
@@ -203,7 +203,7 @@ export default class DemoRouteActions extends LitElement {
       <p>
         Note: If the only thing your action does is custom element creation, it can be replaced with
         <code>component</code> property of the route. See
-        <a href="#vaadin-router-getting-started-demos">Getting Started</a>
+        <a href="/getting-started/">Getting Started</a>
         section for examples.
       </p>
       <vaadin-presentation src="./d4/iframe.html">
