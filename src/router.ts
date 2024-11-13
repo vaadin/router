@@ -434,13 +434,15 @@ export class Router<R extends object = EmptyObject, C extends object = EmptyObje
 
       await animationDone;
 
-      // If there is another render pass started after this one,
-      // the 'disappearing content' would be removed when the other
-      // render pass calls `this.__addAppearingContent()`
-      this.#removeDisappearingContent();
+      if (this.#isLatestRender(contextWithChain)) {
+        // If there is another render pass started after this one,
+        // the 'disappearing content' would be removed when the other
+        // render pass calls `this.__addAppearingContent()`
+        this.#removeDisappearingContent();
 
-      this.__previousContext = contextWithChain;
-      return this.location;
+        this.__previousContext = contextWithChain;
+        return this.location;
+      }
     } catch (error: unknown) {
       if (renderId === this.#lastStartedRenderId) {
         if (shouldUpdateHistory) {
