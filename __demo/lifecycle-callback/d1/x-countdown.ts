@@ -2,6 +2,7 @@ import { html, LitElement, render, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import type { RouterLocation, WebComponentInterface } from '../../../src/types.t.js';
 
+// tag::snippet[]
 @customElement('x-countdown')
 export default class Countdown extends LitElement implements WebComponentInterface {
   readonly #home = document.body.querySelector('x-home-view');
@@ -42,6 +43,7 @@ export default class Countdown extends LitElement implements WebComponentInterfa
     clearInterval(this.#timer);
   }
 }
+// end::snippet[]
 
 declare global {
   interface HTMLElementTagNameMap {

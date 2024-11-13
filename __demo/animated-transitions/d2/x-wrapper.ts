@@ -8,6 +8,7 @@ declare global {
   }
 }
 
+// tag::snippet[]
 @customElement('x-wrapper')
 export default class Wrapper extends LitElement {
   static override styles = sharedCss;
@@ -24,3 +25,4 @@ export default class Wrapper extends LitElement {
       </main>`;
   }
 }
+// end::snippet[]

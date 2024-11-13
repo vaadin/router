@@ -3,18 +3,20 @@ import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { RouterLocation } from '@vaadin/router';
 
+// tag::snippet[]
 @customElement('x-page-number-view')
 export default class PageNumberView extends LitElement {
   @property({ type: Object }) accessor location: RouterLocation | undefined;
 
   override render(): TemplateResult {
-    return html`Page number: ${this.#getPageNumber(this.location)}`;
+    return html`Page number: ${this.#getPageNumber()}`;
   }
 
-  #getPageNumber(location?: RouterLocation): string {
-    return location?.searchParams.get('page') ?? 'none';
+  #getPageNumber(): string {
+    return this.location?.searchParams.get('page') ?? 'none';
   }
 }
+// end::snippet[]
 
 declare global {
   interface HTMLElementTagNameMap {

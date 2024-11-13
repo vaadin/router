@@ -57,8 +57,8 @@ export default class DemoGettingStarted extends LitElement {
       </p>
       <vaadin-demo-code-snippet .files=${[{ code: htmlSnippet1 }]}></vaadin-demo-code-snippet>
       <p>
-        <strong>In Webpack / Rollup / Polymer CLI projects</strong> the <code>Router</code> class can be imported from
-        the <code>@vaadin/router</code> npm package:
+        <strong>In Vite / Webpack / Rollup CLI projects</strong> the <code>Router</code> class can be imported from the
+        <code>@vaadin/router</code> npm package:
       </p>
       <vaadin-demo-code-snippet .files=${[{ code: tsSnippet1 }]}></vaadin-demo-code-snippet>
       <p>
@@ -85,8 +85,8 @@ export default class DemoGettingStarted extends LitElement {
         <vaadin-demo-code-snippet .files=${files1}></vaadin-demo-code-snippet>
       </vaadin-presentation>
       <p>
-        Route components can be any Web Components regardless of how they are built: vanilla JavaScript, Polymer,
-        Stencil, SkateJS, Angular, Vue, etc.
+        Route components can be any Web Components regardless of how they are built: vanilla JavaScript, Lit, Stencil,
+        SkateJS, Angular, Vue, etc.
       </p>
       <p>
         Vaadin Router follows the lifecycle callbacks convention described in

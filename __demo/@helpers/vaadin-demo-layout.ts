@@ -53,6 +53,7 @@ export default class DemoLayout extends SignalWatcher(LitElement) {
           <vaadin-side-nav-item path="/route-actions/">Route Actions</vaadin-side-nav-item>
           <vaadin-side-nav-item path="/route-parameters/">Route Parameters</vaadin-side-nav-item>
           <vaadin-side-nav-item path="/url-generation/">URL Generations</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="/API/">API</vaadin-side-nav-item>
         </vaadin-side-nav>
       </vaadin-scroller>
     </vaadin-app-layout>`;

@@ -2,6 +2,7 @@ import { html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { RouterLocation, PreventAndRedirectCommands, WebComponentInterface, PreventResult } from '@vaadin/router';
 
+// tag::snippet[]
 @customElement('x-user-manage')
 export default class UserManage extends LitElement implements WebComponentInterface {
   @property({ type: Object }) accessor location: RouterLocation | undefined;
@@ -27,6 +28,7 @@ export default class UserManage extends LitElement implements WebComponentInterf
     return undefined;
   }
 }
+// end::snippet[]
 
 declare global {
   interface HTMLElementTagNameMap {

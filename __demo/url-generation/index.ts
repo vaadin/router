@@ -19,12 +19,12 @@ import mainLayoutCode2 from './d2/x-main-layout.ts?snippet';
 import htmlCode3 from './d3/iframe.html?snippet';
 import url3 from './d3/iframe.html?url';
 import tsCode3 from './d3/script.js?snippet';
-import userLayoutCode1 from './d3/x-user-layout.ts?snippet';
+import userLayoutD3Code from './d3/x-user-layout-d3.ts?snippet';
 
 import htmlCode4 from './d4/iframe.html?snippet';
 import url4 from './d4/iframe.html?url';
 import tsCode4 from './d4/script.js?snippet';
-import userLayoutCode2 from './d4/x-user-layout.ts?snippet';
+import userLayoutD4Code from './d4/x-user-layout-d4.ts?snippet';
 
 import htmlCode5 from './d5/iframe.html?snippet';
 import url5 from './d5/iframe.html?url';
@@ -90,7 +90,7 @@ const files3: readonly CodeSnippet[] = [
   },
   {
     id: 'user-layout',
-    code: userLayoutCode1,
+    code: userLayoutD3Code,
     title: 'x-user-layout.ts',
   },
 ];
@@ -108,7 +108,7 @@ const files4: readonly CodeSnippet[] = [
   },
   {
     id: 'user-layout',
-    code: userLayoutCode2,
+    code: userLayoutD4Code,
     title: 'x-user-layout.ts',
   },
 ];

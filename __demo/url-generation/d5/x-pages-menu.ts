@@ -3,6 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { map } from 'lit/directives/map.js';
 import type { RouterLocation } from '@vaadin/router';
 
+// tag::snippet[]
 const pages = [1, 2, 3, 4, 5];
 
 function urlForPageNumber(location: RouterLocation, pageNumber: number) {
@@ -42,6 +43,7 @@ export class PagesMenu extends LitElement {
       : nothing;
   }
 }
+// end::snippet[]
 
 declare global {
   interface HTMLElementTagNameMap {

@@ -2,7 +2,7 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["src/index.ts"],
   "excludePrivate": true,
-  "out": ".docs",
+  "out": ".docs/API",
   "sort": ["alphabetical"],
   "plugin": ["typedoc-plugin-missing-exports"],
   "tsconfig": "tsconfig.build.json",

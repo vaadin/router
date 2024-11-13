@@ -9,6 +9,7 @@ declare global {
   }
 }
 
+// tag::snippet[]
 @customElement('x-user-js-bundle-view')
 export default class UserJsBundleView extends LitElement {
   static override styles = css;
@@ -18,3 +19,4 @@ export default class UserJsBundleView extends LitElement {
       <p>User id: <b>${this.location?.params.id}</b>. This view was loaded using JS bundle.</p>`;
   }
 }
+// end::snippet[]

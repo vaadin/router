@@ -1,20 +1,21 @@
+import '@helpers/x-user-profile.js';
 import { html, LitElement, nothing, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { RouteExtension } from './script.js';
 import type { RouterLocation, WebComponentInterface } from '@vaadin/router';
 
 // tag::snippet[]
-@customElement('x-main-layout')
-export default class MainLayout extends LitElement implements WebComponentInterface<RouteExtension> {
+@customElement('x-user-layout-d4')
+export default class UserLayoutD4 extends LitElement implements WebComponentInterface<RouteExtension> {
   @property({ attribute: false }) accessor location: RouterLocation<RouteExtension> | undefined;
 
   override render(): TemplateResult | typeof nothing {
     return this.location?.route
       ? html`
-          <a href="${this.location.route.router.urlForPath('/')}">Home</a>
-          <a href="${this.location.route.router.urlForPath('/users')}">Users</a>
-          <a href="${this.location.route.router.urlForPath('/users/:user', { user: 'me' })}">My profile</a>
-          <slot></slot>
+          <x-user-profile .location=${this.location}></x-user-profile>
+          <a href=${this.location.route.router.urlForName('users', { user: 'me' })}>My profile</a>
+          <a href=${this.location.route.router.urlForPath('users/:user', { user: 'manager' })}>Manager profile</a>
+          <a href=${this.location.getUrl({ user: 'admin' })}>Admin profile</a>
         `
       : nothing;
   }
@@ -23,6 +24,6 @@ export default class MainLayout extends LitElement implements WebComponentInterf
 
 declare global {
   interface HTMLElementTagNameMap {
-    'x-main-layout': MainLayout;
+    'x-user-layout-d4': UserLayoutD4;
   }
 }

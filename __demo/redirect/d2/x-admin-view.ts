@@ -12,6 +12,7 @@ declare global {
   }
 }
 
+// tag::snippet[]
 @customElement('x-admin-view')
 export default class AdminView extends LitElement implements WebComponentInterface {
   onBeforeEnter(location: RouterLocation, commands: Commands): RedirectResult | undefined {
@@ -26,3 +27,4 @@ export default class AdminView extends LitElement implements WebComponentInterfa
     return html`Secret admin stuff`;
   }
 }
+// end::snippet[]

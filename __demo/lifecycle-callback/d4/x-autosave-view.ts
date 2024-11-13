@@ -5,6 +5,7 @@ import type { WebComponentInterface } from '../../../src/types.t.js';
 
 let savedText = 'This text is automatically saved when router navigates away.';
 
+// tag::snippet[]
 @customElement('x-autosave-view')
 export class AutosaveView extends LitElement implements WebComponentInterface {
   @state() accessor #text = savedText;
@@ -31,6 +32,7 @@ export class AutosaveView extends LitElement implements WebComponentInterface {
     savedText = this.#text;
   }
 }
+// end::snippet[]
 
 declare global {
   interface HTMLElementTagNameMap {
