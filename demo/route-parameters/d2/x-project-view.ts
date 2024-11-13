@@ -1,0 +1,22 @@
+import { LitElement, html, type TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import type { RouterLocation, WebComponentInterface } from '@vaadin/router';
+
+// tag::snippet[]
+@customElement('x-project-view')
+export default class ProjectView extends LitElement implements WebComponentInterface {
+  @property({ type: Object }) accessor location: RouterLocation | undefined;
+
+  override render(): TemplateResult {
+    return html`<h1>Project</h1>
+      <p>ID: ${this.location?.params.id ?? 'unknown'}</p>
+      <code>/project</code> or <code>/projects</code>: ${this.location?.params[0] ?? 'unknown'}`;
+  }
+}
+// end::snippet[]
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'x-project-view': ProjectView;
+  }
+}

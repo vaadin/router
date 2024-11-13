@@ -1,0 +1,39 @@
+header {
+  padding: 0.3rem 0.3rem;
+  font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--code-file-background);
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  font-family: monospace;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+/* ======= Highlight.js styles ======= */
+
+:host([theme~='dark']) {
+  @nested-import 'highlight.js/styles/atom-one-dark.css';
+}
+
+:host([theme~='light']) {
+  @nested-import 'highlight.js/styles/vs.css';
+}
+
+pre {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background: var(--code-background);
+}

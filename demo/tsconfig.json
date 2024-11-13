@@ -1,0 +1,10 @@
+{
+  "extends": ["../tsconfig.json"],
+  "compilerOptions": {
+    "paths": {
+      "@helpers/*": ["./@helpers/*"],
+      "@vaadin/router": ["../src/index.ts"]
+    }
+  },
+  "include": ["./**/*", "./*"]
+}

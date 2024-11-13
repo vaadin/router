@@ -1,0 +1,34 @@
+:host {
+  --code-background-light: hsl(35, 83%, 91%);
+  --code-file-background-light: hsl(35, 83%, 85%);
+  --code-background-dark: hsl(0, 0%, 17%);
+  --code-file-background-dark: hsl(0, 0%, 23%);
+}
+
+:host([theme~='dark']) {
+  --code-background: var(--code-background-dark);
+  --code-file-background: var(--code-file-background-dark);
+}
+
+:host([theme~='light']) {
+  --code-background: var(--code-background-light);
+  --code-file-background: var(--code-file-background-light);
+}
+
+@media (max-width: 767px) {
+  main {
+    padding: 0;
+  }
+}
+
+main {
+  padding: 0 20%;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 1rem;
+}

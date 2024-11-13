@@ -1,0 +1,5 @@
+.img-view {
+  width: var(--x-image-view-width, 100%);
+  height: var(--x-image-view-height, 100%);
+  background-color: var(--x-image-view-background-color, hotpink);
+}
