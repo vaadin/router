@@ -76,7 +76,7 @@
     "chai-dom": "^1.11.0",
     "concurrently": "^9.0.1",
     "esbuild": "^0.24.0",
-    "eslint": "^8.57.1",
+    "eslint": "^9.16.0",
     "eslint-config-vaadin": "^1.0.0-alpha.28",
     "eslint-plugin-html": "^8.1.2",
     "eslint-plugin-oxlint": "^0.9.9",
