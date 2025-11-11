@@ -13,5 +13,8 @@
     "notExported": true,
     "invalidLink": true,
     "notDocumented": true
+  },
+  "navigationLinks": {
+    "Live demo": "../index.html"
   }
 }

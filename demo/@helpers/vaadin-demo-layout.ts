@@ -44,16 +44,16 @@ export default class DemoLayout extends SignalWatcher(LitElement) {
       </main>
       <vaadin-scroller slot="drawer">
         <vaadin-side-nav>
-          <vaadin-side-nav-item path="/getting-started/">Getting Started</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/code-splitting/">Code Splitting</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/animated-transitions/">Animated Transitions</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/lifecycle-callback/">Lifecycle Callback</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/navigation-trigger/">Navigation Trigger</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/redirect/">Redirect</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/route-actions/">Route Actions</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/route-parameters/">Route Parameters</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/url-generation/">URL Generations</vaadin-side-nav-item>
-          <vaadin-side-nav-item path="/API/">API</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../getting-started/index.html">Getting Started</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../code-splitting/index.html">Code Splitting</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../animated-transitions/index.html">Animated Transitions</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../lifecycle-callback/index.html">Lifecycle Callback</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../navigation-trigger/index.html">Navigation Trigger</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../redirect/index.html">Redirect</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../route-actions/index.html">Route Actions</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../route-parameters/index.html">Route Parameters</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../url-generation/index.html">URL Generations</vaadin-side-nav-item>
+          <vaadin-side-nav-item path="../API/index.html">API</vaadin-side-nav-item>
         </vaadin-side-nav>
       </vaadin-scroller>
     </vaadin-app-layout>`;

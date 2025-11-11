@@ -20,6 +20,7 @@ const dirs = Object.fromEntries(
 );
 
 export default mergeConfig(viteConfig, {
+  base: './',
   build: {
     outDir: fileURLToPath(new URL('../.docs', root)),
     rollupOptions: {

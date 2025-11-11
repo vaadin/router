@@ -3,7 +3,8 @@
 
 # Vaadin Router
 
-[API documentation](https://vaadin.github.io/router/)
+[Live demo](https://vaadin.github.io/router/index.html)
+| [API documentation](https://vaadin.github.io/router/API/index.html)
 
 Vaadin Router is a small and powerful client-side router JS library. It uses the widely adopted express.js syntax for routes (`/users/:id`) to map URLs to Web Component views. All features one might expect from a modern router are supported: async route resolution, animated transitions, navigation guards, redirects, and more. It is framework-agnostic and works equally well with all Web Components regardless of how they are created (Polymer / SkateJS / Stencil / Angular / Vue / etc).
 
