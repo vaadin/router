@@ -9,7 +9,6 @@ import htmlCode1 from './d1/iframe.html?snippet';
 import tsCode1 from './d1/script.js?snippet';
 import htmlSnippet1 from './snippets/s1.html?snippet';
 import tsSnippet1 from './snippets/s2.ts?snippet';
-import htmlSnippet2 from './snippets/s3.html?snippet';
 import tsSnippet2 from './snippets/s4.ts?snippet';
 
 import css from '@helpers/page.css?ctr';
@@ -54,12 +53,6 @@ export default class DemoGettingStarted extends LitElement {
         <code>@vaadin/router</code> npm package:
       </p>
       <vaadin-demo-code-snippet .files=${[{ code: tsSnippet1 }]}></vaadin-demo-code-snippet>
-      <p>
-        <strong>In older browsers without the ES modules support</strong> the <code>Router</code> class is exposed as a
-        member of the <code>Vaadin</code>
-        namespace after the vaadin-router UMD bundle is loaded:
-      </p>
-      <vaadin-demo-code-snippet .files=${[{ code: htmlSnippet2 }]}></vaadin-demo-code-snippet>
 
       <h3>Getting Started</h3>
       <p>
