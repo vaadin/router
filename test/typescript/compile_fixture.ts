@@ -24,6 +24,21 @@ function expectTypeOfValue<T>(t: T): void {
   t;
 }
 
+type ActionFn = NonNullable<Route["action"]>;
+
+type RouteMeta = Readonly<{
+  title: string;
+}>;
+
+const routerWithMeta = new Router<RouteMeta>();
+routerWithMeta.setRoutes([
+  {
+    path: '',
+    component: 'page-index',
+    title: 'Index page',
+  },
+]);
+
 // Instantiation styles
 new Router().unsubscribe();
 
@@ -85,29 +100,32 @@ expectTypeOfValue<string>(router.urlForPath('foo', ['yes']));
 router.setRoutes([]);
 
 // Standalone route
-const r: Route = { path: '/standalone', component: 'x-standalone' };
+let r: Route = { path: '/standalone', component: 'x-standalone' };
 r.redirect = '/x-standalone';
-r.action = () => {};
-router.setRoutes([r]);
+r = { ...r, action: () => {} };
+router.setRoutes([r, { ...r, action: () => {} }]);
 
 // Action arguments
-r.action = (context: RouteContext, commands: Commands) => {
-  expectTypeOfValue<string>(context.pathname);
-  expectTypeOfValue<string | undefined>(context.search);
-  expectTypeOfValue<string | undefined>(context.hash);
-  expectTypeOfValue<{} | string[]>(context.params);
-  expectTypeOfValue<string | number | null | ReadonlyArray<string | number | null>>(context.params.foo);
-  expectTypeOfValue<string | number | null | ReadonlyArray<string | number | null>>(context.params[0]);
-  expectTypeOfValue<string>(context.route.path);
+r = {
+  ...r,
+  action: (context: RouteContext, commands: Commands) => {
+    expectTypeOfValue<string>(context.pathname);
+    expectTypeOfValue<string | undefined>(context.search);
+    expectTypeOfValue<string | undefined>(context.hash);
+    expectTypeOfValue<{} | string[]>(context.params);
+    expectTypeOfValue<string | number | null | ReadonlyArray<string | number | null>>(context.params.foo);
+    expectTypeOfValue<string | number | null | ReadonlyArray<string | number | null>>(context.params[0]);
+    expectTypeOfValue<string>(context.route.path);
 
-  if (context.pathname === '/next') {
-    return context.next();
-  } else if (context.pathname === '/home') {
-    return commands.component('x-home');
-  } else if (context.pathname === '/no-go') {
-    return commands.prevent();
-  }
-  return commands.redirect('/');
+    if (context.pathname === '/next') {
+      return context.next();
+    } else if (context.pathname === '/home') {
+      return commands.component('x-home');
+    } else if (context.pathname === '/no-go') {
+      return commands.prevent();
+    }
+    return commands.redirect('/');
+  },
 };
 
 // Standalone route

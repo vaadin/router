@@ -4,10 +4,10 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
-    "target": "es2021",
+    "target": "es2022",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "lib": ["es2021", "dom", "DOM.Iterable"],
+    "lib": ["es2022", "dom", "DOM.Iterable"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,8 +18,8 @@
     "noImplicitOverride": true,
     "noImplicitAny": true,
     "useDefineForClassFields": true,
-    "useUnknownInCatchVariables": true
+    "useUnknownInCatchVariables": true,
+    "importHelpers": true
   },
-  "include": ["scripts/**/*", "src/**/*", "test/**/*", "/vite.config.ts", "/*.cjs"],
-  "exclude": ["node_modules", "dist/**/*", "scripts/**/*.js"]
+  "include": ["scripts/**/*", "src/**/*", "test/**/*", "vite.config.ts", "/*.cjs"]
 }

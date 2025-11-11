@@ -1,0 +1,25 @@
+:host {
+  --code-file-background: none;
+}
+
+:host([theme~='dark']) {
+  --code-background: var(--lumo-shade);
+}
+
+:host([theme~='light']) {
+  --code-background: var(--lumo-shade-5pct);
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: .5rem;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 1rem;
+}

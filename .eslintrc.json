@@ -2,9 +2,9 @@
   "extends": [
     "vaadin/typescript-requiring-type-checking",
     "vaadin/imports-typescript",
+    "vaadin/lit",
     "vaadin/prettier",
-    "vaadin/testing",
-    "plugin:oxlint/recommended"
+    "vaadin/testing"
   ],
   "parserOptions": {
     "project": "./tsconfig.json"

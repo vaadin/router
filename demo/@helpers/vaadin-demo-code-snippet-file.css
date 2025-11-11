@@ -1,0 +1,53 @@
+header {
+  margin: 1.5em 0 0.5em;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  background: var(--code-file-background);
+}
+
+section {
+  font-size: 0.75rem;
+  background: var(--code-background);
+  padding: .5em;
+}
+
+section > pre {
+  white-space: pre-wrap;
+}
+
+section > pre > code {
+  line-break: anywhere;
+}
+
+.title {
+  font-family: monospace;
+}
+
+.buttons {
+  clear: right;
+  float: right;
+  display: flex;
+  margin: -0.25em 0;
+}
+
+.buttons > vaadin-button {
+  margin: 0;
+  padding: 0;
+}
+
+/* ======= Highlight.js styles ======= */
+
+:host([theme~='dark']) {
+  @nested-import 'highlight.js/styles/atom-one-dark.css';
+}
+
+:host([theme~='light']) {
+  @nested-import 'highlight.js/styles/vs.css';
+}
+
+pre {
+  margin: 0;
+  padding: 0.5em 1em;
+}

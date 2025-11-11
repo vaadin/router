@@ -1,0 +1,9 @@
+:host {
+  display: flex;
+  gap: 1rem;
+  flex: 0 1 0;
+}
+
+:host > :last-child {
+  flex: 1 0 auto;
+}

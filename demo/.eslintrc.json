@@ -1,15 +1,10 @@
 {
+  "extends": ["../.eslintrc.json"],
+  "root": true,
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
   "rules": {
-  },
-  "globals": {
-    "ElementDemo": false,
-    "DemoReadyEventEmitter": false,
-    "Router": false
-  },
-  "overrides": [{
-    "files": ["vaadin-router-code-splitting-demos.html"],
-    "parserOptions": {
-      "ecmaVersion": 2017
-    }
-  }]
+    "@typescript-eslint/unbound-method": "off"
+  }
 }
