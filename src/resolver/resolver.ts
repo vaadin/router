@@ -49,7 +49,7 @@ export class ResolutionError<T, R extends object = EmptyObject, C extends object
   /**
    * The resolution error cause, possibly an error thrown from the action callback.
    */
-  readonly cause?: unknown;
+  override readonly cause?: unknown;
 
   /**
    * A HTTP status code associated with the error.
