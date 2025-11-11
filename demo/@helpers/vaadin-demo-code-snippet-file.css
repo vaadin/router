@@ -1,16 +1,16 @@
 header {
-  padding: 0.3rem 0.3rem;
-  font-size: 0.8rem;
+  margin: 1.5em 0 0.5em;
+  font-size: 0.75rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   background: var(--code-file-background);
 }
 
 section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  font-size: 0.75rem;
+  background: var(--code-background);
+  padding: .5em;
 }
 
 .title {
@@ -18,8 +18,15 @@ section {
 }
 
 .buttons {
+  clear: right;
+  float: right;
   display: flex;
-  gap: 1rem;
+  margin: -0.25em 0;
+}
+
+.buttons > vaadin-button {
+  margin: 0;
+  padding: 0;
 }
 
 /* ======= Highlight.js styles ======= */
@@ -34,6 +41,5 @@ section {
 
 pre {
   margin: 0;
-  padding: 0.5rem 1rem;
-  background: var(--code-background);
+  padding: 0.5em 1em;
 }

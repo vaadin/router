@@ -37,12 +37,16 @@ export default class DemoCodeSnippetFile extends LitElement {
     return html`
       <header>
         <div class="title">${this.file.title}</div>
-        <div class="buttons">
-          <vaadin-icon icon="vaadin:expand" @click=${this.#toggleExpanded}></vaadin-icon>
-          <vaadin-icon icon="vaadin:copy" @click=${this.#copyToClipboard}></vaadin-icon>
-        </div>
       </header>
       <section>
+        <div class="buttons">
+          <vaadin-button theme="tertiary icon" title="Toggle full code" @click=${this.#toggleExpanded}>
+            <vaadin-icon icon="vaadin:expand"></vaadin-icon>
+          </vaadin-button>
+          <vaadin-button theme="tertiary icon" title="Copy to clipboard" @click=${this.#copyToClipboard}>
+            <vaadin-icon icon="vaadin:copy" @click=${this.#copyToClipboard}></vaadin-icon>
+          </vaadin-button>
+        </div>
         ${this.#expanded
           ? html`<pre><code>${full}</code></pre>`
           : map(snippets, (snippet) => html`<pre><code>${snippet}</code></pre>`)}
