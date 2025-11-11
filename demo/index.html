@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <script>
-      window.location.replace('./getting-started/index.html');
+      if (!window.location.pathname.endsWith('/getting-started/index.html')) {
+        window.location.replace('./getting-started/index.html');
+      }
     </script>
   </head>
 </html>
