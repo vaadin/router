@@ -24,6 +24,21 @@ function expectTypeOfValue<T>(t: T): void {
   t;
 }
 
+type ActionFn = NonNullable<Route["action"]>;
+
+type RouteMeta = Readonly<{
+  title: string;
+}>;
+
+const router = new Router<RouteMeta>();
+router.setRoutes([
+  {
+    path: '',
+    component: 'page-index',
+    title: 'Index page',
+  },
+]);
+
 // Instantiation styles
 new Router().unsubscribe();
 
