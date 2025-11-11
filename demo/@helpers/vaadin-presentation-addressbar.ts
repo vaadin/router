@@ -38,7 +38,7 @@ export class PresentationAddressbar extends LitElement {
         <vaadin-icon icon="vaadin:arrow-right" aria-label="Forward"></vaadin-icon>
         <vaadin-tooltip slot="tooltip" text="Forward"></vaadin-tooltip>
       </vaadin-button>
-      <vaadin-text-field value=${ifDefined(this.url)} @input=${this.#onChange}>
+      <vaadin-text-field value=${ifDefined(this.url)} @change=${this.#onChange}>
         <vaadin-icon slot="prefix" icon="vaadin:lock"></vaadin-icon>
       </vaadin-text-field>`;
   }

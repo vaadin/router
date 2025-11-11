@@ -40,7 +40,7 @@ export default class Presentation extends LitElement {
       addEventListener(
         'message',
         ({ data, origin, source }: MessageEvent<MessageData>) => {
-          if (origin === 'null' && source === this.#window) {
+          if (origin === location.origin && source === this.#window) {
             this.url = new URL(data.url).pathname;
           }
         },
