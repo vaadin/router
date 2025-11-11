@@ -13,6 +13,14 @@ section {
   padding: .5em;
 }
 
+section > pre {
+  white-space: pre-wrap;
+}
+
+section > pre > code {
+  line-break: anywhere;
+}
+
 .title {
   font-family: monospace;
 }

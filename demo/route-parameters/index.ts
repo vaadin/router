@@ -40,7 +40,7 @@ const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode1,
-    title: 'iframe.html',
+    title: 'index.html',
   },
   {
     id: 'ts',
@@ -53,7 +53,7 @@ const files2: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode2,
-    title: 'iframe.html',
+    title: 'index.html',
   },
   {
     id: 'ts',
@@ -71,7 +71,7 @@ const files3: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode3,
-    title: 'iframe.html',
+    title: 'index.html',
   },
   {
     id: 'ts',
@@ -84,7 +84,7 @@ const files4: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode4,
-    title: 'iframe.html',
+    title: 'index.html',
   },
   {
     id: 'ts',
@@ -97,7 +97,7 @@ const files5: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode5,
-    title: 'iframe.html',
+    title: 'index.html',
   },
   {
     id: 'ts',
@@ -115,7 +115,7 @@ const files6: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode6,
-    title: 'iframe.html',
+    title: 'index.html',
   },
   {
     id: 'ts',

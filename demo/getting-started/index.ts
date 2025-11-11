@@ -24,7 +24,7 @@ const files1: readonly CodeSnippet[] = [
   {
     id: 'html',
     code: htmlCode1,
-    title: 'iframe.html',
+    title: 'index.html',
   },
   {
     id: 'ts',
