@@ -53,24 +53,19 @@ Cross-browser Testing Platform and Open Source <3 Provided by [Sauce Labs](https
 
 ## Running demos and tests in the browser
 
-1. Fork the `vaadin-router` repository and clone it locally.
+1. Fork the `vaadin/router` GitHub repository and clone it locally.
 
 1. Make sure you have [npm](https://www.npmjs.com/) installed.
 
-1. When in the `vaadin-router` directory, run `npm install` and then `npm run install:dependencies` to install dependencies.
+1. In the router directory, run `npm install` to install dependencies.
 
-1. Run `npm start`, and open [http://127.0.0.1:8000/components/vaadin-router](http://127.0.0.1:8000/components/vaadin-router) in your browser to see the component API documentation.
+1. Run `npm run build` to build the library.
 
-1. You can also open demo or in-browser tests by adding **demo** or **test** to the URL, for example:
-
-  - [http://127.0.0.1:8000/components/vaadin-router/demo](http://127.0.0.1:8000/components/vaadin-router/demo)
-  - Public API tests: [http://127.0.0.1:8000/components/vaadin-router/test](http://127.0.0.1:8000/components/vaadin-router/test)
-  - Unit tests: [http://127.0.0.1:8000/components/vaadin-router/test/index.html](http://127.0.0.1:8000/components/vaadin-router/test/index.html)
-
+1. Run `npm start`, and open [http://localhost:4173](http://127.0.0.1:8000/components/vaadin-router) in your browser to see the component live demos and API documentation.
 
 ## Running tests from the command line
 
-1. When in the `vaadin-router` directory, run `npm test`
+1. In the router directory, run `npm test`
 
 
 ## Following the coding style
