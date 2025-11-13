@@ -3,7 +3,7 @@
 
 # Vaadin Router is deprecated
 
-This library is no longer actively maintained.
+This library is no longer actively maintained. Vaadin uses React Router as a primary client-side routing tool.
 
 Consider [`@lit-labs/router`](https://www.npmjs.com/package/@lit-labs/router) as a more lightweight and modern alternative. Also, as the [URLPattern](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern) API is universally available in modern browsers nowadays, we recommend using that for building customized client-side routing.
 
