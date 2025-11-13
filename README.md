@@ -1,6 +1,14 @@
 [![NPM version](https://img.shields.io/npm/v/@vaadin/router.svg)](https://www.npmjs.com/package/@vaadin/router)
 [![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@vaadin/router.svg)](https://bundlephobia.com/result?p=@vaadin/router)
 
+# Vaadin Router is deprecated
+
+This library is no longer actively maintained.
+
+Consider [`@lit-labs/router`](https://www.npmjs.com/package/@lit-labs/router) as a more lightweight and modern alternative. Also, as the [URLPattern](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern) API is universally available in modern browsers nowadays, we recommend using that for building customized client-side routing.
+
+---
+
 # Vaadin Router
 
 [Live demo](https://vaadin.github.io/router/index.html)

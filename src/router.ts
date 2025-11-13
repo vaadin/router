@@ -97,6 +97,8 @@ const rootContext: RouteContext = {
  * * [setRoutes](#/classes/Router#method-setRoutes) – should be used to configure the routes.
  *
  * Only `setRoutes` has to be called manually, others are automatically invoked when creating a new instance.
+ *
+ * @deprecated Consider [URLPattern](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern) standard Web API or a library based on it, such as [@lit-labs/router](https://www.npmjs.com/package/@lit-labs/router)
  */
 export class Router<R extends object = EmptyObject, C extends object = EmptyObject> extends Resolver<
   ActionValue,
